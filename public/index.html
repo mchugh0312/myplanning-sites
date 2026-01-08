@@ -6,38 +6,88 @@
     <title>Wedding Website</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;600&family=Lato:wght@300;400;700&display=swap');
         
-        .font-serif { font-family: 'Playfair Display', serif; }
-        .font-sans { font-family: 'Montserrat', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { overflow-x: hidden; }
         
+        /* Template Styles */
+        .template-classic { 
+            --primary: #2c3e50; 
+            --accent: #e74c3c; 
+            --bg: #ffffff;
+            font-family: 'Playfair Display', serif;
+        }
+        .template-modern { 
+            --primary: #1a1a1a; 
+            --accent: #ffd700; 
+            --bg: #fafafa;
+            font-family: 'Lato', sans-serif;
+        }
+        .template-rustic { 
+            --primary: #8b7355; 
+            --accent: #d4a574; 
+            --bg: #faf8f3;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .template-elegant { 
+            --primary: #9a8c98; 
+            --accent: #c9ada7; 
+            --bg: #f9f7f4;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .template-garden { 
+            --primary: #4a7c59; 
+            --accent: #90c695; 
+            --bg: #f5f9f6;
+            font-family: 'Montserrat', sans-serif;
+        }
+
         .hero-bg {
             background-size: cover;
             background-position: center;
             position: relative;
+            min-height: 100vh;
         }
         
         .hero-bg::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5));
         }
         
-        .hero-content {
-            position: relative;
-            z-index: 10;
+        .hero-content { position: relative; z-index: 10; }
+
+        /* Navigation */
+        .nav-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: transparent;
         }
 
-        .template-classic { --primary: #2c3e50; --accent: #e74c3c; }
-        .template-modern { --primary: #1a1a1a; --accent: #ffd700; }
-        .template-rustic { --primary: #8b7355; --accent: #d4a574; }
-        .template-bohemian { --primary: #d4a574; --accent: #9b6b4e; }
-        .template-elegant { --primary: #c9ada7; --accent: #9a8c98; }
-        .template-beach { --primary: #4a90a4; --accent: #87ceeb; }
+        .nav-top.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-link:hover { color: var(--primary); }
+        
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
 
         .loading-spinner {
             border: 4px solid #f3f3f3;
@@ -53,8 +103,88 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .fade-in-up { animation: fadeInUp 1s ease-out; }
+
+        /* Falling Petals */
+        .petal {
+            position: fixed;
+            top: -10vh;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        .petal:nth-child(1) { left: 10%; animation: fall 15s linear infinite; }
+        .petal:nth-child(2) { left: 30%; animation: fall 18s linear infinite; animation-delay: 2s; }
+        .petal:nth-child(3) { left: 50%; animation: fall 20s linear infinite; animation-delay: 4s; }
+        .petal:nth-child(4) { left: 70%; animation: fall 16s linear infinite; animation-delay: 1s; }
+        .petal:nth-child(5) { left: 90%; animation: fall 19s linear infinite; animation-delay: 3s; }
+
+        /* Floating Hearts */
+        .heart {
+            position: fixed;
+            bottom: -10vh;
+            z-index: 1;
+            opacity: 0.3;
+            pointer-events: none;
+            font-size: 20px;
+        }
+
+        @keyframes rise {
+            to { transform: translateY(-110vh) rotate(15deg); opacity: 0; }
+        }
+
+        .heart:nth-child(1) { left: 15%; animation: rise 25s linear infinite; }
+        .heart:nth-child(2) { left: 35%; animation: rise 30s linear infinite; animation-delay: 5s; }
+        .heart:nth-child(3) { left: 55%; animation: rise 28s linear infinite; animation-delay: 10s; }
+        .heart:nth-child(4) { left: 75%; animation: rise 32s linear infinite; animation-delay: 15s; }
+
+        .event-card {
+            transition: all 0.3s ease;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover { transform: scale(1.05); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+
         .btn-primary {
             background-color: var(--primary);
+            color: white;
             transition: all 0.3s ease;
         }
 
@@ -63,18 +193,21 @@
             transform: translateY(-2px);
         }
 
-        .event-card {
-            transition: all 0.3s ease;
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
         }
 
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        .mobile-menu.open { max-height: 600px; }
+
+        @media (max-width: 768px) {
+            .hero-bg { min-height: 70vh; }
         }
     </style>
 </head>
-<body class="font-sans template-classic">
-    <!-- Loading Screen -->
+<body class="template-classic">
+    <!-- Loading -->
     <div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
         <div class="text-center">
             <div class="loading-spinner mx-auto mb-4"></div>
@@ -82,24 +215,67 @@
         </div>
     </div>
 
-    <!-- Main Content (hidden initially) -->
+    <!-- Animation Container -->
+    <div id="animationContainer"></div>
+
+    <!-- Content -->
     <div id="content" class="hidden">
-        <!-- Hero Section -->
-        <section id="hero" class="hero-bg min-h-screen flex items-center justify-center text-white">
+        <!-- Navigation -->
+        <nav id="navTop" class="nav-top">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex-shrink-0">
+                        <a href="#hero" id="navNames" class="text-xl font-bold" style="color: var(--primary)">S & J</a>
+                    </div>
+                    
+                    <div id="desktopNav" class="hidden md:flex space-x-6">
+                        <a href="#hero" class="nav-link text-gray-700">Home</a>
+                        <a href="#story" class="nav-link text-gray-700">Our Story</a>
+                        <a href="#events" class="nav-link text-gray-700">Events</a>
+                        <a href="#travel" class="nav-link text-gray-700">Travel</a>
+                        <a href="#gallery" class="nav-link text-gray-700">Gallery</a>
+                        <a href="#registry" class="nav-link text-gray-700">Registry</a>
+                        <a href="#rsvp" class="nav-link text-gray-700">RSVP</a>
+                    </div>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="mobileMenu" class="mobile-menu md:hidden bg-white border-t">
+                <div class="px-4 pt-2 pb-4 space-y-2">
+                    <a href="#hero" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Home</a>
+                    <a href="#story" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Our Story</a>
+                    <a href="#events" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Events</a>
+                    <a href="#travel" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Travel</a>
+                    <a href="#gallery" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Gallery</a>
+                    <a href="#registry" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Registry</a>
+                    <a href="#rsvp" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">RSVP</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <section id="hero" class="hero-bg flex items-center justify-center text-white">
             <div class="hero-content text-center px-4 max-w-4xl">
-                <h1 id="coupleNames" class="font-serif text-6xl md:text-8xl mb-6 tracking-wider">
-                    Sarah & John
-                </h1>
-                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8">
+                <div class="animate-float">
+                    <h1 id="coupleNames" class="text-6xl md:text-8xl mb-6 font-bold tracking-wider fade-in-up">
+                        Sarah & John
+                    </h1>
+                </div>
+                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8 fade-in-up">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     <p id="weddingDate">September 15, 2025</p>
                 </div>
-                <div class="flex items-center justify-center gap-3 text-lg md:text-xl">
+                <div class="flex items-center justify-center gap-3 text-lg md:text-xl fade-in-up">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                     <p id="weddingLocation">Napa Valley, CA</p>
                 </div>
@@ -111,249 +287,239 @@
             </div>
         </section>
 
-        <!-- Our Story Section -->
-        <section class="py-20 px-4 bg-white">
+        <!-- Our Story -->
+        <section id="story" class="py-20 px-4" style="background-color: var(--bg)">
             <div class="max-w-4xl mx-auto text-center">
-                <h2 class="font-serif text-4xl md:text-5xl mb-8" style="color: var(--primary)">
-                    Our Story
-                </h2>
-                <div class="flex items-center justify-center gap-4 mb-8">
-                    <div class="h-px bg-gray-300 w-16"></div>
-                    <svg class="w-6 h-6" style="fill: var(--accent)" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <div class="h-px bg-gray-300 w-16"></div>
-                </div>
-                <p id="ourStory" class="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Our Story</h2>
+                <p id="ourStory" class="text-lg leading-relaxed">
                     We met at a coffee shop in 2019...
                 </p>
             </div>
         </section>
 
-        <!-- Events Section -->
-        <section class="py-20 px-4 bg-gray-50">
+        <!-- Events -->
+        <section id="events" class="py-20 px-4 bg-gray-50">
             <div class="max-w-5xl mx-auto">
-                <h2 class="font-serif text-4xl md:text-5xl mb-12 text-center" style="color: var(--primary)">
-                    Celebration Details
-                </h2>
-                <div id="eventsList" class="space-y-6">
-                    <!-- Events will be inserted here by JavaScript -->
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Events</h2>
+                <div id="eventsList" class="space-y-6"></div>
+            </div>
+        </section>
+
+        <!-- Travel -->
+        <section id="travel" class="py-20 px-4" style="background-color: var(--bg)">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Travel & Stay</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Getting There</h3>
+                        <p>Details coming soon...</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Where to Stay</h3>
+                        <p>Accommodation details coming soon...</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- RSVP Section -->
-        <section id="rsvpSection" class="py-20 px-4 bg-white">
-            <div class="max-w-2xl mx-auto">
-                <h2 class="font-serif text-4xl md:text-5xl mb-8 text-center" style="color: var(--primary)">
-                    RSVP
-                </h2>
-                <div class="flex items-center justify-center gap-4 mb-12">
-                    <div class="h-px bg-gray-300 w-16"></div>
-                    <svg class="w-6 h-6" style="fill: var(--accent)" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <div class="h-px bg-gray-300 w-16"></div>
+        <!-- Gallery -->
+        <section id="gallery" class="py-20 px-4 bg-gray-50">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Gallery</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400" alt="1"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400" alt="2"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=400" alt="3"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400" alt="4"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400" alt="5"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=400" alt="6"></div>
                 </div>
+            </div>
+        </section>
 
-                <!-- RSVP Form -->
+        <!-- Registry -->
+        <section id="registry" class="py-20 px-4" style="background-color: var(--bg)">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Registry</h2>
+                <p class="text-lg mb-8">Your presence is the greatest gift. However, if you wish to honor us with a gift, we've registered below.</p>
+                <div class="text-center p-6 border-2 border-gray-200 rounded-lg">
+                    <p class="text-gray-500">Registry details coming soon</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP -->
+        <section id="rsvp" class="py-20 px-4 bg-gray-50">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-8 text-center font-bold" style="color: var(--primary)">RSVP</h2>
+
                 <div id="rsvpForm" class="bg-white p-8 rounded-lg shadow-lg space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
-                        <input type="text" id="guestName" required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
-                               style="focus:ring-color: var(--accent)"
-                               placeholder="John Doe">
+                        <label class="block text-sm font-medium mb-2">Your Name *</label>
+                        <input type="text" id="guestName" class="w-full px-4 py-3 border rounded-lg" placeholder="John Doe">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                        <input type="email" id="guestEmail" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
-                               placeholder="john@example.com">
+                        <label class="block text-sm font-medium mb-2">Email *</label>
+                        <input type="email" id="guestEmail" class="w-full px-4 py-3 border rounded-lg" placeholder="john@example.com">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Will you attend? *</label>
+                        <label class="block text-sm font-medium mb-3">Will you attend? *</label>
                         <div class="flex gap-4">
-                            <button type="button" id="btnAttending" onclick="setAttending(true)"
-                                    class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400">
-                                ✓ Joyfully Accept
+                            <button id="btnAttending" onclick="setAttending(true)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 hover:border-green-500">
+                                ✓ Accept
                             </button>
-                            <button type="button" id="btnNotAttending" onclick="setAttending(false)"
-                                    class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400">
-                                ✗ Regretfully Decline
+                            <button id="btnNotAttending" onclick="setAttending(false)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 hover:border-red-500">
+                                ✗ Decline
                             </button>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
-                        <textarea id="guestMessage" rows="4"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
-                                  placeholder="Any dietary requirements or messages for the couple?"></textarea>
+                        <label class="block text-sm font-medium mb-2">Message (Optional)</label>
+                        <textarea id="guestMessage" rows="4" class="w-full px-4 py-3 border rounded-lg" placeholder="Any messages or dietary requirements?"></textarea>
                     </div>
-                    <button onclick="submitRSVP()" 
-                            class="btn-primary w-full py-4 px-6 rounded-lg font-semibold text-white flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                        </svg>
+                    <button onclick="submitRSVP()" class="btn-primary w-full py-4 rounded-lg font-semibold">
                         Submit RSVP
                     </button>
                 </div>
 
-                <!-- Success Message (hidden initially) -->
                 <div id="rsvpSuccess" class="hidden bg-green-50 border-2 border-green-200 rounded-lg p-8 text-center">
                     <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
                     <h3 class="text-2xl font-semibold text-green-800 mb-2">Thank You!</h3>
-                    <p class="text-green-700">Your RSVP has been received. We can't wait to celebrate with you!</p>
+                    <p class="text-green-700">Your RSVP has been received!</p>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="py-12 px-4 text-center text-gray-600 border-t bg-white">
+        <footer class="py-12 text-center border-t" style="background-color: var(--bg)">
             <svg class="w-8 h-8 mx-auto mb-4" style="fill: var(--accent)" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <p class="text-sm" id="footerText">Sarah & John • 2025</p>
-            <p class="text-xs mt-2 text-gray-400">Website created with love</p>
+            <p id="footerText">Sarah & John • 2025</p>
         </footer>
     </div>
 
     <script>
-        // ============================================================================
-        // CONFIGURATION - REPLACE WITH YOUR RENDER URL
-        // ============================================================================
-        const API_URL = 'https://wedding-recommender.onrender.com';
-        
-        // Get slug from URL path
+        const API_URL = 'https://wedding-recommender-ptcr.onrender.com';
         const pathParts = window.location.pathname.split('/');
         const slug = pathParts[pathParts.length - 1] || 'sarah-and-john';
-        
         let isAttending = true;
+        let websiteMode = 'full';
 
-        // ============================================================================
-        // LOAD WEDDING DATA FROM API
-        // ============================================================================
+        // Navigation
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navTop');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('open');
+        }
+
+        function setWebsiteMode(mode) {
+            websiteMode = mode;
+            if (mode === 'save-the-date') {
+                document.getElementById('travel').style.display = 'none';
+                document.getElementById('gallery').style.display = 'none';
+                document.getElementById('registry').style.display = 'none';
+                document.getElementById('rsvp').style.display = 'none';
+            }
+        }
+
+        function initAnimations(template) {
+            const container = document.getElementById('animationContainer');
+            container.innerHTML = '';
+            
+            if (template === 'classic' || template === 'rustic') {
+                for (let i = 0; i < 4; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '♥';
+                    heart.style.color = 'var(--accent)';
+                    container.appendChild(heart);
+                }
+            } else if (template === 'elegant' || template === 'garden') {
+                for (let i = 0; i < 5; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.innerHTML = '🌸';
+                    container.appendChild(petal);
+                }
+            }
+        }
+
         async function loadWeddingData() {
             try {
-                console.log('Loading wedding data for slug:', slug);
                 const response = await fetch(`${API_URL}/wedding-site/${slug}`);
-                
-                if (!response.ok) {
-                    throw new Error('Wedding not found');
-                }
+                if (!response.ok) throw new Error('Not found');
                 
                 const data = await response.json();
-                console.log('Wedding data loaded:', data);
                 populateWebsite(data);
-                
             } catch (error) {
-                console.error('Error loading wedding:', error);
                 document.getElementById('loading').innerHTML = `
                     <div class="text-center">
                         <p class="text-red-600 text-xl mb-4">Wedding website not found</p>
-                        <p class="text-gray-600">Please check the URL and try again.</p>
-                        <p class="text-sm text-gray-500 mt-4">Looking for: ${slug}</p>
+                        <p class="text-gray-600">Looking for: ${slug}</p>
                     </div>
                 `;
             }
         }
 
-        // ============================================================================
-        // POPULATE WEBSITE WITH DATA
-        // ============================================================================
         function populateWebsite(data) {
-            // Apply template class
-            document.body.className = `font-sans template-${data.template.toLowerCase()}`;
+            document.body.className = `template-${data.template.toLowerCase()}`;
+            document.title = `${data.couple_names} - Wedding`;
             
-            // Update meta tags
-            document.title = `${data.couple_names} - Wedding Website`;
+            initAnimations(data.template.toLowerCase());
             
-            // Populate hero
+            if (data.website_mode === 'save-the-date') {
+                setWebsiteMode('save-the-date');
+            }
+            
+            document.getElementById('navNames').textContent = `${data.partner_1.charAt(0)} & ${data.partner_2.charAt(0)}`;
             document.getElementById('coupleNames').textContent = data.couple_names;
             document.getElementById('weddingDate').textContent = formatDate(data.wedding_date);
             document.getElementById('weddingLocation').textContent = data.wedding_location;
             document.getElementById('footerText').textContent = `${data.couple_names} • ${new Date(data.wedding_date).getFullYear()}`;
             
-            // Set hero image
             if (data.hero_image) {
                 document.getElementById('hero').style.backgroundImage = `url(${data.hero_image})`;
             } else {
                 document.getElementById('hero').style.backgroundImage = `url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)`;
             }
             
-            // Populate story
             document.getElementById('ourStory').textContent = data.story || 'Our love story is just beginning...';
             
-            // Populate events
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '';
             
             if (data.events && data.events.length > 0) {
-                data.events.forEach((event, index) => {
-                    const eventCard = document.createElement('div');
-                    eventCard.className = 'event-card bg-white p-8 rounded-lg shadow-md';
-                    eventCard.innerHTML = `
-                        <div class="flex items-start gap-6">
-                            <div class="flex-shrink-0">
-                                <div class="w-16 h-16 rounded-full flex items-center justify-center text-white"
-                                     style="background-color: var(--primary)">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="flex-grow">
-                                <h3 class="text-2xl font-semibold mb-2">${event.name}</h3>
-                                <div class="space-y-2 text-gray-600">
-                                    <p class="flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        ${formatDate(event.date)} ${event.time ? `at ${event.time}` : ''}
-                                    </p>
-                                    ${event.venue ? `
-                                    <p class="flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                        </svg>
-                                        ${event.venue}
-                                    </p>` : ''}
-                                    ${event.dress_code ? `
-                                    <p class="flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                        </svg>
-                                        Dress Code: ${event.dress_code}
-                                    </p>` : ''}
-                                </div>
-                            </div>
-                        </div>
+                data.events.forEach((event) => {
+                    const card = document.createElement('div');
+                    card.className = 'event-card p-8 shadow-md';
+                    card.innerHTML = `
+                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">${event.name}</h3>
+                        <p class="mb-2"><strong>Date:</strong> ${formatDate(event.date)} ${event.time || ''}</p>
+                        ${event.venue ? `<p class="mb-2"><strong>Venue:</strong> ${event.venue}</p>` : ''}
+                        ${event.dress_code ? `<p><strong>Dress Code:</strong> ${event.dress_code}</p>` : ''}
                     `;
-                    eventsList.appendChild(eventCard);
+                    eventsList.appendChild(card);
                 });
-            } else {
-                eventsList.innerHTML = '<p class="text-center text-gray-500">Event details coming soon...</p>';
             }
             
-            // Show/hide RSVP section
-            if (!data.rsvp_enabled) {
-                document.getElementById('rsvpSection').style.display = 'none';
-            }
-            
-            // Hide loading, show content
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('content').classList.remove('hidden');
         }
 
-        // ============================================================================
-        // HELPER FUNCTIONS
-        // ============================================================================
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -365,56 +531,33 @@
             });
         }
 
-        // ============================================================================
-        // RSVP FUNCTIONS
-        // ============================================================================
         function setAttending(value) {
             isAttending = value;
-            const btnAttending = document.getElementById('btnAttending');
-            const btnNotAttending = document.getElementById('btnNotAttending');
+            const btnYes = document.getElementById('btnAttending');
+            const btnNo = document.getElementById('btnNotAttending');
             
             if (value) {
-                btnAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-700 font-medium transition-all';
-                btnNotAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400';
+                btnYes.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-700';
+                btnNo.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300';
             } else {
-                btnAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400';
-                btnNotAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-700 font-medium transition-all';
+                btnYes.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300';
+                btnNo.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-700';
             }
         }
 
-        async function submitRSVP() {
+        function submitRSVP() {
             const name = document.getElementById('guestName').value;
             const email = document.getElementById('guestEmail').value;
-            const message = document.getElementById('guestMessage').value;
             
             if (!name || !email) {
-                alert('Please fill in your name and email');
+                alert('Please fill in required fields');
                 return;
             }
             
-            try {
-                console.log('Submitting RSVP:', { name, email, isAttending, message, slug });
-                
-                // TODO: Uncomment when backend RSVP endpoint is ready
-                // const response = await fetch(`${API_URL}/wedding-site/${slug}/rsvp`, {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ guest_name: name, email, attending: isAttending, message })
-                // });
-                
-                // For now, just show success
-                document.getElementById('rsvpForm').classList.add('hidden');
-                document.getElementById('rsvpSuccess').classList.remove('hidden');
-                
-            } catch (error) {
-                console.error('RSVP error:', error);
-                alert('Something went wrong. Please try again.');
-            }
+            document.getElementById('rsvpForm').classList.add('hidden');
+            document.getElementById('rsvpSuccess').classList.remove('hidden');
         }
 
-        // ============================================================================
-        // INITIALIZE
-        // ============================================================================
         setAttending(true);
         loadWeddingData();
     </script>
