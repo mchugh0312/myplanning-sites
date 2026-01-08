@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+        
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Montserrat', sans-serif; }
+        
+        .hero-bg {
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .template-classic { --primary: #2c3e50; --accent: #e74c3c; }
+        .template-modern { --primary: #1a1a1a; --accent: #ffd700; }
+        .template-rustic { --primary: #8b7355; --accent: #d4a574; }
+        .template-bohemian { --primary: #d4a574; --accent: #9b6b4e; }
+        .template-elegant { --primary: #c9ada7; --accent: #9a8c98; }
+        .template-beach { --primary: #4a90a4; --accent: #87ceeb; }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .event-card {
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="font-sans template-classic">
+    <!-- Loading Screen -->
+    <div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading wedding details...</p>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden initially) -->
+    <div id="content" class="hidden">
+        <!-- Hero Section -->
+        <section id="hero" class="hero-bg min-h-screen flex items-center justify-center text-white">
+            <div class="hero-content text-center px-4 max-w-4xl">
+                <h1 id="coupleNames" class="font-serif text-6xl md:text-8xl mb-6 tracking-wider">
+                    Sarah & John
+                </h1>
+                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p id="weddingDate">September 15, 2025</p>
+                </div>
+                <div class="flex items-center justify-center gap-3 text-lg md:text-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <p id="weddingLocation">Napa Valley, CA</p>
+                </div>
+                <div class="mt-12">
+                    <svg class="w-12 h-12 mx-auto animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Story Section -->
+        <section class="py-20 px-4 bg-white">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="font-serif text-4xl md:text-5xl mb-8" style="color: var(--primary)">
+                    Our Story
+                </h2>
+                <div class="flex items-center justify-center gap-4 mb-8">
+                    <div class="h-px bg-gray-300 w-16"></div>
+                    <svg class="w-6 h-6" style="fill: var(--accent)" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <div class="h-px bg-gray-300 w-16"></div>
+                </div>
+                <p id="ourStory" class="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                    We met at a coffee shop in 2019...
+                </p>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section class="py-20 px-4 bg-gray-50">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="font-serif text-4xl md:text-5xl mb-12 text-center" style="color: var(--primary)">
+                    Celebration Details
+                </h2>
+                <div id="eventsList" class="space-y-6">
+                    <!-- Events will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP Section -->
+        <section id="rsvpSection" class="py-20 px-4 bg-white">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="font-serif text-4xl md:text-5xl mb-8 text-center" style="color: var(--primary)">
+                    RSVP
+                </h2>
+                <div class="flex items-center justify-center gap-4 mb-12">
+                    <div class="h-px bg-gray-300 w-16"></div>
+                    <svg class="w-6 h-6" style="fill: var(--accent)" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <div class="h-px bg-gray-300 w-16"></div>
+                </div>
+
+                <!-- RSVP Form -->
+                <div id="rsvpForm" class="bg-white p-8 rounded-lg shadow-lg space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
+                        <input type="text" id="guestName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                               style="focus:ring-color: var(--accent)"
+                               placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input type="email" id="guestEmail" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                               placeholder="john@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Will you attend? *</label>
+                        <div class="flex gap-4">
+                            <button type="button" id="btnAttending" onclick="setAttending(true)"
+                                    class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400">
+                                ✓ Joyfully Accept
+                            </button>
+                            <button type="button" id="btnNotAttending" onclick="setAttending(false)"
+                                    class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400">
+                                ✗ Regretfully Decline
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+                        <textarea id="guestMessage" rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-opacity-50"
+                                  placeholder="Any dietary requirements or messages for the couple?"></textarea>
+                    </div>
+                    <button onclick="submitRSVP()" 
+                            class="btn-primary w-full py-4 px-6 rounded-lg font-semibold text-white flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        Submit RSVP
+                    </button>
+                </div>
+
+                <!-- Success Message (hidden initially) -->
+                <div id="rsvpSuccess" class="hidden bg-green-50 border-2 border-green-200 rounded-lg p-8 text-center">
+                    <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <h3 class="text-2xl font-semibold text-green-800 mb-2">Thank You!</h3>
+                    <p class="text-green-700">Your RSVP has been received. We can't wait to celebrate with you!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-4 text-center text-gray-600 border-t bg-white">
+            <svg class="w-8 h-8 mx-auto mb-4" style="fill: var(--accent)" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <p class="text-sm" id="footerText">Sarah & John • 2025</p>
+            <p class="text-xs mt-2 text-gray-400">Website created with love</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================================
+        // CONFIGURATION - REPLACE WITH YOUR RENDER URL
+        // ============================================================================
+        const API_URL = 'https://YOUR-RENDER-URL.onrender.com';
+        
+        // Get slug from URL path
+        const pathParts = window.location.pathname.split('/');
+        const slug = pathParts[pathParts.length - 1] || 'sarah-and-john';
+        
+        let isAttending = true;
+
+        // ============================================================================
+        // LOAD WEDDING DATA FROM API
+        // ============================================================================
+        async function loadWeddingData() {
+            try {
+                console.log('Loading wedding data for slug:', slug);
+                const response = await fetch(`${API_URL}/wedding-site/${slug}`);
+                
+                if (!response.ok) {
+                    throw new Error('Wedding not found');
+                }
+                
+                const data = await response.json();
+                console.log('Wedding data loaded:', data);
+                populateWebsite(data);
+                
+            } catch (error) {
+                console.error('Error loading wedding:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <p class="text-red-600 text-xl mb-4">Wedding website not found</p>
+                        <p class="text-gray-600">Please check the URL and try again.</p>
+                        <p class="text-sm text-gray-500 mt-4">Looking for: ${slug}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================================
+        // POPULATE WEBSITE WITH DATA
+        // ============================================================================
+        function populateWebsite(data) {
+            // Apply template class
+            document.body.className = `font-sans template-${data.template.toLowerCase()}`;
+            
+            // Update meta tags
+            document.title = `${data.couple_names} - Wedding Website`;
+            
+            // Populate hero
+            document.getElementById('coupleNames').textContent = data.couple_names;
+            document.getElementById('weddingDate').textContent = formatDate(data.wedding_date);
+            document.getElementById('weddingLocation').textContent = data.wedding_location;
+            document.getElementById('footerText').textContent = `${data.couple_names} • ${new Date(data.wedding_date).getFullYear()}`;
+            
+            // Set hero image
+            if (data.hero_image) {
+                document.getElementById('hero').style.backgroundImage = `url(${data.hero_image})`;
+            } else {
+                document.getElementById('hero').style.backgroundImage = `url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)`;
+            }
+            
+            // Populate story
+            document.getElementById('ourStory').textContent = data.story || 'Our love story is just beginning...';
+            
+            // Populate events
+            const eventsList = document.getElementById('eventsList');
+            eventsList.innerHTML = '';
+            
+            if (data.events && data.events.length > 0) {
+                data.events.forEach((event, index) => {
+                    const eventCard = document.createElement('div');
+                    eventCard.className = 'event-card bg-white p-8 rounded-lg shadow-md';
+                    eventCard.innerHTML = `
+                        <div class="flex items-start gap-6">
+                            <div class="flex-shrink-0">
+                                <div class="w-16 h-16 rounded-full flex items-center justify-center text-white"
+                                     style="background-color: var(--primary)">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-2xl font-semibold mb-2">${event.name}</h3>
+                                <div class="space-y-2 text-gray-600">
+                                    <p class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        ${formatDate(event.date)} ${event.time ? `at ${event.time}` : ''}
+                                    </p>
+                                    ${event.venue ? `
+                                    <p class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        </svg>
+                                        ${event.venue}
+                                    </p>` : ''}
+                                    ${event.dress_code ? `
+                                    <p class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                        Dress Code: ${event.dress_code}
+                                    </p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    eventsList.appendChild(eventCard);
+                });
+            } else {
+                eventsList.innerHTML = '<p class="text-center text-gray-500">Event details coming soon...</p>';
+            }
+            
+            // Show/hide RSVP section
+            if (!data.rsvp_enabled) {
+                document.getElementById('rsvpSection').style.display = 'none';
+            }
+            
+            // Hide loading, show content
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        }
+
+        // ============================================================================
+        // HELPER FUNCTIONS
+        // ============================================================================
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+        }
+
+        // ============================================================================
+        // RSVP FUNCTIONS
+        // ============================================================================
+        function setAttending(value) {
+            isAttending = value;
+            const btnAttending = document.getElementById('btnAttending');
+            const btnNotAttending = document.getElementById('btnNotAttending');
+            
+            if (value) {
+                btnAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-700 font-medium transition-all';
+                btnNotAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400';
+            } else {
+                btnAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 font-medium transition-all hover:border-gray-400';
+                btnNotAttending.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-700 font-medium transition-all';
+            }
+        }
+
+        async function submitRSVP() {
+            const name = document.getElementById('guestName').value;
+            const email = document.getElementById('guestEmail').value;
+            const message = document.getElementById('guestMessage').value;
+            
+            if (!name || !email) {
+                alert('Please fill in your name and email');
+                return;
+            }
+            
+            try {
+                console.log('Submitting RSVP:', { name, email, isAttending, message, slug });
+                
+                // TODO: Uncomment when backend RSVP endpoint is ready
+                // const response = await fetch(`${API_URL}/wedding-site/${slug}/rsvp`, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ guest_name: name, email, attending: isAttending, message })
+                // });
+                
+                // For now, just show success
+                document.getElementById('rsvpForm').classList.add('hidden');
+                document.getElementById('rsvpSuccess').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('RSVP error:', error);
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        // ============================================================================
+        // INITIALIZE
+        // ============================================================================
+        setAttending(true);
+        loadWeddingData();
+    </script>
+</body>
+</html>
