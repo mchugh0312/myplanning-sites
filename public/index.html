@@ -4,51 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedding Website</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;600&family=Lato:wght@300;400;700&family=Great+Vibes&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;600&family=Lato:wght@300;400;700&display=swap');
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body { overflow-x: hidden; }
         
-        /* Template Styles */
+        /* 10 Template Designs */
         .template-classic { 
-            --primary: #2c3e50; 
-            --accent: #e74c3c; 
-            --bg: #ffffff;
+            --primary: #2c3e50; --accent: #e74c3c; --bg: #ffffff; --text: #333;
             font-family: 'Playfair Display', serif;
         }
         .template-modern { 
-            --primary: #1a1a1a; 
-            --accent: #ffd700; 
-            --bg: #fafafa;
+            --primary: #000000; --accent: #ffd700; --bg: #fafafa; --text: #1a1a1a;
             font-family: 'Lato', sans-serif;
         }
         .template-rustic { 
-            --primary: #8b7355; 
-            --accent: #d4a574; 
-            --bg: #faf8f3;
+            --primary: #8b7355; --accent: #d4a574; --bg: #faf8f3; --text: #4a4a4a;
             font-family: 'Cormorant Garamond', serif;
         }
         .template-elegant { 
-            --primary: #9a8c98; 
-            --accent: #c9ada7; 
-            --bg: #f9f7f4;
+            --primary: #9a8c98; --accent: #c9ada7; --bg: #f9f7f4; --text: #4a4a4a;
             font-family: 'Cormorant Garamond', serif;
         }
         .template-garden { 
-            --primary: #4a7c59; 
-            --accent: #90c695; 
-            --bg: #f5f9f6;
+            --primary: #4a7c59; --accent: #90c695; --bg: #f5f9f6; --text: #2d3e35;
             font-family: 'Montserrat', sans-serif;
         }
+        .template-romantic {
+            --primary: #d4a5a5; --accent: #f7d1d1; --bg: #fff5f7; --text: #5a4a4a;
+            font-family: 'Great Vibes', cursive;
+        }
+        .template-boho {
+            --primary: #c9785d; --accent: #e8b298; --bg: #fdf8f3; --text: #5a4a4a;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .template-minimalist {
+            --primary: #333333; --accent: #999999; --bg: #ffffff; --text: #333;
+            font-family: 'Raleway', sans-serif;
+        }
+        .template-vintage {
+            --primary: #6b5b4c; --accent: #c8a882; --bg: #f5f1e8; --text: #4a4035;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .template-coastal {
+            --primary: #4a7c99; --accent: #87ceeb; --bg: #f0f8ff; --text: #2d4a5a;
+            font-family: 'Lato', sans-serif;
+        }
 
+        /* Hero Styles */
         .hero-bg {
             background-size: cover;
             background-position: center;
             position: relative;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .hero-bg::before {
@@ -56,9 +71,21 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+            z-index: 1;
         }
         
         .hero-content { position: relative; z-index: 10; }
+
+        /* Video Hero */
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
 
         /* Navigation */
         .nav-top {
@@ -82,13 +109,10 @@
             padding: 0.5rem 1rem;
         }
 
-        .nav-link:hover { color: var(--primary); }
-        
-        .nav-link.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
+        .nav-link:hover { color: var(--primary) !important; }
+        .nav-link.active { color: var(--primary) !important; font-weight: 600; }
 
+        /* Loading */
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--primary);
@@ -103,57 +127,132 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* Elegant Lily Animation */
+        .lily-container {
+            position: fixed;
+            bottom: -20px;
+            right: 40px;
+            z-index: 5;
+            pointer-events: none;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .lily-stem {
+            width: 4px;
+            height: 0;
+            background: linear-gradient(to top, #4a7c59, #6b9976);
+            margin: 0 auto;
+            animation: growStem 3s ease-out forwards;
+            transform-origin: bottom;
         }
 
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .fade-in-up { animation: fadeInUp 1s ease-out; }
+        .lily-flower {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin: 0 auto;
+            opacity: 0;
+            animation: bloomFlower 2s ease-out 2.5s forwards;
+        }
 
-        /* Falling Petals */
+        .lily-petal {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to top, #fff, #f5f5f5);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            transform-origin: center bottom;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .lily-petal:nth-child(1) { transform: rotate(0deg) translateY(-10px); }
+        .lily-petal:nth-child(2) { transform: rotate(60deg) translateY(-10px); }
+        .lily-petal:nth-child(3) { transform: rotate(120deg) translateY(-10px); }
+        .lily-petal:nth-child(4) { transform: rotate(180deg) translateY(-10px); }
+        .lily-petal:nth-child(5) { transform: rotate(240deg) translateY(-10px); }
+        .lily-petal:nth-child(6) { transform: rotate(300deg) translateY(-10px); }
+
+        .lily-center {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes growStem {
+            to { height: 180px; }
+        }
+
+        @keyframes bloomFlower {
+            0% { opacity: 0; transform: scale(0) rotate(-90deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Floating Petals */
         .petal {
             position: fixed;
             top: -10vh;
             z-index: 1;
-            opacity: 0.6;
+            opacity: 0.7;
             pointer-events: none;
+            font-size: 24px;
         }
 
         @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); }
+            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
-        .petal:nth-child(1) { left: 10%; animation: fall 15s linear infinite; }
-        .petal:nth-child(2) { left: 30%; animation: fall 18s linear infinite; animation-delay: 2s; }
-        .petal:nth-child(3) { left: 50%; animation: fall 20s linear infinite; animation-delay: 4s; }
-        .petal:nth-child(4) { left: 70%; animation: fall 16s linear infinite; animation-delay: 1s; }
-        .petal:nth-child(5) { left: 90%; animation: fall 19s linear infinite; animation-delay: 3s; }
+        .petal:nth-child(1) { left: 10%; animation: fall 12s linear infinite; }
+        .petal:nth-child(2) { left: 30%; animation: fall 15s linear infinite; animation-delay: 2s; }
+        .petal:nth-child(3) { left: 50%; animation: fall 18s linear infinite; animation-delay: 4s; }
+        .petal:nth-child(4) { left: 70%; animation: fall 14s linear infinite; animation-delay: 1s; }
+        .petal:nth-child(5) { left: 90%; animation: fall 16s linear infinite; animation-delay: 3s; }
 
-        /* Floating Hearts */
-        .heart {
+        /* Sparkle Effect */
+        .sparkle {
             position: fixed;
-            bottom: -10vh;
-            z-index: 1;
-            opacity: 0.3;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
             pointer-events: none;
-            font-size: 20px;
+            z-index: 2;
         }
 
-        @keyframes rise {
-            to { transform: translateY(-110vh) rotate(15deg); opacity: 0; }
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
         }
 
-        .heart:nth-child(1) { left: 15%; animation: rise 25s linear infinite; }
-        .heart:nth-child(2) { left: 35%; animation: rise 30s linear infinite; animation-delay: 5s; }
-        .heart:nth-child(3) { left: 55%; animation: rise 28s linear infinite; animation-delay: 10s; }
-        .heart:nth-child(4) { left: 75%; animation: rise 32s linear infinite; animation-delay: 15s; }
+        /* Image Gallery Carousel */
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
 
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 400px;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Cards */
         .event-card {
             transition: all 0.3s ease;
             background: white;
@@ -165,6 +264,7 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.15);
         }
 
+        /* Gallery Grid */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -182,17 +282,26 @@
         .gallery-item:hover { transform: scale(1.05); }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            transition: all 0.3s ease;
+        /* Password Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        .modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
         }
 
+        /* Mobile Menu */
         .mobile-menu {
             max-height: 0;
             overflow: hidden;
@@ -203,10 +312,37 @@
 
         @media (max-width: 768px) {
             .hero-bg { min-height: 70vh; }
+            .lily-container { display: none; }
+        }
+
+        /* Optimizations */
+        img { loading: lazy; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body class="template-classic">
+    <!-- Password Modal -->
+    <div id="passwordModal" class="modal hidden">
+        <div class="modal-content text-center">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--primary)">Password Protected</h2>
+            <p class="mb-6 text-gray-600">This wedding website is private. Please enter the password.</p>
+            <input type="password" id="passwordInput" 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4"
+                   placeholder="Enter password">
+            <button onclick="submitPassword()" 
+                    class="w-full py-3 px-6 rounded-lg font-semibold text-white"
+                    style="background-color: var(--primary)">
+                Enter
+            </button>
+            <p id="passwordError" class="text-red-600 mt-2 hidden">Incorrect password</p>
+        </div>
+    </div>
+
     <!-- Loading -->
     <div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
         <div class="text-center">
@@ -218,166 +354,72 @@
     <!-- Animation Container -->
     <div id="animationContainer"></div>
 
+    <!-- Elegant Lily (shown for elegant/garden templates) -->
+    <div id="lilyContainer" class="lily-container hidden">
+        <div class="lily-flower">
+            <div class="lily-petal"></div>
+            <div class="lily-petal"></div>
+            <div class="lily-petal"></div>
+            <div class="lily-petal"></div>
+            <div class="lily-petal"></div>
+            <div class="lily-petal"></div>
+            <div class="lily-center"></div>
+        </div>
+        <div class="lily-stem"></div>
+    </div>
+
     <!-- Content -->
     <div id="content" class="hidden">
         <!-- Navigation -->
         <nav id="navTop" class="nav-top">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex-shrink-0">
-                        <a href="#hero" id="navNames" class="text-xl font-bold" style="color: var(--primary)">S & J</a>
-                    </div>
-                    
-                    <div id="desktopNav" class="hidden md:flex space-x-6">
-                        <a href="#hero" class="nav-link text-gray-700">Home</a>
-                        <a href="#story" class="nav-link text-gray-700">Our Story</a>
-                        <a href="#events" class="nav-link text-gray-700">Events</a>
-                        <a href="#travel" class="nav-link text-gray-700">Travel</a>
-                        <a href="#gallery" class="nav-link text-gray-700">Gallery</a>
-                        <a href="#registry" class="nav-link text-gray-700">Registry</a>
-                        <a href="#rsvp" class="nav-link text-gray-700">RSVP</a>
-                    </div>
-
-                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div id="mobileMenu" class="mobile-menu md:hidden bg-white border-t">
-                <div class="px-4 pt-2 pb-4 space-y-2">
-                    <a href="#hero" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Home</a>
-                    <a href="#story" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Our Story</a>
-                    <a href="#events" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Events</a>
-                    <a href="#travel" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Travel</a>
-                    <a href="#gallery" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Gallery</a>
-                    <a href="#registry" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Registry</a>
-                    <a href="#rsvp" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">RSVP</a>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Hero -->
-        <section id="hero" class="hero-bg flex items-center justify-center text-white">
-            <div class="hero-content text-center px-4 max-w-4xl">
-                <div class="animate-float">
-                    <h1 id="coupleNames" class="text-6xl md:text-8xl mb-6 font-bold tracking-wider fade-in-up">
-                        Sarah & John
-                    </h1>
-                </div>
-                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8 fade-in-up">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p id="weddingDate">September 15, 2025</p>
-                </div>
-                <div class="flex items-center justify-center gap-3 text-lg md:text-xl fade-in-up">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    </svg>
-                    <p id="weddingLocation">Napa Valley, CA</p>
-                </div>
-                <div class="mt-12">
-                    <svg class="w-12 h-12 mx-auto animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                </div>
-            </div>
-        </section>
-
-        <!-- Our Story -->
-        <section id="story" class="py-20 px-4" style="background-color: var(--bg)">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Our Story</h2>
-                <p id="ourStory" class="text-lg leading-relaxed">
-                    We met at a coffee shop in 2019...
-                </p>
-            </div>
-        </section>
-
-        <!-- Events -->
-        <section id="events" class="py-20 px-4 bg-gray-50">
-            <div class="max-w-5xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Events</h2>
-                <div id="eventsList" class="space-y-6"></div>
-            </div>
-        </section>
-
-        <!-- Travel -->
-        <section id="travel" class="py-20 px-4" style="background-color: var(--bg)">
-            <div class="max-w-5xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Travel & Stay</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Getting There</h3>
-                        <p>Details coming soon...</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Where to Stay</h3>
-                        <p>Accommodation details coming soon...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Gallery -->
-        <section id="gallery" class="py-20 px-4 bg-gray-50">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Gallery</h2>
-                <div class="gallery-grid">
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400" alt="1"></div>
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400" alt="2"></div>
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=400" alt="3"></div>
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400" alt="4"></div>
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400" alt="5"></div>
-                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=400" alt="6"></div>
-                </div>
+                <div id="galleryGrid" class="gallery-grid"></div>
             </div>
         </section>
 
         <!-- Registry -->
-        <section id="registry" class="py-20 px-4" style="background-color: var(--bg)">
+        <section id="registry" class="py-20 px-4 bg-gray-50 fade-in">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Registry</h2>
-                <p class="text-lg mb-8">Your presence is the greatest gift. However, if you wish to honor us with a gift, we've registered below.</p>
-                <div class="text-center p-6 border-2 border-gray-200 rounded-lg">
+                <p class="text-lg mb-8" style="color: var(--text)">
+                    Your presence is the greatest gift. However, if you wish to honor us with a gift, we've registered below.
+                </p>
+                <div class="text-center p-6 border-2 border-gray-200 rounded-lg bg-white">
                     <p class="text-gray-500">Registry details coming soon</p>
                 </div>
             </div>
         </section>
 
         <!-- RSVP -->
-        <section id="rsvp" class="py-20 px-4 bg-gray-50">
+        <section id="rsvp" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
             <div class="max-w-2xl mx-auto">
                 <h2 class="text-4xl md:text-5xl mb-8 text-center font-bold" style="color: var(--primary)">RSVP</h2>
 
                 <div id="rsvpForm" class="bg-white p-8 rounded-lg shadow-lg space-y-6">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Your Name *</label>
+                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Your Name *</label>
                         <input type="text" id="guestName" class="w-full px-4 py-3 border rounded-lg" placeholder="John Doe">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Email *</label>
+                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Email *</label>
                         <input type="email" id="guestEmail" class="w-full px-4 py-3 border rounded-lg" placeholder="john@example.com">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-3">Will you attend? *</label>
+                        <label class="block text-sm font-medium mb-3" style="color: var(--text)">Will you attend? *</label>
                         <div class="flex gap-4">
-                            <button id="btnAttending" onclick="setAttending(true)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 hover:border-green-500">
+                            <button id="btnAttending" onclick="setAttending(true)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">
                                 ✓ Accept
                             </button>
-                            <button id="btnNotAttending" onclick="setAttending(false)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 hover:border-red-500">
+                            <button id="btnNotAttending" onclick="setAttending(false)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">
                                 ✗ Decline
                             </button>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Message (Optional)</label>
+                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Message (Optional)</label>
                         <textarea id="guestMessage" rows="4" class="w-full px-4 py-3 border rounded-lg" placeholder="Any messages or dietary requirements?"></textarea>
                     </div>
-                    <button onclick="submitRSVP()" class="btn-primary w-full py-4 rounded-lg font-semibold">
+                    <button onclick="submitRSVP()" class="w-full py-4 rounded-lg font-semibold text-white" style="background-color: var(--primary)">
                         Submit RSVP
                     </button>
                 </div>
@@ -397,7 +439,7 @@
             <svg class="w-8 h-8 mx-auto mb-4" style="fill: var(--accent)" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <p id="footerText">Sarah & John • 2025</p>
+            <p id="footerText" style="color: var(--text)">Sarah & John • 2025</p>
         </footer>
     </div>
 
@@ -406,7 +448,26 @@
         const pathParts = window.location.pathname.split('/');
         const slug = pathParts[pathParts.length - 1] || 'sarah-and-john';
         let isAttending = true;
-        let websiteMode = 'full';
+        let websiteData = null;
+        let currentSlide = 0;
+
+        // Password Protection
+        async function submitPassword() {
+            const password = document.getElementById('passwordInput').value;
+            try {
+                const response = await fetch(`${API_URL}/wedding-site/${slug}?password=${encodeURIComponent(password)}`);
+                const data = await response.json();
+                
+                if (data.password_required) {
+                    document.getElementById('passwordError').classList.remove('hidden');
+                } else {
+                    document.getElementById('passwordModal').classList.add('hidden');
+                    populateWebsite(data);
+                }
+            } catch (error) {
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+        }
 
         // Navigation
         window.addEventListener('scroll', () => {
@@ -426,45 +487,75 @@
             document.getElementById('mobileMenu').classList.remove('open');
         }
 
-        function setWebsiteMode(mode) {
-            websiteMode = mode;
-            if (mode === 'save-the-date') {
-                document.getElementById('travel').style.display = 'none';
-                document.getElementById('gallery').style.display = 'none';
-                document.getElementById('registry').style.display = 'none';
-                document.getElementById('rsvp').style.display = 'none';
-            }
-        }
-
+        // Animations
         function initAnimations(template) {
             const container = document.getElementById('animationContainer');
+            const lilyContainer = document.getElementById('lilyContainer');
             container.innerHTML = '';
+            lilyContainer.classList.add('hidden');
             
-            if (template === 'classic' || template === 'rustic') {
-                for (let i = 0; i < 4; i++) {
-                    const heart = document.createElement('div');
-                    heart.className = 'heart';
-                    heart.innerHTML = '♥';
-                    heart.style.color = 'var(--accent)';
-                    container.appendChild(heart);
-                }
-            } else if (template === 'elegant' || template === 'garden') {
+            if (template === 'elegant' || template === 'garden' || template === 'romantic') {
+                lilyContainer.classList.remove('hidden');
+                
                 for (let i = 0; i < 5; i++) {
                     const petal = document.createElement('div');
                     petal.className = 'petal';
                     petal.innerHTML = '🌸';
                     container.appendChild(petal);
                 }
+            } else if (template === 'modern' || template === 'minimalist') {
+                createSparkles();
             }
         }
 
+        function createSparkles() {
+            setInterval(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.animation = 'sparkle 2s ease-out';
+                document.getElementById('animationContainer').appendChild(sparkle);
+                
+                setTimeout(() => sparkle.remove(), 2000);
+            }, 3000);
+        }
+
+        // Image Carousel
+        function initCarousel(images) {
+            if (!images || images.length === 0) return;
+            
+            const track = document.getElementById('carouselTrack');
+            track.innerHTML = '';
+            
+            images.forEach(img => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `<img src="${img.url}" alt="Gallery">`;
+                track.appendChild(slide);
+            });
+            
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % images.length;
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }, 5000);
+        }
+
+        // Load Data
         async function loadWeddingData() {
             try {
                 const response = await fetch(`${API_URL}/wedding-site/${slug}`);
                 if (!response.ok) throw new Error('Not found');
                 
                 const data = await response.json();
-                populateWebsite(data);
+                websiteData = data;
+                
+                if (data.password_required) {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('passwordModal').classList.remove('hidden');
+                } else {
+                    populateWebsite(data);
+                }
             } catch (error) {
                 document.getElementById('loading').innerHTML = `
                     <div class="text-center">
@@ -476,29 +567,52 @@
         }
 
         function populateWebsite(data) {
+            // Apply template
             document.body.className = `template-${data.template.toLowerCase()}`;
-            document.title = `${data.couple_names} - Wedding`;
+            
+            // Apply custom colors if provided
+            if (data.customization.primary_color) {
+                document.documentElement.style.setProperty('--primary', data.customization.primary_color);
+            }
+            if (data.customization.accent_color) {
+                document.documentElement.style.setProperty('--accent', data.customization.accent_color);
+            }
+            
+            // Apply custom CSS
+            if (data.customization.custom_css) {
+                const style = document.createElement('style');
+                style.textContent = data.customization.custom_css;
+                document.head.appendChild(style);
+            }
             
             initAnimations(data.template.toLowerCase());
             
-            if (data.website_mode === 'save-the-date') {
-                setWebsiteMode('save-the-date');
-            }
-            
+            // Set content
+            document.title = `${data.couple_names} - Wedding`;
             document.getElementById('navNames').textContent = `${data.partner_1.charAt(0)} & ${data.partner_2.charAt(0)}`;
             document.getElementById('coupleNames').textContent = data.couple_names;
             document.getElementById('weddingDate').textContent = formatDate(data.wedding_date);
             document.getElementById('weddingLocation').textContent = data.wedding_location;
             document.getElementById('footerText').textContent = `${data.couple_names} • ${new Date(data.wedding_date).getFullYear()}`;
             
-            if (data.hero_image) {
+            // Hero image or video
+            if (data.hero_video) {
+                const video = document.getElementById('heroVideo');
+                video.src = data.hero_video;
+                video.style.display = 'block';
+            } else if (data.hero_image) {
                 document.getElementById('hero').style.backgroundImage = `url(${data.hero_image})`;
             } else {
                 document.getElementById('hero').style.backgroundImage = `url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)`;
             }
             
+            // Story
             document.getElementById('ourStory').textContent = data.story || 'Our love story is just beginning...';
             
+            // Things to Do
+            document.getElementById('thingsToDo').textContent = data.things_to_do || 'Explore the local area and discover amazing attractions nearby...';
+            
+            // Events
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '';
             
@@ -508,12 +622,58 @@
                     card.className = 'event-card p-8 shadow-md';
                     card.innerHTML = `
                         <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">${event.name}</h3>
-                        <p class="mb-2"><strong>Date:</strong> ${formatDate(event.date)} ${event.time || ''}</p>
-                        ${event.venue ? `<p class="mb-2"><strong>Venue:</strong> ${event.venue}</p>` : ''}
-                        ${event.dress_code ? `<p><strong>Dress Code:</strong> ${event.dress_code}</p>` : ''}
+                        <p class="mb-2" style="color: var(--text)"><strong>Date:</strong> ${formatDate(event.date)} ${event.time || ''}</p>
+                        ${event.venue ? `<p class="mb-2" style="color: var(--text)"><strong>Venue:</strong> ${event.venue}</p>` : ''}
+                        ${event.address ? `<p class="mb-2" style="color: var(--text)"><strong>Address:</strong> ${event.address}</p>` : ''}
+                        ${event.dress_code ? `<p style="color: var(--text)"><strong>Dress Code:</strong> ${event.dress_code}</p>` : ''}
                     `;
                     eventsList.appendChild(card);
                 });
+            }
+            
+            // Gallery
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '';
+            
+            if (data.gallery_images && data.gallery_images.length > 0) {
+                data.gallery_images.forEach((img) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.innerHTML = `<img src="${img.thumbnail || img.url}" alt="Gallery">`;
+                    galleryGrid.appendChild(item);
+                });
+                
+                // Show carousel for certain templates
+                if (['modern', 'minimalist', 'boho'].includes(data.template.toLowerCase())) {
+                    document.getElementById('imageCarousel').classList.remove('hidden');
+                    initCarousel(data.gallery_images);
+                }
+            } else {
+                // Default gallery
+                const defaultImages = [
+                    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400',
+                    'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400',
+                    'https://images.unsplash.com/photo-1519741497674-611481863552?w=400',
+                    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400',
+                    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400',
+                    'https://images.unsplash.com/photo-1529636798458-92182e662485?w=400'
+                ];
+                
+                defaultImages.forEach((src) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.innerHTML = `<img src="${src}" alt="Gallery">`;
+                    galleryGrid.appendChild(item);
+                });
+            }
+            
+            // Hide sections based on website mode
+            if (data.website_mode === 'Save the Date') {
+                document.getElementById('travel').style.display = 'none';
+                document.getElementById('things-to-do').style.display = 'none';
+                document.getElementById('gallery').style.display = 'none';
+                document.getElementById('registry').style.display = 'none';
+                document.getElementById('rsvp').style.display = 'none';
             }
             
             document.getElementById('loading').classList.add('hidden');
@@ -558,8 +718,127 @@
             document.getElementById('rsvpSuccess').classList.remove('hidden');
         }
 
+        // Initialize
         setAttending(true);
         loadWeddingData();
     </script>
 </body>
-</html>
+</html> class="flex justify-between items-center h-16">
+                    <div class="flex-shrink-0">
+                        <a href="#hero" id="navNames" class="text-xl font-bold" style="color: var(--primary)">S & J</a>
+                    </div>
+                    
+                    <div id="desktopNav" class="hidden md:flex space-x-6">
+                        <a href="#hero" class="nav-link text-gray-700">Home</a>
+                        <a href="#story" class="nav-link text-gray-700">Our Story</a>
+                        <a href="#events" class="nav-link text-gray-700">Events</a>
+                        <a href="#travel" class="nav-link text-gray-700">Travel</a>
+                        <a href="#things-to-do" class="nav-link text-gray-700">Things to Do</a>
+                        <a href="#gallery" class="nav-link text-gray-700">Gallery</a>
+                        <a href="#registry" class="nav-link text-gray-700">Registry</a>
+                        <a href="#rsvp" class="nav-link text-gray-700">RSVP</a>
+                    </div>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="mobileMenu" class="mobile-menu md:hidden bg-white border-t">
+                <div class="px-4 pt-2 pb-4 space-y-2">
+                    <a href="#hero" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Home</a>
+                    <a href="#story" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Our Story</a>
+                    <a href="#events" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Events</a>
+                    <a href="#travel" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Travel</a>
+                    <a href="#things-to-do" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Things to Do</a>
+                    <a href="#gallery" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Gallery</a>
+                    <a href="#registry" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Registry</a>
+                    <a href="#rsvp" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">RSVP</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <section id="hero" class="hero-bg">
+            <video id="heroVideo" class="hero-video" autoplay muted loop playsinline style="display:none;"></video>
+            <div class="hero-content text-center px-4 max-w-4xl text-white">
+                <h1 id="coupleNames" class="text-6xl md:text-8xl mb-6 font-bold tracking-wider fade-in">
+                    Sarah & John
+                </h1>
+                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8 fade-in">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p id="weddingDate">September 15, 2025</p>
+                </div>
+                <div class="flex items-center justify-center gap-3 text-lg md:text-xl fade-in">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    </svg>
+                    <p id="weddingLocation">Napa Valley, CA</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Carousel (for templates with moving images) -->
+        <div id="imageCarousel" class="hidden">
+            <div class="carousel">
+                <div id="carouselTrack" class="carousel-track"></div>
+            </div>
+        </div>
+
+        <!-- Our Story -->
+        <section id="story" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Our Story</h2>
+                <p id="ourStory" class="text-lg leading-relaxed" style="color: var(--text)">
+                    We met at a coffee shop in 2019...
+                </p>
+            </div>
+        </section>
+
+        <!-- Events -->
+        <section id="events" class="py-20 px-4 bg-gray-50 fade-in">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Events</h2>
+                <div id="eventsList" class="space-y-6"></div>
+            </div>
+        </section>
+
+        <!-- Travel -->
+        <section id="travel" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Travel & Stay</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Getting There</h3>
+                        <p style="color: var(--text)">Details coming soon...</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Where to Stay</h3>
+                        <p style="color: var(--text)">Accommodation details coming soon...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Things to Do -->
+        <section id="things-to-do" class="py-20 px-4 bg-gray-50 fade-in">
+            <div class="max-w-5xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Things to Do</h2>
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <p id="thingsToDo" class="text-lg leading-relaxed" style="color: var(--text)">
+                        Explore the local area...
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section id="gallery" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Gallery</h2>
+                <div
