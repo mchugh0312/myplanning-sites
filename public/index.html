@@ -1,844 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Website</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:wght@300;400;600&family=Lato:wght@300;400;700&family=Great+Vibes&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { overflow-x: hidden; }
-        
-        /* 10 Template Designs */
-        .template-classic { 
-            --primary: #2c3e50; --accent: #e74c3c; --bg: #ffffff; --text: #333;
-            font-family: 'Playfair Display', serif;
-        }
-        .template-modern { 
-            --primary: #000000; --accent: #ffd700; --bg: #fafafa; --text: #1a1a1a;
-            font-family: 'Lato', sans-serif;
-        }
-        .template-rustic { 
-            --primary: #8b7355; --accent: #d4a574; --bg: #faf8f3; --text: #4a4a4a;
-            font-family: 'Cormorant Garamond', serif;
-        }
-        .template-elegant { 
-            --primary: #9a8c98; --accent: #c9ada7; --bg: #f9f7f4; --text: #4a4a4a;
-            font-family: 'Cormorant Garamond', serif;
-        }
-        .template-garden { 
-            --primary: #4a7c59; --accent: #90c695; --bg: #f5f9f6; --text: #2d3e35;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .template-romantic {
-            --primary: #d4a5a5; --accent: #f7d1d1; --bg: #fff5f7; --text: #5a4a4a;
-            font-family: 'Great Vibes', cursive;
-        }
-        .template-boho {
-            --primary: #c9785d; --accent: #e8b298; --bg: #fdf8f3; --text: #5a4a4a;
-            font-family: 'Montserrat', sans-serif;
-        }
-        .template-minimalist {
-            --primary: #333333; --accent: #999999; --bg: #ffffff; --text: #333;
-            font-family: 'Raleway', sans-serif;
-        }
-        .template-vintage {
-            --primary: #6b5b4c; --accent: #c8a882; --bg: #f5f1e8; --text: #4a4035;
-            font-family: 'Cormorant Garamond', serif;
-        }
-        .template-coastal {
-            --primary: #4a7c99; --accent: #87ceeb; --bg: #f0f8ff; --text: #2d4a5a;
-            font-family: 'Lato', sans-serif;
-        }
-
-        /* Hero Styles */
-        .hero-bg {
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .hero-bg::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5));
-            z-index: 1;
-        }
-        
-        .hero-content { position: relative; z-index: 10; }
-
-        /* Video Hero */
-        .hero-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-        }
-
-        /* Navigation */
-        .nav-top {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            background: transparent;
-        }
-
-        .nav-top.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-        }
-
-        .nav-link {
-            position: relative;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-        }
-
-        .nav-link:hover { color: var(--primary) !important; }
-        .nav-link.active { color: var(--primary) !important; font-weight: 600; }
-
-        /* Loading */
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Elegant Lily Animation */
-        .lily-container {
-            position: fixed;
-            bottom: -20px;
-            right: 40px;
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .lily-stem {
-            width: 4px;
-            height: 0;
-            background: linear-gradient(to top, #4a7c59, #6b9976);
-            margin: 0 auto;
-            animation: growStem 3s ease-out forwards;
-            transform-origin: bottom;
-        }
-
-        .lily-flower {
-            width: 60px;
-            height: 60px;
-            position: relative;
-            margin: 0 auto;
-            opacity: 0;
-            animation: bloomFlower 2s ease-out 2.5s forwards;
-        }
-
-        .lily-petal {
-            position: absolute;
-            width: 20px;
-            height: 40px;
-            background: linear-gradient(to top, #fff, #f5f5f5);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            transform-origin: center bottom;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .lily-petal:nth-child(1) { transform: rotate(0deg) translateY(-10px); }
-        .lily-petal:nth-child(2) { transform: rotate(60deg) translateY(-10px); }
-        .lily-petal:nth-child(3) { transform: rotate(120deg) translateY(-10px); }
-        .lily-petal:nth-child(4) { transform: rotate(180deg) translateY(-10px); }
-        .lily-petal:nth-child(5) { transform: rotate(240deg) translateY(-10px); }
-        .lily-petal:nth-child(6) { transform: rotate(300deg) translateY(-10px); }
-
-        .lily-center {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #ffd700;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        @keyframes growStem {
-            to { height: 180px; }
-        }
-
-        @keyframes bloomFlower {
-            0% { opacity: 0; transform: scale(0) rotate(-90deg); }
-            100% { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-
-        /* Floating Petals */
-        .petal {
-            position: fixed;
-            top: -10vh;
-            z-index: 1;
-            opacity: 0.7;
-            pointer-events: none;
-            font-size: 24px;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-
-        .petal:nth-child(1) { left: 10%; animation: fall 12s linear infinite; }
-        .petal:nth-child(2) { left: 30%; animation: fall 15s linear infinite; animation-delay: 2s; }
-        .petal:nth-child(3) { left: 50%; animation: fall 18s linear infinite; animation-delay: 4s; }
-        .petal:nth-child(4) { left: 70%; animation: fall 14s linear infinite; animation-delay: 1s; }
-        .petal:nth-child(5) { left: 90%; animation: fall 16s linear infinite; animation-delay: 3s; }
-
-        /* Sparkle Effect */
-        .sparkle {
-            position: fixed;
-            width: 4px;
-            height: 4px;
-            background: var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        @keyframes sparkle {
-            0% { opacity: 0; transform: scale(0); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0); }
-        }
-
-        /* Image Gallery Carousel */
-        .carousel {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .carousel-slide {
-            min-width: 100%;
-            height: 400px;
-        }
-
-        .carousel-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Cards */
-        .event-card {
-            transition: all 0.3s ease;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .event-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-        }
-
-        /* Gallery Grid */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .gallery-item {
-            aspect-ratio: 1;
-            overflow: hidden;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .gallery-item:hover { transform: scale(1.05); }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Password Modal */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 3rem;
-            border-radius: 16px;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        /* Mobile Menu */
-        .mobile-menu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-        }
-
-        .mobile-menu.open { max-height: 600px; }
-
-        @media (max-width: 768px) {
-            .hero-bg { min-height: 70vh; }
-            .lily-container { display: none; }
-        }
-
-        /* Optimizations */
-        img { loading: lazy; }
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Website</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;600&family=Cormorant+Garamond:wght@300;600&family=Lato:wght@300;700&family=Great+Vibes&family=Raleway:wght@300;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{overflow-x:hidden}
+.template-classic{--primary:#2c3e50;--accent:#e74c3c;--bg:#fff;font-family:'Playfair Display',serif}
+.template-modern{--primary:#000;--accent:#ffd700;--bg:#fafafa;font-family:'Lato',sans-serif}
+.template-rustic{--primary:#8b7355;--accent:#d4a574;--bg:#faf8f3;font-family:'Cormorant Garamond',serif}
+.template-elegant{--primary:#9a8c98;--accent:#c9ada7;--bg:#f9f7f4;font-family:'Cormorant Garamond',serif}
+.template-garden{--primary:#4a7c59;--accent:#90c695;--bg:#f5f9f6;font-family:'Montserrat',sans-serif}
+.template-romantic{--primary:#d4a5a5;--accent:#f7d1d1;--bg:#fff5f7;font-family:'Great Vibes',cursive}
+.template-boho{--primary:#c9785d;--accent:#e8b298;--bg:#fdf8f3;font-family:'Montserrat',sans-serif}
+.template-minimalist{--primary:#333;--accent:#999;--bg:#fff;font-family:'Raleway',sans-serif}
+.template-vintage{--primary:#6b5b4c;--accent:#c8a882;--bg:#f5f1e8;font-family:'Cormorant Garamond',serif}
+.template-coastal{--primary:#4a7c99;--accent:#87ceeb;--bg:#f0f8ff;font-family:'Lato',sans-serif}
+.hero-bg{background-size:cover;background-position:center;position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1}
+.hero-content{position:relative;z-index:10}
+.nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 2px 15px rgba(0,0,0,.1)}
+.nav-side{position:fixed;left:20px;top:50%;transform:translateY(-50%);z-index:1000;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);padding:1.5rem 1rem;border-radius:30px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.nav-side .nav-link{writing-mode:vertical-rl;padding:1rem .5rem;display:block}
+.nav-bottom{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 -2px 20px rgba(0,0,0,.1);padding:1rem 0}
+.nav-link{position:relative;transition:all .3s;padding:.5rem 1rem;text-decoration:none;font-weight:500;color:#333;display:inline-block}
+.nav-link:hover{color:var(--primary)}
+.nav-link.active{color:var(--primary);font-weight:600}
+.loading-spinner{border:4px solid #f3f3f3;border-top:4px solid var(--primary);border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.lily-container{position:fixed;bottom:20px;right:40px;z-index:5;pointer-events:none}
+.lily-stem{width:4px;height:0;background:linear-gradient(to top,#4a7c59,#6b9976);margin:0 auto;animation:growStem 3s ease-out forwards}
+.lily-flower{width:60px;height:60px;position:relative;margin:0 auto;opacity:0;animation:bloomFlower 2s ease-out 2.5s forwards}
+.lily-petal{position:absolute;width:20px;height:40px;background:linear-gradient(to top,#fff,#f5f5f5);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;transform-origin:center bottom;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.lily-petal:nth-child(1){transform:rotate(0deg) translateY(-10px)}
+.lily-petal:nth-child(2){transform:rotate(60deg) translateY(-10px)}
+.lily-petal:nth-child(3){transform:rotate(120deg) translateY(-10px)}
+.lily-petal:nth-child(4){transform:rotate(180deg) translateY(-10px)}
+.lily-petal:nth-child(5){transform:rotate(240deg) translateY(-10px)}
+.lily-petal:nth-child(6){transform:rotate(300deg) translateY(-10px)}
+.lily-center{position:absolute;width:10px;height:10px;background:#ffd700;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+@keyframes growStem{to{height:180px}}
+@keyframes bloomFlower{0%{opacity:0;transform:scale(0) rotate(-90deg)}100%{opacity:1;transform:scale(1)}}
+.petal{position:fixed;top:-10vh;z-index:1;opacity:.6;pointer-events:none;font-size:20px}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
+.petal:nth-child(1){left:10%;animation:fall 15s linear infinite}
+.petal:nth-child(2){left:30%;animation:fall 18s linear infinite;animation-delay:3s}
+.petal:nth-child(3){left:50%;animation:fall 20s linear infinite;animation-delay:6s}
+.petal:nth-child(4){left:70%;animation:fall 17s linear infinite;animation-delay:2s}
+.petal:nth-child(5){left:90%;animation:fall 19s linear infinite;animation-delay:5s}
+.event-card{transition:all .3s;background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.event-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+.gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px;cursor:pointer;transition:transform .3s}
+.gallery-item:hover{transform:scale(1.05)}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:2000}
+.modal-content{background:#fff;padding:3rem;border-radius:16px;max-width:400px;width:90%}
+.mobile-menu{max-height:0;overflow:hidden;transition:max-height .4s}
+.mobile-menu.open{max-height:600px}
+.section{padding:5rem 2rem;max-w-1200px;margin:0 auto}
+.hidden{display:none!important}
+@media (max-width:768px){.hero-bg{min-height:70vh}.lily-container,.nav-side,.nav-bottom{display:none!important}}
+</style>
 </head>
 <body class="template-classic">
-    <!-- Password Modal -->
-    <div id="passwordModal" class="modal hidden">
-        <div class="modal-content text-center">
-            <h2 class="text-2xl font-bold mb-4" style="color: var(--primary)">Password Protected</h2>
-            <p class="mb-6 text-gray-600">This wedding website is private. Please enter the password.</p>
-            <input type="password" id="passwordInput" 
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4"
-                   placeholder="Enter password">
-            <button onclick="submitPassword()" 
-                    class="w-full py-3 px-6 rounded-lg font-semibold text-white"
-                    style="background-color: var(--primary)">
-                Enter
-            </button>
-            <p id="passwordError" class="text-red-600 mt-2 hidden">Incorrect password</p>
-        </div>
-    </div>
-
-    <!-- Loading -->
-    <div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
-        <div class="text-center">
-            <div class="loading-spinner mx-auto mb-4"></div>
-            <p class="text-gray-600">Loading wedding details...</p>
-        </div>
-    </div>
-
-    <!-- Animation Container -->
-    <div id="animationContainer"></div>
-
-    <!-- Elegant Lily (shown for elegant/garden templates) -->
-    <div id="lilyContainer" class="lily-container hidden">
-        <div class="lily-flower">
-            <div class="lily-petal"></div>
-            <div class="lily-petal"></div>
-            <div class="lily-petal"></div>
-            <div class="lily-petal"></div>
-            <div class="lily-petal"></div>
-            <div class="lily-petal"></div>
-            <div class="lily-center"></div>
-        </div>
-        <div class="lily-stem"></div>
-    </div>
-
-    <!-- Content -->
-    <div id="content" class="hidden">
-        <!-- Navigation -->
-        <nav id="navTop" class="nav-top">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div id="galleryGrid" class="gallery-grid"></div>
-            </div>
-        </section>
-
-        <!-- Registry -->
-        <section id="registry" class="py-20 px-4 bg-gray-50 fade-in">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Registry</h2>
-                <p class="text-lg mb-8" style="color: var(--text)">
-                    Your presence is the greatest gift. However, if you wish to honor us with a gift, we've registered below.
-                </p>
-                <div class="text-center p-6 border-2 border-gray-200 rounded-lg bg-white">
-                    <p class="text-gray-500">Registry details coming soon</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- RSVP -->
-        <section id="rsvp" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
-            <div class="max-w-2xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-8 text-center font-bold" style="color: var(--primary)">RSVP</h2>
-
-                <div id="rsvpForm" class="bg-white p-8 rounded-lg shadow-lg space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Your Name *</label>
-                        <input type="text" id="guestName" class="w-full px-4 py-3 border rounded-lg" placeholder="John Doe">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Email *</label>
-                        <input type="email" id="guestEmail" class="w-full px-4 py-3 border rounded-lg" placeholder="john@example.com">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-3" style="color: var(--text)">Will you attend? *</label>
-                        <div class="flex gap-4">
-                            <button id="btnAttending" onclick="setAttending(true)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">
-                                ✓ Accept
-                            </button>
-                            <button id="btnNotAttending" onclick="setAttending(false)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">
-                                ✗ Decline
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: var(--text)">Message (Optional)</label>
-                        <textarea id="guestMessage" rows="4" class="w-full px-4 py-3 border rounded-lg" placeholder="Any messages or dietary requirements?"></textarea>
-                    </div>
-                    <button onclick="submitRSVP()" class="w-full py-4 rounded-lg font-semibold text-white" style="background-color: var(--primary)">
-                        Submit RSVP
-                    </button>
-                </div>
-
-                <div id="rsvpSuccess" class="hidden bg-green-50 border-2 border-green-200 rounded-lg p-8 text-center">
-                    <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <h3 class="text-2xl font-semibold text-green-800 mb-2">Thank You!</h3>
-                    <p class="text-green-700">Your RSVP has been received!</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="py-12 text-center border-t" style="background-color: var(--bg)">
-            <svg class="w-8 h-8 mx-auto mb-4" style="fill: var(--accent)" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-            <p id="footerText" style="color: var(--text)">Sarah & John • 2025</p>
-        </footer>
-    </div>
-
-    <script>
-        const API_URL = 'https://wedding-recommender.onrender.com';
-        const pathParts = window.location.pathname.split('/');
-        const slug = pathParts[pathParts.length - 1] || 'sarah-and-john';
-        let isAttending = true;
-        let websiteData = null;
-        let currentSlide = 0;
-
-        // Password Protection
-        async function submitPassword() {
-            const password = document.getElementById('passwordInput').value;
-            try {
-                const response = await fetch(`${API_URL}/wedding-site/${slug}?password=${encodeURIComponent(password)}`);
-                const data = await response.json();
-                
-                if (data.password_required) {
-                    document.getElementById('passwordError').classList.remove('hidden');
-                } else {
-                    document.getElementById('passwordModal').classList.add('hidden');
-                    populateWebsite(data);
-                }
-            } catch (error) {
-                document.getElementById('passwordError').classList.remove('hidden');
-            }
-        }
-
-        // Navigation
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navTop');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
-            }
-        });
-
-        function toggleMobileMenu() {
-            document.getElementById('mobileMenu').classList.toggle('open');
-        }
-
-        function closeMobileMenu() {
-            document.getElementById('mobileMenu').classList.remove('open');
-        }
-
-        // Animations
-        function initAnimations(template) {
-            const container = document.getElementById('animationContainer');
-            const lilyContainer = document.getElementById('lilyContainer');
-            container.innerHTML = '';
-            lilyContainer.classList.add('hidden');
-            
-            if (template === 'elegant' || template === 'garden' || template === 'romantic') {
-                lilyContainer.classList.remove('hidden');
-                
-                for (let i = 0; i < 5; i++) {
-                    const petal = document.createElement('div');
-                    petal.className = 'petal';
-                    petal.innerHTML = '🌸';
-                    container.appendChild(petal);
-                }
-            } else if (template === 'modern' || template === 'minimalist') {
-                createSparkles();
-            }
-        }
-
-        function createSparkles() {
-            setInterval(() => {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                sparkle.style.left = Math.random() * window.innerWidth + 'px';
-                sparkle.style.top = Math.random() * window.innerHeight + 'px';
-                sparkle.style.animation = 'sparkle 2s ease-out';
-                document.getElementById('animationContainer').appendChild(sparkle);
-                
-                setTimeout(() => sparkle.remove(), 2000);
-            }, 3000);
-        }
-
-        // Image Carousel
-        function initCarousel(images) {
-            if (!images || images.length === 0) return;
-            
-            const track = document.getElementById('carouselTrack');
-            track.innerHTML = '';
-            
-            images.forEach(img => {
-                const slide = document.createElement('div');
-                slide.className = 'carousel-slide';
-                slide.innerHTML = `<img src="${img.url}" alt="Gallery">`;
-                track.appendChild(slide);
-            });
-            
-            setInterval(() => {
-                currentSlide = (currentSlide + 1) % images.length;
-                track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            }, 5000);
-        }
-
-        // Load Data
-        async function loadWeddingData() {
-            try {
-                const response = await fetch(`${API_URL}/wedding-site/${slug}`);
-                if (!response.ok) throw new Error('Not found');
-                
-                const data = await response.json();
-                websiteData = data;
-                
-                if (data.password_required) {
-                    document.getElementById('loading').classList.add('hidden');
-                    document.getElementById('passwordModal').classList.remove('hidden');
-                } else {
-                    populateWebsite(data);
-                }
-            } catch (error) {
-                document.getElementById('loading').innerHTML = `
-                    <div class="text-center">
-                        <p class="text-red-600 text-xl mb-4">Wedding website not found</p>
-                        <p class="text-gray-600">Looking for: ${slug}</p>
-                    </div>
-                `;
-            }
-        }
-
-        function populateWebsite(data) {
-            // Apply template
-            document.body.className = `template-${data.template.toLowerCase()}`;
-            
-            // Apply custom colors if provided
-            if (data.customization.primary_color) {
-                document.documentElement.style.setProperty('--primary', data.customization.primary_color);
-            }
-            if (data.customization.accent_color) {
-                document.documentElement.style.setProperty('--accent', data.customization.accent_color);
-            }
-            
-            // Apply custom CSS
-            if (data.customization.custom_css) {
-                const style = document.createElement('style');
-                style.textContent = data.customization.custom_css;
-                document.head.appendChild(style);
-            }
-            
-            initAnimations(data.template.toLowerCase());
-            
-            // Set content
-            document.title = `${data.couple_names} - Wedding`;
-            document.getElementById('navNames').textContent = `${data.partner_1.charAt(0)} & ${data.partner_2.charAt(0)}`;
-            document.getElementById('coupleNames').textContent = data.couple_names;
-            document.getElementById('weddingDate').textContent = formatDate(data.wedding_date);
-            document.getElementById('weddingLocation').textContent = data.wedding_location;
-            document.getElementById('footerText').textContent = `${data.couple_names} • ${new Date(data.wedding_date).getFullYear()}`;
-            
-            // Hero image or video
-            if (data.hero_video) {
-                const video = document.getElementById('heroVideo');
-                video.src = data.hero_video;
-                video.style.display = 'block';
-            } else if (data.hero_image) {
-                document.getElementById('hero').style.backgroundImage = `url(${data.hero_image})`;
-            } else {
-                document.getElementById('hero').style.backgroundImage = `url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)`;
-            }
-            
-            // Story
-            document.getElementById('ourStory').textContent = data.story || 'Our love story is just beginning...';
-            
-            // Things to Do
-            document.getElementById('thingsToDo').textContent = data.things_to_do || 'Explore the local area and discover amazing attractions nearby...';
-            
-            // Events
-            const eventsList = document.getElementById('eventsList');
-            eventsList.innerHTML = '';
-            
-            if (data.events && data.events.length > 0) {
-                data.events.forEach((event) => {
-                    const card = document.createElement('div');
-                    card.className = 'event-card p-8 shadow-md';
-                    card.innerHTML = `
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">${event.name}</h3>
-                        <p class="mb-2" style="color: var(--text)"><strong>Date:</strong> ${formatDate(event.date)} ${event.time || ''}</p>
-                        ${event.venue ? `<p class="mb-2" style="color: var(--text)"><strong>Venue:</strong> ${event.venue}</p>` : ''}
-                        ${event.address ? `<p class="mb-2" style="color: var(--text)"><strong>Address:</strong> ${event.address}</p>` : ''}
-                        ${event.dress_code ? `<p style="color: var(--text)"><strong>Dress Code:</strong> ${event.dress_code}</p>` : ''}
-                    `;
-                    eventsList.appendChild(card);
-                });
-            }
-            
-            // Gallery
-            const galleryGrid = document.getElementById('galleryGrid');
-            galleryGrid.innerHTML = '';
-            
-            if (data.gallery_images && data.gallery_images.length > 0) {
-                data.gallery_images.forEach((img) => {
-                    const item = document.createElement('div');
-                    item.className = 'gallery-item';
-                    item.innerHTML = `<img src="${img.thumbnail || img.url}" alt="Gallery">`;
-                    galleryGrid.appendChild(item);
-                });
-                
-                // Show carousel for certain templates
-                if (['modern', 'minimalist', 'boho'].includes(data.template.toLowerCase())) {
-                    document.getElementById('imageCarousel').classList.remove('hidden');
-                    initCarousel(data.gallery_images);
-                }
-            } else {
-                // Default gallery
-                const defaultImages = [
-                    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400',
-                    'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400',
-                    'https://images.unsplash.com/photo-1519741497674-611481863552?w=400',
-                    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400',
-                    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400',
-                    'https://images.unsplash.com/photo-1529636798458-92182e662485?w=400'
-                ];
-                
-                defaultImages.forEach((src) => {
-                    const item = document.createElement('div');
-                    item.className = 'gallery-item';
-                    item.innerHTML = `<img src="${src}" alt="Gallery">`;
-                    galleryGrid.appendChild(item);
-                });
-            }
-            
-            // Hide sections based on website mode
-            if (data.website_mode === 'Save the Date') {
-                document.getElementById('travel').style.display = 'none';
-                document.getElementById('things-to-do').style.display = 'none';
-                document.getElementById('gallery').style.display = 'none';
-                document.getElementById('registry').style.display = 'none';
-                document.getElementById('rsvp').style.display = 'none';
-            }
-            
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('content').classList.remove('hidden');
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric' 
-            });
-        }
-
-        function setAttending(value) {
-            isAttending = value;
-            const btnYes = document.getElementById('btnAttending');
-            const btnNo = document.getElementById('btnNotAttending');
-            
-            if (value) {
-                btnYes.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-700';
-                btnNo.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300';
-            } else {
-                btnYes.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-gray-300';
-                btnNo.className = 'flex-1 py-3 px-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-700';
-            }
-        }
-
-        function submitRSVP() {
-            const name = document.getElementById('guestName').value;
-            const email = document.getElementById('guestEmail').value;
-            
-            if (!name || !email) {
-                alert('Please fill in required fields');
-                return;
-            }
-            
-            document.getElementById('rsvpForm').classList.add('hidden');
-            document.getElementById('rsvpSuccess').classList.remove('hidden');
-        }
-
-        // Initialize
-        setAttending(true);
-        loadWeddingData();
-    </script>
+<div id="passwordModal" class="modal hidden">
+<div class="modal-content text-center">
+<h2 class="text-2xl font-bold mb-4" style="color:var(--primary)">Password Protected</h2>
+<p class="mb-6 text-gray-600">Please enter password</p>
+<input type="password" id="passwordInput" class="w-full px-4 py-3 border rounded-lg mb-4" placeholder="Password">
+<button onclick="submitPassword()" class="w-full py-3 px-6 rounded-lg font-semibold text-white" style="background-color:var(--primary)">Enter</button>
+<p id="passwordError" class="text-red-600 mt-2 hidden">Incorrect</p>
+</div>
+</div>
+<div id="loading" class="min-h-screen flex items-center justify-center bg-gray-50">
+<div class="text-center"><div class="loading-spinner mx-auto mb-4"></div><p class="text-gray-600">Loading...</p></div>
+</div>
+<div id="animationContainer"></div>
+<div id="lilyContainer" class="lily-container hidden">
+<div class="lily-flower">
+<div class="lily-petal"></div><div class="lily-petal"></div><div class="lily-petal"></div>
+<div class="lily-petal"></div><div class="lily-petal"></div><div class="lily-petal"></div>
+<div class="lily-center"></div>
+</div>
+<div class="lily-stem"></div>
+</div>
+<div id="content" class="hidden">
+<nav id="navTop" class="nav-top hidden">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<a href="?page=home" id="navNames" class="text-xl font-bold" style="color:var(--primary)">S & J</a>
+<div class="hidden md:flex space-x-6">
+<a href="?page=home" class="nav-link">Home</a>
+<a href="?page=story" class="nav-link">Our Story</a>
+<a href="?page=events" class="nav-link">Events</a>
+<a href="?page=travel" class="nav-link">Travel</a>
+<a href="?page=things" class="nav-link">Things to Do</a>
+<a href="?page=gallery" class="nav-link">Gallery</a>
+<a href="?page=registry" class="nav-link">Registry</a>
+<a href="?page=rsvp" class="nav-link">RSVP</a>
+</div>
+<button onclick="toggleMobileMenu()" class="md:hidden p-2">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+</svg>
+</button>
+</div>
+</div>
+<div id="mobileMenu" class="mobile-menu md:hidden bg-white border-t">
+<div class="px-4 pt-2 pb-4 space-y-2">
+<a href="?page=home" class="block px-3 py-2 rounded hover:bg-gray-100">Home</a>
+<a href="?page=story" class="block px-3 py-2 rounded hover:bg-gray-100">Our Story</a>
+<a href="?page=events" class="block px-3 py-2 rounded hover:bg-gray-100">Events</a>
+<a href="?page=travel" class="block px-3 py-2 rounded hover:bg-gray-100">Travel</a>
+<a href="?page=things" class="block px-3 py-2 rounded hover:bg-gray-100">Things to Do</a>
+<a href="?page=gallery" class="block px-3 py-2 rounded hover:bg-gray-100">Gallery</a>
+<a href="?page=registry" class="block px-3 py-2 rounded hover:bg-gray-100">Registry</a>
+<a href="?page=rsvp" class="block px-3 py-2 rounded hover:bg-gray-100">RSVP</a>
+</div>
+</div>
+</nav>
+<nav id="navSide" class="nav-side hidden">
+<a href="?page=home" class="nav-link text-sm">Home</a>
+<a href="?page=story" class="nav-link text-sm">Story</a>
+<a href="?page=events" class="nav-link text-sm">Events</a>
+<a href="?page=travel" class="nav-link text-sm">Travel</a>
+<a href="?page=things" class="nav-link text-sm">Things</a>
+<a href="?page=gallery" class="nav-link text-sm">Photos</a>
+<a href="?page=registry" class="nav-link text-sm">Gifts</a>
+<a href="?page=rsvp" class="nav-link text-sm">RSVP</a>
+</nav>
+<nav id="navBottom" class="nav-bottom hidden">
+<div class="max-w-7xl mx-auto px-4">
+<div class="flex justify-center space-x-8">
+<a href="?page=home" class="nav-link text-sm">Home</a>
+<a href="?page=story" class="nav-link text-sm">Story</a>
+<a href="?page=events" class="nav-link text-sm">Events</a>
+<a href="?page=travel" class="nav-link text-sm">Travel</a>
+<a href="?page=things" class="nav-link text-sm">Things</a>
+<a href="?page=gallery" class="nav-link text-sm">Gallery</a>
+<a href="?page=registry" class="nav-link text-sm">Registry</a>
+<a href="?page=rsvp" class="nav-link text-sm">RSVP</a>
+</div>
+</div>
+</nav>
+<div id="pageContainer"></div>
+</div>
+<script>
+const API='https://wedding-recommender-ptcr.onrender.com',slug=window.location.pathname.split('/').pop()||'sarah-and-john';let D,A=!0;function getP(){return new URLSearchParams(window.location.search).get('page')||'home'}function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open')}async function submitPassword(){const p=document.getElementById('passwordInput').value;try{const r=await fetch(`${API}/wedding-site/${slug}?password=${encodeURIComponent(p)}`),d=await r.json();d.password_required?document.getElementById('passwordError').classList.remove('hidden'):(document.getElementById('passwordModal').classList.add('hidden'),init(d))}catch(e){document.getElementById('passwordError').classList.remove('hidden')}}function initAnim(t){const c=document.getElementById('animationContainer'),l=document.getElementById('lilyContainer');c.innerHTML='',l.classList.add('hidden'),['elegant','garden','romantic'].includes(t)&&(l.classList.remove('hidden'),[...Array(5)].forEach(()=>{const p=document.createElement('div');p.className='petal',p.innerHTML='🌸',c.appendChild(p)}))}async function load(){try{const r=await fetch(`${API}/wedding-site/${slug}`);if(!r.ok)throw new Error('Not found');const d=await r.json();d.password_required?(document.getElementById('loading').classList.add('hidden'),document.getElementById('passwordModal').classList.remove('hidden')):init(d)}catch(e){document.getElementById('loading').innerHTML='<div class="text-center"><p class="text-red-600 text-xl mb-4">Not found</p><p class="text-gray-600">'+slug+'</p></div>'}}function init(d){D=d,document.body.className=`template-${d.template.toLowerCase()}`,d.customization.primary_color&&document.documentElement.style.setProperty('--primary',d.customization.primary_color),d.customization.accent_color&&document.documentElement.style.setProperty('--accent',d.customization.accent_color),initAnim(d.template.toLowerCase()),document.title=`${d.couple_names} - Wedding`,document.getElementById('navNames').textContent=`${d.partner_1.charAt(0)} & ${d.partner_2.charAt(0)}`;const ns=d.navigation_style||'Top Bar';document.getElementById('navTop').classList.add('hidden'),document.getElementById('navSide').classList.add('hidden'),document.getElementById('navBottom').classList.add('hidden'),'Side Menu'===ns?document.getElementById('navSide').classList.remove('hidden'):'Bottom Bar'===ns?document.getElementById('navBottom').classList.remove('hidden'):document.getElementById('navTop').classList.remove('hidden'),document.getElementById('loading').classList.add('hidden'),document.getElementById('content').classList.remove('hidden'),'Multi Page'===d.page_layout?renderMP():renderSP()}function renderSP(){const h=D.hero_image?`style="background-image:url(${D.hero_image})"`:'style="background-image:url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)"';document.getElementById('pageContainer').innerHTML=`<section class="hero-bg" ${h}><div class="hero-content text-center px-4 max-w-4xl text-white"><h1 class="text-6xl md:text-8xl mb-6 font-bold">${D.couple_names}</h1><p class="text-xl md:text-2xl mb-8">${fmt(D.wedding_date)}</p><p class="text-lg md:text-xl">${D.wedding_location}</p></div></section><section id="story" class="section" style="background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-8 font-bold text-center" style="color:var(--primary)">Our Story</h2><p class="text-lg leading-relaxed text-center max-w-3xl mx-auto">${D.story||'...'}</p></section><section id="events" class="section bg-gray-50"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Events</h2><div class="space-y-6">${renderE()}</div></section><section id="travel" class="section" style="background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Travel</h2><div class="grid md:grid-cols-2 gap-8"><div class="bg-white p-8 rounded-lg shadow-md"><h3 class="text-2xl font-semibold mb-4" style="color:var(--primary)">Getting There</h3><p>Details coming...</p></div><div class="bg-white p-8 rounded-lg shadow-md"><h3 class="text-2xl font-semibold mb-4" style="color:var(--primary)">Stay</h3><p>Details coming...</p></div></div></section><section id="things" class="section bg-gray-50"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Things to Do</h2><div class="bg-white p-8 rounded-lg shadow-md"><p class="text-lg">${D.things_to_do||'...'}</p></div></section><section id="gallery" class="section" style="background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Gallery</h2><div class="gallery-grid">${renderG()}</div></section><section id="registry" class="section bg-gray-50"><h2 class="text-4xl md:text-5xl mb-8 font-bold text-center" style="color:var(--primary)">Registry</h2><p class="text-lg text-center">Your presence is the greatest gift.</p></section><section id="rsvp" class="section" style="background-color:var(--bg)">${renderRSVP()}</section>`,document.querySelectorAll('.nav-link').forEach(l=>{const h=l.getAttribute('href');h.includes('page=')&&l.setAttribute('href','#'+h.split('page=')[1])})}function renderMP(){const p=getP();document.querySelectorAll('.nav-link').forEach(l=>{l.classList.remove('active'),l.getAttribute('href').includes(`page=${p}`)&&l.classList.add('active')});const h=D.hero_image?`style="background-image:url(${D.hero_image})"`:'style="background-image:url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1200)"',pages={home:`<section class="hero-bg" ${h}><div class="hero-content text-center px-4 max-w-4xl text-white"><h1 class="text-6xl md:text-8xl mb-6 font-bold">${D.couple_names}</h1><p class="text-xl md:text-2xl mb-8">${fmt(D.wedding_date)}</p><p class="text-lg md:text-xl">${D.wedding_location}</p></div></section>`,story:`<div class="section" style="padding-top:100px;background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-8 font-bold text-center" style="color:var(--primary)">Our Story</h2><p class="text-lg leading-relaxed text-center max-w-3xl mx-auto">${D.story||'...'}</p></div>`,events:`<div class="section bg-gray-50" style="padding-top:100px"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Events</h2><div class="space-y-6">${renderE()}</div></div>`,travel:`<div class="section" style="padding-top:100px;background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Travel</h2><div class="grid md:grid-cols-2 gap-8"><div class="bg-white p-8 rounded-lg shadow-md"><h3 class="text-2xl font-semibold mb-4" style="color:var(--primary)">Getting There</h3><p>Details coming...</p></div><div class="bg-white p-8 rounded-lg shadow-md"><h3 class="text-2xl font-semibold mb-4" style="color:var(--primary)">Stay</h3><p>Details coming...</p></div></div></div>`,things:`<div class="section bg-gray-50" style="padding-top:100px"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Things to Do</h2><div class="bg-white p-8 rounded-lg shadow-md"><p class="text-lg">${D.things_to_do||'...'}</p></div></div>`,gallery:`<div class="section" style="padding-top:100px;background-color:var(--bg)"><h2 class="text-4xl md:text-5xl mb-12 font-bold text-center" style="color:var(--primary)">Gallery</h2><div class="gallery-grid">${renderG()}</div></div>`,registry:`<div class="section bg-gray-50" style="padding-top:100px"><h2 class="text-4xl md:text-5xl mb-8 font-bold text-center" style="color:var(--primary)">Registry</h2><p class="text-lg text-center">Your presence is the greatest gift.</p></div>`,rsvp:`<div class="section" style="padding-top:100px;background-color:var(--bg)">${renderRSVP()}</div>`};document.getElementById('pageContainer').innerHTML=pages[p]||pages.home}function renderE(){return D.events&&D.events.length?D.events.map(e=>`<div class="event-card"><h3 class="text-2xl font-semibold mb-4" style="color:var(--primary)">${e.name}</h3><p class="mb-2"><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>${e.venue?`<p class="mb-2"><strong>Venue:</strong> ${e.venue}</p>`:''}${e.dress_code?`<p><strong>Dress:</strong> ${e.dress_code}</p>`:''}</div>`).join(''):'<p class="text-center text-gray-500">Coming soon...</p>'}function renderG(){const imgs=D.gallery_images&&D.gallery_images.length?D.gallery_images.map(i=>i.url||i.thumbnail):['https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400','https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400','https://images.unsplash.com/photo-1519741497674-611481863552?w=400','https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400','https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400','https://images.unsplash.com/photo-1529636798458-92182e662485?w=400'];return imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Gallery"></div>`).join('')}function renderRSVP(){return`<h2 class="text-4xl md:text-5xl mb-8 font-bold text-center" style="color:var(--primary)">RSVP</h2><div id="rsvpForm" class="bg-white p-8 rounded-lg shadow-lg space-y-6 max-w-2xl mx-auto"><div><label class="block text-sm font-medium mb-2">Name *</label><input type="text" id="guestName" class="w-full px-4 py-3 border rounded-lg" placeholder="John Doe"></div><div><label class="block text-sm font-medium mb-2">Email *</label><input type="email" id="guestEmail" class="w-full px-4 py-3 border rounded-lg" placeholder="john@example.com"></div><div><label class="block text-sm font-medium mb-3">Attend? *</label><div class="flex gap-4"><button id="btnYes" onclick="setA(!0)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">✓ Yes</button><button id="btnNo" onclick="setA(!1)" class="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300">✗ No</button></div></div><div><label class="block text-sm font-medium mb-2">Message</label><textarea id="guestMsg" rows="4" class="w-full px-4 py-3 border rounded-lg"></textarea></div><button onclick="submitRSVP()" class="w-full py-4 rounded-lg font-semibold text-white" style="background-color:var(--primary)">Submit</button></div><div id="rsvpSuccess" class="hidden bg-green-50 border-2 border-green-200 rounded-lg p-8 text-center max-w-2xl mx-auto"><svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><h3 class="text-2xl font-semibold text-green-800 mb-2">Thank You!</h3><p class="text-green-700">RSVP received</p></div>`}function setA(v){A=v;const y=document.getElementById('btnYes'),n=document.getElementById('btnNo');v?(y.className='flex-1 py-3 px-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-700',n.className='flex-1 py-3 px-4 rounded-lg border-2 border-gray-300'):(y.className='flex-1 py-3 px-4 rounded-lg border-2 border-gray-300',n.className='flex-1 py-3 px-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-700')}function submitRSVP(){const n=document.getElementById('guestName').value,e=document.getElementById('guestEmail').value;n&&e?(document.getElementById('rsvpForm').classList.add('hidden'),document.getElementById('rsvpSuccess').classList.remove('hidden')):alert('Please fill required fields')}function fmt(d){if(!d)return'';const dt=new Date(d);return dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}setA(!0),load();
+</script>
 </body>
-</html> class="flex justify-between items-center h-16">
-                    <div class="flex-shrink-0">
-                        <a href="#hero" id="navNames" class="text-xl font-bold" style="color: var(--primary)">S & J</a>
-                    </div>
-                    
-                    <div id="desktopNav" class="hidden md:flex space-x-6">
-                        <a href="#hero" class="nav-link text-gray-700">Home</a>
-                        <a href="#story" class="nav-link text-gray-700">Our Story</a>
-                        <a href="#events" class="nav-link text-gray-700">Events</a>
-                        <a href="#travel" class="nav-link text-gray-700">Travel</a>
-                        <a href="#things-to-do" class="nav-link text-gray-700">Things to Do</a>
-                        <a href="#gallery" class="nav-link text-gray-700">Gallery</a>
-                        <a href="#registry" class="nav-link text-gray-700">Registry</a>
-                        <a href="#rsvp" class="nav-link text-gray-700">RSVP</a>
-                    </div>
-
-                    <button onclick="toggleMobileMenu()" class="md:hidden p-2">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div id="mobileMenu" class="mobile-menu md:hidden bg-white border-t">
-                <div class="px-4 pt-2 pb-4 space-y-2">
-                    <a href="#hero" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Home</a>
-                    <a href="#story" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Our Story</a>
-                    <a href="#events" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Events</a>
-                    <a href="#travel" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Travel</a>
-                    <a href="#things-to-do" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Things to Do</a>
-                    <a href="#gallery" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Gallery</a>
-                    <a href="#registry" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">Registry</a>
-                    <a href="#rsvp" onclick="closeMobileMenu()" class="block px-3 py-2 rounded hover:bg-gray-100">RSVP</a>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Hero -->
-        <section id="hero" class="hero-bg">
-            <video id="heroVideo" class="hero-video" autoplay muted loop playsinline style="display:none;"></video>
-            <div class="hero-content text-center px-4 max-w-4xl text-white">
-                <h1 id="coupleNames" class="text-6xl md:text-8xl mb-6 font-bold tracking-wider fade-in">
-                    Sarah & John
-                </h1>
-                <div class="flex items-center justify-center gap-3 text-xl md:text-2xl mb-8 fade-in">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <p id="weddingDate">September 15, 2025</p>
-                </div>
-                <div class="flex items-center justify-center gap-3 text-lg md:text-xl fade-in">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    </svg>
-                    <p id="weddingLocation">Napa Valley, CA</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Image Carousel (for templates with moving images) -->
-        <div id="imageCarousel" class="hidden">
-            <div class="carousel">
-                <div id="carouselTrack" class="carousel-track"></div>
-            </div>
-        </div>
-
-        <!-- Our Story -->
-        <section id="story" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl md:text-5xl mb-8 font-bold" style="color: var(--primary)">Our Story</h2>
-                <p id="ourStory" class="text-lg leading-relaxed" style="color: var(--text)">
-                    We met at a coffee shop in 2019...
-                </p>
-            </div>
-        </section>
-
-        <!-- Events -->
-        <section id="events" class="py-20 px-4 bg-gray-50 fade-in">
-            <div class="max-w-5xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Events</h2>
-                <div id="eventsList" class="space-y-6"></div>
-            </div>
-        </section>
-
-        <!-- Travel -->
-        <section id="travel" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
-            <div class="max-w-5xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Travel & Stay</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Getting There</h3>
-                        <p style="color: var(--text)">Details coming soon...</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-lg shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4" style="color: var(--primary)">Where to Stay</h3>
-                        <p style="color: var(--text)">Accommodation details coming soon...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Things to Do -->
-        <section id="things-to-do" class="py-20 px-4 bg-gray-50 fade-in">
-            <div class="max-w-5xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Things to Do</h2>
-                <div class="bg-white p-8 rounded-lg shadow-md">
-                    <p id="thingsToDo" class="text-lg leading-relaxed" style="color: var(--text)">
-                        Explore the local area...
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Gallery -->
-        <section id="gallery" class="py-20 px-4 fade-in" style="background-color: var(--bg)">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="text-4xl md:text-5xl mb-12 text-center font-bold" style="color: var(--primary)">Gallery</h2>
-                <div
+</html>
