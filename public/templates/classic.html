@@ -9,10 +9,33 @@
 <style>
 :root{--primary:#2c3e50;--accent:#e74c3c;--bg:#fff}
 body{font-family:'Playfair Display',serif}
+
+/* Navigation styles for different positions */
+.nav-top{position:fixed;top:0;left:0;right:0;}
+.nav-bottom{position:fixed;bottom:0;left:0;right:0;top:auto;}
+.nav-side{position:fixed;left:0;top:0;bottom:0;width:250px;height:100vh;flex-direction:column;}
+.nav-side .nav-container{flex-direction:column;height:100%;padding:2rem 0;}
+.nav-side .nav-links{flex-direction:column;margin-top:2rem;}
+.nav-side .logo{margin-bottom:2rem;}
+
+/* Content padding adjustments */
+body.nav-style-top #content{padding-top:70px;}
+body.nav-style-bottom #content{padding-bottom:70px;}
+body.nav-style-side #content{margin-left:250px;}
+
+/* Save the Date mode */
+.save-the-date-mode .hero-content{max-width:700px;margin:0 auto;}
+.save-the-date-mode h1{font-size:clamp(2.5rem,6vw,5rem);}
+.save-the-date-mode .countdown{margin-top:2rem;font-size:1.8rem;font-weight:600;}
+
+@media (max-width:768px){
+  body.nav-style-side #content{margin-left:0;}
+  .nav-side{width:100%;height:auto;position:fixed;top:0;bottom:auto;}
+}
 </style>
 </head>
 <body>
-<nav class="nav-top">
+<nav class="nav-top" id="main-nav">
 <div class="nav-container">
 <a href="?page=home" class="logo" id="logo">Loading...</a>
 <ul class="nav-links" id="nav-menu">
@@ -26,56 +49,82 @@ body{font-family:'Playfair Display',serif}
 
 <script src="../shared.js"></script>
 <script>
+// Global wedding data
+let globalWeddingData = null;
+
 // Check password on page load
 const savedPwd=sessionStorage.getItem('wedding-pwd-'+slug);
-let checkPassed=false;
 
 const pages={
-home:d=>`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})">
+home:d=>{
+  console.log('Rendering home page with data:', d);
+  const coupleName = d.couple_names || `${d.partner_1} & ${d.partner_2}`;
+  const heroImg = d.hero_image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200';
+  
+  return `<section class="hero-bg" style="background-image:url(${heroImg})">
 <div class="hero-content" style="text-align:center;padding:2rem;color:#fff">
-<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names||d.partner_1+' & '+d.partner_2}</h1>
+<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${coupleName}</h1>
 <p style="font-size:1.5rem;margin-bottom:1rem">${fmt(d.wedding_date)}</p>
 <p style="font-size:1.2rem">${d.wedding_location||''}</p>
+${d.website_mode === 'Save the Date' ? '<div class="countdown" style="margin-top:2rem">Save the Date!</div>' : ''}
 </div>
-</section>`,
+</section>`;
+},
 
-story:d=>`<div class="section" style="padding-top:120px">
+story:d=>{
+  console.log('Rendering story page with data:', d);
+  return `<div class="section" style="padding-top:120px">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">Our Story</h2>
-<p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto">${d.story||'Our love story...'}</p>
-</div>`,
+<p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto">${d.story||'Our love story will be shared soon...'}</p>
+</div>`;
+},
 
-events:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+events:d=>{
+  console.log('Rendering events page with data:', d);
+  return `<div class="section" style="padding-top:120px;background:#f9f9f9">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>
 <div style="display:flex;flex-direction:column;gap:2rem">${renderEvents(d.events)}</div>
-</div>`,
+</div>`;
+},
 
-travel:d=>`<div class="section" style="padding-top:120px">
+travel:d=>{
+  console.log('Rendering travel page with data:', d);
+  return `<div class="section" style="padding-top:120px">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Travel & Stay</h2>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem">
 <div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
 <h3 style="color:var(--primary);margin-bottom:1rem">Getting There</h3>
-<p>${d.travel_info||'Details coming soon...'}</p>
+<p style="white-space:pre-line">${d.travel_info||'Details coming soon...'}</p>
 </div>
 <div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
 <h3 style="color:var(--primary);margin-bottom:1rem">Where to Stay</h3>
-<p>${d.accommodation_info||'Details coming soon...'}</p>
+<p style="white-space:pre-line">${d.accommodation_info||'Details coming soon...'}</p>
 </div>
 </div>
-</div>`,
+</div>`;
+},
 
-things_to_do:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+things_to_do:d=>{
+  console.log('Rendering things to do page with data:', d);
+  return `<div class="section" style="padding-top:120px;background:#f9f9f9">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Things to Do</h2>
 <div style="max-width:800px;margin:0 auto">
-<p style="font-size:1.1rem;line-height:1.8">${d.things_to_do||'Information about local attractions and activities coming soon...'}</p>
+<p style="font-size:1.1rem;line-height:1.8;white-space:pre-line">${d.things_to_do||'Information about local attractions and activities coming soon...'}</p>
 </div>
-</div>`,
+</div>`;
+},
 
-gallery:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+gallery:d=>{
+  console.log('Rendering gallery page with data:', d);
+  return `<div class="section" style="padding-top:120px;background:#f9f9f9">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2>
 <div class="gallery-grid">${renderGallery(d.gallery_images)}</div>
-</div>`,
+</div>`;
+},
 
-rsvp:d=>`<div class="section" style="padding-top:120px">
+rsvp:d=>{
+  console.log('Rendering RSVP page with data:', d);
+  return `<div class="section" style="padding-top:120px">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">RSVP</h2>
 <div style="max-width:600px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)">
 <div style="margin-bottom:1.5rem">
@@ -95,7 +144,8 @@ rsvp:d=>`<div class="section" style="padding-top:120px">
 </div>
 <button onclick="submitRSVP()" style="width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer">Submit RSVP</button>
 </div>
-</div>`
+</div>`;
+}
 };
 
 let attending=true;
@@ -105,7 +155,39 @@ if(!n||!e){alert('Please fill required fields');return}
 alert('Thank you! Your RSVP has been received.');
 }
 
+function applyNavigationStyle(navStyle){
+const nav = document.getElementById('main-nav');
+const body = document.body;
+  
+// Remove all navigation classes
+nav.classList.remove('nav-top','nav-bottom','nav-side');
+body.classList.remove('nav-style-top','nav-style-bottom','nav-style-side');
+
+// Apply the correct navigation style
+if(navStyle === 'Bottom Bar'){
+  nav.classList.add('nav-bottom');
+  body.classList.add('nav-style-bottom');
+}else if(navStyle === 'Side Menu'){
+  nav.classList.add('nav-side');
+  body.classList.add('nav-style-side');
+}else{
+  nav.classList.add('nav-top');
+  body.classList.add('nav-style-top');
+}
+}
+
+function applyWebsiteMode(mode){
+const body = document.body;
+if(mode === 'Save the Date'){
+  body.classList.add('save-the-date-mode');
+}else{
+  body.classList.remove('save-the-date-mode');
+}
+}
+
 function generateNavigation(data){
+console.log('Generating navigation with menu_config:', data.menu_config);
+
 const menuConfig=data.menu_config||{
   home:true,
   story:true,
@@ -130,54 +212,93 @@ const navMenu=document.getElementById('nav-menu');
 navMenu.innerHTML='';
 
 Object.keys(menuItems)
-  .filter(key=>menuConfig[key]!==false)
+  .filter(key=>{
+    const isEnabled = menuConfig[key]===true || menuConfig[key]===undefined;
+    console.log(`Menu item ${key}: ${isEnabled ? 'enabled' : 'disabled'}`);
+    return isEnabled;
+  })
   .sort((a,b)=>menuItems[a].order-menuItems[b].order)
   .forEach(key=>{
     const li=document.createElement('li');
     const a=document.createElement('a');
-    a.href=`?page=${key}`;
+    a.href=`?slug=${slug}&page=${key}`;
     a.className='nav-link';
     a.textContent=menuItems[key].label;
     li.appendChild(a);
     navMenu.appendChild(li);
   });
+  
+console.log('Navigation generated successfully');
 }
 
-async function init(){
-// Check password protection
-const d=await loadWeddingData();
+function renderPage(data, pageName){
+console.log('Rendering page:', pageName, 'with data:', data);
 
-if(d.password_protected && d.password){
-  if(savedPwd!==d.password){
-    window.location.href='/'+slug;
-    return;
-  }
-}
-
-// Set logo with proper initials
-const p1=d.partner_1||'S';
-const p2=d.partner_2||'J';
-document.getElementById('logo').textContent=`${p1.charAt(0).toUpperCase()} & ${p2.charAt(0).toUpperCase()}`;
-document.title=`${d.couple_names||p1+' & '+p2} - Wedding`;
-
-// Generate navigation
-generateNavigation(d);
-
-// Load page content
-const page=new URLSearchParams(window.location.search).get('page')||'home';
-if(pages[page]){
-  document.getElementById('content').innerHTML=pages[page](d);
+if(pages[pageName]){
+  document.getElementById('content').innerHTML=pages[pageName](data);
 }else{
-  document.getElementById('content').innerHTML=pages.home(d);
+  console.log('Page not found, rendering home');
+  document.getElementById('content').innerHTML=pages.home(data);
 }
 
 // Set active nav link
 document.querySelectorAll('.nav-link').forEach(l=>{
   l.classList.remove('active');
-  if(l.getAttribute('href').includes(`page=${page}`))l.classList.add('active');
+  if(l.getAttribute('href').includes(`page=${pageName}`))l.classList.add('active');
 });
 }
 
+async function init(){
+try{
+  console.log('Initializing classic.html for slug:', slug);
+  
+  // Check password protection
+  const d=await loadWeddingData();
+  globalWeddingData = d;
+  
+  console.log('Full wedding data:', d);
+
+  if(d.password_protected && d.password){
+    if(savedPwd!==d.password){
+      console.log('Password required, redirecting to home');
+      window.location.href='/'+slug;
+      return;
+    }
+  }
+
+  // Set logo with proper initials
+  const p1=d.partner_1||'S';
+  const p2=d.partner_2||'J';
+  const initials = `${p1.charAt(0).toUpperCase()} & ${p2.charAt(0).toUpperCase()}`;
+  console.log('Setting logo initials:', initials);
+  document.getElementById('logo').textContent=initials;
+  document.title=`${d.couple_names||p1+' & '+p2} - Wedding`;
+
+  // Apply navigation style
+  const navStyle = d.navigation_style || 'Top Bar';
+  console.log('Applying navigation style:', navStyle);
+  applyNavigationStyle(navStyle);
+  
+  // Apply website mode
+  const websiteMode = d.website_mode || 'Full Website';
+  console.log('Applying website mode:', websiteMode);
+  applyWebsiteMode(websiteMode);
+
+  // Generate navigation
+  generateNavigation(d);
+
+  // Load page content
+  const page=params.get('page')||'home';
+  console.log('Loading page:', page);
+  renderPage(d, page);
+  
+  console.log('Initialization complete');
+}catch(e){
+  console.error('Initialization error:', e);
+}
+}
+
+// Initialize on load
 init();
 </script>
 </body>

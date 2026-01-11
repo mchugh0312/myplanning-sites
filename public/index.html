@@ -30,8 +30,10 @@ body{margin:0;font-family:sans-serif}
 
 <script>
 const API='https://wedding-recommender.onrender.com';
-const slug=window.location.pathname.split('/').filter(p=>p).pop()||'sarah-and-john';
-let weddingData=null;
+const pathParts=window.location.pathname.split('/').filter(p=>p);
+const slug=pathParts[0]||'sarah-and-john';
+
+console.log('Loading slug:', slug);
 
 function showPasswordModal(data){
 const modal=document.createElement('div');
@@ -77,7 +79,7 @@ if(!r.ok){
   console.error('API response not ok:', r.status, r.statusText);
   throw new Error('Not found');
 }
-weddingData=await r.json();
+const weddingData=await r.json();
 console.log('Wedding data loaded:', weddingData);
 
 // Check if password protected

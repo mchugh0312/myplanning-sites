@@ -3,9 +3,11 @@ const params=new URLSearchParams(window.location.search);
 const slug=params.get('slug')||'sarah-and-john';
 let weddingData=null;
 
+console.log('Shared.js loaded for slug:', slug);
+
 async function loadWeddingData(){
 try{
-console.log('Loading wedding data for slug:', slug);
+console.log('Fetching wedding data from API for slug:', slug);
 const r=await fetch(`${API}/wedding-site/${slug}`);
 if(!r.ok){
   console.error('API response not ok:', r.status, r.statusText);
@@ -37,7 +39,8 @@ return events.map(e=>`
 <h3 style="color:var(--primary);margin-bottom:1rem;font-size:1.5rem">${e.name||''}</h3>
 <p style="margin-bottom:.5rem"><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>
 ${e.venue?`<p style="margin-bottom:.5rem"><strong>Venue:</strong> ${e.venue}</p>`:''}
-${e.dress_code?`<p><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}
+${e.address?`<p style="margin-bottom:.5rem"><strong>Address:</strong> ${e.address}</p>`:''}
+${e.dress_code?`<p style="margin-bottom:.5rem"><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}
 ${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}
 </div>
 `).join('');
