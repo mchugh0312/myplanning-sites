@@ -34,10 +34,11 @@ function renderEvents(events){
 if(!events||!events.length)return'<p style="text-align:center;color:#666">Details coming soon</p>';
 return events.map(e=>`
 <div class="event-card">
-<h3 style="color:var(--primary);margin-bottom:1rem;font-size:1.5rem">${e.name}</h3>
+<h3 style="color:var(--primary);margin-bottom:1rem;font-size:1.5rem">${e.name||''}</h3>
 <p style="margin-bottom:.5rem"><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>
 ${e.venue?`<p style="margin-bottom:.5rem"><strong>Venue:</strong> ${e.venue}</p>`:''}
 ${e.dress_code?`<p><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}
+${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}
 </div>
 `).join('');
 }

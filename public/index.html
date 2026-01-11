@@ -4,18 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
+<style>
+body{margin:0;font-family:sans-serif}
+.loader-container{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.loader-content{text-align:center}
+.spinner{border:4px solid #f3f3f3;border-top:4px solid #333;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.password-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999}
+.password-box{background:#fff;padding:3rem;border-radius:12px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.password-box h2{margin:0 0 1rem;color:#333;font-size:1.5rem}
+.password-box p{margin:0 0 1.5rem;color:#666}
+.password-box input{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.password-box button{width:100%;padding:1rem;margin-top:1rem;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+.password-box button:hover{background:#1a252f}
+.error-msg{color:#e74c3c;margin-top:0.5rem;font-size:0.9rem}
+</style>
 </head>
 <body>
-<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif">
-<div style="text-align:center">
-<div style="border:4px solid #f3f3f3;border-top:4px solid #333;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem"></div>
+<div class="loader-container">
+<div class="loader-content">
+<div class="spinner"></div>
 <p>Loading wedding website...</p>
 </div>
 </div>
-<style>@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
+
 <script>
 const API='https://wedding-recommender.onrender.com';
 const slug=window.location.pathname.split('/').filter(p=>p).pop()||'sarah-and-john';
+let weddingData=null;
+
+function showPasswordModal(data){
+const modal=document.createElement('div');
+modal.className='password-modal';
+modal.innerHTML=`
+<div class="password-box">
+  <h2>🔒 Password Protected</h2>
+  <p>This wedding website is private. Please enter the password to continue.</p>
+  <input type="password" id="pwd-input" placeholder="Enter password" />
+  <div id="pwd-error" class="error-msg" style="display:none">Incorrect password. Please try again.</div>
+  <button onclick="checkPassword()">Enter</button>
+</div>
+`;
+document.body.innerHTML='';
+document.body.appendChild(modal);
+
+window.checkPassword=function(){
+  const input=document.getElementById('pwd-input').value;
+  const errorDiv=document.getElementById('pwd-error');
+  if(input===data.password){
+    sessionStorage.setItem('wedding-pwd-'+slug,input);
+    redirectToTemplate(data);
+  }else{
+    errorDiv.style.display='block';
+    document.getElementById('pwd-input').value='';
+  }
+};
+
+document.getElementById('pwd-input').addEventListener('keypress',function(e){
+  if(e.key==='Enter')window.checkPassword();
+});
+}
+
+function redirectToTemplate(data){
+const template=(data.template||'classic').toLowerCase();
+window.location.href=`/templates/${template}.html?slug=${slug}`;
+}
+
 async function load(){
 try{
 const r=await fetch(`${API}/wedding-site/${slug}`);
@@ -23,10 +77,21 @@ if(!r.ok){
   console.error('API response not ok:', r.status, r.statusText);
   throw new Error('Not found');
 }
-const d=await r.json();
-console.log('Wedding data loaded:', d);
-const template=(d.template||'classic').toLowerCase();
-window.location.href=`/templates/${template}.html?slug=${slug}`;
+weddingData=await r.json();
+console.log('Wedding data loaded:', weddingData);
+
+// Check if password protected
+if(weddingData.password_protected && weddingData.password){
+  const savedPwd=sessionStorage.getItem('wedding-pwd-'+slug);
+  if(savedPwd===weddingData.password){
+    redirectToTemplate(weddingData);
+  }else{
+    showPasswordModal(weddingData);
+  }
+}else{
+  redirectToTemplate(weddingData);
+}
+
 }catch(e){
 console.error('Error loading wedding:', e);
 document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1 style="color:#e74c3c">Wedding Not Found</h1><p>Could not load: '+slug+'</p><p style="margin-top:1rem;color:#666;font-size:0.9rem">Error: '+e.message+'</p></div>';
