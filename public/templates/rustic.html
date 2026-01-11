@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+:root{--primary:#8b7355;--accent:#d4a574;--bg:#fff}
+body{font-family:'Cormorant Garamond',serif}
+</style>
+</head>
+<body>
+<nav class="nav-top">
+<div class="nav-container">
+<a href="?page=home" class="logo" id="logo">S & J</a>
+<ul class="nav-links">
+<li><a href="?page=home" class="nav-link">Home</a></li>
+<li><a href="?page=story" class="nav-link">Our Story</a></li>
+<li><a href="?page=events" class="nav-link">Events</a></li>
+<li><a href="?page=travel" class="nav-link">Travel</a></li>
+<li><a href="?page=gallery" class="nav-link">Gallery</a></li>
+<li><a href="?page=rsvp" class="nav-link">RSVP</a></li>
+</ul>
+<button class="mobile-toggle" onclick="toggleMobile()">☰</button>
+</div>
+</nav>
+
+<div id="content"></div>
+
+<script src="/shared.js"></script>
+<script>
+const pages={
+home:d=>`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})">
+<div class="hero-content" style="text-align:center;padding:2rem;color:#fff">
+<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names}</h1>
+<p style="font-size:1.5rem;margin-bottom:1rem">${fmt(d.wedding_date)}</p>
+<p style="font-size:1.2rem">${d.wedding_location}</p>
+</div>
+</section>`,
+story:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">Our Story</h2>
+<p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto">${d.story||'Our love story...'}</p>
+</div>`,
+events:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>
+<div style="display:flex;flex-direction:column;gap:2rem">${renderEvents(d.events)}</div>
+</div>`,
+travel:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Travel & Stay</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem">
+<div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+<h3 style="color:var(--primary);margin-bottom:1rem">Getting There</h3>
+<p>Details coming soon...</p>
+</div>
+<div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+<h3 style="color:var(--primary);margin-bottom:1rem">Where to Stay</h3>
+<p>Details coming soon...</p>
+</div>
+</div>
+</div>`,
+gallery:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2>
+<div class="gallery-grid">${renderGallery(d.gallery_images)}</div>
+</div>`,
+rsvp:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">RSVP</h2>
+<div style="max-width:600px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)">
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Your Name *</label>
+<input type="text" id="name" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem">
+</div>
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Email *</label>
+<input type="email" id="email" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem">
+</div>
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Will you attend?</label>
+<div style="display:flex;gap:1rem">
+<button onclick="attending=true;this.style.background='#d4edda';this.style.color='#155724';this.nextElementSibling.style.background='#fff';this.nextElementSibling.style.color='#333'" style="flex:1;padding:1rem;border:2px solid #28a745;border-radius:8px;background:#d4edda;color:#155724;cursor:pointer;font-weight:600">✓ Yes</button>
+<button onclick="attending=false;this.style.background='#f8d7da';this.style.color='#721c24';this.previousElementSibling.style.background='#fff';this.previousElementSibling.style.color='#333'" style="flex:1;padding:1rem;border:2px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-weight:600">✗ No</button>
+</div>
+</div>
+<button onclick="submitRSVP()" style="width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer">Submit RSVP</button>
+</div>
+</div>`
+};
+
+let attending=true;
+function submitRSVP(){
+const n=document.getElementById('name').value,e=document.getElementById('email').value;
+if(!n||!e){alert('Please fill required fields');return}
+alert('Thank you! Your RSVP has been received.');
+}
+
+async function init(){
+const d=await loadWeddingData();
+document.getElementById('logo').textContent=`${d.partner_1.charAt(0)} & ${d.partner_2.charAt(0)}`;
+document.title=`${d.couple_names} - Wedding`;
+
+const page=new URLSearchParams(window.location.search).get('page')||'home';
+document.getElementById('content').innerHTML=pages[page](d);
+
+document.querySelectorAll('.nav-link').forEach(l=>{
+l.classList.remove('active');
+if(l.getAttribute('href').includes(`page=${page}`))l.classList.add('active');
+});
+}
+init();
+</script>
+</body>
+</html>
