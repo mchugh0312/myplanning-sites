@@ -1,16 +1,22 @@
-const API='https://wedding-recommender-ptcr.onrender.com';
+const API='https://wedding-recommender.onrender.com';
 const params=new URLSearchParams(window.location.search);
 const slug=params.get('slug')||'sarah-and-john';
 let weddingData=null;
 
 async function loadWeddingData(){
 try{
+console.log('Loading wedding data for slug:', slug);
 const r=await fetch(`${API}/wedding-site/${slug}`);
-if(!r.ok)throw new Error('Not found');
+if(!r.ok){
+  console.error('API response not ok:', r.status, r.statusText);
+  throw new Error('Not found');
+}
 weddingData=await r.json();
+console.log('Wedding data loaded successfully:', weddingData);
 return weddingData;
 }catch(e){
-document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1>Error loading wedding</h1></div>';
+console.error('Error in loadWeddingData:', e);
+document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1>Error loading wedding</h1><p style="color:#666;margin-top:1rem">'+e.message+'</p></div>';
 throw e;
 }
 }

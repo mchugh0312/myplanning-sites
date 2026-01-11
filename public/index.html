@@ -15,16 +15,21 @@
 <style>@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
 <script>
 const API='https://wedding-recommender.onrender.com';
-const slug=window.location.pathname.split('/').pop()||'sarah-and-john';
+const slug=window.location.pathname.split('/').filter(p=>p).pop()||'sarah-and-john';
 async function load(){
 try{
 const r=await fetch(`${API}/wedding-site/${slug}`);
-if(!r.ok)throw new Error('Not found');
+if(!r.ok){
+  console.error('API response not ok:', r.status, r.statusText);
+  throw new Error('Not found');
+}
 const d=await r.json();
+console.log('Wedding data loaded:', d);
 const template=(d.template||'classic').toLowerCase();
 window.location.href=`/templates/${template}.html?slug=${slug}`;
 }catch(e){
-document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1 style="color:#e74c3c">Wedding Not Found</h1><p>'+slug+'</p></div>';
+console.error('Error loading wedding:', e);
+document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1 style="color:#e74c3c">Wedding Not Found</h1><p>Could not load: '+slug+'</p><p style="margin-top:1rem;color:#666;font-size:0.9rem">Error: '+e.message+'</p></div>';
 }
 }
 load();
