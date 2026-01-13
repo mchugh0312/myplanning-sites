@@ -4,71 +4,132 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--primary:#2c3e50;--accent:#e74c3c}
-html,body{height:100%;overflow-x:hidden;font-family:'Playfair Display',serif}
+:root{
+--classic-primary:#2c3e50;
+--classic-accent:#e8b4b8;
+--floral-primary:#d4a574;
+--floral-accent:#f4e4d7;
+--modern-primary:#5a7f7f;
+--modern-accent:#f5e6d3;
+--elegant-primary:#8b7355;
+--elegant-accent:#fff8f0;
+}
+html,body{height:100%;overflow-x:hidden}
 body{display:flex;flex-direction:column}
 
-.nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);box-shadow:0 2px 15px rgba(0,0,0,.1)}
+/* Navigation Styles */
+.nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 2px 20px rgba(0,0,0,.08)}
 .nav-container{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:70px}
-.logo{font-size:1.5rem;font-weight:700;color:var(--primary);cursor:pointer}
-.nav-links{display:flex;gap:2rem;list-style:none}
-.nav-link{font-weight:500;color:#333;padding:.5rem 1rem;cursor:pointer;transition:color .3s}
-.nav-link:hover,.nav-link.active{color:var(--primary)}
+.logo{font-size:1.4rem;font-weight:700;cursor:pointer;letter-spacing:1px}
+.nav-links{display:flex;gap:2rem;list-style:none;font-size:0.95rem;letter-spacing:0.5px}
+.nav-link{font-weight:500;padding:.5rem 1rem;cursor:pointer;transition:all .3s;text-transform:uppercase;font-size:0.85rem}
 .mobile-toggle{display:none;background:none;border:none;font-size:1.5rem;cursor:pointer}
 
 #app{flex:1;margin-top:70px;overflow-y:auto}
-.section{padding:3rem 2rem;max-width:1200px;margin:0 auto}
 
-.hero-bg{background-size:cover;background-position:center;position:relative;min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center}
-.hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1}
-.hero-content{position:relative;z-index:10;text-align:center;padding:2rem;color:#fff}
+/* Countdown Timer */
+.countdown{display:flex;gap:2rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+.countdown-item{text-align:center;min-width:80px}
+.countdown-number{font-size:3rem;font-weight:600;line-height:1;margin-bottom:0.5rem}
+.countdown-label{font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;opacity:0.8}
 
+/* Loading & Modal */
 .loading{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .spinner{border:4px solid #f3f3f3;border-top:4px solid #333;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-
-.password-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999}
-.password-box{background:#fff;padding:3rem;border-radius:12px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
-.password-box h2{margin:0 0 1rem;font-size:1.5rem}
-.password-box input{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin:1rem 0;box-sizing:border-box}
-.password-box button{width:100%;padding:1rem;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+.password-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+.password-box{background:#fff;padding:3rem;border-radius:16px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.password-box h2{margin:0 0 1rem;font-size:1.6rem}
+.password-box input{width:100%;padding:1rem;border:2px solid #ddd;border-radius:10px;font-size:1rem;margin:1rem 0;transition:border-color .3s}
+.password-box input:focus{outline:none;border-color:#000}
+.password-box button{width:100%;padding:1rem;background:#000;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:background .3s}
+.password-box button:hover{background:#333}
 .password-box button:disabled{opacity:0.5;cursor:not-allowed}
 .error-msg{color:#e74c3c;font-size:0.9rem;display:none;margin-top:0.5rem}
 
-.event-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:2rem}
-.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
-.gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px}
+/* Card Styles */
+.event-card{background:#fff;border-radius:16px;padding:2.5rem;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:2rem;transition:transform .3s,box-shadow .3s}
+.event-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s}
+.gallery-item:hover{transform:scale(1.05)}
 .gallery-item img{width:100%;height:100%;object-fit:cover}
 
-/* Optimized RSVP Form - Compact & Fits on One Screen */
-.rsvp-container{max-width:700px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+/* Form Styles */
+.rsvp-container{max-width:700px;margin:0 auto;background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 4px 30px rgba(0,0,0,.08)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .form-group{margin-bottom:1rem}
-.form-group.full-width{grid-column:1 / -1}
-.form-group label{display:block;margin-bottom:.5rem;font-weight:600;font-size:0.9rem}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;font-family:inherit}
-.form-group textarea{resize:vertical;min-height:60px}
+.form-group.full-width{grid-column:1/-1}
+.form-group label{display:block;margin-bottom:.5rem;font-weight:600;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.85rem;border:2px solid #e0e0e0;border-radius:10px;font-size:0.95rem;font-family:inherit;transition:border-color .3s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#000}
+.form-group textarea{resize:vertical;min-height:70px}
 .radio-group{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:.5rem}
-.radio-option{padding:0.75rem;border:2px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;transition:all .3s;font-size:0.9rem}
-.radio-option.selected{border-color:#28a745;background:#d4edda;color:#155724}
-.radio-icon{font-size:1.5rem;margin-bottom:0.25rem}
-.btn-primary{width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:1rem}
-.btn-primary:hover{background:#1a252f}
+.radio-option{padding:1rem;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;text-align:center;transition:all .3s;font-size:0.9rem}
+.radio-option.selected{border-color:#000;background:#f5f5f5}
+.radio-icon{font-size:1.8rem;margin-bottom:0.3rem}
+.btn-primary{width:100%;padding:1.1rem;background:#000;color:#fff;border:none;border-radius:10px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:background .3s;text-transform:uppercase;letter-spacing:1px}
+.btn-primary:hover{background:#333}
+
+/* Template-Specific Styles */
+.template-classic{font-family:'Playfair Display',serif}
+.template-classic .logo{color:var(--classic-primary)}
+.template-classic .nav-link{color:#555}
+.template-classic .nav-link:hover,.template-classic .nav-link.active{color:var(--classic-primary)}
+.template-classic .hero-overlay{background:linear-gradient(135deg,rgba(44,62,80,0.7),rgba(232,180,184,0.6))}
+.template-classic .section-title{color:var(--classic-primary)}
+
+.template-floral{font-family:'Cormorant Garamond',serif}
+.template-floral .logo{color:var(--floral-primary);font-style:italic}
+.template-floral .nav-link{color:#666}
+.template-floral .nav-link:hover,.template-floral .nav-link.active{color:var(--floral-primary)}
+.template-floral .hero-overlay{background:linear-gradient(135deg,rgba(212,165,116,0.75),rgba(244,228,215,0.7))}
+.template-floral .section-title{color:var(--floral-primary);font-style:italic}
+.template-floral::before{content:'';position:fixed;top:0;right:0;width:400px;height:400px;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="%23f4e4d7" opacity="0.3"/></svg>');pointer-events:none;z-index:-1}
+
+.template-modern{font-family:'Montserrat',sans-serif}
+.template-modern .logo{color:var(--modern-primary);font-weight:600;letter-spacing:2px}
+.template-modern .nav-link{color:#666;font-weight:400}
+.template-modern .nav-link:hover,.template-modern .nav-link.active{color:var(--modern-primary)}
+.template-modern .hero-overlay{background:linear-gradient(135deg,rgba(90,127,127,0.8),rgba(245,230,211,0.7))}
+.template-modern .section-title{color:var(--modern-primary);font-weight:600}
+
+.template-elegant{font-family:'Cormorant Garamond',serif}
+.template-elegant .logo{color:var(--elegant-primary);letter-spacing:3px}
+.template-elegant .nav-link{color:#777}
+.template-elegant .nav-link:hover,.template-elegant .nav-link.active{color:var(--elegant-primary)}
+.template-elegant .hero-overlay{background:linear-gradient(135deg,rgba(139,115,85,0.75),rgba(255,248,240,0.7))}
+.template-elegant .section-title{color:var(--elegant-primary)}
+.template-elegant body{background:var(--elegant-accent)}
+
+/* Hero Section */
+.hero-bg{background-size:cover;background-position:center;position:relative;min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center}
+.hero-overlay{position:absolute;inset:0;z-index:1}
+.hero-content{position:relative;z-index:10;text-align:center;padding:3rem 2rem;color:#fff;max-width:900px}
+.hero-title{font-size:clamp(3rem,8vw,6rem);margin-bottom:1.5rem;line-height:1.1;font-weight:400;letter-spacing:2px}
+.hero-subtitle{font-size:1.4rem;margin-bottom:2rem;opacity:0.95;letter-spacing:1px}
+.hero-location{font-size:1.1rem;opacity:0.9;margin-bottom:0.5rem}
+
+.section{padding:5rem 2rem;max-width:1200px;margin:0 auto}
+.section-title{font-size:clamp(2.5rem,5vw,4rem);text-align:center;margin-bottom:3rem;font-weight:400;letter-spacing:2px}
+.section-bg-light{background:#fafafa}
 
 @media (max-width:768px){
-.nav-links{display:none;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:#fff;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.nav-links{display:none;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:#fff;padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,.1)}
 .nav-links.open{display:flex}
 .mobile-toggle{display:block}
 .form-row{grid-template-columns:1fr}
 .radio-group{grid-template-columns:1fr}
+.countdown{gap:1rem}
+.countdown-item{min-width:60px}
+.countdown-number{font-size:2rem}
 }
 </style>
 </head>
 <body>
-
 <nav class="nav-top" id="nav" style="display:none">
 <div class="nav-container">
 <span class="logo" id="logo" onclick="navigateTo('home')">Loading...</span>
@@ -76,15 +137,7 @@ body{display:flex;flex-direction:column}
 <button class="mobile-toggle" onclick="toggleMobile()">☰</button>
 </div>
 </nav>
-
-<div id="app">
-<div class="loading">
-<div style="text-align:center">
-<div class="spinner"></div>
-<p>Loading...</p>
-</div>
-</div>
-</div>
+<div id="app"><div class="loading"><div style="text-align:center"><div class="spinner"></div><p>Loading...</p></div></div></div>
 
 <script>
 const API='https://wedding-recommender.onrender.com';
@@ -93,112 +146,116 @@ const slug=path[0]||'test-wedding';
 let currentPage=path[1]||'home';
 let weddingData=null;
 let rsvpData={attending:null,meal:null};
+let countdownInterval=null;
 
-console.log('🚀 App started - slug:', slug, 'page:', currentPage);
-
-function toggleMobile(){
-document.getElementById('nav-menu').classList.toggle('open');
-}
+function toggleMobile(){document.getElementById('nav-menu').classList.toggle('open');}
 
 function fmt(d){
 if(!d)return'';
-try{
-return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-}catch(e){return d}
+try{return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}catch(e){return d}
 }
 
-// Pages
-const renderHome=d=>`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})"><div class="hero-content"><h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names||'Wedding'}</h1><p style="font-size:1.5rem;margin-bottom:1rem">${d.wedding_date?fmt(d.wedding_date):''}</p><p style="font-size:1.2rem">${d.wedding_location||''}</p></div></section>`;
+function updateCountdown(weddingDate){
+if(!weddingDate)return'';
+const target=new Date(weddingDate).getTime();
+const now=new Date().getTime();
+const diff=target-now;
 
-const renderStory=d=>`<div class="section" style="padding-top:2rem"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">Our Story</h2><p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto;white-space:pre-line">${d.story||'Our love story will be shared soon...'}</p></div>`;
+if(diff<0)return'<div class="countdown-item"><div class="countdown-number">❤️</div><div class="countdown-label">Married!</div></div>';
+
+const days=Math.floor(diff/(1000*60*60*24));
+const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+const mins=Math.floor((diff%(1000*60*60))/(1000*60));
+const secs=Math.floor((diff%(1000*60))/1000);
+
+return`
+<div class="countdown-item"><div class="countdown-number">${days}</div><div class="countdown-label">Days</div></div>
+<div class="countdown-item"><div class="countdown-number">${hours}</div><div class="countdown-label">Hours</div></div>
+<div class="countdown-item"><div class="countdown-number">${mins}</div><div class="countdown-label">Minutes</div></div>
+<div class="countdown-item"><div class="countdown-number">${secs}</div><div class="countdown-label">Seconds</div></div>
+`;
+}
+
+function startCountdown(weddingDate){
+if(countdownInterval)clearInterval(countdownInterval);
+if(!weddingDate)return;
+const el=document.getElementById('countdown-timer');
+if(!el)return;
+
+const update=()=>{el.innerHTML=updateCountdown(weddingDate);};
+update();
+countdownInterval=setInterval(update,1000);
+}
+
+const renderHome=d=>{
+const location=d.wedding_location||'';
+return`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600'})">
+<div class="hero-overlay"></div>
+<div class="hero-content">
+<h1 class="hero-title">${d.couple_names||'Wedding'}</h1>
+${d.wedding_date?`<p class="hero-subtitle">${fmt(d.wedding_date)}</p>`:''}
+${location?`<p class="hero-location">📍 ${location}</p>`:''}
+${d.wedding_date?`<div class="countdown" id="countdown-timer"></div>`:''}
+</div>
+</section>`;
+};
+
+const renderStory=d=>`<div class="section"><h2 class="section-title">Our Story</h2><p style="font-size:1.2rem;line-height:2;text-align:center;max-width:800px;margin:0 auto">${d.story||'Our love story will be shared soon...'}</p></div>`;
 
 const renderEvents=d=>{
 const events=d.events||[];
-if(!events.length)return`<div class="section"><p style="text-align:center">Details coming soon</p></div>`;
-return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>${events.map(e=>`<div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">${e.name||'Event'}</h3>${e.date?`<p><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>`:''}${e.venue?`<p><strong>Venue:</strong> ${e.venue}</p>`:''}${e.dress_code?`<p><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}</div>`).join('')}</div>`;
+if(!events.length)return`<div class="section section-bg-light"><h2 class="section-title">Events</h2><p style="text-align:center;font-size:1.1rem;opacity:0.7">Details coming soon</p></div>`;
+return`<div class="section section-bg-light"><h2 class="section-title">Events</h2>${events.map(e=>`
+<div class="event-card">
+<h3 style="font-size:1.8rem;margin-bottom:1rem">${e.name||'Event'}</h3>
+${e.date?`<p style="margin-bottom:0.5rem;font-size:1.1rem"><strong>📅 </strong>${fmt(e.date)} ${e.time||''}</p>`:''}
+${e.venue?`<p style="margin-bottom:0.5rem"><strong>📍 </strong>${e.venue}</p>`:''}
+${e.dress_code?`<p style="margin-bottom:0.5rem"><strong>👔 </strong>${e.dress_code}</p>`:''}
+${e.description?`<p style="margin-top:1rem;line-height:1.8">${e.description}</p>`:''}
+</div>
+`).join('')}</div>`;
 };
 
-const renderTravel=d=>`<div class="section"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Travel & Stay</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem"><div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">Getting There</h3><p style="white-space:pre-line">${d.travel_info||'Details coming soon...'}</p></div><div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">Where to Stay</h3><p style="white-space:pre-line">${d.accommodation_info||'Details coming soon...'}</p></div></div></div>`;
+const renderTravel=d=>`<div class="section"><h2 class="section-title">Travel & Stay</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem"><div class="event-card"><h3 style="font-size:1.5rem;margin-bottom:1rem">✈️ Getting There</h3><p style="white-space:pre-line;line-height:1.8">${d.travel_info||'Details coming soon...'}</p></div><div class="event-card"><h3 style="font-size:1.5rem;margin-bottom:1rem">🏨 Where to Stay</h3><p style="white-space:pre-line;line-height:1.8">${d.accommodation_info||'Details coming soon...'}</p></div></div></div>`;
 
-const renderThingsToDo=d=>`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Things to Do</h2><p style="font-size:1.1rem;line-height:1.8;max-width:800px;margin:0 auto;white-space:pre-line">${d.things_to_do||'Information coming soon...'}</p></div>`;
+const renderThingsToDo=d=>`<div class="section section-bg-light"><h2 class="section-title">Things to Do</h2><p style="font-size:1.1rem;line-height:2;max-width:800px;margin:0 auto;white-space:pre-line">${d.things_to_do||'Information about local attractions coming soon...'}</p></div>`;
 
 const renderGallery=d=>{
 const imgs=(d.gallery_images||[]).map(i=>i.url||i.thumbnail).filter(Boolean);
-if(!imgs.length)return`<div class="section"><p style="text-align:center">Photos coming soon</p></div>`;
-return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt=""></div>`).join('')}</div></div>`;
+if(!imgs.length)return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><p style="text-align:center;opacity:0.7">Photos coming soon</p></div>`;
+return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Wedding photo" loading="lazy"></div>`).join('')}</div></div>`;
 };
 
-const renderRSVP=d=>`
-<div class="section">
-<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">RSVP</h2>
-<div class="rsvp-container">
-
+const renderRSVP=d=>`<div class="section"><h2 class="section-title">RSVP</h2><div class="rsvp-container">
 <div class="form-row">
-<div class="form-group">
-<label>First Name *</label>
-<input type="text" id="rsvp-fname" placeholder="First Name">
+<div class="form-group"><label>First Name *</label><input type="text" id="rsvp-fname" placeholder="First Name"></div>
+<div class="form-group"><label>Last Name *</label><input type="text" id="rsvp-lname" placeholder="Last Name"></div>
 </div>
-<div class="form-group">
-<label>Last Name *</label>
-<input type="text" id="rsvp-lname" placeholder="Last Name">
-</div>
-</div>
-
 <div class="form-row">
-<div class="form-group">
-<label>Email *</label>
-<input type="email" id="rsvp-email" placeholder="email@example.com">
+<div class="form-group"><label>Email *</label><input type="email" id="rsvp-email" placeholder="email@example.com"></div>
+<div class="form-group"><label>Phone</label><input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567"></div>
 </div>
-<div class="form-group">
-<label>Phone</label>
-<input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567">
-</div>
-</div>
-
-<div class="form-group full-width">
-<label>Will you attend? *</label>
-<div class="radio-group">
-<div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')">
-<div class="radio-icon">✓</div>
-<div>Attending</div>
-</div>
-<div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')">
-<div class="radio-icon">✗</div>
-<div>Can't Make It</div>
-</div>
-<div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')">
-<div class="radio-icon">?</div>
-<div>Not Sure</div>
-</div>
-</div>
-</div>
-
+<div class="form-group full-width"><label>Will you attend? *</label><div class="radio-group">
+<div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')"><div class="radio-icon">✓</div><div>Attending</div></div>
+<div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')"><div class="radio-icon">✗</div><div>Can't Make It</div></div>
+<div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')"><div class="radio-icon">?</div><div>Not Sure</div></div>
+</div></div>
 <div class="form-row" id="meal-section" style="display:${rsvpData.attending==='yes'?'grid':'none'}">
-<div class="form-group">
-<label>Meal Preference</label>
-<select id="rsvp-meal" onchange="rsvpData.meal=this.value">
+<div class="form-group"><label>Meal Preference</label><select id="rsvp-meal" onchange="rsvpData.meal=this.value">
 <option value="">Select preference</option>
-<option value="vegetarian">Vegetarian</option>
-<option value="non-vegetarian">Non-Vegetarian</option>
-<option value="vegan">Vegan</option>
-<option value="gluten-free">Gluten-Free</option>
-<option value="kids-meal">Kids Meal</option>
-</select>
+<option value="vegetarian">🌱 Vegetarian</option>
+<option value="non-vegetarian">🍖 Non-Vegetarian</option>
+<option value="vegan">🥗 Vegan</option>
+<option value="gluten-free">🌾 Gluten-Free</option>
+<option value="kids-meal">👶 Kids Meal</option>
+</select></div>
+<div class="form-group"><label>Guest Count</label><input type="number" id="rsvp-guests" min="1" max="10" value="1"></div>
 </div>
-<div class="form-group">
-<label>Number of Guests</label>
-<input type="number" id="rsvp-guests" min="1" max="10" value="1">
-</div>
-</div>
-
 <div class="form-group full-width" style="display:${rsvpData.attending==='yes'?'block':'none'}" id="notes-section">
-<label>Dietary Restrictions or Special Requests</label>
-<textarea id="rsvp-notes" placeholder="Any allergies, accessibility needs, or other requests..." rows="2"></textarea>
+<label>Special Requests</label><textarea id="rsvp-notes" placeholder="Dietary restrictions, accessibility needs, etc..." rows="2"></textarea>
 </div>
-
 <button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button>
-</div>
-</div>`;
+</div></div>`;
 
 const pages={home:renderHome,story:renderStory,events:renderEvents,travel:renderTravel,things_to_do:renderThingsToDo,gallery:renderGallery,rsvp:renderRSVP};
 
@@ -206,37 +263,27 @@ function selectRSVP(choice){
 rsvpData.attending=choice;
 document.querySelectorAll('.radio-option').forEach(opt=>opt.classList.remove('selected'));
 event.currentTarget.classList.add('selected');
-const mealSection=document.getElementById('meal-section');
-const notesSection=document.getElementById('notes-section');
-if(choice==='yes'){
-mealSection.style.display='grid';
-notesSection.style.display='block';
-}else{
-mealSection.style.display='none';
-notesSection.style.display='none';
-}
+const meal=document.getElementById('meal-section');
+const notes=document.getElementById('notes-section');
+if(choice==='yes'){meal.style.display='grid';notes.style.display='block';}
+else{meal.style.display='none';notes.style.display='none';}
 }
 
 function submitRSVP(){
 const fname=document.getElementById('rsvp-fname').value;
 const lname=document.getElementById('rsvp-lname').value;
 const email=document.getElementById('rsvp-email').value;
-if(!fname||!lname||!email||!rsvpData.attending){
-alert('Please fill in all required fields');
-return;
-}
-console.log('RSVP Submitted:',{fname,lname,email,attending:rsvpData.attending,meal:rsvpData.meal});
+if(!fname||!lname||!email||!rsvpData.attending){alert('Please fill in all required fields');return;}
+console.log('RSVP:',{fname,lname,email,attending:rsvpData.attending,meal:rsvpData.meal});
 alert('Thank you! Your RSVP has been received.');
 }
 
 function navigateTo(page){
 currentPage=page;
-const url=page==='home'?`/${slug}`:`/${slug}/${page}`;
-history.pushState({page},null,url);
+history.pushState({page},null,page==='home'?`/${slug}`:`/${slug}/${page}`);
 renderPage(page);
 updateNav(page);
 window.scrollTo(0,0);
-console.log('📍 Navigated to:',page);
 }
 
 function updateNav(page){
@@ -247,28 +294,16 @@ if(link.getAttribute('data-page')===page)link.classList.add('active');
 }
 
 function renderPage(page){
-if(!weddingData){console.error('❌ No wedding data');return;}
-const renderer=pages[page]||pages.home;
-document.getElementById('app').innerHTML=renderer(weddingData);
-console.log('✅ Rendered page:',page);
+if(!weddingData)return;
+document.getElementById('app').innerHTML=(pages[page]||pages.home)(weddingData);
+if(page==='home' && weddingData.wedding_date)startCountdown(weddingData.wedding_date);
 }
 
 function generateNav(data){
 const config=data.menu_config||{};
-console.log('🔍 Menu config:',config);
-const items=[
-{key:'home',label:'Home'},
-{key:'story',label:'Our Story'},
-{key:'events',label:'Events'},
-{key:'travel',label:'Travel'},
-{key:'things_to_do',label:'Things to Do'},
-{key:'gallery',label:'Gallery'},
-{key:'rsvp',label:'RSVP'}
-];
-
+const items=[{key:'home',label:'Home'},{key:'story',label:'Our Story'},{key:'events',label:'Events'},{key:'travel',label:'Travel'},{key:'things_to_do',label:'Things to Do'},{key:'gallery',label:'Gallery'},{key:'rsvp',label:'RSVP'}];
 const menu=document.getElementById('nav-menu');
 menu.innerHTML='';
-
 items.forEach(item=>{
 if(config[item.key]===true){
 const li=document.createElement('li');
@@ -279,138 +314,65 @@ span.setAttribute('data-page',item.key);
 span.onclick=()=>navigateTo(item.key);
 li.appendChild(span);
 menu.appendChild(li);
-console.log('✅ Added menu:',item.label);
-}else{
-console.log('⊘ Skipped menu:',item.label,'(value:',config[item.key]+')');
 }
 });
 }
 
 function showPasswordModal(){
-document.body.innerHTML=`
-<div class="password-modal">
-<div class="password-box">
-<h2>🔒 Password Protected</h2>
-<p>This wedding website is private. Please enter the password to continue.</p>
-<input type="password" id="pwd" placeholder="Enter password">
-<div class="error-msg" id="error">Incorrect password. Please try again.</div>
-<button id="pwd-btn" onclick="retryWithPassword()">Enter</button>
-</div>
-</div>`;
-
+document.body.innerHTML=`<div class="password-modal"><div class="password-box"><h2>🔒 Password Protected</h2><p>This wedding website is private. Please enter the password to continue.</p><input type="password" id="pwd" placeholder="Enter password"><div class="error-msg" id="error">Incorrect password. Please try again.</div><button id="pwd-btn" onclick="retryWithPassword()">Enter</button></div></div>`;
 window.retryWithPassword=async function(){
 const pwd=document.getElementById('pwd').value;
 const btn=document.getElementById('pwd-btn');
 const errorDiv=document.getElementById('error');
-
-if(!pwd){
-errorDiv.style.display='block';
-errorDiv.textContent='Please enter a password';
-return;
-}
-
-btn.disabled=true;
-btn.textContent='Checking...';
-errorDiv.style.display='none';
-
-console.log('🔑 Retrying with password');
-
-try{
-await loadWeddingData(pwd);
-}catch(e){
-errorDiv.style.display='block';
-errorDiv.textContent='Incorrect password. Please try again.';
-btn.disabled=false;
-btn.textContent='Enter';
-document.getElementById('pwd').value='';
-document.getElementById('pwd').focus();
-}
+if(!pwd){errorDiv.style.display='block';errorDiv.textContent='Please enter a password';return;}
+btn.disabled=true;btn.textContent='Checking...';errorDiv.style.display='none';
+try{await loadWeddingData(pwd);}catch(e){errorDiv.style.display='block';btn.disabled=false;btn.textContent='Enter';document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
 };
-
-document.getElementById('pwd').onkeypress=function(e){
-if(e.key==='Enter')retryWithPassword();
-};
-
+document.getElementById('pwd').onkeypress=function(e){if(e.key==='Enter')retryWithPassword();};
 document.getElementById('pwd').focus();
 }
 
 async function loadWeddingData(password){
 try{
-console.log('🔄 Loading wedding data...',password?'(with password)':'');
 const url=`${API}/wedding-site/${slug}${password?'?password='+encodeURIComponent(password):''}`;
 const res=await fetch(url);
 if(!res.ok)throw new Error('Not found');
 weddingData=await res.json();
-console.log('✅ API Response:',weddingData);
+console.log('✅ Loaded:',weddingData);
 
-// Check if password required
-if(weddingData.password_required===true){
-console.log('🔒 Password required');
-showPasswordModal();
-throw new Error('Password required');
-}
+if(weddingData.password_required===true){showPasswordModal();throw new Error('Password required');}
 
-console.log('👤 partner_1:',weddingData.partner_1);
-console.log('👤 partner_2:',weddingData.partner_2);
-console.log('💑 couple_names:',weddingData.couple_names);
-
-// Setup page
 const p1=(weddingData.partner_1||'').trim();
 const p2=(weddingData.partner_2||'').trim();
 let initials='Wedding';
-
-if(p1 && p2){
-initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
-}else if(weddingData.couple_names){
+if(p1&&p2)initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
+else if(weddingData.couple_names){
 const parts=weddingData.couple_names.split('&').map(s=>s.trim());
-if(parts.length===2 && parts[0] && parts[1]){
-initials=`${parts[0][0].toUpperCase()} & ${parts[1][0].toUpperCase()}`;
-}
+if(parts.length===2&&parts[0]&&parts[1])initials=`${parts[0][0].toUpperCase()} & ${parts[1][0].toUpperCase()}`;
 }
 
-console.log('📝 Calculated initials:',initials);
-
-// Recreate body structure if needed (after password modal)
 if(!document.getElementById('nav')){
-document.body.innerHTML=`
-<nav class="nav-top" id="nav">
-<div class="nav-container">
-<span class="logo" id="logo" onclick="navigateTo('home')"></span>
-<ul class="nav-links" id="nav-menu"></ul>
-<button class="mobile-toggle" onclick="toggleMobile()">☰</button>
-</div>
-</nav>
-<div id="app"></div>
-`;
+document.body.innerHTML=`<nav class="nav-top" id="nav"><div class="nav-container"><span class="logo" id="logo" onclick="navigateTo('home')"></span><ul class="nav-links" id="nav-menu"></ul><button class="mobile-toggle" onclick="toggleMobile()">☰</button></div></nav><div id="app"></div>`;
 }
+
+// Apply template styling
+const template=(weddingData.template||'classic').toLowerCase();
+document.body.className=`template-${template}`;
 
 document.getElementById('logo').textContent=initials;
 document.title=weddingData.couple_names||'Wedding';
-
 generateNav(weddingData);
 document.getElementById('nav').style.display='block';
-
 renderPage(currentPage);
 updateNav(currentPage);
 
 }catch(e){
-if(e.message==='Password required'){
-throw e;
-}
-console.error('❌ Error:',e);
-document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red;text-align:center">Error: ${e.message}</h1><p style="text-align:center">Check browser console for details</p></div>`;
-document.getElementById('nav').style.display='block';
+if(e.message==='Password required')throw e;
+document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red;text-align:center">Error: ${e.message}</h1></div>`;
 }
 }
 
-window.onpopstate=e=>{
-if(e.state && e.state.page){
-currentPage=e.state.page;
-renderPage(currentPage);
-updateNav(currentPage);
-}
-};
-
+window.onpopstate=e=>{if(e.state&&e.state.page){currentPage=e.state.page;renderPage(currentPage);updateNav(currentPage);}};
 loadWeddingData();
 </script>
 </body>
