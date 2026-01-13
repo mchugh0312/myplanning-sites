@@ -4,8 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
 <style>
-body{margin:0;font-family:sans-serif}
+:root{--primary:#2c3e50;--accent:#e74c3c;--bg:#fff}
+body{font-family:'Playfair Display',serif;margin:0;overflow-x:hidden}
 .loader-container{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .loader-content{text-align:center}
 .spinner{border:4px solid #f3f3f3;border-top:4px solid #333;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem}
@@ -18,13 +21,49 @@ body{margin:0;font-family:sans-serif}
 .password-box button{width:100%;padding:1rem;margin-top:1rem;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
 .password-box button:hover{background:#1a252f}
 .error-msg{color:#e74c3c;margin-top:0.5rem;font-size:0.9rem}
+
+/* Navigation styles */
+.nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);backdrop-filter:blur(10px);box-shadow:0 2px 15px rgba(0,0,0,.1)}
+.nav-top .nav-container{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:70px}
+.nav-top .logo{font-size:1.5rem;font-weight:700;text-decoration:none;color:var(--primary)}
+.nav-top .nav-links{display:flex;gap:2rem;list-style:none;margin:0;padding:0}
+.nav-link{text-decoration:none;font-weight:500;color:#333;padding:.5rem 1rem;transition:color .3s;cursor:pointer}
+.nav-link:hover,.nav-link.active{color:var(--primary)}
+.mobile-toggle{display:none;background:none;border:none;font-size:1.5rem;cursor:pointer}
+@media (max-width:768px){
+.nav-top .nav-links{display:none;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:#fff;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.nav-top .nav-links.open{display:flex}
+.mobile-toggle{display:block}
+}
+
+/* Page styles */
+.section{padding:5rem 2rem;max-width:1200px;margin:0 auto}
+body.page-loaded{padding-top:70px}
+.hero-bg{background-size:cover;background-position:center;position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1}
+.hero-content{position:relative;z-index:10;text-align:center;padding:2rem;color:#fff}
+.event-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:2rem;transition:transform .3s}
+.event-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+.gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
+<nav class="nav-top" id="main-nav" style="display:none">
+<div class="nav-container">
+<a class="logo" id="logo">Loading...</a>
+<ul class="nav-links" id="nav-menu"></ul>
+<button class="mobile-toggle" onclick="toggleMobile()">☰</button>
+</div>
+</nav>
+
+<div id="app-content">
 <div class="loader-container">
 <div class="loader-content">
 <div class="spinner"></div>
 <p>Loading wedding website...</p>
+</div>
 </div>
 </div>
 
@@ -32,8 +71,114 @@ body{margin:0;font-family:sans-serif}
 const API='https://wedding-recommender.onrender.com';
 const pathParts=window.location.pathname.split('/').filter(p=>p);
 const slug=pathParts[0]||'sarah-and-john';
+let currentPage=pathParts[1]||'home';
+let weddingData=null;
 
-console.log('Loading slug:', slug);
+console.log('Loading slug:', slug, 'page:', currentPage);
+
+function toggleMobile(){
+document.querySelector('.nav-links').classList.toggle('open');
+}
+
+function fmt(d){
+if(!d)return'';
+return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+function renderEvents(events){
+if(!events||!events.length)return'<p style="text-align:center;color:#666">Details coming soon</p>';
+return events.map(e=>`
+<div class="event-card">
+<h3 style="color:var(--primary);margin-bottom:1rem;font-size:1.5rem">${e.name||''}</h3>
+<p style="margin-bottom:.5rem"><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>
+${e.venue?`<p style="margin-bottom:.5rem"><strong>Venue:</strong> ${e.venue}</p>`:''}
+${e.address?`<p style="margin-bottom:.5rem"><strong>Address:</strong> ${e.address}</p>`:''}
+${e.dress_code?`<p style="margin-bottom:.5rem"><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}
+${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}
+</div>
+`).join('');
+}
+
+function renderGallery(images){
+const imgs=images&&images.length?images.map(i=>i.url||i.thumbnail):[];
+if(!imgs.length)return'<p style="text-align:center;color:#666">Photos coming soon</p>';
+return imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Gallery"></div>`).join('');
+}
+
+const pages={
+home:d=>`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})">
+<div class="hero-content">
+<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names||d.partner_1+' & '+d.partner_2}</h1>
+<p style="font-size:1.5rem;margin-bottom:1rem">${fmt(d.wedding_date)}</p>
+<p style="font-size:1.2rem">${d.wedding_location||''}</p>
+</div>
+</section>`,
+
+story:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">Our Story</h2>
+<p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto">${d.story||'Our love story will be shared soon...'}</p>
+</div>`,
+
+events:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>
+<div style="display:flex;flex-direction:column;gap:2rem">${renderEvents(d.events)}</div>
+</div>`,
+
+travel:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Travel & Stay</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem">
+<div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+<h3 style="color:var(--primary);margin-bottom:1rem">Getting There</h3>
+<p style="white-space:pre-line">${d.travel_info||'Details coming soon...'}</p>
+</div>
+<div style="background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)">
+<h3 style="color:var(--primary);margin-bottom:1rem">Where to Stay</h3>
+<p style="white-space:pre-line">${d.accommodation_info||'Details coming soon...'}</p>
+</div>
+</div>
+</div>`,
+
+things_to_do:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Things to Do</h2>
+<div style="max-width:800px;margin:0 auto">
+<p style="font-size:1.1rem;line-height:1.8;white-space:pre-line">${d.things_to_do||'Information about local attractions coming soon...'}</p>
+</div>
+</div>`,
+
+gallery:d=>`<div class="section" style="padding-top:120px;background:#f9f9f9">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2>
+<div class="gallery-grid">${renderGallery(d.gallery_images)}</div>
+</div>`,
+
+rsvp:d=>`<div class="section" style="padding-top:120px">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">RSVP</h2>
+<div style="max-width:600px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)">
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Your Name *</label>
+<input type="text" id="name" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem">
+</div>
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Email *</label>
+<input type="email" id="email" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem">
+</div>
+<div style="margin-bottom:1.5rem">
+<label style="display:block;margin-bottom:.5rem;font-weight:600">Will you attend?</label>
+<div style="display:flex;gap:1rem">
+<button onclick="attending=true;this.style.background='#d4edda';this.style.color='#155724';this.nextElementSibling.style.background='#fff';this.nextElementSibling.style.color='#333'" style="flex:1;padding:1rem;border:2px solid #28a745;border-radius:8px;background:#d4edda;color:#155724;cursor:pointer;font-weight:600">✓ Yes</button>
+<button onclick="attending=false;this.style.background='#f8d7da';this.style.color='#721c24';this.previousElementSibling.style.background='#fff';this.previousElementSibling.style.color='#333'" style="flex:1;padding:1rem;border:2px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-weight:600">✗ No</button>
+</div>
+</div>
+<button onclick="submitRSVP()" style="width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer">Submit RSVP</button>
+</div>
+</div>`
+};
+
+let attending=true;
+function submitRSVP(){
+const n=document.getElementById('name').value,e=document.getElementById('email').value;
+if(!n||!e){alert('Please fill required fields');return}
+alert('Thank you! Your RSVP has been received.');
+}
 
 function showPasswordModal(data){
 const modal=document.createElement('div');
@@ -41,9 +186,9 @@ modal.className='password-modal';
 modal.innerHTML=`
 <div class="password-box">
   <h2>🔒 Password Protected</h2>
-  <p>This wedding website is private. Please enter the password to continue.</p>
+  <p>This wedding website is private. Please enter the password.</p>
   <input type="password" id="pwd-input" placeholder="Enter password" />
-  <div id="pwd-error" class="error-msg" style="display:none">Incorrect password. Please try again.</div>
+  <div id="pwd-error" class="error-msg" style="display:none">Incorrect password.</div>
   <button onclick="checkPassword()">Enter</button>
 </div>
 `;
@@ -52,12 +197,11 @@ document.body.appendChild(modal);
 
 window.checkPassword=function(){
   const input=document.getElementById('pwd-input').value;
-  const errorDiv=document.getElementById('pwd-error');
   if(input===data.password){
     sessionStorage.setItem('wedding-pwd-'+slug,input);
-    redirectToTemplate(data);
+    init();
   }else{
-    errorDiv.style.display='block';
+    document.getElementById('pwd-error').style.display='block';
     document.getElementById('pwd-input').value='';
   }
 };
@@ -67,39 +211,97 @@ document.getElementById('pwd-input').addEventListener('keypress',function(e){
 });
 }
 
-function redirectToTemplate(data){
-const template=(data.template||'classic').toLowerCase();
-window.location.href=`/templates/${template}.html?slug=${slug}`;
+function generateNavigation(data){
+const menuConfig=data.menu_config||{home:true,story:true,events:true,travel:true,things_to_do:true,gallery:true,rsvp:true};
+const menuItems={
+  home:{label:'Home',order:1},
+  story:{label:'Our Story',order:2},
+  events:{label:'Events',order:3},
+  travel:{label:'Travel',order:4},
+  things_to_do:{label:'Things to Do',order:5},
+  gallery:{label:'Gallery',order:6},
+  rsvp:{label:'RSVP',order:7}
+};
+
+const navMenu=document.getElementById('nav-menu');
+navMenu.innerHTML='';
+
+Object.keys(menuItems)
+  .filter(key=>menuConfig[key]===true)
+  .sort((a,b)=>menuItems[a].order-menuItems[b].order)
+  .forEach(key=>{
+    const li=document.createElement('li');
+    const a=document.createElement('span');
+    a.className='nav-link';
+    a.textContent=menuItems[key].label;
+    a.onclick=()=>navigate(key);
+    if(key===currentPage)a.classList.add('active');
+    li.appendChild(a);
+    navMenu.appendChild(li);
+  });
 }
 
-async function load(){
+function navigate(page){
+currentPage=page;
+history.pushState({page},''`/${slug}/${page==='home'?'':page}`);
+renderPage(page);
+document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+document.querySelectorAll('.nav-link').forEach(l=>{
+  if(l.textContent===pages[page]?'Home':(page==='story'?'Our Story':page==='events'?'Events':page==='travel'?'Travel':page==='things_to_do'?'Things to Do':page==='gallery'?'Gallery':'RSVP')){
+    l.classList.add('active');
+  }
+});
+}
+
+function renderPage(page){
+const content=pages[page]?pages[page](weddingData):pages.home(weddingData);
+document.getElementById('app-content').innerHTML=content;
+window.scrollTo(0,0);
+}
+
+async function init(){
 try{
 const r=await fetch(`${API}/wedding-site/${slug}`);
-if(!r.ok){
-  console.error('API response not ok:', r.status, r.statusText);
-  throw new Error('Not found');
-}
-const weddingData=await r.json();
+if(!r.ok)throw new Error('Not found');
+weddingData=await r.json();
 console.log('Wedding data loaded:', weddingData);
 
-// Check if password protected
+// Check password
 if(weddingData.password_protected && weddingData.password){
   const savedPwd=sessionStorage.getItem('wedding-pwd-'+slug);
-  if(savedPwd===weddingData.password){
-    redirectToTemplate(weddingData);
-  }else{
+  if(savedPwd!==weddingData.password){
     showPasswordModal(weddingData);
+    return;
   }
-}else{
-  redirectToTemplate(weddingData);
 }
+
+// Set up page
+const p1=weddingData.partner_1||'';
+const p2=weddingData.partner_2||'';
+const initials=`${p1.charAt(0)||'S'} & ${p2.charAt(0)||'J'}`;
+document.getElementById('logo').textContent=initials;
+document.title=`${weddingData.couple_names||p1+' & '+p2}`;
+
+generateNavigation(weddingData);
+document.getElementById('main-nav').style.display='block';
+document.body.classList.add('page-loaded');
+
+renderPage(currentPage);
 
 }catch(e){
 console.error('Error loading wedding:', e);
-document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1 style="color:#e74c3c">Wedding Not Found</h1><p>Could not load: '+slug+'</p><p style="margin-top:1rem;color:#666;font-size:0.9rem">Error: '+e.message+'</p></div>';
+document.body.innerHTML='<div style="text-align:center;padding:2rem"><h1 style="color:#e74c3c">Wedding Not Found</h1><p>Could not load: '+slug+'</p></div>';
 }
 }
-load();
+
+window.addEventListener('popstate',function(e){
+if(e.state && e.state.page){
+currentPage=e.state.page;
+renderPage(currentPage);
+}
+});
+
+init();
 </script>
 </body>
 </html>
