@@ -11,7 +11,6 @@
 html,body{height:100%;overflow-x:hidden;font-family:'Playfair Display',serif}
 body{display:flex;flex-direction:column}
 
-/* Navigation */
 .nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.98);box-shadow:0 2px 15px rgba(0,0,0,.1)}
 .nav-container{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:70px}
 .logo{font-size:1.5rem;font-weight:700;color:var(--primary);cursor:pointer}
@@ -20,33 +19,36 @@ body{display:flex;flex-direction:column}
 .nav-link:hover,.nav-link.active{color:var(--primary)}
 .mobile-toggle{display:none;background:none;border:none;font-size:1.5rem;cursor:pointer}
 
-/* Content */
 #app{flex:1;margin-top:70px;overflow-y:auto}
 .section{padding:5rem 2rem;max-width:1200px;margin:0 auto}
 
-/* Hero */
 .hero-bg{background-size:cover;background-position:center;position:relative;min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center}
 .hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1}
 .hero-content{position:relative;z-index:10;text-align:center;padding:2rem;color:#fff}
 
-/* Loading */
 .loading{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .spinner{border:4px solid #f3f3f3;border-top:4px solid #333;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
-/* Password Modal */
 .password-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999}
 .password-box{background:#fff;padding:3rem;border-radius:12px;max-width:400px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
 .password-box h2{margin:0 0 1rem;font-size:1.5rem}
 .password-box input{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin:1rem 0;box-sizing:border-box}
 .password-box button{width:100%;padding:1rem;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
-.error-msg{color:#e74c3c;font-size:0.9rem;display:none}
+.error-msg{color:#e74c3c;font-size:0.9rem;display:none;margin-top:0.5rem}
 
-/* Cards */
 .event-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:2rem}
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
 .gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px}
 .gallery-item img{width:100%;height:100%;object-fit:cover}
+
+.form-group{margin-bottom:1.5rem}
+.form-group label{display:block;margin-bottom:.5rem;font-weight:600}
+.form-group input,.form-group select{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}
+.radio-group{display:flex;gap:1rem;margin-top:.5rem}
+.radio-option{flex:1;padding:1rem;border:2px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;transition:all .3s}
+.radio-option.selected{border-color:#28a745;background:#d4edda;color:#155724}
+.btn-primary{width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer}
 
 @media (max-width:768px){
 .nav-links{display:none;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:#fff;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.1)}
@@ -80,6 +82,7 @@ const path=window.location.pathname.split('/').filter(p=>p);
 const slug=path[0]||'test-wedding';
 let currentPage=path[1]||'home';
 let weddingData=null;
+let rsvpData={attending:null,meal:null};
 
 console.log('🚀 App started - slug:', slug, 'page:', currentPage);
 
@@ -98,8 +101,8 @@ return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'
 const renderHome=d=>`
 <section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})">
 <div class="hero-content">
-<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names}</h1>
-<p style="font-size:1.5rem;margin-bottom:1rem">${fmt(d.wedding_date)}</p>
+<h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names||'Wedding'}</h1>
+<p style="font-size:1.5rem;margin-bottom:1rem">${d.wedding_date?fmt(d.wedding_date):''}</p>
 <p style="font-size:1.2rem">${d.wedding_location||''}</p>
 </div>
 </section>`;
@@ -161,9 +164,63 @@ const renderRSVP=d=>`
 <div class="section">
 <h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">RSVP</h2>
 <div style="max-width:600px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)">
-<input type="text" placeholder="Your Name *" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;margin-bottom:1rem">
-<input type="email" placeholder="Email *" style="width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;margin-bottom:1rem">
-<button onclick="alert('Thank you!')" style="width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer">Submit RSVP</button>
+
+<div class="form-group">
+<label>Your Name *</label>
+<input type="text" id="rsvp-name" placeholder="Full Name">
+</div>
+
+<div class="form-group">
+<label>Email *</label>
+<input type="email" id="rsvp-email" placeholder="email@example.com">
+</div>
+
+<div class="form-group">
+<label>Phone</label>
+<input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567">
+</div>
+
+<div class="form-group">
+<label>Will you attend? *</label>
+<div class="radio-group">
+<div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')">
+<div style="font-size:2rem;margin-bottom:0.5rem">✓</div>
+<div>Yes, I'll be there</div>
+</div>
+<div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')">
+<div style="font-size:2rem;margin-bottom:0.5rem">✗</div>
+<div>Can't make it</div>
+</div>
+<div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')">
+<div style="font-size:2rem;margin-bottom:0.5rem">?</div>
+<div>Not sure yet</div>
+</div>
+</div>
+</div>
+
+<div class="form-group" id="meal-section" style="display:${rsvpData.attending==='yes'?'block':'none'}">
+<label>Meal Preference</label>
+<select id="rsvp-meal" onchange="rsvpData.meal=this.value">
+<option value="">Select meal preference</option>
+<option value="vegetarian" ${rsvpData.meal==='vegetarian'?'selected':''}>Vegetarian</option>
+<option value="non-vegetarian" ${rsvpData.meal==='non-vegetarian'?'selected':''}>Non-Vegetarian</option>
+<option value="vegan" ${rsvpData.meal==='vegan'?'selected':''}>Vegan</option>
+<option value="gluten-free" ${rsvpData.meal==='gluten-free'?'selected':''}>Gluten-Free</option>
+<option value="kids-meal" ${rsvpData.meal==='kids-meal'?'selected':''}>Kids Meal</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Number of Guests</label>
+<input type="number" id="rsvp-guests" min="1" max="10" value="1">
+</div>
+
+<div class="form-group">
+<label>Special Requests or Dietary Restrictions</label>
+<input type="text" id="rsvp-notes" placeholder="Any allergies or special needs...">
+</div>
+
+<button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button>
 </div>
 </div>`;
 
@@ -176,6 +233,24 @@ things_to_do:renderThingsToDo,
 gallery:renderGallery,
 rsvp:renderRSVP
 };
+
+function selectRSVP(choice){
+rsvpData.attending=choice;
+document.querySelectorAll('.radio-option').forEach(opt=>opt.classList.remove('selected'));
+event.currentTarget.classList.add('selected');
+document.getElementById('meal-section').style.display=choice==='yes'?'block':'none';
+}
+
+function submitRSVP(){
+const name=document.getElementById('rsvp-name').value;
+const email=document.getElementById('rsvp-email').value;
+if(!name||!email||!rsvpData.attending){
+alert('Please fill in all required fields');
+return;
+}
+console.log('RSVP Submitted:',{name,email,attending:rsvpData.attending,meal:rsvpData.meal});
+alert('Thank you! Your RSVP has been received.');
+}
 
 function navigateTo(page){
 currentPage=page;
@@ -206,6 +281,7 @@ console.log('✅ Rendered page:', page);
 
 function generateNav(data){
 const config=data.menu_config||{};
+console.log('🔍 Menu config:', config);
 const items=[
 {key:'home',label:'Home'},
 {key:'story',label:'Our Story'},
@@ -231,7 +307,7 @@ li.appendChild(span);
 menu.appendChild(li);
 console.log('✅ Added menu:', item.label);
 }else{
-console.log('⊘ Skipped menu:', item.label);
+console.log('⊘ Skipped menu:', item.label,'(value:',config[item.key]+')');
 }
 });
 }
@@ -270,6 +346,9 @@ const res=await fetch(`${API}/wedding-site/${slug}`);
 if(!res.ok)throw new Error('Not found');
 weddingData=await res.json();
 console.log('✅ Wedding data loaded:', weddingData);
+console.log('👤 partner_1:', weddingData.partner_1);
+console.log('👤 partner_2:', weddingData.partner_2);
+console.log('💑 couple_names:', weddingData.couple_names);
 
 // Check password
 if(weddingData.password_protected && weddingData.password){
@@ -284,13 +363,21 @@ return;
 // Setup page
 const p1=(weddingData.partner_1||'').trim();
 const p2=(weddingData.partner_2||'').trim();
-const initials=p1&&p2?`${p1[0]} & ${p2[0]}`:'Wedding';
+let initials='Wedding';
 
-console.log('👤 Partners:', p1, p2);
-console.log('📝 Initials:', initials);
+if(p1 && p2){
+initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
+}else if(weddingData.couple_names){
+const parts=weddingData.couple_names.split('&').map(s=>s.trim());
+if(parts.length===2 && parts[0] && parts[1]){
+initials=`${parts[0][0]} & ${parts[1][0]}`;
+}
+}
+
+console.log('📝 Calculated initials:', initials);
 
 document.getElementById('logo').textContent=initials;
-document.title=weddingData.couple_names||`${p1} & ${p2}`;
+document.title=weddingData.couple_names||'Wedding';
 
 generateNav(weddingData);
 document.getElementById('nav').style.display='block';
@@ -300,7 +387,8 @@ updateNav(currentPage);
 
 }catch(e){
 console.error('❌ Error:', e);
-document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red">Error: ${e.message}</h1></div>`;
+document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red;text-align:center">Error: ${e.message}</h1><p style="text-align:center">Check browser console for details</p></div>`;
+document.getElementById('nav').style.display='block';
 }
 }
 
