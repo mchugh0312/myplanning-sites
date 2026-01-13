@@ -20,7 +20,7 @@ body{display:flex;flex-direction:column}
 .mobile-toggle{display:none;background:none;border:none;font-size:1.5rem;cursor:pointer}
 
 #app{flex:1;margin-top:70px;overflow-y:auto}
-.section{padding:5rem 2rem;max-width:1200px;margin:0 auto}
+.section{padding:3rem 2rem;max-width:1200px;margin:0 auto}
 
 .hero-bg{background-size:cover;background-position:center;position:relative;min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center}
 .hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.5));z-index:1}
@@ -35,6 +35,7 @@ body{display:flex;flex-direction:column}
 .password-box h2{margin:0 0 1rem;font-size:1.5rem}
 .password-box input{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin:1rem 0;box-sizing:border-box}
 .password-box button{width:100%;padding:1rem;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+.password-box button:disabled{opacity:0.5;cursor:not-allowed}
 .error-msg{color:#e74c3c;font-size:0.9rem;display:none;margin-top:0.5rem}
 
 .event-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:2rem}
@@ -42,18 +43,27 @@ body{display:flex;flex-direction:column}
 .gallery-item{aspect-ratio:1;overflow:hidden;border-radius:12px}
 .gallery-item img{width:100%;height:100%;object-fit:cover}
 
-.form-group{margin-bottom:1.5rem}
-.form-group label{display:block;margin-bottom:.5rem;font-weight:600}
-.form-group input,.form-group select{width:100%;padding:1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}
-.radio-group{display:flex;gap:1rem;margin-top:.5rem}
-.radio-option{flex:1;padding:1rem;border:2px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;transition:all .3s}
+/* Optimized RSVP Form - Compact & Fits on One Screen */
+.rsvp-container{max-width:700px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-group{margin-bottom:1rem}
+.form-group.full-width{grid-column:1 / -1}
+.form-group label{display:block;margin-bottom:.5rem;font-weight:600;font-size:0.9rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;font-family:inherit}
+.form-group textarea{resize:vertical;min-height:60px}
+.radio-group{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:.5rem}
+.radio-option{padding:0.75rem;border:2px solid #ddd;border-radius:8px;cursor:pointer;text-align:center;transition:all .3s;font-size:0.9rem}
 .radio-option.selected{border-color:#28a745;background:#d4edda;color:#155724}
-.btn-primary{width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer}
+.radio-icon{font-size:1.5rem;margin-bottom:0.25rem}
+.btn-primary{width:100%;padding:1rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:1rem}
+.btn-primary:hover{background:#1a252f}
 
 @media (max-width:768px){
 .nav-links{display:none;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:#fff;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.1)}
 .nav-links.open{display:flex}
 .mobile-toggle{display:block}
+.form-row{grid-template-columns:1fr}
+.radio-group{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -97,50 +107,231 @@ return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'
 }catch(e){return d}
 }
 
-// Pages (same as before)
+// Pages
 const renderHome=d=>`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200'})"><div class="hero-content"><h1 style="font-size:clamp(3rem,8vw,6rem);margin-bottom:2rem">${d.couple_names||'Wedding'}</h1><p style="font-size:1.5rem;margin-bottom:1rem">${d.wedding_date?fmt(d.wedding_date):''}</p><p style="font-size:1.2rem">${d.wedding_location||''}</p></div></section>`;
+
 const renderStory=d=>`<div class="section" style="padding-top:2rem"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">Our Story</h2><p style="font-size:1.2rem;line-height:1.8;text-align:center;max-width:800px;margin:0 auto;white-space:pre-line">${d.story||'Our love story will be shared soon...'}</p></div>`;
-const renderEvents=d=>{const events=d.events||[];if(!events.length)return`<div class="section"><p style="text-align:center">Details coming soon</p></div>`;return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>${events.map(e=>`<div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">${e.name||'Event'}</h3>${e.date?`<p><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>`:''}${e.venue?`<p><strong>Venue:</strong> ${e.venue}</p>`:''}${e.dress_code?`<p><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}</div>`).join('')}</div>`;};
+
+const renderEvents=d=>{
+const events=d.events||[];
+if(!events.length)return`<div class="section"><p style="text-align:center">Details coming soon</p></div>`;
+return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Events</h2>${events.map(e=>`<div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">${e.name||'Event'}</h3>${e.date?`<p><strong>Date:</strong> ${fmt(e.date)} ${e.time||''}</p>`:''}${e.venue?`<p><strong>Venue:</strong> ${e.venue}</p>`:''}${e.dress_code?`<p><strong>Dress Code:</strong> ${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:1rem">${e.description}</p>`:''}</div>`).join('')}</div>`;
+};
+
 const renderTravel=d=>`<div class="section"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Travel & Stay</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem"><div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">Getting There</h3><p style="white-space:pre-line">${d.travel_info||'Details coming soon...'}</p></div><div class="event-card"><h3 style="color:var(--primary);margin-bottom:1rem">Where to Stay</h3><p style="white-space:pre-line">${d.accommodation_info||'Details coming soon...'}</p></div></div></div>`;
+
 const renderThingsToDo=d=>`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Things to Do</h2><p style="font-size:1.1rem;line-height:1.8;max-width:800px;margin:0 auto;white-space:pre-line">${d.things_to_do||'Information coming soon...'}</p></div>`;
-const renderGallery=d=>{const imgs=(d.gallery_images||[]).map(i=>i.url||i.thumbnail).filter(Boolean);if(!imgs.length)return`<div class="section"><p style="text-align:center">Photos coming soon</p></div>`;return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt=""></div>`).join('')}</div></div>`;};
-const renderRSVP=d=>`<div class="section"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">RSVP</h2><div style="max-width:600px;margin:0 auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 20px rgba(0,0,0,.1)"><div class="form-group"><label>Your Name *</label><input type="text" id="rsvp-name" placeholder="Full Name"></div><div class="form-group"><label>Email *</label><input type="email" id="rsvp-email" placeholder="email@example.com"></div><div class="form-group"><label>Phone</label><input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567"></div><div class="form-group"><label>Will you attend? *</label><div class="radio-group"><div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')"><div style="font-size:2rem;margin-bottom:0.5rem">✓</div><div>Yes, I'll be there</div></div><div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')"><div style="font-size:2rem;margin-bottom:0.5rem">✗</div><div>Can't make it</div></div><div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')"><div style="font-size:2rem;margin-bottom:0.5rem">?</div><div>Not sure yet</div></div></div></div><div class="form-group" id="meal-section" style="display:${rsvpData.attending==='yes'?'block':'none'}"><label>Meal Preference</label><select id="rsvp-meal" onchange="rsvpData.meal=this.value"><option value="">Select meal preference</option><option value="vegetarian" ${rsvpData.meal==='vegetarian'?'selected':''}>Vegetarian</option><option value="non-vegetarian" ${rsvpData.meal==='non-vegetarian'?'selected':''}>Non-Vegetarian</option><option value="vegan" ${rsvpData.meal==='vegan'?'selected':''}>Vegan</option><option value="gluten-free" ${rsvpData.meal==='gluten-free'?'selected':''}>Gluten-Free</option><option value="kids-meal" ${rsvpData.meal==='kids-meal'?'selected':''}>Kids Meal</option></select></div><div class="form-group"><label>Number of Guests</label><input type="number" id="rsvp-guests" min="1" max="10" value="1"></div><div class="form-group"><label>Special Requests or Dietary Restrictions</label><input type="text" id="rsvp-notes" placeholder="Any allergies or special needs..."></div><button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button></div></div>`;
+
+const renderGallery=d=>{
+const imgs=(d.gallery_images||[]).map(i=>i.url||i.thumbnail).filter(Boolean);
+if(!imgs.length)return`<div class="section"><p style="text-align:center">Photos coming soon</p></div>`;
+return`<div class="section" style="background:#f9f9f9"><h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:3rem">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt=""></div>`).join('')}</div></div>`;
+};
+
+const renderRSVP=d=>`
+<div class="section">
+<h2 style="font-size:3rem;text-align:center;color:var(--primary);margin-bottom:2rem">RSVP</h2>
+<div class="rsvp-container">
+
+<div class="form-row">
+<div class="form-group">
+<label>First Name *</label>
+<input type="text" id="rsvp-fname" placeholder="First Name">
+</div>
+<div class="form-group">
+<label>Last Name *</label>
+<input type="text" id="rsvp-lname" placeholder="Last Name">
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label>Email *</label>
+<input type="email" id="rsvp-email" placeholder="email@example.com">
+</div>
+<div class="form-group">
+<label>Phone</label>
+<input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567">
+</div>
+</div>
+
+<div class="form-group full-width">
+<label>Will you attend? *</label>
+<div class="radio-group">
+<div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')">
+<div class="radio-icon">✓</div>
+<div>Attending</div>
+</div>
+<div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')">
+<div class="radio-icon">✗</div>
+<div>Can't Make It</div>
+</div>
+<div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')">
+<div class="radio-icon">?</div>
+<div>Not Sure</div>
+</div>
+</div>
+</div>
+
+<div class="form-row" id="meal-section" style="display:${rsvpData.attending==='yes'?'grid':'none'}">
+<div class="form-group">
+<label>Meal Preference</label>
+<select id="rsvp-meal" onchange="rsvpData.meal=this.value">
+<option value="">Select preference</option>
+<option value="vegetarian">Vegetarian</option>
+<option value="non-vegetarian">Non-Vegetarian</option>
+<option value="vegan">Vegan</option>
+<option value="gluten-free">Gluten-Free</option>
+<option value="kids-meal">Kids Meal</option>
+</select>
+</div>
+<div class="form-group">
+<label>Number of Guests</label>
+<input type="number" id="rsvp-guests" min="1" max="10" value="1">
+</div>
+</div>
+
+<div class="form-group full-width" style="display:${rsvpData.attending==='yes'?'block':'none'}" id="notes-section">
+<label>Dietary Restrictions or Special Requests</label>
+<textarea id="rsvp-notes" placeholder="Any allergies, accessibility needs, or other requests..." rows="2"></textarea>
+</div>
+
+<button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button>
+</div>
+</div>`;
 
 const pages={home:renderHome,story:renderStory,events:renderEvents,travel:renderTravel,things_to_do:renderThingsToDo,gallery:renderGallery,rsvp:renderRSVP};
 
-function selectRSVP(choice){rsvpData.attending=choice;document.querySelectorAll('.radio-option').forEach(opt=>opt.classList.remove('selected'));event.currentTarget.classList.add('selected');document.getElementById('meal-section').style.display=choice==='yes'?'block':'none';}
-function submitRSVP(){const name=document.getElementById('rsvp-name').value;const email=document.getElementById('rsvp-email').value;if(!name||!email||!rsvpData.attending){alert('Please fill in all required fields');return;}console.log('RSVP Submitted:',{name,email,attending:rsvpData.attending,meal:rsvpData.meal});alert('Thank you! Your RSVP has been received.');}
-function navigateTo(page){currentPage=page;const url=page==='home'?`/${slug}`:`/${slug}/${page}`;history.pushState({page},null,url);renderPage(page);updateNav(page);window.scrollTo(0,0);console.log('📍 Navigated to:',page);}
-function updateNav(page){document.querySelectorAll('.nav-link').forEach(link=>{link.classList.remove('active');if(link.getAttribute('data-page')===page)link.classList.add('active');});}
-function renderPage(page){if(!weddingData){console.error('❌ No wedding data');return;}const renderer=pages[page]||pages.home;document.getElementById('app').innerHTML=renderer(weddingData);console.log('✅ Rendered page:',page);}
-function generateNav(data){const config=data.menu_config||{};console.log('🔍 Menu config:',config);const items=[{key:'home',label:'Home'},{key:'story',label:'Our Story'},{key:'events',label:'Events'},{key:'travel',label:'Travel'},{key:'things_to_do',label:'Things to Do'},{key:'gallery',label:'Gallery'},{key:'rsvp',label:'RSVP'}];const menu=document.getElementById('nav-menu');menu.innerHTML='';items.forEach(item=>{if(config[item.key]===true){const li=document.createElement('li');const span=document.createElement('span');span.className='nav-link';span.textContent=item.label;span.setAttribute('data-page',item.key);span.onclick=()=>navigateTo(item.key);li.appendChild(span);menu.appendChild(li);console.log('✅ Added menu:',item.label);}else{console.log('⊘ Skipped menu:',item.label,'(value:',config[item.key]+')');}});}
+function selectRSVP(choice){
+rsvpData.attending=choice;
+document.querySelectorAll('.radio-option').forEach(opt=>opt.classList.remove('selected'));
+event.currentTarget.classList.add('selected');
+const mealSection=document.getElementById('meal-section');
+const notesSection=document.getElementById('notes-section');
+if(choice==='yes'){
+mealSection.style.display='grid';
+notesSection.style.display='block';
+}else{
+mealSection.style.display='none';
+notesSection.style.display='none';
+}
+}
+
+function submitRSVP(){
+const fname=document.getElementById('rsvp-fname').value;
+const lname=document.getElementById('rsvp-lname').value;
+const email=document.getElementById('rsvp-email').value;
+if(!fname||!lname||!email||!rsvpData.attending){
+alert('Please fill in all required fields');
+return;
+}
+console.log('RSVP Submitted:',{fname,lname,email,attending:rsvpData.attending,meal:rsvpData.meal});
+alert('Thank you! Your RSVP has been received.');
+}
+
+function navigateTo(page){
+currentPage=page;
+const url=page==='home'?`/${slug}`:`/${slug}/${page}`;
+history.pushState({page},null,url);
+renderPage(page);
+updateNav(page);
+window.scrollTo(0,0);
+console.log('📍 Navigated to:',page);
+}
+
+function updateNav(page){
+document.querySelectorAll('.nav-link').forEach(link=>{
+link.classList.remove('active');
+if(link.getAttribute('data-page')===page)link.classList.add('active');
+});
+}
+
+function renderPage(page){
+if(!weddingData){console.error('❌ No wedding data');return;}
+const renderer=pages[page]||pages.home;
+document.getElementById('app').innerHTML=renderer(weddingData);
+console.log('✅ Rendered page:',page);
+}
+
+function generateNav(data){
+const config=data.menu_config||{};
+console.log('🔍 Menu config:',config);
+const items=[
+{key:'home',label:'Home'},
+{key:'story',label:'Our Story'},
+{key:'events',label:'Events'},
+{key:'travel',label:'Travel'},
+{key:'things_to_do',label:'Things to Do'},
+{key:'gallery',label:'Gallery'},
+{key:'rsvp',label:'RSVP'}
+];
+
+const menu=document.getElementById('nav-menu');
+menu.innerHTML='';
+
+items.forEach(item=>{
+if(config[item.key]===true){
+const li=document.createElement('li');
+const span=document.createElement('span');
+span.className='nav-link';
+span.textContent=item.label;
+span.setAttribute('data-page',item.key);
+span.onclick=()=>navigateTo(item.key);
+li.appendChild(span);
+menu.appendChild(li);
+console.log('✅ Added menu:',item.label);
+}else{
+console.log('⊘ Skipped menu:',item.label,'(value:',config[item.key]+')');
+}
+});
+}
 
 function showPasswordModal(){
 document.body.innerHTML=`
 <div class="password-modal">
 <div class="password-box">
 <h2>🔒 Password Protected</h2>
-<p>This wedding website is private. Please enter the password.</p>
+<p>This wedding website is private. Please enter the password to continue.</p>
 <input type="password" id="pwd" placeholder="Enter password">
-<div class="error-msg" id="error">Incorrect password</div>
-<button onclick="retryWithPassword()">Enter</button>
+<div class="error-msg" id="error">Incorrect password. Please try again.</div>
+<button id="pwd-btn" onclick="retryWithPassword()">Enter</button>
 </div>
 </div>`;
 
-window.retryWithPassword=function(){
+window.retryWithPassword=async function(){
 const pwd=document.getElementById('pwd').value;
+const btn=document.getElementById('pwd-btn');
+const errorDiv=document.getElementById('error');
+
 if(!pwd){
-document.getElementById('error').style.display='block';
-document.getElementById('error').textContent='Please enter a password';
+errorDiv.style.display='block';
+errorDiv.textContent='Please enter a password';
 return;
 }
+
+btn.disabled=true;
+btn.textContent='Checking...';
+errorDiv.style.display='none';
+
 console.log('🔑 Retrying with password');
-loadWeddingData(pwd);
+
+try{
+await loadWeddingData(pwd);
+}catch(e){
+errorDiv.style.display='block';
+errorDiv.textContent='Incorrect password. Please try again.';
+btn.disabled=false;
+btn.textContent='Enter';
+document.getElementById('pwd').value='';
+document.getElementById('pwd').focus();
+}
 };
 
-document.getElementById('pwd').onkeypress=e=>{
+document.getElementById('pwd').onkeypress=function(e){
 if(e.key==='Enter')retryWithPassword();
 };
+
+document.getElementById('pwd').focus();
 }
 
 async function loadWeddingData(password){
@@ -156,7 +347,7 @@ console.log('✅ API Response:',weddingData);
 if(weddingData.password_required===true){
 console.log('🔒 Password required');
 showPasswordModal();
-return;
+throw new Error('Password required');
 }
 
 console.log('👤 partner_1:',weddingData.partner_1);
@@ -173,11 +364,25 @@ initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
 }else if(weddingData.couple_names){
 const parts=weddingData.couple_names.split('&').map(s=>s.trim());
 if(parts.length===2 && parts[0] && parts[1]){
-initials=`${parts[0][0]} & ${parts[1][0]}`;
+initials=`${parts[0][0].toUpperCase()} & ${parts[1][0].toUpperCase()}`;
 }
 }
 
 console.log('📝 Calculated initials:',initials);
+
+// Recreate body structure if needed (after password modal)
+if(!document.getElementById('nav')){
+document.body.innerHTML=`
+<nav class="nav-top" id="nav">
+<div class="nav-container">
+<span class="logo" id="logo" onclick="navigateTo('home')"></span>
+<ul class="nav-links" id="nav-menu"></ul>
+<button class="mobile-toggle" onclick="toggleMobile()">☰</button>
+</div>
+</nav>
+<div id="app"></div>
+`;
+}
 
 document.getElementById('logo').textContent=initials;
 document.title=weddingData.couple_names||'Wedding';
@@ -189,6 +394,9 @@ renderPage(currentPage);
 updateNav(currentPage);
 
 }catch(e){
+if(e.message==='Password required'){
+throw e;
+}
 console.error('❌ Error:',e);
 document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red;text-align:center">Error: ${e.message}</h1><p style="text-align:center">Check browser console for details</p></div>`;
 document.getElementById('nav').style.display='block';
