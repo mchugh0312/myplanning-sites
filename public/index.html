@@ -137,94 +137,77 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 <div id="app"><div class="loading"><div style="text-align:center"><div class="spinner"></div><p>Loading...</p></div></div></div>
 
 <script>
-// API endpoint for celebration website data
 const API='https://wedding-recommender.onrender.com';
 const path=window.location.pathname.split('/').filter(p=>p);
-const slug=path[0]||'test-celebration';
+const slug=path[0]||'test-wedding';
 let currentPage=path[1]||'home';
-let celebrationData=null;
+let weddingData=null;
 let rsvpData={attending:null,meal:null};
 let countdownInterval=null;
 
-function updateCountdown(celebrationDate){
-if(!celebrationDate)return'';
-const target=new Date(celebrationDate).getTime();
-const now=new Date().getTime();
-const diff=target-now;
-if(diff<=0)return'<p style="font-size:1.2rem;opacity:0.9">Today is the day! 🎉</p>';
-const days=Math.floor(diff/(1000*60*60*24));
-const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
-const seconds=Math.floor((diff%(1000*60))/1000);
-return`<div class="countdown-item"><div class="countdown-number">${days}</div><div class="countdown-label">Days</div></div><div class="countdown-item"><div class="countdown-number">${hours}</div><div class="countdown-label">Hours</div></div><div class="countdown-item"><div class="countdown-number">${minutes}</div><div class="countdown-label">Minutes</div></div><div class="countdown-item"><div class="countdown-number">${seconds}</div><div class="countdown-label">Seconds</div></div>`;
+function toggleMobile(){document.getElementById('nav-menu').classList.toggle('open');}
+
+function fmt(d){
+if(!d)return'';
+try{return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}catch(e){return d}
 }
 
-function startCountdown(celebrationDate){
-if(!celebrationDate)return;
+function updateCountdown(weddingDate){
+if(!weddingDate)return'';
+const target=new Date(weddingDate).getTime();
+const now=new Date().getTime();
+const diff=target-now;
+if(diff<0)return'<div class="countdown-item"><div class="countdown-number">❤️</div><div class="countdown-label">Married!</div></div>';
+const days=Math.floor(diff/(1000*60*60*24));
+const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+const mins=Math.floor((diff%(1000*60*60))/(1000*60));
+const secs=Math.floor((diff%(1000*60))/1000);
+return`<div class="countdown-item"><div class="countdown-number">${days}</div><div class="countdown-label">Days</div></div><div class="countdown-item"><div class="countdown-number">${hours}</div><div class="countdown-label">Hours</div></div><div class="countdown-item"><div class="countdown-number">${mins}</div><div class="countdown-label">Minutes</div></div><div class="countdown-item"><div class="countdown-number">${secs}</div><div class="countdown-label">Seconds</div></div>`;
+}
+
+function startCountdown(weddingDate){
+if(countdownInterval)clearInterval(countdownInterval);
+if(!weddingDate)return;
 const el=document.getElementById('countdown-timer');
 if(!el)return;
-const update=()=>{el.innerHTML=updateCountdown(celebrationDate);};
+const update=()=>{el.innerHTML=updateCountdown(weddingDate);};
 update();
-if(countdownInterval)clearInterval(countdownInterval);
 countdownInterval=setInterval(update,1000);
 }
 
-function toggleMobile(){
-const menu=document.getElementById('nav-menu');
-menu.classList.toggle('open');
-}
+const renderHome=d=>{
+const location=d.wedding_location||'';
+return`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600'})"><div class="hero-overlay"></div><div class="hero-content"><h1 class="hero-title">${d.couple_names||'Wedding'}</h1>${d.wedding_date?`<p class="hero-subtitle">${fmt(d.wedding_date)}</p>`:''}${location?`<p class="hero-location">📍 ${location}</p>`:''}${d.wedding_date?`<div class="countdown" id="countdown-timer"></div>`:''}</div></section>`;
+};
 
-function fmt(dateStr){
-if(!dateStr)return'';
-const d=new Date(dateStr);
-return d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-}
+const renderStory=d=>`<div class="section"><h2 class="section-title">Our Story</h2><p style="font-size:1.05rem;line-height:1.8;text-align:center;max-width:750px;margin:0 auto">${d.story||'Our love story will be shared soon...'}</p></div>`;
 
-function renderHome(d){
-const location=d.celebration_location||'';
-return`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600'})"><div class="hero-overlay"></div><div class="hero-content"><h1 class="hero-title">${d.couple_names||'Celebration'}</h1>${d.celebration_date?`<p class="hero-subtitle">${fmt(d.celebration_date)}</p>`:''}${location?`<p class="hero-location">📍 ${location}</p>`:''}${d.celebration_date?`<div class="countdown" id="countdown-timer"></div>`:''}</div></section>`;
-}
+const renderEvents=d=>{
+const events=d.events||[];
+if(!events.length)return`<div class="section section-bg-light"><h2 class="section-title">Events</h2><p style="text-align:center;font-size:0.95rem;opacity:0.7">Details coming soon</p></div>`;
+return`<div class="section section-bg-light"><h2 class="section-title">Events</h2>${events.map(e=>`<div class="event-card"><h3 style="font-size:1.4rem;margin-bottom:0.8rem;font-weight:500">${e.name||'Event'}</h3>${e.date?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📅 </strong>${fmt(e.date)} ${e.time||''}</p>`:''}${e.venue?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📍 </strong>${e.venue}</p>`:''}${e.dress_code?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>👔 </strong>${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:0.8rem;line-height:1.7;font-size:0.95rem">${e.description}</p>`:''}</div>`).join('')}</div>`;
+};
 
-function renderStory(d){
-if(!d.story||d.story.trim()==='')return'<div class="section"><h2 class="section-title">Our Story</h2><p style="text-align:center;opacity:0.7">Coming soon...</p></div>';
-return`<div class="section"><h2 class="section-title">Our Story</h2><div style="max-width:700px;margin:0 auto;line-height:1.8;white-space:pre-wrap">${d.story}</div></div>`;
-}
+const renderTravel=d=>`<div class="section"><h2 class="section-title">Travel & Stay</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem"><div class="event-card"><h3 style="font-size:1.25rem;margin-bottom:0.8rem">✈️ Getting There</h3><p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.travel_info||'Details coming soon...'}</p></div><div class="event-card"><h3 style="font-size:1.25rem;margin-bottom:0.8rem">🏨 Where to Stay</h3><p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.accommodation_info||'Details coming soon...'}</p></div></div></div>`;
 
-function renderEvents(d){
-if(!d.events||d.events.length===0)return'<div class="section section-bg-light"><h2 class="section-title">Events</h2><p style="text-align:center;opacity:0.7">Event details coming soon...</p></div>';
-const eventsHtml=d.events.map(e=>`<div class="event-card"><h3 style="font-size:1.5rem;margin-bottom:0.8rem">${e.name}</h3>${e.date?`<p style="margin-bottom:0.5rem"><strong>📅 Date:</strong> ${fmt(e.date)}</p>`:''}${e.time?`<p style="margin-bottom:0.5rem"><strong>🕐 Time:</strong> ${e.time}</p>`:''}${e.venue?`<p style="margin-bottom:0.5rem"><strong>📍 Venue:</strong> ${e.venue}</p>`:''}${e.address?`<p style="margin-bottom:0.5rem"><strong>Address:</strong> ${e.address}</p>`:''}${e.dress_code?`<p style="margin-bottom:0.5rem"><strong>👔 Dress Code:</strong> ${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:1rem;line-height:1.6;opacity:0.85">${e.description}</p>`:''}</div>`).join('');
-return`<div class="section section-bg-light"><h2 class="section-title">Events</h2>${eventsHtml}</div>`;
-}
+const renderThingsToDo=d=>`<div class="section section-bg-light"><h2 class="section-title">Things to Do</h2><p style="font-size:0.95rem;line-height:1.8;max-width:750px;margin:0 auto;white-space:pre-line">${d.things_to_do||'Information about local attractions coming soon...'}</p></div>`;
 
-function renderTravel(d){
-const travel=d.travel_info||'';
-const accommodation=d.accommodation_info||'';
-if(!travel&&!accommodation)return'<div class="section"><h2 class="section-title">Travel & Stay</h2><p style="text-align:center;opacity:0.7">Information coming soon...</p></div>';
-return`<div class="section"><h2 class="section-title">Travel & Stay</h2><div style="max-width:700px;margin:0 auto">${travel?`<div style="margin-bottom:2rem"><h3 style="font-size:1.3rem;margin-bottom:1rem">Getting There</h3><div style="line-height:1.8;white-space:pre-wrap">${travel}</div></div>`:''}${accommodation?`<div><h3 style="font-size:1.3rem;margin-bottom:1rem">Where to Stay</h3><div style="line-height:1.8;white-space:pre-wrap">${accommodation}</div></div>`:''}</div></div>`;
-}
+const renderGallery=d=>{
+const imgs=(d.gallery_images||[]).map(i=>i.url||i.thumbnail).filter(Boolean);
+if(!imgs.length)return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><p style="text-align:center;opacity:0.7;font-size:0.95rem">Photos coming soon</p></div>`;
+return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Wedding photo" loading="lazy"></div>`).join('')}</div></div>`;
+};
 
-function renderThingsToDo(d){
-const things=d.things_to_do||'';
-if(!things||things.trim()==='')return'<div class="section section-bg-light"><h2 class="section-title">Things to Do</h2><p style="text-align:center;opacity:0.7">Recommendations coming soon...</p></div>';
-return`<div class="section section-bg-light"><h2 class="section-title">Things to Do</h2><div style="max-width:700px;margin:0 auto;line-height:1.8;white-space:pre-wrap">${things}</div></div>`;
-}
-
-function renderGallery(d){
-if(!d.gallery_images||d.gallery_images.length===0)return'<div class="section"><h2 class="section-title">Gallery</h2><p style="text-align:center;opacity:0.7">Photos coming soon...</p></div>';
-const imgs=d.gallery_images.map(img=>img.thumbnail||img.url);
-return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Celebration photo" loading="lazy"></div>`).join('')}</div></div>`;
-}
-
-function renderRSVP(d){
-if(!d.rsvp_enabled)return'<div class="section"><h2 class="section-title">RSVP</h2><p style="text-align:center;opacity:0.7">RSVP is not currently available.</p></div>';
-return`<div class="section"><h2 class="section-title">RSVP</h2><div class="rsvp-container"><form onsubmit="event.preventDefault();submitRSVP()">
+const renderRSVP=d=>`<div class="section"><h2 class="section-title">RSVP</h2><div class="rsvp-container">
 <div class="form-row">
-<div class="form-group"><label>First Name</label><input type="text" id="rsvp-fname" required></div>
-<div class="form-group"><label>Last Name</label><input type="text" id="rsvp-lname" required></div>
+<div class="form-group"><label>First Name *</label><input type="text" id="rsvp-fname" placeholder="First Name"></div>
+<div class="form-group"><label>Last Name *</label><input type="text" id="rsvp-lname" placeholder="Last Name"></div>
 </div>
-<div class="form-group full-width"><label>Email</label><input type="email" id="rsvp-email" required></div>
-<div class="form-group full-width"><label>Will you be attending?</label>
-<div class="radio-group">
+<div class="form-row">
+<div class="form-group"><label>Email *</label><input type="email" id="rsvp-email" placeholder="email@example.com"></div>
+<div class="form-group"><label>Phone</label><input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567"></div>
+</div>
+<div class="form-group full-width"><label>Will you attend? *</label><div class="radio-group">
 <div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')"><div class="radio-icon">✓</div><div>Attending</div></div>
 <div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')"><div class="radio-icon">✗</div><div>Can't Make It</div></div>
 <div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')"><div class="radio-icon">?</div><div>Not Sure</div></div>
@@ -289,9 +272,9 @@ if(link.getAttribute('data-page')===page)link.classList.add('active');
 }
 
 function renderPage(page){
-if(!celebrationData)return;
-document.getElementById('app').innerHTML=(pages[page]||pages.home)(celebrationData);
-if(page==='home'&&celebrationData.celebration_date)startCountdown(celebrationData.celebration_date);
+if(!weddingData)return;
+document.getElementById('app').innerHTML=(pages[page]||pages.home)(weddingData);
+if(page==='home'&&weddingData.wedding_date)startCountdown(weddingData.wedding_date);
 }
 
 function generateNav(data){
@@ -314,35 +297,35 @@ menu.appendChild(li);
 }
 
 function showPasswordModal(){
-document.body.innerHTML=`<div class="password-modal"><div class="password-box"><h2>🔒 Password Protected</h2><p>This celebration website is private. Please enter the password to continue.</p><input type="password" id="pwd" placeholder="Enter password"><div class="error-msg" id="error">Incorrect password. Please try again.</div><button id="pwd-btn" onclick="retryWithPassword()">Enter</button></div></div>`;
+document.body.innerHTML=`<div class="password-modal"><div class="password-box"><h2>🔒 Password Protected</h2><p>This wedding website is private. Please enter the password to continue.</p><input type="password" id="pwd" placeholder="Enter password"><div class="error-msg" id="error">Incorrect password. Please try again.</div><button id="pwd-btn" onclick="retryWithPassword()">Enter</button></div></div>`;
 window.retryWithPassword=async function(){
 const pwd=document.getElementById('pwd').value;
 const btn=document.getElementById('pwd-btn');
 const errorDiv=document.getElementById('error');
 if(!pwd){errorDiv.style.display='block';errorDiv.textContent='Please enter a password';return;}
 btn.disabled=true;btn.textContent='Checking...';errorDiv.style.display='none';
-try{await loadCelebrationData(pwd);}catch(e){errorDiv.style.display='block';btn.disabled=false;btn.textContent='Enter';document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
+try{await loadWeddingData(pwd);}catch(e){errorDiv.style.display='block';btn.disabled=false;btn.textContent='Enter';document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
 };
 document.getElementById('pwd').onkeypress=function(e){if(e.key==='Enter')retryWithPassword();};
 document.getElementById('pwd').focus();
 }
 
-async function loadCelebrationData(password){
+async function loadWeddingData(password){
 try{
 const url=`${API}/wedding-site/${slug}${password?'?password='+encodeURIComponent(password):''}`;
 const res=await fetch(url);
 if(!res.ok)throw new Error('Not found');
-celebrationData=await res.json();
-console.log('✅ Loaded celebration data:',celebrationData);
+weddingData=await res.json();
+console.log('✅ Loaded:',weddingData);
 
-if(celebrationData.password_required===true){showPasswordModal();throw new Error('Password required');}
+if(weddingData.password_required===true){showPasswordModal();throw new Error('Password required');}
 
-const p1=(celebrationData.partner_1||'').trim();
-const p2=(celebrationData.partner_2||'').trim();
-let initials='Celebration';
+const p1=(weddingData.partner_1||'').trim();
+const p2=(weddingData.partner_2||'').trim();
+let initials='Wedding';
 if(p1&&p2)initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
-else if(celebrationData.couple_names){
-const parts=celebrationData.couple_names.split('&').map(s=>s.trim());
+else if(weddingData.couple_names){
+const parts=weddingData.couple_names.split('&').map(s=>s.trim());
 if(parts.length===2&&parts[0]&&parts[1])initials=`${parts[0][0].toUpperCase()} & ${parts[1][0].toUpperCase()}`;
 }
 
@@ -350,12 +333,12 @@ if(!document.getElementById('nav')){
 document.body.innerHTML=`<nav class="nav-top" id="nav"><div class="nav-container"><span class="logo" id="logo" onclick="navigateTo('home')"></span><ul class="nav-links" id="nav-menu"></ul><button class="mobile-toggle" onclick="toggleMobile()">☰</button></div></nav><div id="app"></div>`;
 }
 
-const template=(celebrationData.template||'classic').toLowerCase();
+const template=(weddingData.template||'classic').toLowerCase();
 document.body.className=`template-${template}`;
 
 document.getElementById('logo').textContent=initials;
-document.title=celebrationData.couple_names||'Celebration';
-generateNav(celebrationData);
+document.title=weddingData.couple_names||'Wedding';
+generateNav(weddingData);
 document.getElementById('nav').style.display='block';
 renderPage(currentPage);
 updateNav(currentPage);
@@ -367,7 +350,7 @@ document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:
 }
 
 window.onpopstate=e=>{if(e.state&&e.state.page){currentPage=e.state.page;renderPage(currentPage);updateNav(currentPage);}};
-loadCelebrationData();
+loadWeddingData();
 </script>
 </body>
 </html>
