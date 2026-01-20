@@ -139,8 +139,9 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 <script>
 const API='https://wedding-recommender.onrender.com';
 const path=window.location.pathname.split('/').filter(p=>p);
-const slug=path[0]||'test-wedding';
-let currentPage=path[1]||'home';
+const slug_group=path[0]||'weddings';
+const slug=path[1]||'test-wedding';
+let currentPage=path[2]||'home';
 let weddingData=null;
 let rsvpData={attending:null,meal:null};
 let countdownInterval=null;
@@ -312,7 +313,7 @@ document.getElementById('pwd').focus();
 
 async function loadWeddingData(password){
 try{
-const url=`${API}/wedding-site/${slug}${password?'?password='+encodeURIComponent(password):''}`;
+const url=`${API}/wedding-site/${slug_group}/${slug}${password?'?password='+encodeURIComponent(password):''}`;
 const res=await fetch(url);
 if(!res.ok)throw new Error('Not found');
 weddingData=await res.json();

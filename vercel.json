@@ -1,11 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/:slug/:page",
+      "source": "/:slug_group/:slug/:page",
       "destination": "/index.html"
     },
     {
-      "source": "/:slug",
+      "source": "/:slug_group/:slug",
       "destination": "/index.html"
     }
   ],
