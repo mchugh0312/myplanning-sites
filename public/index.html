@@ -16,7 +16,6 @@
 html,body{height:100%;overflow-x:hidden}
 body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 
-/* Navigation - Refined */
 .nav-top{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);box-shadow:0 1px 10px rgba(0,0,0,.05)}
 .nav-container{max-width:1100px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:65px}
 .logo{font-size:1.2rem;font-weight:600;cursor:pointer;letter-spacing:0.5px}
@@ -26,13 +25,11 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 
 #app{flex:1;margin-top:65px;overflow-y:auto}
 
-/* Refined Countdown */
 .countdown{display:flex;gap:1.5rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap}
 .countdown-item{text-align:center;min-width:70px}
 .countdown-number{font-size:2.2rem;font-weight:500;line-height:1;margin-bottom:0.4rem}
 .countdown-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.8px;opacity:0.85}
 
-/* Loading & Modal */
 .loading{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .spinner{border:3px solid #f3f3f3;border-top:3px solid #333;border-radius:50%;width:35px;height:35px;animation:spin 1s linear infinite;margin:0 auto 1rem}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
@@ -47,7 +44,6 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 .password-box button:disabled{opacity:0.5;cursor:not-allowed}
 .error-msg{color:#e74c3c;font-size:0.85rem;display:none;margin-top:0.5rem}
 
-/* Refined Cards */
 .event-card{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:1.5rem;transition:transform .25s,box-shadow .25s}
 .event-card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.08)}
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem}
@@ -55,7 +51,6 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 .gallery-item:hover{transform:scale(1.03)}
 .gallery-item img{width:100%;height:100%;object-fit:cover}
 
-/* Refined Form Styles */
 .rsvp-container{max-width:680px;margin:0 auto;background:#fff;padding:2rem;border-radius:14px;box-shadow:0 2px 20px rgba(0,0,0,.06)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .form-group{margin-bottom:1rem}
@@ -70,8 +65,8 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 .radio-icon{font-size:1.6rem;margin-bottom:0.3rem}
 .btn-primary{width:100%;padding:1rem;background:#000;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;transition:background .3s;text-transform:uppercase;letter-spacing:0.8px}
 .btn-primary:hover{background:#333}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
 
-/* Template Styles - Refined */
 .template-classic{font-family:'Playfair Display',serif}
 .template-classic .logo{color:var(--classic-primary)}
 .template-classic .nav-link{color:#555}
@@ -99,9 +94,7 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 .template-elegant .nav-link:hover,.template-elegant .nav-link.active{color:var(--elegant-primary)}
 .template-elegant .hero-overlay{background:linear-gradient(135deg,rgba(139,115,85,0.7),rgba(255,248,240,0.65))}
 .template-elegant .section-title{color:var(--elegant-primary)}
-.template-elegant body{background:var(--elegant-accent)}
 
-/* Hero - Refined */
 .hero-bg{background-size:cover;background-position:center;position:relative;min-height:calc(100vh - 65px);display:flex;align-items:center;justify-content:center}
 .hero-overlay{position:absolute;inset:0;z-index:1}
 .hero-content{position:relative;z-index:10;text-align:center;padding:2.5rem 2rem;color:#fff;max-width:800px}
@@ -113,7 +106,10 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 .section-title{font-size:clamp(2rem,4vw,2.8rem);text-align:center;margin-bottom:2.5rem;font-weight:400;letter-spacing:1.5px}
 .section-bg-light{background:#fafafa}
 
-@media (max-width:768px){
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.8rem 1.5rem;border-radius:8px;font-size:0.9rem;z-index:9999;opacity:0;transition:opacity 0.3s}
+.toast.show{opacity:1}
+
+@media(max-width:768px){
 .nav-links{display:none;flex-direction:column;position:absolute;top:65px;left:0;right:0;background:#fff;padding:1.2rem;box-shadow:0 3px 15px rgba(0,0,0,.08)}
 .nav-links.open{display:flex}
 .mobile-toggle{display:block}
@@ -135,222 +131,358 @@ body{display:flex;flex-direction:column;font-size:15px;line-height:1.6}
 </div>
 </nav>
 <div id="app"><div class="loading"><div style="text-align:center"><div class="spinner"></div><p>Loading...</p></div></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const API='https://wedding-recommender.onrender.com';
-const path=window.location.pathname.split('/').filter(p=>p);
-const slug_group=path[0]||'weddings';
-const slug=path[1]||'test-wedding';
-let currentPage=path[2]||'home';
-let weddingData=null;
-let rsvpData={attending:null,meal:null};
-let countdownInterval=null;
+const API = 'https://wedding-recommender.onrender.com';
 
-function toggleMobile(){document.getElementById('nav-menu').classList.toggle('open');}
+// Parse slug from URL — weddings.myplanning.ai/sarah-john(/page)
+const path = window.location.pathname.split('/').filter(p => p);
+const slug = path[0] || '';
+let currentPage = path[1] || 'home';
+let weddingData = null;
+let rsvpData = { attending: null, meal: null };
+let countdownInterval = null;
 
-function fmt(d){
-if(!d)return'';
-try{return new Date(d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}catch(e){return d}
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
 }
 
-function updateCountdown(weddingDate){
-if(!weddingDate)return'';
-const target=new Date(weddingDate).getTime();
-const now=new Date().getTime();
-const diff=target-now;
-if(diff<0)return'<div class="countdown-item"><div class="countdown-number">❤️</div><div class="countdown-label">Married!</div></div>';
-const days=Math.floor(diff/(1000*60*60*24));
-const hours=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-const mins=Math.floor((diff%(1000*60*60))/(1000*60));
-const secs=Math.floor((diff%(1000*60))/1000);
-return`<div class="countdown-item"><div class="countdown-number">${days}</div><div class="countdown-label">Days</div></div><div class="countdown-item"><div class="countdown-number">${hours}</div><div class="countdown-label">Hours</div></div><div class="countdown-item"><div class="countdown-number">${mins}</div><div class="countdown-label">Minutes</div></div><div class="countdown-item"><div class="countdown-number">${secs}</div><div class="countdown-label">Seconds</div></div>`;
+function toggleMobile() {
+  document.getElementById('nav-menu').classList.toggle('open');
 }
 
-function startCountdown(weddingDate){
-if(countdownInterval)clearInterval(countdownInterval);
-if(!weddingDate)return;
-const el=document.getElementById('countdown-timer');
-if(!el)return;
-const update=()=>{el.innerHTML=updateCountdown(weddingDate);};
-update();
-countdownInterval=setInterval(update,1000);
+function fmt(d) {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); }
+  catch(e) { return d; }
 }
 
-const renderHome=d=>{
-const location=d.wedding_location||'';
-return`<section class="hero-bg" style="background-image:url(${d.hero_image||'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600'})"><div class="hero-overlay"></div><div class="hero-content"><h1 class="hero-title">${d.couple_names||'Wedding'}</h1>${d.wedding_date?`<p class="hero-subtitle">${fmt(d.wedding_date)}</p>`:''}${location?`<p class="hero-location">📍 ${location}</p>`:''}${d.wedding_date?`<div class="countdown" id="countdown-timer"></div>`:''}</div></section>`;
+function updateCountdown(weddingDate) {
+  if (!weddingDate) return '';
+  const diff = new Date(weddingDate).getTime() - Date.now();
+  if (diff < 0) return '<div class="countdown-item"><div class="countdown-number">❤️</div><div class="countdown-label">Married!</div></div>';
+  const days  = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins  = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const secs  = Math.floor((diff % (1000*60)) / 1000);
+  return `<div class="countdown-item"><div class="countdown-number">${days}</div><div class="countdown-label">Days</div></div>
+          <div class="countdown-item"><div class="countdown-number">${hours}</div><div class="countdown-label">Hours</div></div>
+          <div class="countdown-item"><div class="countdown-number">${mins}</div><div class="countdown-label">Minutes</div></div>
+          <div class="countdown-item"><div class="countdown-number">${secs}</div><div class="countdown-label">Seconds</div></div>`;
+}
+
+function startCountdown(weddingDate) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  if (!weddingDate) return;
+  const el = document.getElementById('countdown-timer');
+  if (!el) return;
+  const update = () => { el.innerHTML = updateCountdown(weddingDate); };
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+// ── PAGE RENDERERS ──────────────────────────────────────────────────────────
+
+const renderHome = d => {
+  const location = d.celebration_location || '';
+  return `<section class="hero-bg" style="background-image:url(${d.hero_image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600'})">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">${d.couple_names || 'Our Wedding'}</h1>
+      ${d.celebration_date ? `<p class="hero-subtitle">${fmt(d.celebration_date)}</p>` : ''}
+      ${location ? `<p class="hero-location">📍 ${location}</p>` : ''}
+      ${d.celebration_date ? `<div class="countdown" id="countdown-timer"></div>` : ''}
+    </div>
+  </section>`;
 };
 
-const renderStory=d=>`<div class="section"><h2 class="section-title">Our Story</h2><p style="font-size:1.05rem;line-height:1.8;text-align:center;max-width:750px;margin:0 auto">${d.story||'Our love story will be shared soon...'}</p></div>`;
+const renderStory = d => `
+  <div class="section">
+    <h2 class="section-title">Our Story</h2>
+    <p style="font-size:1.05rem;line-height:1.8;text-align:center;max-width:750px;margin:0 auto">
+      ${d.story || 'Our love story will be shared soon...'}
+    </p>
+  </div>`;
 
-const renderEvents=d=>{
-const events=d.events||[];
-if(!events.length)return`<div class="section section-bg-light"><h2 class="section-title">Events</h2><p style="text-align:center;font-size:0.95rem;opacity:0.7">Details coming soon</p></div>`;
-return`<div class="section section-bg-light"><h2 class="section-title">Events</h2>${events.map(e=>`<div class="event-card"><h3 style="font-size:1.4rem;margin-bottom:0.8rem;font-weight:500">${e.name||'Event'}</h3>${e.date?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📅 </strong>${fmt(e.date)} ${e.time||''}</p>`:''}${e.venue?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📍 </strong>${e.venue}</p>`:''}${e.dress_code?`<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>👔 </strong>${e.dress_code}</p>`:''}${e.description?`<p style="margin-top:0.8rem;line-height:1.7;font-size:0.95rem">${e.description}</p>`:''}</div>`).join('')}</div>`;
+const renderEvents = d => {
+  const events = d.events || [];
+  if (!events.length) return `<div class="section section-bg-light"><h2 class="section-title">Events</h2><p style="text-align:center;opacity:0.7">Details coming soon</p></div>`;
+  return `<div class="section section-bg-light"><h2 class="section-title">Events</h2>
+    ${events.map(e => `
+      <div class="event-card">
+        <h3 style="font-size:1.4rem;margin-bottom:0.8rem;font-weight:500">${e.name || 'Event'}</h3>
+        ${e.date    ? `<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📅 </strong>${fmt(e.date)} ${e.time || ''}</p>` : ''}
+        ${e.venue   ? `<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>📍 </strong>${e.venue}</p>` : ''}
+        ${e.address ? `<p style="margin-bottom:0.4rem;font-size:0.95rem;opacity:0.7">${e.address}</p>` : ''}
+        ${e.dress_code ? `<p style="margin-bottom:0.4rem;font-size:0.95rem"><strong>👔 </strong>${e.dress_code}</p>` : ''}
+        ${e.description ? `<p style="margin-top:0.8rem;line-height:1.7;font-size:0.95rem">${e.description}</p>` : ''}
+      </div>`).join('')}
+  </div>`;
 };
 
-const renderTravel=d=>`<div class="section"><h2 class="section-title">Travel & Stay</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem"><div class="event-card"><h3 style="font-size:1.25rem;margin-bottom:0.8rem">✈️ Getting There</h3><p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.travel_info||'Details coming soon...'}</p></div><div class="event-card"><h3 style="font-size:1.25rem;margin-bottom:0.8rem">🏨 Where to Stay</h3><p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.accommodation_info||'Details coming soon...'}</p></div></div></div>`;
+const renderTravel = d => `
+  <div class="section">
+    <h2 class="section-title">Travel & Stay</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem">
+      <div class="event-card">
+        <h3 style="font-size:1.25rem;margin-bottom:0.8rem">✈️ Getting There</h3>
+        <p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.travel_info || 'Details coming soon...'}</p>
+      </div>
+      <div class="event-card">
+        <h3 style="font-size:1.25rem;margin-bottom:0.8rem">🏨 Where to Stay</h3>
+        <p style="white-space:pre-line;line-height:1.7;font-size:0.95rem">${d.accommodation_info || 'Details coming soon...'}</p>
+      </div>
+    </div>
+  </div>`;
 
-const renderThingsToDo=d=>`<div class="section section-bg-light"><h2 class="section-title">Things to Do</h2><p style="font-size:0.95rem;line-height:1.8;max-width:750px;margin:0 auto;white-space:pre-line">${d.things_to_do||'Information about local attractions coming soon...'}</p></div>`;
+const renderThingsToDo = d => `
+  <div class="section section-bg-light">
+    <h2 class="section-title">Things to Do</h2>
+    <p style="font-size:0.95rem;line-height:1.8;max-width:750px;margin:0 auto;white-space:pre-line">
+      ${d.things_to_do || 'Information about local attractions coming soon...'}
+    </p>
+  </div>`;
 
-const renderGallery=d=>{
-const imgs=(d.gallery_images||[]).map(i=>i.url||i.thumbnail).filter(Boolean);
-if(!imgs.length)return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><p style="text-align:center;opacity:0.7;font-size:0.95rem">Photos coming soon</p></div>`;
-return`<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><div class="gallery-grid">${imgs.map(u=>`<div class="gallery-item"><img src="${u}" alt="Wedding photo" loading="lazy"></div>`).join('')}</div></div>`;
+const renderGallery = d => {
+  const imgs = (d.gallery_images || []).map(i => i.url || i.thumbnail).filter(Boolean);
+  if (!imgs.length) return `<div class="section section-bg-light"><h2 class="section-title">Gallery</h2><p style="text-align:center;opacity:0.7">Photos coming soon</p></div>`;
+  return `<div class="section section-bg-light"><h2 class="section-title">Gallery</h2>
+    <div class="gallery-grid">
+      ${imgs.map(u => `<div class="gallery-item"><img src="${u}" alt="Wedding photo" loading="lazy"></div>`).join('')}
+    </div>
+  </div>`;
 };
 
-const renderRSVP=d=>`<div class="section"><h2 class="section-title">RSVP</h2><div class="rsvp-container">
-<div class="form-row">
-<div class="form-group"><label>First Name *</label><input type="text" id="rsvp-fname" placeholder="First Name"></div>
-<div class="form-group"><label>Last Name *</label><input type="text" id="rsvp-lname" placeholder="Last Name"></div>
-</div>
-<div class="form-row">
-<div class="form-group"><label>Email *</label><input type="email" id="rsvp-email" placeholder="email@example.com"></div>
-<div class="form-group"><label>Phone</label><input type="tel" id="rsvp-phone" placeholder="+1 (555) 123-4567"></div>
-</div>
-<div class="form-group full-width"><label>Will you attend? *</label><div class="radio-group">
-<div class="radio-option ${rsvpData.attending==='yes'?'selected':''}" onclick="selectRSVP('yes')"><div class="radio-icon">✓</div><div>Attending</div></div>
-<div class="radio-option ${rsvpData.attending==='no'?'selected':''}" onclick="selectRSVP('no')"><div class="radio-icon">✗</div><div>Can't Make It</div></div>
-<div class="radio-option ${rsvpData.attending==='maybe'?'selected':''}" onclick="selectRSVP('maybe')"><div class="radio-icon">?</div><div>Not Sure</div></div>
-</div></div>
-<div class="form-row" id="meal-section" style="display:${rsvpData.attending==='yes'?'grid':'none'}">
-<div class="form-group"><label>Meal Preference</label><select id="rsvp-meal" onchange="rsvpData.meal=this.value">
-<option value="">Select preference</option>
-<option value="vegetarian" ${rsvpData.meal==='vegetarian'?'selected':''}>🌱 Vegetarian</option>
-<option value="non-vegetarian" ${rsvpData.meal==='non-vegetarian'?'selected':''}>🍖 Non-Vegetarian</option>
-<option value="vegan" ${rsvpData.meal==='vegan'?'selected':''}>🥗 Vegan</option>
-<option value="gluten-free" ${rsvpData.meal==='gluten-free'?'selected':''}>🌾 Gluten-Free</option>
-<option value="kids-meal" ${rsvpData.meal==='kids-meal'?'selected':''}>👶 Kids Meal</option>
-</select></div>
-<div class="form-group"><label>Guest Count</label><input type="number" id="rsvp-guests" min="1" max="10" value="1"></div>
-</div>
-<div class="form-group full-width" style="display:${rsvpData.attending==='yes'?'block':'none'}" id="notes-section">
-<label>Special Requests</label><textarea id="rsvp-notes" placeholder="Dietary restrictions, accessibility needs, etc..." rows="2"></textarea>
-</div>
-<button class="btn-primary" onclick="submitRSVP()">Submit RSVP</button>
-</div></div>`;
+const renderRSVP = d => `
+  <div class="section">
+    <h2 class="section-title">RSVP</h2>
+    <div class="rsvp-container">
+      <div class="form-row">
+        <div class="form-group"><label>First Name *</label><input type="text" id="rsvp-fname" placeholder="First Name"></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" id="rsvp-lname" placeholder="Last Name"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email *</label><input type="email" id="rsvp-email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="rsvp-phone" placeholder="+91 98765 43210"></div>
+      </div>
+      <div class="form-group full-width">
+        <label>Will you attend? *</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRSVP('yes',this)"><div class="radio-icon">✓</div><div>Attending</div></div>
+          <div class="radio-option" onclick="selectRSVP('no',this)"><div class="radio-icon">✗</div><div>Can't Make It</div></div>
+          <div class="radio-option" onclick="selectRSVP('maybe',this)"><div class="radio-icon">?</div><div>Not Sure</div></div>
+        </div>
+      </div>
+      <div class="form-row" id="meal-section" style="display:none">
+        <div class="form-group">
+          <label>Meal Preference</label>
+          <select id="rsvp-meal">
+            <option value="">Select preference</option>
+            <option value="Vegetarian">🌱 Vegetarian</option>
+            <option value="Non Vegetarian">🍖 Non-Vegetarian</option>
+            <option value="Vegan">🥗 Vegan</option>
+            <option value="Gluten Free">🌾 Gluten-Free</option>
+            <option value="Kids Meal">👶 Kids Meal</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Number of Guests</label><input type="number" id="rsvp-guests" min="1" max="10" value="1"></div>
+      </div>
+      <div class="form-group full-width" id="notes-section" style="display:none">
+        <label>Special Requests</label>
+        <textarea id="rsvp-notes" placeholder="Dietary restrictions, accessibility needs, etc..." rows="2"></textarea>
+      </div>
+      <button class="btn-primary" id="rsvp-btn" onclick="submitRSVP()">Submit RSVP</button>
+    </div>
+  </div>`;
 
-const pages={home:renderHome,story:renderStory,events:renderEvents,travel:renderTravel,things_to_do:renderThingsToDo,gallery:renderGallery,rsvp:renderRSVP};
+const pages = { home: renderHome, story: renderStory, events: renderEvents, travel: renderTravel, things_to_do: renderThingsToDo, gallery: renderGallery, rsvp: renderRSVP };
 
-function selectRSVP(choice){
-rsvpData.attending=choice;
-document.querySelectorAll('.radio-option').forEach(opt=>opt.classList.remove('selected'));
-event.currentTarget.classList.add('selected');
-const meal=document.getElementById('meal-section');
-const notes=document.getElementById('notes-section');
-if(choice==='yes'){
-meal.style.display='grid';
-notes.style.display='block';
-}else{
-meal.style.display='none';
-notes.style.display='none';
-}
-}
+// ── RSVP LOGIC ───────────────────────────────────────────────────────────────
 
-function submitRSVP(){
-const fname=document.getElementById('rsvp-fname').value;
-const lname=document.getElementById('rsvp-lname').value;
-const email=document.getElementById('rsvp-email').value;
-if(!fname||!lname||!email||!rsvpData.attending){alert('Please fill in all required fields');return;}
-const meal=document.getElementById('rsvp-meal')?document.getElementById('rsvp-meal').value:null;
-console.log('RSVP:',{fname,lname,email,attending:rsvpData.attending,meal:meal});
-alert('Thank you! Your RSVP has been received.');
+function selectRSVP(choice, el) {
+  rsvpData.attending = choice;
+  document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const show = choice === 'yes';
+  document.getElementById('meal-section').style.display = show ? 'grid' : 'none';
+  document.getElementById('notes-section').style.display = show ? 'block' : 'none';
 }
 
-function navigateTo(page){
-currentPage=page;
-history.pushState({page},null,page==='home'?`/${slug}`:`/${slug}/${page}`);
-renderPage(page);
-updateNav(page);
-window.scrollTo(0,0);
+async function submitRSVP() {
+  const fname = document.getElementById('rsvp-fname').value.trim();
+  const lname  = document.getElementById('rsvp-lname').value.trim();
+  const email  = document.getElementById('rsvp-email').value.trim();
+  if (!fname || !lname || !email || !rsvpData.attending) {
+    showToast('Please fill in all required fields'); return;
+  }
+  const btn = document.getElementById('rsvp-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const res = await fetch(`${API}/rsvp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug,
+        guest_name:       `${fname} ${lname}`,
+        email,
+        phone:            document.getElementById('rsvp-phone')?.value || '',
+        attending:        rsvpData.attending,
+        meal_preference:  document.getElementById('rsvp-meal')?.value || '',
+        guest_count:      parseInt(document.getElementById('rsvp-guests')?.value || '1'),
+        message:          document.getElementById('rsvp-notes')?.value || ''
+      })
+    });
+    if (!res.ok) throw new Error('Failed');
+    document.querySelector('.rsvp-container').innerHTML =
+      `<div style="text-align:center;padding:3rem 1rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+        <h3 style="font-size:1.5rem;margin-bottom:0.5rem">Thank you, ${fname}!</h3>
+        <p style="opacity:0.7">Your RSVP has been received. We can't wait to celebrate with you.</p>
+      </div>`;
+  } catch(e) {
+    showToast('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Submit RSVP';
+  }
 }
 
-function updateNav(page){
-document.querySelectorAll('.nav-link').forEach(link=>{
-link.classList.remove('active');
-if(link.getAttribute('data-page')===page)link.classList.add('active');
-});
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+
+function navigateTo(page) {
+  currentPage = page;
+  history.pushState({ page }, null, page === 'home' ? `/${slug}` : `/${slug}/${page}`);
+  renderPage(page);
+  updateNav(page);
+  window.scrollTo(0, 0);
+  document.getElementById('nav-menu').classList.remove('open');
 }
 
-function renderPage(page){
-if(!weddingData)return;
-document.getElementById('app').innerHTML=(pages[page]||pages.home)(weddingData);
-if(page==='home'&&weddingData.wedding_date)startCountdown(weddingData.wedding_date);
+function updateNav(page) {
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.toggle('active', link.getAttribute('data-page') === page);
+  });
 }
 
-function generateNav(data){
-const config=data.menu_config||{};
-const items=[{key:'home',label:'Home'},{key:'story',label:'Our Story'},{key:'events',label:'Events'},{key:'travel',label:'Travel'},{key:'things_to_do',label:'Things to Do'},{key:'gallery',label:'Gallery'},{key:'rsvp',label:'RSVP'}];
-const menu=document.getElementById('nav-menu');
-menu.innerHTML='';
-items.forEach(item=>{
-if(config[item.key]===true){
-const li=document.createElement('li');
-const span=document.createElement('span');
-span.className='nav-link';
-span.textContent=item.label;
-span.setAttribute('data-page',item.key);
-span.onclick=()=>navigateTo(item.key);
-li.appendChild(span);
-menu.appendChild(li);
-}
-});
+function renderPage(page) {
+  if (!weddingData) return;
+  document.getElementById('app').innerHTML = (pages[page] || pages.home)(weddingData);
+  if (page === 'home' && weddingData.celebration_date) startCountdown(weddingData.celebration_date);
 }
 
-function showPasswordModal(){
-document.body.innerHTML=`<div class="password-modal"><div class="password-box"><h2>🔒 Password Protected</h2><p>This wedding website is private. Please enter the password to continue.</p><input type="password" id="pwd" placeholder="Enter password"><div class="error-msg" id="error">Incorrect password. Please try again.</div><button id="pwd-btn" onclick="retryWithPassword()">Enter</button></div></div>`;
-window.retryWithPassword=async function(){
-const pwd=document.getElementById('pwd').value;
-const btn=document.getElementById('pwd-btn');
-const errorDiv=document.getElementById('error');
-if(!pwd){errorDiv.style.display='block';errorDiv.textContent='Please enter a password';return;}
-btn.disabled=true;btn.textContent='Checking...';errorDiv.style.display='none';
-try{await loadWeddingData(pwd);}catch(e){errorDiv.style.display='block';btn.disabled=false;btn.textContent='Enter';document.getElementById('pwd').value='';document.getElementById('pwd').focus();}
+function generateNav(data) {
+  const config = data.menu_config || {};
+  const items = [
+    { key: 'home',         label: 'Home' },
+    { key: 'story',        label: 'Our Story' },
+    { key: 'events',       label: 'Events' },
+    { key: 'travel',       label: 'Travel' },
+    { key: 'things_to_do', label: 'Things to Do' },
+    { key: 'gallery',      label: 'Gallery' },
+    { key: 'rsvp',         label: 'RSVP' }
+  ];
+  const menu = document.getElementById('nav-menu');
+  menu.innerHTML = '';
+  items.forEach(item => {
+    if (config[item.key] === true) {
+      const li   = document.createElement('li');
+      const span = document.createElement('span');
+      span.className = 'nav-link';
+      span.textContent = item.label;
+      span.setAttribute('data-page', item.key);
+      span.onclick = () => navigateTo(item.key);
+      li.appendChild(span);
+      menu.appendChild(li);
+    }
+  });
+}
+
+// ── PASSWORD MODAL ───────────────────────────────────────────────────────────
+
+function showPasswordModal() {
+  document.body.innerHTML = `
+    <div class="password-modal">
+      <div class="password-box">
+        <h2>🔒 Password Protected</h2>
+        <p>This wedding website is private. Please enter the password to continue.</p>
+        <input type="password" id="pwd" placeholder="Enter password">
+        <div class="error-msg" id="error">Incorrect password. Please try again.</div>
+        <button id="pwd-btn" onclick="retryWithPassword()">Enter</button>
+      </div>
+    </div>`;
+  window.retryWithPassword = async function() {
+    const pwd = document.getElementById('pwd').value;
+    const btn = document.getElementById('pwd-btn');
+    const err = document.getElementById('error');
+    if (!pwd) { err.style.display = 'block'; err.textContent = 'Please enter a password'; return; }
+    btn.disabled = true; btn.textContent = 'Checking...'; err.style.display = 'none';
+    try { await loadWeddingData(pwd); }
+    catch(e) { err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter'; document.getElementById('pwd').value = ''; }
+  };
+  document.getElementById('pwd').onkeypress = e => { if (e.key === 'Enter') retryWithPassword(); };
+  document.getElementById('pwd').focus();
+}
+
+// ── MAIN LOAD ────────────────────────────────────────────────────────────────
+
+async function loadWeddingData(password) {
+  if (!slug) {
+    document.getElementById('app').innerHTML =
+      `<div class="section" style="text-align:center;padding-top:5rem">
+        <h1 style="font-size:2rem;margin-bottom:1rem">Welcome to MyPlanning.ai</h1>
+        <p style="opacity:0.7">Enter a wedding website URL to get started.</p>
+      </div>`;
+    return;
+  }
+  try {
+    const url = `${API}/wedding-site/${encodeURIComponent(slug)}${password ? '?password=' + encodeURIComponent(password) : ''}`;
+    const res = await fetch(url);
+    if (res.status === 404) throw new Error('Wedding site not found');
+    if (res.status === 403) throw new Error('This website is not published yet');
+    if (!res.ok) throw new Error('Unable to load');
+    weddingData = await res.json();
+
+    if (weddingData.password_required === true) { showPasswordModal(); throw new Error('Password required'); }
+
+    // Build initials for nav logo
+    const p1 = (weddingData.partner_1 || '').trim();
+    const p2 = (weddingData.partner_2 || '').trim();
+    let initials = p1 && p2 ? `${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}` : (weddingData.couple_names || 'Wedding');
+
+    // Rebuild DOM if needed
+    if (!document.getElementById('nav') || document.getElementById('nav').style.display === 'none') {
+      const existing = document.getElementById('nav');
+      if (existing) {
+        existing.style.display = 'block';
+      }
+    }
+
+    const template = (weddingData.template || 'classic').toLowerCase();
+    document.body.className = `template-${template}`;
+    document.getElementById('logo').textContent = initials;
+    document.title = weddingData.couple_names || 'Wedding';
+    generateNav(weddingData);
+    document.getElementById('nav').style.display = 'block';
+    renderPage(currentPage);
+    updateNav(currentPage);
+
+  } catch(e) {
+    if (e.message === 'Password required') throw e;
+    document.getElementById('app').innerHTML =
+      `<div class="section" style="text-align:center;padding-top:5rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+        <h2 style="margin-bottom:0.5rem">${e.message}</h2>
+        <p style="opacity:0.7;font-size:0.9rem">Check the URL and try again.</p>
+      </div>`;
+  }
+}
+
+window.onpopstate = e => {
+  if (e.state && e.state.page) { currentPage = e.state.page; renderPage(currentPage); updateNav(currentPage); }
 };
-document.getElementById('pwd').onkeypress=function(e){if(e.key==='Enter')retryWithPassword();};
-document.getElementById('pwd').focus();
-}
 
-async function loadWeddingData(password){
-try{
-const url=`${API}/wedding-site/${slug_group}/${slug}${password?'?password='+encodeURIComponent(password):''}`;
-const res=await fetch(url);
-if(!res.ok)throw new Error('Not found');
-weddingData=await res.json();
-console.log('✅ Loaded:',weddingData);
-
-if(weddingData.password_required===true){showPasswordModal();throw new Error('Password required');}
-
-const p1=(weddingData.partner_1||'').trim();
-const p2=(weddingData.partner_2||'').trim();
-let initials='Wedding';
-if(p1&&p2)initials=`${p1[0].toUpperCase()} & ${p2[0].toUpperCase()}`;
-else if(weddingData.couple_names){
-const parts=weddingData.couple_names.split('&').map(s=>s.trim());
-if(parts.length===2&&parts[0]&&parts[1])initials=`${parts[0][0].toUpperCase()} & ${parts[1][0].toUpperCase()}`;
-}
-
-if(!document.getElementById('nav')){
-document.body.innerHTML=`<nav class="nav-top" id="nav"><div class="nav-container"><span class="logo" id="logo" onclick="navigateTo('home')"></span><ul class="nav-links" id="nav-menu"></ul><button class="mobile-toggle" onclick="toggleMobile()">☰</button></div></nav><div id="app"></div>`;
-}
-
-const template=(weddingData.template||'classic').toLowerCase();
-document.body.className=`template-${template}`;
-
-document.getElementById('logo').textContent=initials;
-document.title=weddingData.couple_names||'Wedding';
-generateNav(weddingData);
-document.getElementById('nav').style.display='block';
-renderPage(currentPage);
-updateNav(currentPage);
-
-}catch(e){
-if(e.message==='Password required')throw e;
-document.getElementById('app').innerHTML=`<div class="section"><h1 style="color:red;text-align:center">Error: ${e.message}</h1></div>`;
-}
-}
-
-window.onpopstate=e=>{if(e.state&&e.state.page){currentPage=e.state.page;renderPage(currentPage);updateNav(currentPage);}};
 loadWeddingData();
 </script>
 </body>
