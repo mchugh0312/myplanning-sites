@@ -20,10 +20,9 @@ body{background:#f9f7f5;font-family:'Instrument Serif',serif}
 </div>
 <script>
 const API = 'https://wedding-recommender.onrender.com';
-const path = window.location.pathname.split('/').filter(p => p);
-const slug = path[0] || '';
 
-// Map Softr template select label → template file in /public/
+// Map template label → template file path on Vercel
+// Add new templates here as you build them
 const TEMPLATE_MAP = {
   'romantic':   '/template-romantic.html',
   'elegant':    '/template-romantic.html',
@@ -34,86 +33,93 @@ const TEMPLATE_MAP = {
 };
 const DEFAULT_TEMPLATE = '/template-romantic.html';
 
-function showError(title, sub) {
-  document.body.innerHTML = `
+// Parse slug from path: weddings.myplanning.ai/sarah-and-john
+const path = window.location.pathname.split('/').filter(p => p);
+const slug  = path[0] || '';
+
+function showScreen(icon, title, sub) {
+  document.getElementById('loadingScreen').outerHTML = `
     <div class="loading" style="flex-direction:column;gap:0.75rem;text-align:center;padding:2rem">
-      <div style="font-size:2.5rem">🔍</div>
+      <div style="font-size:2.5rem">${icon}</div>
       <div style="font-size:1.1rem;color:#040505">${title}</div>
       <div style="font-size:0.85rem;color:#8d8863">${sub}</div>
     </div>`;
 }
 
-function showPasswordScreen(onSuccess) {
-  document.body.innerHTML = `
-    <div class="loading" style="flex-direction:column;gap:0.75rem;text-align:center;padding:2rem">
+function showPasswordScreen(templateUrl) {
+  document.getElementById('loadingScreen').outerHTML = `
+    <div class="loading" id="pwScreen" style="flex-direction:column;gap:0.75rem;text-align:center;padding:2rem">
       <div style="font-size:2.5rem">🔒</div>
       <div style="font-size:1.1rem;color:#040505">Password Protected</div>
       <div style="font-size:0.85rem;color:#8d8863;margin-bottom:0.5rem">This celebration website is private.</div>
       <input id="pwInput" type="password" placeholder="Enter password"
         style="padding:0.75rem 1rem;border:1px solid #c8c5b8;border-radius:3px;font-size:0.9rem;width:280px;outline:none;text-align:center;background:#fff">
       <button id="pwBtn"
-        style="padding:0.75rem 2rem;background:#8d8863;color:#fff;border:none;border-radius:3px;font-size:0.85rem;letter-spacing:0.08em;cursor:pointer;width:280px">
+        style="padding:0.75rem 2rem;background:#8d8863;color:#fff;border:none;border-radius:999px;font-size:0.85rem;letter-spacing:0.08em;cursor:pointer;width:280px">
         Enter
       </button>
-      <div id="pwError" style="color:#c0392b;font-size:0.8rem;display:none">Incorrect password.</div>
+      <div id="pwError" style="color:#c0392b;font-size:0.8rem;display:none">Incorrect password. Please try again.</div>
     </div>`;
   document.getElementById('pwInput').focus();
-  document.getElementById('pwInput').onkeypress = e => { if(e.key==='Enter') tryPwd(); };
-  document.getElementById('pwBtn').onclick = tryPwd;
-  async function tryPwd() {
-    const pwd = document.getElementById('pwInput').value;
+  const tryPwd = async () => {
+    const pwd = document.getElementById('pwInput').value.trim();
     const btn = document.getElementById('pwBtn');
     const err = document.getElementById('pwError');
     if (!pwd) return;
     btn.disabled = true; btn.textContent = 'Checking...'; err.style.display = 'none';
+    const url = `${API}/wedding-site/${encodeURIComponent(slug)}?password=${encodeURIComponent(pwd)}`;
     try {
-      const data = await apiFetch(pwd);
-      if (data.password_required) { err.style.display='block'; btn.disabled=false; btn.textContent='Enter'; return; }
-      onSuccess(data);
-    } catch(e) { err.style.display='block'; btn.disabled=false; btn.textContent='Enter'; }
-  }
-}
-
-async function apiFetch(password) {
-  const url = `${API}/wedding-site/${encodeURIComponent(slug)}${password?'?password='+encodeURIComponent(password):''}`;
-  const res  = await fetch(url);
-  if (res.status===404) throw new Error('not_found');
-  if (res.status===403) throw new Error('not_published');
-  if (!res.ok)          throw new Error('server_error');
-  return res.json();
-}
-
-async function injectTemplate(templateUrl, weddingData) {
-  const res  = await fetch(templateUrl);
-  const html = await res.text();
-  const parser = new DOMParser();
-  const doc    = parser.parseFromString(html, 'text/html');
-  document.documentElement.innerHTML = doc.documentElement.innerHTML;
-  // Re-execute scripts
-  document.querySelectorAll('script').forEach(old => {
-    const s = document.createElement('script');
-    old.src ? (s.src = old.src) : (s.textContent = old.textContent);
-    old.parentNode.replaceChild(s, old);
-  });
-  if (typeof hydrateTemplate === 'function') hydrateTemplate(weddingData);
-  document.title = weddingData.couple_names || 'Our Wedding';
+      const res  = await fetch(url);
+      const data = await res.json();
+      if (data.password_required) {
+        err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
+        return;
+      }
+      // Password correct — redirect to template
+      const tmpl = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
+      window.location.href = `${tmpl}?slug=${encodeURIComponent(slug)}&pwd=${encodeURIComponent(pwd)}`;
+    } catch {
+      err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
+    }
+  };
+  document.getElementById('pwInput').onkeypress = e => { if (e.key === 'Enter') tryPwd(); };
+  document.getElementById('pwBtn').onclick = tryPwd;
 }
 
 async function main() {
-  if (!slug) { showError('Welcome to MyPlanning.ai', 'Enter a celebration URL to get started.'); return; }
+  if (!slug) {
+    showScreen('🎊', 'Welcome to MyPlanning.ai', 'Enter a celebration URL to get started.');
+    return;
+  }
+
   try {
-    const data = await apiFetch(null);
+    const res = await fetch(`${API}/wedding-site/${encodeURIComponent(slug)}`);
+
+    if (res.status === 404) { showScreen('🔍', 'Page not found', 'Check the URL and try again.'); return; }
+    if (res.status === 403) { showScreen('🔜', 'Coming soon', 'This website isn\'t published yet.'); return; }
+    if (!res.ok)            { showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.'); return; }
+
+    const data = await res.json();
+
     if (data.password_required) {
-      showPasswordScreen(d => injectTemplate(TEMPLATE_MAP[d.template]||DEFAULT_TEMPLATE, d));
+      // Show password screen; on success it will redirect
+      const tmpl = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
+      showPasswordScreen(tmpl);
       return;
     }
-    await injectTemplate(TEMPLATE_MAP[data.template]||DEFAULT_TEMPLATE, data);
-  } catch(e) {
-    if      (e.message==='not_found')     showError('Page not found','Check the URL and try again.');
-    else if (e.message==='not_published') showError('Coming soon','This website isn\'t published yet.');
-    else                                  showError('Something went wrong','Please refresh and try again.');
+
+    // ── KEY CHANGE: redirect to the template file with slug as URL param ──
+    // The template reads ?slug= from the URL and fetches its own data directly.
+    // This means the template runs as a real standalone page — all anchors,
+    // scroll, menu clicks, and JS work exactly as designed.
+    const templateFile = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
+    window.location.replace(`${templateFile}?slug=${encodeURIComponent(slug)}`);
+
+  } catch {
+    showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.');
   }
 }
+
 main();
 </script>
 </body>

@@ -596,12 +596,21 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 <script>
 const API = 'https://wedding-recommender.onrender.com';
 
-// Preview detection
+// Slug resolution — three sources in priority order:
+// 1. ?slug= query param (when redirected from index.html router)
+// 2. First path segment (when accessed directly as weddings.myplanning.ai/sarah-john)
+// 3. Neither → preview/thumbnail mode
+const _params    = new URLSearchParams(window.location.search);
+const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p => p);
 const _firstPart = _pathParts[0] || '';
-const _isPreview = _pathParts.length === 0
-  || _firstPart.indexOf('.') !== -1
-  || _firstPart.startsWith('template-');
+// A real slug never contains a dot or starts with 'template-'
+const _liveSlug  = _slugParam
+  || (_firstPart && _firstPart.indexOf('.') === -1 && !_firstPart.startsWith('template-')
+      ? _firstPart : '');
+const _isPreview = !_liveSlug;
+// Password from URL param (set by index.html after password screen)
+const _pwdParam  = _params.get('pwd') || '';
 
 // ── Menu ──────────────────────────────────────────────────────
 function openMenu() { document.getElementById('menuOverlay').classList.add('open'); }
@@ -862,11 +871,16 @@ if (_isPreview) {
   });
   setTimeout(() => { if (!_got) hydrateTemplate(SAMPLE_DATA); }, 800);
 } else {
-  fetch(`${API}/wedding-site/${encodeURIComponent(_firstPart)}`)
+  // Live site — fetch real data using the resolved slug
+  const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
+    + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
+
+  fetch(_apiUrl)
     .then(r => { if (!r.ok) throw r.status; return r.json(); })
     .then(d => {
       if (d.password_required) {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected</p></div>';
+        // Should not happen (index.html handles password), but just in case
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected. Please go back and enter the password.</p></div>';
         return;
       }
       hydrateTemplate(d);
