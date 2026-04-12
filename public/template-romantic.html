@@ -493,32 +493,46 @@ function fmtDate(d) {
   } catch(e) { return d; }
 }
 
+// ── SAMPLE DATA (used for thumbnail and preview when no real data available) ──
+const SAMPLE_DATA = {
+  slug: '',
+  couple_names: 'Sarah and Aiden',
+  partner_1: 'Sarah',
+  partner_2: 'Aiden',
+  celebration_date: '2026-04-05',
+  celebration_location: 'La Jolla, California',
+  hero_image: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png',
+  template: 'romantic',
+  story: 'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
+  events: [
+    { id: '1', name: 'The Ceremony',      date: '2026-04-05', time: '4:00 in the Evening', venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
+    { id: '2', name: 'The Reception',     date: '2026-04-05', time: '7:00 in the Evening', venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
+    { id: '3', name: 'Welcome Cocktails', date: '2026-04-03', time: '7:00 in the Evening', venue: 'Ultimate Skybox',               address: '109 Tenth Ave, San Diego, CA 92101' }
+  ],
+  travel_info: 'The nearest airport is San Diego International (SAN), about 20 minutes away by car.',
+  things_to_do: 'Visit La Jolla Cove, explore Torrey Pines State Reserve, or enjoy the Gaslamp Quarter.',
+  gallery_images: [],
+  rsvp_enabled: true,
+  password_protected: false,
+  customization: { primary_color: '#8d8863', accent_color: '#f9f7f5' },
+  menu_config: { home: true, story: true, events: true, travel: true, things_to_do: true, gallery: true, rsvp: true }
+};
+
 // ── ENTRY POINT ──────────────────────────────────────────────
 if (_isPreview) {
-  // Standalone preview / thumbnail — show sample data, no API call
-  hydrateTemplate({
-    slug: '',
-    couple_names: 'Sarah and Aiden',
-    partner_1: 'Sarah',
-    partner_2: 'Aiden',
-    celebration_date: '2026-04-05',
-    celebration_location: 'La Jolla, California',
-    hero_image: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png',
-    template: 'romantic',
-    story: 'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
-    events: [
-      { id: '1', name: 'The Ceremony',     date: '2026-04-05', time: '4:00 in the Evening',  venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
-      { id: '2', name: 'The Reception',    date: '2026-04-05', time: '7:00 in the Evening',  venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
-      { id: '3', name: 'Welcome Cocktails',date: '2026-04-03', time: '7:00 in the Evening',  venue: 'Ultimate Skybox',               address: '109 Tenth Ave, San Diego, CA 92101' }
-    ],
-    travel_info: 'The nearest airport is San Diego International (SAN), about 20 minutes away by car.',
-    things_to_do: 'Visit La Jolla Cove, explore Torrey Pines State Reserve, or enjoy the Gaslamp Quarter.',
-    gallery_images: [],
-    rsvp_enabled: true,
-    password_protected: false,
-    customization: { primary_color: '#8d8863', accent_color: '#f9f7f5' },
-    menu_config: { home: true, story: true, events: true, travel: true, things_to_do: true, gallery: true, rsvp: true }
+  // Listen for real user data sent from the Vibe block via postMessage.
+  // Falls back to SAMPLE_DATA if no message received within 800ms.
+  let _dataReceived = false;
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
+      _dataReceived = true;
+      hydrateTemplate(e.data.payload);
+    }
   });
+  // Fallback: show sample data if parent hasn't sent real data
+  setTimeout(function() {
+    if (!_dataReceived) hydrateTemplate(SAMPLE_DATA);
+  }, 800);
 } else {
   // Live site — fetch real data from API
   const slug = _pathParts[0];
