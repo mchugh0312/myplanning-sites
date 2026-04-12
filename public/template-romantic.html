@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --olive:#8d8863;
+  --offwhite:#f9f7f5;
+  --black:#040505;
+  --white:#ffffff;
+  --script:'Dancing Script',cursive;
+  --serif:'Instrument Serif',serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--serif);color:var(--black);background:var(--offwhite);overflow-x:hidden;}
+.menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
+.menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
+.menu-drawer{width:320px;background:var(--offwhite);transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);display:flex;flex-direction:column;justify-content:center;padding:3rem 2.5rem;box-shadow:-8px 0 40px rgba(0,0,0,0.12);pointer-events:auto;}
+.menu-overlay.open .menu-drawer{transform:translateX(0)}
+.menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.35);pointer-events:auto;}
+.menu-overlay.open{pointer-events:auto}
+.menu-close{position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;font-size:1.6rem;cursor:pointer;color:var(--black);line-height:1;font-family:var(--serif);}
+.menu-title{font-family:var(--script);font-size:2.2rem;color:var(--olive);margin-bottom:2rem;font-weight:400;}
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:0.2rem}
+.menu-links li a{font-family:var(--serif);font-size:1.05rem;color:var(--black);text-decoration:none;letter-spacing:0.04em;display:block;padding:0.55rem 0;border-bottom:1px solid rgba(141,136,99,0.2);transition:color 0.2s,padding-left 0.2s;}
+.menu-links li:last-child a{border-bottom:none}
+.menu-links li a:hover{color:var(--olive);padding-left:0.5rem}
+.nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;background:rgba(249,247,245,0.92);backdrop-filter:blur(6px);}
+.nav-logo{font-family:var(--script);font-size:1.6rem;color:var(--black);font-weight:400;}
+.nav-hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+.nav-hamburger span{display:block;width:24px;height:1.5px;background:var(--black);transition:all 0.3s;}
+.hero{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 60px);}
+.hero-image{position:relative;overflow:hidden;}
+.hero-image img{width:100%;height:100%;object-fit:cover;display:block;}
+.hero-panel{background:var(--olive);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3rem 2.5rem;text-align:center;}
+.hero-couple{font-family:var(--script);font-size:clamp(2.8rem,4.5vw,4.2rem);color:var(--white);font-weight:400;line-height:1.2;margin-bottom:2.5rem;}
+.hero-event{width:100%;border-top:1px solid rgba(255,255,255,0.4);padding-top:1.5rem;margin-top:0.5rem;}
+.hero-event-name{font-family:var(--script);font-size:1.5rem;color:var(--white);font-weight:400;margin-bottom:0.6rem;}
+.hero-event-detail{font-family:var(--serif);font-size:0.78rem;color:rgba(255,255,255,0.85);letter-spacing:0.06em;line-height:1.8;font-style:italic;}
+.hero-divider{width:1px;height:2rem;background:rgba(255,255,255,0.4);margin:1.2rem auto;}
+.section{padding:5rem 4rem;max-width:1200px;margin:0 auto}
+.section-title{font-family:var(--script);font-size:2.6rem;color:var(--black);font-weight:400;text-align:center;margin-bottom:0.5rem;}
+.section-rule{width:60px;height:1px;background:var(--olive);margin:0 auto 3rem;}
+.events-primary{background:var(--olive);padding:5rem 4rem;}
+.events-primary .section-title{color:var(--white)}
+.events-primary .section-rule{background:rgba(255,255,255,0.5)}
+.events-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1000px;margin:0 auto;}
+.event-card-primary{padding:2.5rem 3rem;text-align:center;position:relative;}
+.event-card-primary:first-child::after{content:'';position:absolute;right:0;top:10%;bottom:10%;width:1px;background:rgba(255,255,255,0.35);}
+.event-card-name{font-family:var(--script);font-size:1.8rem;color:var(--white);font-weight:400;margin-bottom:1.2rem;}
+.event-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);line-height:2;letter-spacing:0.04em;}
+.event-card-dress{display:inline-block;margin-top:1rem;font-family:var(--serif);font-size:0.75rem;letter-spacing:0.1em;color:rgba(255,255,255,0.7);text-transform:uppercase;font-style:italic;}
+.other-events{background:var(--offwhite);padding:5rem 4rem;position:relative;overflow:hidden;}
+.other-events-flower-r{position:absolute;right:-30px;top:2rem;width:180px;opacity:0.85;}
+.other-events-flower-l{position:absolute;left:-20px;bottom:2rem;width:140px;opacity:0.75;transform:scaleX(-1);}
+.other-event-card{max-width:560px;margin:0 auto 1.5rem;border-bottom:1px solid rgba(141,136,99,0.25);padding-bottom:1.5rem;text-align:center;}
+.other-event-card:last-child{border-bottom:none;padding-bottom:0}
+.other-event-name{font-family:var(--script);font-size:1.6rem;color:var(--black);font-weight:400;margin-bottom:0.6rem;}
+.other-event-detail{font-family:var(--serif);font-size:0.82rem;color:#555;line-height:1.9;letter-spacing:0.03em;}
+.accommodations{background:var(--olive);padding:5rem 4rem;text-align:center;}
+.accommodations .section-title{color:var(--white)}
+.accommodations .section-rule{background:rgba(255,255,255,0.4)}
+.accom-name{font-family:var(--serif);font-size:1rem;color:var(--white);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem;}
+.accom-address{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.78);line-height:1.8;font-style:italic;margin-bottom:1.5rem;}
+.accom-btn{display:inline-block;padding:0.75rem 2.2rem;border:1px solid rgba(255,255,255,0.7);color:var(--white);font-family:var(--serif);font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;cursor:pointer;background:transparent;transition:background 0.25s,color 0.25s;border-radius:2px;}
+.accom-btn:hover{background:var(--white);color:var(--olive)}
+.need-to-know{background:var(--offwhite);padding:5rem 4rem;}
+.faq-list{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(141,136,99,0.25);overflow:hidden;}
+.faq-question{width:100%;background:none;border:none;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 0;cursor:pointer;text-align:left;}
+.faq-q-text{font-family:var(--serif);font-size:0.92rem;color:var(--black);letter-spacing:0.03em;line-height:1.4;}
+.faq-icon{font-size:1.1rem;color:var(--olive);flex-shrink:0;margin-left:1rem;transition:transform 0.3s;}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.35s ease;font-family:var(--serif);font-size:0.85rem;color:#555;line-height:1.9;}
+.faq-item.open .faq-answer{max-height:300px;padding-bottom:1.2rem;}
+.registry{position:relative;height:400px;overflow:hidden;}
+.registry-img{width:100%;height:100%;object-fit:cover;display:block;}
+.registry-overlay{position:absolute;inset:0;background:rgba(141,136,99,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+.registry-title{font-family:var(--script);font-size:3rem;color:var(--white);font-weight:400;margin-bottom:1rem;}
+.registry-sub{font-family:var(--serif);font-size:0.85rem;color:rgba(255,255,255,0.88);letter-spacing:0.06em;max-width:420px;line-height:1.8;}
+.rsvp-section{background:var(--offwhite);padding:5rem 4rem;text-align:center;}
+.rsvp-deadline{font-family:var(--serif);font-size:0.8rem;color:var(--olive);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2.5rem;}
+.rsvp-event-block{max-width:560px;margin:0 auto 2.5rem;background:var(--white);border:1px solid rgba(141,136,99,0.2);border-radius:3px;padding:1.5rem 2rem;text-align:left;}
+.rsvp-event-label{font-family:var(--serif);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--olive);margin-bottom:1rem;}
+.rsvp-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;}
+.rsvp-name-input{flex:1;padding:0.65rem 1rem;border:1px solid rgba(141,136,99,0.3);background:var(--offwhite);font-family:var(--serif);font-size:0.88rem;color:var(--black);outline:none;border-radius:2px;transition:border-color 0.2s;}
+.rsvp-name-input:focus{border-color:var(--olive)}
+.rsvp-select{padding:0.65rem 0.75rem;border:1px solid rgba(141,136,99,0.3);background:var(--offwhite);font-family:var(--serif);font-size:0.82rem;color:var(--black);outline:none;border-radius:2px;cursor:pointer;}
+.rsvp-add-btn{display:flex;align-items:center;gap:0.5rem;background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:0.8rem;color:var(--olive);letter-spacing:0.06em;padding:0.25rem 0;margin-top:0.25rem;text-decoration:underline;text-underline-offset:3px;}
+.rsvp-submit{display:block;max-width:560px;margin:0 auto;width:100%;padding:1rem;background:var(--olive);color:var(--white);border:none;border-radius:2px;cursor:pointer;font-family:var(--serif);font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;transition:opacity 0.2s;}
+.rsvp-submit:hover{opacity:0.85}
+.rsvp-success{display:none;max-width:560px;margin:1.5rem auto 0;background:var(--white);border:1px solid rgba(141,136,99,0.3);border-radius:3px;padding:2rem;text-align:center;}
+.rsvp-success-icon{font-size:2rem;margin-bottom:0.5rem}
+.rsvp-success-msg{font-family:var(--serif);font-size:0.9rem;color:var(--olive);line-height:1.7;}
+footer{background:var(--olive);padding:2.5rem;text-align:center;}
+.footer-names{font-family:var(--script);font-size:2rem;color:var(--white);font-weight:400;margin-bottom:0.4rem;}
+.footer-date{font-family:var(--serif);font-size:0.78rem;color:rgba(255,255,255,0.7);letter-spacing:0.1em;}
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr}
+  .hero-image{height:55vw;min-height:240px}
+  .events-grid{grid-template-columns:1fr}
+  .event-card-primary:first-child::after{display:none}
+  .event-card-primary{padding:2rem 1.5rem}
+  .section{padding:3.5rem 1.5rem}
+  .events-primary,.other-events,.accommodations,.need-to-know,.rsvp-section{padding:3.5rem 1.5rem}
+  .other-events-flower-r{width:100px;right:-15px}
+  .other-events-flower-l{width:80px}
+  .menu-drawer{width:280px}
+  .rsvp-event-block{padding:1.2rem 1.2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-backdrop" onclick="closeMenu()"></div>
+  <div class="menu-drawer">
+    <button class="menu-close" onclick="closeMenu()">×</button>
+    <div class="menu-title">Menu</div>
+    <ul class="menu-links" id="menuLinks">
+      <li><a href="#hero" onclick="closeMenu()">Home</a></li>
+      <li><a href="#events-primary" onclick="closeMenu()">The Wedding</a></li>
+      <li><a href="#other-events" onclick="closeMenu()">Other Events</a></li>
+      <li><a href="#accommodations" onclick="closeMenu()">Recommended Accommodations</a></li>
+      <li><a href="#need-to-know" onclick="closeMenu()">Need to Knows</a></li>
+      <li><a href="#registry" onclick="closeMenu()">Our Registry</a></li>
+      <li><a href="#rsvp" onclick="closeMenu()">RSVP</a></li>
+    </ul>
+  </div>
+</div>
+
+<nav class="nav">
+  <span class="nav-logo" id="navLogo">S & A</span>
+  <button class="nav-hamburger" onclick="openMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-image">
+    <img id="heroImg"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png"
+      alt="Couple photo">
+  </div>
+  <div class="hero-panel">
+    <div class="hero-couple" id="heroCoupleNames">Sarah and Aiden</div>
+    <div class="hero-event" id="heroCeremony">
+      <div class="hero-event-name">The Ceremony</div>
+      <div class="hero-event-detail" id="ceremonyDetail">
+        Saturday, April 5th, 2026<br>
+        4:00 o'clock in the Evening<br>
+        Estancia La Jolla Hotel &amp; Spa<br>
+        9700 N Torrey Pines Rd,<br>
+        La Jolla, CA 92037
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-event-detail"><em>Cocktail Attire</em></div>
+    </div>
+  </div>
+</section>
+
+<div class="events-primary" id="events-primary">
+  <div class="events-grid" id="eventsGrid">
+    <div class="event-card-primary">
+      <div class="event-card-name">The Ceremony</div>
+      <div class="event-card-detail">
+        Saturday, April 5th, 2026<br>
+        4:00 o'clock in the Evening<br>
+        Estancia La Jolla Hotel &amp; Spa<br>
+        9700 N Torrey Pines Rd, La Jolla, CA 92037
+      </div>
+      <span class="event-card-dress">Cocktail Attire</span>
+    </div>
+    <div class="event-card-primary">
+      <div class="event-card-name">The Reception</div>
+      <div class="event-card-detail">
+        Saturday, April 5th, 2026<br>
+        7:00 o'clock in the Evening<br>
+        Estancia La Jolla Hotel &amp; Spa<br>
+        9700 N Torrey Pines Rd, La Jolla, CA 92037
+      </div>
+      <span class="event-card-dress">Cocktail Attire</span>
+    </div>
+  </div>
+</div>
+
+<div class="other-events" id="other-events">
+  <img class="other-events-flower-r"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <img class="other-events-flower-l"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <div class="section">
+    <h2 class="section-title">Other Events</h2>
+    <div class="section-rule"></div>
+    <div id="otherEventsList">
+      <div class="other-event-card">
+        <div class="other-event-name">Welcome Cocktails</div>
+        <div class="other-event-detail">
+          Friday, April 3rd, 2026<br>
+          7 O'Clock in the Evening<br>
+          Ultimate Skybox at Diamond of New Tower<br>
+          109 Tenth Ave, San Diego, CA 92101
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="accommodations" id="accommodations">
+  <div class="section">
+    <h2 class="section-title">Recommended Accommodations</h2>
+    <div class="section-rule" style="background:rgba(255,255,255,0.4)"></div>
+    <div id="accomList">
+      <div class="accom-name">Hyatt Regency La Jolla at Aventine</div>
+      <div class="accom-address">
+        Beyond the Shadow Glen Hotel Resort Block<br>
+        3777 La Jolla Village Drive, La Jolla, CA 92037
+      </div>
+      <a class="accom-btn" href="#" target="_blank">Book Now</a>
+    </div>
+  </div>
+</div>
+
+<div class="need-to-know" id="need-to-know">
+  <div class="section">
+    <h2 class="section-title">Need to Knows</h2>
+    <div class="section-rule"></div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">What should I wear to the wedding?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">The dress code for the evening is Cocktail Attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim, Trainers, and golf attire are not permitted.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Will there be transportation?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">You will need to arrange your own transport from point A to point B. We will have arranged shuttle services to the evening reception for you.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Will the ceremony be indoors or outdoors?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">The ceremony will be held outdoors, weather permitting. Everything is being prepared accordingly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="registry" id="registry">
+  <img class="registry-img"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png"
+    alt="Registry">
+  <div class="registry-overlay">
+    <div class="registry-title">See Our Registry</div>
+    <div class="registry-sub">Your presence is the greatest gift of all. If you wish to honour us with a gift, we are registered at the following.</div>
+  </div>
+</div>
+
+<div class="rsvp-section" id="rsvp">
+  <div class="section">
+    <h2 class="section-title">Rsvp Please</h2>
+    <div class="section-rule"></div>
+    <p class="rsvp-deadline" id="rsvpDeadline">By February 8th, 2026</p>
+    <div id="rsvpBlocks"></div>
+    <button class="rsvp-submit" onclick="submitRSVP()">Submit your RSVP</button>
+    <div class="rsvp-success" id="rsvpSuccess">
+      <div class="rsvp-success-icon">🎉</div>
+      <div class="rsvp-success-msg">Thank you! Your RSVP has been received.<br>We can't wait to celebrate with you.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-names" id="footerNames">Sarah & Aiden</div>
+  <div class="footer-date" id="footerDate">April 5th, 2026 · La Jolla, California</div>
+</footer>
+
+<script>
+const API = 'https://wedding-recommender.onrender.com';
+
+// ── Detect standalone preview vs live site ──────────────────
+// When loaded as thumbnail/preview (no slug in path), show sample data.
+const _pathParts = window.location.pathname.split('/').filter(p => p);
+const _firstPart = _pathParts[0] || '';
+const _isPreview = _pathParts.length === 0
+  || _firstPart.indexOf('.') !== -1
+  || _firstPart.startsWith('template-');
+
+// ── MENU ────────────────────────────────────────────────────
+function openMenu()  { document.getElementById('menuOverlay').classList.add('open'); }
+function closeMenu() { document.getElementById('menuOverlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+// ── FAQ ─────────────────────────────────────────────────────
+function toggleFaq(btn) {
+  const item   = btn.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── RSVP ────────────────────────────────────────────────────
+function buildRsvpBlocks(events) {
+  const container = document.getElementById('rsvpBlocks');
+  container.innerHTML = '';
+  events.forEach(ev => {
+    const block = document.createElement('div');
+    block.className    = 'rsvp-event-block';
+    block.dataset.eventId = ev.id;
+    block.innerHTML = `
+      <div class="rsvp-event-label">${ev.label}</div>
+      <div class="rsvp-rows"></div>
+      <button class="rsvp-add-btn" onclick="addGuestRow(this)">+ Add Guest</button>`;
+    container.appendChild(block);
+    addGuestRow(block.querySelector('.rsvp-add-btn'));
+  });
+}
+
+function addGuestRow(btn) {
+  const rows = btn.previousElementSibling;
+  const row  = document.createElement('div');
+  row.className = 'rsvp-row';
+  row.innerHTML = `
+    <input class="rsvp-name-input" type="text" placeholder="Guest name">
+    <select class="rsvp-select">
+      <option value="">Attending?</option>
+      <option value="Attending">✓ Attending</option>
+      <option value="Declined">✗ Can't make it</option>
+    </select>`;
+  rows.appendChild(row);
+}
+
+async function submitRSVP() {
+  if (_isPreview) { alert('RSVP is disabled in preview mode.'); return; }
+  const blocks   = document.querySelectorAll('.rsvp-event-block');
+  const slug     = window._weddingSlug || '';
+  let   hasGuest = false;
+  blocks.forEach(block => {
+    block.querySelectorAll('.rsvp-row').forEach(row => {
+      if (row.querySelector('input').value.trim() && row.querySelector('select').value) hasGuest = true;
+    });
+  });
+  if (!hasGuest) { alert('Please add at least one guest.'); return; }
+  const btn = document.querySelector('.rsvp-submit');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const promises = [];
+    blocks.forEach(block => {
+      block.querySelectorAll('.rsvp-row').forEach(row => {
+        const name  = row.querySelector('input').value.trim();
+        const state = row.querySelector('select').value;
+        if (name && state) {
+          promises.push(fetch(`${API}/rsvp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slug,
+              guest_name: name,
+              attending:  state === 'Attending' ? 'yes' : 'no',
+              event_name: block.querySelector('.rsvp-event-label').textContent
+            })
+          }));
+        }
+      });
+    });
+    await Promise.all(promises);
+    document.getElementById('rsvpSuccess').style.display = 'block';
+    btn.style.display = 'none';
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Submit your RSVP';
+  }
+}
+
+// ── HYDRATION ────────────────────────────────────────────────
+// Called with real data from index.html, or sample data in preview mode.
+function hydrateTemplate(d) {
+  window._weddingSlug = d.slug || '';
+
+  const names = d.couple_names || 'Sarah & Aiden';
+  document.getElementById('heroCoupleNames').textContent = names;
+  document.getElementById('navLogo').textContent =
+    (d.partner_1 && d.partner_2)
+      ? `${d.partner_1[0]} & ${d.partner_2[0]}`
+      : names;
+  document.getElementById('footerNames').textContent = names;
+  document.title = names;
+
+  if (d.hero_image) document.getElementById('heroImg').src = d.hero_image;
+
+  if (d.celebration_date || d.celebration_location) {
+    const datePart = d.celebration_date
+      ? new Date(d.celebration_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : '';
+    document.getElementById('footerDate').textContent =
+      [datePart, d.celebration_location].filter(Boolean).join(' · ');
+  }
+
+  if (d.events && d.events.length) {
+    const grid    = document.getElementById('eventsGrid');
+    const primary = d.events.slice(0, 2);
+    grid.innerHTML = '';
+    primary.forEach((ev, i) => {
+      const col = document.createElement('div');
+      col.className = 'event-card-primary';
+      col.innerHTML = `
+        <div class="event-card-name">${ev.name}</div>
+        <div class="event-card-detail">
+          ${ev.date ? fmtDate(ev.date) + '<br>' : ''}
+          ${ev.time ? ev.time + '<br>' : ''}
+          ${ev.venue ? ev.venue + '<br>' : ''}
+          ${ev.address || ''}
+        </div>
+        ${ev.dress_code ? `<span class="event-card-dress">${ev.dress_code}</span>` : ''}`;
+      grid.appendChild(col);
+    });
+
+    const first = primary[0];
+    if (first) {
+      document.getElementById('heroCeremony').querySelector('.hero-event-name').textContent = first.name;
+      document.getElementById('ceremonyDetail').innerHTML =
+        [fmtDate(first.date), first.time, first.venue, first.address].filter(Boolean).join('<br>');
+    }
+
+    if (d.events.length > 2) {
+      const list = document.getElementById('otherEventsList');
+      list.innerHTML = '';
+      d.events.slice(2).forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'other-event-card';
+        card.innerHTML = `
+          <div class="other-event-name">${ev.name}</div>
+          <div class="other-event-detail">
+            ${[fmtDate(ev.date), ev.time, ev.venue, ev.address].filter(Boolean).join('<br>')}
+          </div>`;
+        list.appendChild(card);
+      });
+    }
+
+    buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
+  } else {
+    buildRsvpBlocks([{ id: 'wedding', label: 'The Wedding' }]);
+  }
+
+  if (d.travel_info) {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML = `
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How do I get there?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">${d.travel_info}</div>`;
+    document.getElementById('faqList').appendChild(item);
+  }
+  if (d.things_to_do) {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML = `
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Things to do nearby?</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-answer">${d.things_to_do}</div>`;
+    document.getElementById('faqList').appendChild(item);
+  }
+
+  if (d.gallery_images && d.gallery_images.length)
+    document.querySelector('.registry-img').src = d.gallery_images[0].url;
+
+  if (d.customization) {
+    if (d.customization.primary_color)
+      document.documentElement.style.setProperty('--olive', d.customization.primary_color);
+    if (d.customization.accent_color)
+      document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
+  }
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    return new Date(d).toLocaleDateString('en-US',
+      { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  } catch(e) { return d; }
+}
+
+// ── ENTRY POINT ──────────────────────────────────────────────
+if (_isPreview) {
+  // Standalone preview / thumbnail — show sample data, no API call
+  hydrateTemplate({
+    slug: '',
+    couple_names: 'Sarah and Aiden',
+    partner_1: 'Sarah',
+    partner_2: 'Aiden',
+    celebration_date: '2026-04-05',
+    celebration_location: 'La Jolla, California',
+    hero_image: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png',
+    template: 'romantic',
+    story: 'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
+    events: [
+      { id: '1', name: 'The Ceremony',     date: '2026-04-05', time: '4:00 in the Evening',  venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
+      { id: '2', name: 'The Reception',    date: '2026-04-05', time: '7:00 in the Evening',  venue: 'Estancia La Jolla Hotel & Spa', address: '9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code: 'Cocktail Attire' },
+      { id: '3', name: 'Welcome Cocktails',date: '2026-04-03', time: '7:00 in the Evening',  venue: 'Ultimate Skybox',               address: '109 Tenth Ave, San Diego, CA 92101' }
+    ],
+    travel_info: 'The nearest airport is San Diego International (SAN), about 20 minutes away by car.',
+    things_to_do: 'Visit La Jolla Cove, explore Torrey Pines State Reserve, or enjoy the Gaslamp Quarter.',
+    gallery_images: [],
+    rsvp_enabled: true,
+    password_protected: false,
+    customization: { primary_color: '#8d8863', accent_color: '#f9f7f5' },
+    menu_config: { home: true, story: true, events: true, travel: true, things_to_do: true, gallery: true, rsvp: true }
+  });
+} else {
+  // Live site — fetch real data from API
+  const slug = _pathParts[0];
+  fetch(`${API}/wedding-site/${encodeURIComponent(slug)}`)
+    .then(res => {
+      if (!res.ok) throw new Error(res.status);
+      return res.json();
+    })
+    .then(data => {
+      if (data.password_required) {
+        document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Instrument Serif',serif;flex-direction:column;gap:1rem;background:#f9f7f5"><div style="font-size:2rem">🔒</div><p style="font-size:1.1rem">This site is password protected.</p></div>`;
+        return;
+      }
+      hydrateTemplate(data);
+    })
+    .catch(() => {
+      document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Instrument Serif',serif;flex-direction:column;gap:1rem;background:#f9f7f5"><div style="font-size:2rem">🔍</div><p style="font-size:1.1rem">Wedding site not found.</p></div>`;
+    });
+}
+</script>
+</body>
+</html>
