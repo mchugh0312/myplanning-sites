@@ -859,8 +859,9 @@ const SAMPLE_DATA = {
   menu_config:{ home:true, story:true, events:true, travel:true, things_to_do:true, gallery:true, rsvp:true }
 };
 
-// ── Entry point ───────────────────────────────────────────────
+// ── Entry point ──────────────────────────────────────────────────────────────
 if (_isPreview) {
+  // Vibe block preview iframe — listen for postMessage from editor
   let _got = false;
   window.addEventListener('message', e => {
     if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
@@ -869,23 +870,44 @@ if (_isPreview) {
   });
   setTimeout(() => { if (!_got) hydrateTemplate(SAMPLE_DATA); }, 800);
 } else {
-  // Live site — fetch real data using the resolved slug
-  const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
-    + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
+  // Live site — try sessionStorage first (set by index.html router),
+  // then fall back to fetching from API directly.
+  const _sessionKey  = 'weddingData_' + _liveSlug;
+  const _sessionData = sessionStorage.getItem(_sessionKey);
 
-  fetch(_apiUrl)
-    .then(r => { if (!r.ok) throw r.status; return r.json(); })
-    .then(d => {
-      if (d.password_required) {
-        // Should not happen (index.html handles password), but just in case
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected. Please go back and enter the password.</p></div>';
-        return;
+  if (_sessionData) {
+    try {
+      const d = JSON.parse(_sessionData);
+      sessionStorage.removeItem(_sessionKey);
+      // Clean up URL: replace ?slug=xxx with clean /slug path
+      if (window.location.search.includes('slug=')) {
+        window.history.replaceState({}, d.couple_names || '', '/' + _liveSlug);
       }
       hydrateTemplate(d);
-    })
-    .catch(() => {
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔍 Wedding site not found.</p></div>';
-    });
+    } catch {
+      sessionStorage.removeItem(_sessionKey);
+      fetchAndHydrate();
+    }
+  } else {
+    fetchAndHydrate();
+  }
+
+  function fetchAndHydrate() {
+    const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
+      + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
+    fetch(_apiUrl)
+      .then(r => { if (!r.ok) throw r.status; return r.json(); })
+      .then(d => {
+        if (d.password_required) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected. Please go back and enter the password.</p></div>';
+          return;
+        }
+        hydrateTemplate(d);
+      })
+      .catch(() => {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔍 Wedding site not found.</p></div>';
+      });
+  }
 }
 </script>
 </body>
