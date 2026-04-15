@@ -596,20 +596,18 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 <script>
 const API = 'https://wedding-recommender.onrender.com';
 
-// Slug resolution — three sources in priority order:
-// 1. ?slug= query param (when redirected from index.html router)
-// 2. First path segment (when accessed directly as weddings.myplanning.ai/sarah-john)
-// 3. Neither → preview/thumbnail mode
+// Slug detection:
+// - index.html injects this template and calls hydrateTemplate() directly with real data
+// - For direct URL access (Vercel rewrite), read from path
+// - For Vibe block preview iframe, respond to postMessage
 const _params    = new URLSearchParams(window.location.search);
 const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p => p);
 const _firstPart = _pathParts[0] || '';
-// A real slug never contains a dot or starts with 'template-'
 const _liveSlug  = _slugParam
   || (_firstPart && _firstPart.indexOf('.') === -1 && !_firstPart.startsWith('template-')
       ? _firstPart : '');
 const _isPreview = !_liveSlug;
-// Password from URL param (set by index.html after password screen)
 const _pwdParam  = _params.get('pwd') || '';
 
 // ── Menu ──────────────────────────────────────────────────────

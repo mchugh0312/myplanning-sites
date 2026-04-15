@@ -75,15 +75,59 @@ function showPasswordScreen(templateUrl) {
         err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
         return;
       }
-      // Password correct — redirect to template
+      // Password correct — load template inline
       const tmpl = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
-      window.location.href = `${tmpl}?slug=${encodeURIComponent(slug)}&pwd=${encodeURIComponent(pwd)}`;
+      await loadTemplate(tmpl, data);
     } catch {
       err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
     }
   };
   document.getElementById('pwInput').onkeypress = e => { if (e.key === 'Enter') tryPwd(); };
   document.getElementById('pwBtn').onclick = tryPwd;
+}
+
+async function loadTemplate(templateUrl, weddingData) {
+  try {
+    const res  = await fetch(templateUrl);
+    const html = await res.text();
+
+    // Parse and inject the template
+    const parser  = new DOMParser();
+    const doc     = parser.parseFromString(html, 'text/html');
+
+    // Copy styles
+    document.head.innerHTML = doc.head.innerHTML;
+
+    // Copy body content
+    document.body.innerHTML = doc.body.innerHTML;
+
+    // Re-execute scripts (innerHTML doesn't run them)
+    const scripts = doc.body.querySelectorAll('script');
+    for (const oldScript of scripts) {
+      const newScript = document.createElement('script');
+      if (oldScript.src) {
+        newScript.src = oldScript.src;
+        await new Promise(r => { newScript.onload = r; newScript.onerror = r; });
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      document.body.appendChild(newScript);
+    }
+
+    // Wait a tick then hydrate with real data
+    await new Promise(r => setTimeout(r, 100));
+    if (typeof hydrateTemplate === 'function') {
+      hydrateTemplate(weddingData);
+    } else {
+      // Signal via postMessage as fallback
+      window.dispatchEvent(new MessageEvent('message', {
+        data: { type: 'HYDRATE_TEMPLATE', payload: weddingData }
+      }));
+    }
+  } catch(e) {
+    console.error('Template load error:', e);
+    showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.');
+  }
 }
 
 async function main() {
@@ -108,12 +152,11 @@ async function main() {
       return;
     }
 
-    // ── KEY CHANGE: redirect to the template file with slug as URL param ──
-    // The template reads ?slug= from the URL and fetches its own data directly.
-    // This means the template runs as a real standalone page — all anchors,
-    // scroll, menu clicks, and JS work exactly as designed.
+    // Load the template HTML into this page while keeping the original URL clean.
+    // We fetch the template HTML, inject it, and run its scripts — exactly like
+    // a SPA router. The URL stays as weddings.myplanning.ai/sarah-and-john.
     const templateFile = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
-    window.location.replace(`${templateFile}?slug=${encodeURIComponent(slug)}`);
+    await loadTemplate(templateFile, data);
 
   } catch {
     showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.');
