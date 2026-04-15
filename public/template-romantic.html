@@ -30,6 +30,8 @@
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--serif);color:#040505;background:var(--offwhite);overflow-x:hidden;}
+/* Hide body until hydrated to prevent flash of placeholder content */
+body.hydrating{visibility:hidden}
 
 /* ── MENU ─────────────────────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
@@ -408,7 +410,7 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 }
 </style>
 </head>
-<body>
+<body class="hydrating">
 
 <!-- MENU OVERLAY -->
 <div class="menu-overlay" id="menuOverlay">
@@ -860,8 +862,14 @@ const SAMPLE_DATA = {
 };
 
 // ── Entry point ──────────────────────────────────────────────────────────────
+
+function _reveal() {
+  document.body.classList.remove('hydrating');
+}
+
 if (_isPreview) {
-  // Vibe block preview iframe — listen for postMessage from editor
+  // Preview iframe — listen for postMessage, show sample data as fallback
+  _reveal(); // show immediately in preview — sample data is fine
   let _got = false;
   window.addEventListener('message', e => {
     if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
@@ -869,37 +877,73 @@ if (_isPreview) {
     }
   });
   setTimeout(() => { if (!_got) hydrateTemplate(SAMPLE_DATA); }, 800);
+
 } else {
-  // Live site — try sessionStorage first (set by index.html router),
-  // then fall back to fetching from API directly.
+  // Live site — check sessionStorage synchronously (data pre-fetched by index.html)
   const _sessionKey  = 'weddingData_' + _liveSlug;
   const _sessionData = sessionStorage.getItem(_sessionKey);
 
   if (_sessionData) {
+    // Data is already here — hydrate immediately, zero delay, no flash
     try {
       const d = JSON.parse(_sessionData);
       sessionStorage.removeItem(_sessionKey);
-      // Clean up URL: replace ?slug=xxx with clean /slug path
+      hydrateTemplate(d);
+      _reveal();
+      // Clean URL after hydration
       if (window.location.search.includes('slug=')) {
         window.history.replaceState({}, d.couple_names || '', '/' + _liveSlug);
       }
-      hydrateTemplate(d);
     } catch {
       sessionStorage.removeItem(_sessionKey);
-      fetchAndHydrate();
+      _reveal();
+      _fetchAndHydrate();
     }
   } else {
-    fetchAndHydrate();
+    // No sessionStorage — fetch directly (direct URL access, bookmark, etc.)
+    // Show a loading spinner instead of placeholder while fetching
+    document.body.innerHTML = `
+      <style>
+        @keyframes petalSpin{
+          0%{transform:rotate(0deg) scale(1)}
+          25%{transform:rotate(90deg) scale(1.06)}
+          50%{transform:rotate(180deg) scale(1)}
+          75%{transform:rotate(270deg) scale(1.06)}
+          100%{transform:rotate(360deg) scale(1)}
+        }
+        @keyframes lineSlide{
+          0%{left:-100%} 50%{left:0%} 100%{left:100%}
+        }
+      </style>
+      <div style="display:flex;align-items:center;justify-content:center;
+        min-height:100vh;flex-direction:column;gap:24px;background:#f9f7f5;
+        background-image:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(169,189,196,0.12) 0%,transparent 60%),
+          radial-gradient(ellipse 40% 60% at 80% 20%,rgba(141,136,99,0.08) 0%,transparent 60%)">
+        <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" style="width:72px;height:72px;object-fit:contain;
+          animation:petalSpin 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+          filter:drop-shadow(0 4px 12px rgba(141,136,99,0.25))">
+        <p style="font-family:'Instrument Serif',serif;color:#8d8863;
+          font-size:1.5rem;font-style:italic;letter-spacing:0.02em;margin:0">
+          Your celebration awaits</p>
+        <div style="width:120px;height:1px;background:#e8e4dc;border-radius:999px;
+          position:relative;overflow:hidden">
+          <div style="position:absolute;left:-100%;top:0;width:100%;height:100%;
+            background:#8d8863;border-radius:999px;
+            animation:lineSlide 1.8s ease-in-out infinite"></div>
+        </div>
+      </div>`;
+    _reveal();
+    _fetchAndHydrate();
   }
 
-  function fetchAndHydrate() {
+  function _fetchAndHydrate() {
     const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
       + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
     fetch(_apiUrl)
       .then(r => { if (!r.ok) throw r.status; return r.json(); })
       .then(d => {
         if (d.password_required) {
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected. Please go back and enter the password.</p></div>';
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected.</p></div>';
           return;
         }
         hydrateTemplate(d);

@@ -4,19 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#f9f7f5;font-family:'Instrument Serif',serif}
-.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem}
-.spinner{border:2px solid #e0ddd5;border-top:2px solid #8d8863;border-radius:50%;width:32px;height:32px;animation:spin 0.9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:0.85rem;color:#8d8863;letter-spacing:0.08em}
+
+.loading-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;flex-direction:column;
+  background:#f9f7f5;position:relative;overflow:hidden;
+}
+
+/* Subtle petal scatter background */
+.loading-screen::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(169,189,196,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 20%, rgba(141,136,99,0.08) 0%, transparent 60%);
+}
+
+.loading-inner{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;gap:28px;
+}
+
+/* Flower spinner — uses the actual flower image, spins gently */
+.flower-spinner{
+  position:relative;width:72px;height:72px;
+}
+.flower-spinner img{
+  width:100%;height:100%;object-fit:contain;
+  animation:petalSpin 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+  transform-origin:center;
+  filter:drop-shadow(0 4px 12px rgba(141,136,99,0.25));
+}
+@keyframes petalSpin{
+  0%   {transform:rotate(0deg)   scale(1)}
+  25%  {transform:rotate(90deg)  scale(1.06)}
+  50%  {transform:rotate(180deg) scale(1)}
+  75%  {transform:rotate(270deg) scale(1.06)}
+  100% {transform:rotate(360deg) scale(1)}
+}
+
+/* Floating petals */
+.petal{
+  position:absolute;width:16px;height:16px;
+  animation:floatPetal 4s ease-in-out infinite;
+  opacity:0;
+}
+.petal img{width:100%;height:100%;object-fit:contain;opacity:0.35;}
+.petal:nth-child(1){top:-30px;left:-40px;animation-delay:0s;animation-duration:3.8s;}
+.petal:nth-child(2){top:-20px;right:-45px;animation-delay:1.2s;animation-duration:4.2s;}
+.petal:nth-child(3){bottom:-35px;left:-35px;animation-delay:0.7s;animation-duration:3.5s;}
+.petal:nth-child(4){bottom:-25px;right:-40px;animation-delay:2s;animation-duration:4.5s;}
+@keyframes floatPetal{
+  0%  {opacity:0;transform:translateY(0) rotate(0deg) scale(0.8)}
+  30% {opacity:1}
+  70% {opacity:0.6}
+  100%{opacity:0;transform:translateY(-18px) rotate(45deg) scale(1.1)}
+}
+
+.loading-title{
+  font-family:'Instrument Serif',serif;
+  font-size:1.5rem;color:#8d8863;
+  font-weight:400;letter-spacing:0.02em;
+  font-style:italic;
+}
+.loading-sub{
+  font-family:'Instrument Serif',serif;
+  font-size:0.82rem;color:#b5ad9a;
+  letter-spacing:0.1em;margin-top:-16px;
+}
+
+/* Thin olive progress line */
+.loading-line{
+  width:120px;height:1px;background:#e8e4dc;
+  position:relative;overflow:hidden;
+  border-radius:999px;
+}
+.loading-line::after{
+  content:'';position:absolute;left:-100%;top:0;
+  width:100%;height:100%;background:#8d8863;
+  animation:lineSlide 1.8s ease-in-out infinite;
+  border-radius:999px;
+}
+@keyframes lineSlide{
+  0%  {left:-100%}
+  50% {left:0%}
+  100%{left:100%}
+}
 </style>
 </head>
 <body>
-<div class="loading" id="loadingScreen">
-  <div class="spinner"></div>
-  <div class="loading-text">Loading your celebration...</div>
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-inner">
+
+    <!-- Spinning flower with floating petals around it -->
+    <div class="flower-spinner" style="position:relative">
+      <!-- Floating mini petals -->
+      <div class="petal"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt=""></div>
+      <div class="petal"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt=""></div>
+      <div class="petal"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt=""></div>
+      <div class="petal"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt=""></div>
+      <!-- Main spinning flower -->
+      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+    </div>
+
+    <div class="loading-title">Your celebration awaits</div>
+    <div class="loading-line"></div>
+    <div class="loading-sub">Loading...</div>
+
+  </div>
 </div>
 <script>
 const API = 'https://wedding-recommender.onrender.com';
