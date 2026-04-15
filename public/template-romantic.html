@@ -392,6 +392,30 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 .footer-date{font-family:var(--serif);font-size:0.76rem;color:rgba(255,255,255,0.65);letter-spacing:0.1em;}
 
 /* ── MOBILE ─────────────────────────────────────────────────── */
+/* ── OUR STORY ────────────────────────────────────────── */
+.our-story{
+  background:var(--offwhite);padding:5rem 4rem;
+  position:relative;overflow:hidden;text-align:center;
+}
+.story-flower-r{
+  position:absolute;right:-50px;top:-40px;
+  width:220px;opacity:0.18;transform:rotate(20deg);pointer-events:none;
+}
+.story-inner{max-width:680px;margin:0 auto;position:relative;z-index:1;}
+.story-rule-wrap{
+  display:flex;align-items:center;gap:1.2rem;
+  justify-content:center;margin-bottom:2.2rem;
+}
+.story-rule-line{flex:1;max-width:80px;height:1px;background:rgba(141,136,99,0.35);}
+.story-text{
+  font-family:var(--serif);font-size:1rem;color:#040505;
+  line-height:2;font-style:italic;text-align:center;
+}
+.story-heart{
+  margin:2rem auto 0;font-size:0.8rem;
+  color:var(--olive);letter-spacing:0.3em;opacity:0.6;
+}
+
 @media(max-width:768px){
   .hero{height:65vw;min-height:320px}
   .hero-couple-name{font-size:clamp(2.5rem,10vw,4rem)}
@@ -400,6 +424,8 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .event-card-primary{padding:2rem 1.5rem}
   .events-primary,.accommodations,.rsvp-section{padding:3.5rem 1.5rem}
   .other-events-inner{padding:3.5rem 1.5rem}
+  .our-story{padding:3.5rem 1.5rem}
+  .story-flower-r{width:140px;right:-30px}
   .ntk-header{padding:3rem 1.5rem 2rem}
   .ntk-faq-area{padding:2rem 1.5rem 3rem}
   .flower-mid-right{width:120px;right:-20px}
@@ -450,6 +476,23 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
     <div class="hero-couple-name" id="heroCoupleNames">Sarah and Aiden</div>
   </div>
 </section>
+
+<!-- OUR STORY: offwhite, hidden until story text is provided -->
+<div class="our-story" id="our-story" style="display:none">
+  <img class="story-flower-r"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <div class="story-inner">
+    <div class="story-rule-wrap">
+      <div class="story-rule-line"></div>
+      <h2 class="section-title" id="storyTitle">Our Story</h2>
+      <div class="story-rule-line"></div>
+    </div>
+    <p class="story-text" id="storyText">
+      We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.
+    </p>
+    <div class="story-heart">✦ &nbsp; ✦ &nbsp; ✦</div>
+  </div>
+</div>
 
 <!-- PRIMARY EVENTS: olive, 2-col with vertical separator -->
 <div class="events-primary" id="events-primary">
@@ -750,35 +793,120 @@ async function submitRSVP() {
 
 // ── Hydration ─────────────────────────────────────────────────
 function hydrateTemplate(d) {
-  window._weddingSlug = d.slug || '';
+  window._weddingSlug  = d.slug || '';
   const names = d.couple_names || 'Sarah & Aiden';
-  const p1 = d.partner_1 || ''; const p2 = d.partner_2 || '';
+  const p1    = d.partner_1 || '';
+  const p2    = d.partner_2 || '';
+  const mode  = (d.website_mode || 'Full').toLowerCase();  // 'full' | 'save the date'
+  const isSaveTheDate = mode.includes('save');
+  const menu  = d.menu_config || {};
+  const rsvpOn = d.rsvp_enabled !== false;
 
+  // ── Names ────────────────────────────────────────────────
   document.getElementById('heroCoupleNames').textContent = names;
   document.getElementById('navLogo').textContent =
     p1 && p2 ? `${p1[0]} & ${p2[0]}` : names;
   document.getElementById('footerNames').textContent = names;
   document.title = names;
 
+  // ── Hero image ────────────────────────────────────────────
   if (d.hero_image) {
     document.getElementById('heroImg').src = d.hero_image;
     const bg = document.getElementById('needToKnowBg');
-    if (bg) {
-      bg.style.backgroundImage = `url('${d.hero_image}')`;
-      bg.style.backgroundSize  = 'cover';
-      bg.style.backgroundPosition = 'center';
-    }
+    if (bg) { bg.style.backgroundImage = `url('${d.hero_image}')`; bg.style.backgroundSize = 'cover'; bg.style.backgroundPosition = 'center'; }
   }
 
+  // ── Footer date ───────────────────────────────────────────
   if (d.celebration_date || d.celebration_location) {
     const dp = d.celebration_date
-      ? new Date(d.celebration_date).toLocaleDateString('en-US',
-          { month:'long', day:'numeric', year:'numeric' })
+      ? new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })
       : '';
-    document.getElementById('footerDate').textContent =
-      [dp, d.celebration_location].filter(Boolean).join(' · ');
+    document.getElementById('footerDate').textContent = [dp, d.celebration_location].filter(Boolean).join(' · ');
   }
 
+  // ── Custom colours ────────────────────────────────────────
+  if (d.customization) {
+    if (d.customization.primary_color) document.documentElement.style.setProperty('--olive', d.customization.primary_color);
+    if (d.customization.accent_color)  document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
+  }
+
+  // ── Custom font ───────────────────────────────────────────
+  if (d.custom_font) {
+    // Load the font from Google Fonts and apply to --script or --serif
+    const cursiveFonts = ['Dancing Script','Pacifico','Great Vibes','Comic Neue'];
+    const isCursive    = cursiveFonts.some(f => d.custom_font.includes(f));
+    const fontLink     = document.createElement('link');
+    fontLink.rel  = 'stylesheet';
+    fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(d.custom_font)}&display=swap`;
+    document.head.appendChild(fontLink);
+    if (isCursive) document.documentElement.style.setProperty('--script', `'${d.custom_font}',cursive`);
+    else           document.documentElement.style.setProperty('--serif',  `'${d.custom_font}',serif`);
+  }
+
+  // ── Save the Date mode: show only hero + date info, hide everything else ──
+  const sectionsAll = ['events-primary','other-events','accommodations','need-to-know','registry','rsvp'];
+  if (isSaveTheDate) {
+    sectionsAll.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    // Update menu to only show Home
+    _buildMenu({ home: true });
+    // Add a "Save the Date" subtitle on hero
+    const overlay = document.querySelector('.hero-names-overlay');
+    if (overlay && !document.getElementById('saveTheDateLabel')) {
+      const lbl = document.createElement('div');
+      lbl.id = 'saveTheDateLabel';
+      lbl.style.cssText = 'font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.85);letter-spacing:0.14em;text-transform:uppercase;margin-top:12px;text-shadow:0 1px 8px rgba(0,0,0,0.3)';
+      lbl.textContent = 'Save the Date';
+      overlay.appendChild(lbl);
+    }
+    return; // don't build out the rest for save-the-date mode
+  }
+
+  // ── Menu visibility ───────────────────────────────────────
+  _buildMenu(menu, rsvpOn);
+
+  // ── Section visibility based on menu_config ───────────────
+  const sectionMap = {
+    'our-story':      d.story && menu.story   !== false,
+    'events-primary': menu.events             !== false,
+    'other-events':   menu.events             !== false,
+    'accommodations': menu.travel             !== false,
+    'need-to-know':   menu.things_to_do       !== false || !!d.travel_info,
+    'registry':       menu.gallery            !== false,
+    'rsvp':           rsvpOn && menu.rsvp     !== false,
+  };
+  Object.entries(sectionMap).forEach(([id, show]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  });
+
+  // ── Our Story — own section between hero and events ─────────────────────────
+  const storySection = document.getElementById('our-story');
+  const storyText    = document.getElementById('storyText');
+  if (d.story && menu.story !== false && storySection && storyText) {
+    storyText.textContent = d.story;
+    storySection.style.display = '';
+  } else if (storySection) {
+    storySection.style.display = 'none';
+  }
+
+  // ── Need to Knows / FAQ — travel + things to do only ────────────────────────
+  const faqList = document.getElementById('faqList');
+  // Clear dynamically added FAQs
+  faqList.querySelectorAll('.faq-dynamic').forEach(el => el.remove());
+  if (d.travel_info) {
+    const item = document.createElement('div');
+    item.className = 'faq-item faq-dynamic';
+    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
+    faqList.appendChild(item);
+  }
+  if (d.things_to_do) {
+    const item = document.createElement('div');
+    item.className = 'faq-item faq-dynamic';
+    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
+    faqList.appendChild(item);
+  }
+
+  // ── Events ────────────────────────────────────────────────
   if (d.events && d.events.length) {
     const grid = document.getElementById('eventsGrid');
     grid.innerHTML = '';
@@ -796,7 +924,6 @@ function hydrateTemplate(d) {
         ${ev.dress_code ? `<span class="event-card-dress">${ev.dress_code}</span>` : ''}`;
       grid.appendChild(col);
     });
-
     if (d.events.length > 2) {
       const list = document.getElementById('otherEventsList');
       list.innerHTML = '';
@@ -811,30 +938,41 @@ function hydrateTemplate(d) {
         list.appendChild(card);
       });
     }
-    buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
+  }
+
+  // ── RSVP ─────────────────────────────────────────────────
+  if (rsvpOn && menu.rsvp !== false) {
+    if (d.events && d.events.length)
+      buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
+    else
+      buildRsvpBlocks([{ id:'wedding', label:'The Wedding' }]);
   } else {
-    buildRsvpBlocks([{ id:'wedding', label:'The Wedding' }]);
+    // Hide RSVP submit button and blocks if RSVP disabled
+    const rsvpSection = document.getElementById('rsvp');
+    if (rsvpSection) rsvpSection.style.display = 'none';
   }
+}
 
-  if (d.travel_info) {
-    const item = document.createElement('div');
-    item.className = 'faq-item';
-    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
-    document.getElementById('faqList').appendChild(item);
-  }
-  if (d.things_to_do) {
-    const item = document.createElement('div');
-    item.className = 'faq-item';
-    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
-    document.getElementById('faqList').appendChild(item);
-  }
-
-  if (d.customization) {
-    if (d.customization.primary_color)
-      document.documentElement.style.setProperty('--olive', d.customization.primary_color);
-    if (d.customization.accent_color)
-      document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
-  }
+// Build menu links based on menu_config
+function _buildMenu(menu, rsvpOn) {
+  const menuEl = document.getElementById('menuLinks');
+  if (!menuEl) return;
+  const links = [
+    { show: menu.home         !== false,                    href: '#hero',           label: 'Home' },
+    { show: menu.story        !== false,                    href: '#our-story',      label: 'Our Story' },
+    { show: menu.events       !== false,                    href: '#events-primary', label: 'The Wedding' },
+    { show: menu.events       !== false,                    href: '#other-events',   label: 'Other Events' },
+    { show: menu.travel       !== false,                    href: '#accommodations', label: 'Recommended Accommodations' },
+    { show: menu.things_to_do !== false,                    href: '#need-to-know',   label: 'Need to Knows' },
+    { show: menu.gallery      !== false,                    href: '#registry',       label: 'Our Registry' },
+    { show: (rsvpOn !== false) && menu.rsvp !== false,      href: '#rsvp',           label: 'RSVP' },
+  ];
+  menuEl.innerHTML = '';
+  links.filter(l => l.show).forEach(l => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;
+    menuEl.appendChild(li);
+  });
 }
 
 function fmtDate(d) {
