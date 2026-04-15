@@ -394,12 +394,12 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 /* ── MOBILE ─────────────────────────────────────────────────── */
 /* ── OUR STORY ────────────────────────────────────────── */
 .our-story{
-  background:var(--offwhite);padding:5rem 4rem;
+  background:#f9f7f5;padding:5rem 4rem;
   position:relative;overflow:hidden;text-align:center;
 }
 .story-flower-r{
-  position:absolute;right:-50px;top:-40px;
-  width:220px;opacity:0.18;transform:rotate(20deg);pointer-events:none;
+  position:absolute;right:-40px;top:-30px;
+  width:200px;opacity:1;transform:rotate(15deg);pointer-events:none;
 }
 .story-inner{max-width:680px;margin:0 auto;position:relative;z-index:1;}
 .story-rule-wrap{
@@ -468,8 +468,9 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 <section class="hero" id="hero">
   <div class="hero-image">
     <img id="heroImg"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png"
-      alt="Couple photo">
+      src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+      alt="Couple photo"
+      style="background:#f0ede8">
   </div>
   <div class="hero-gradient"></div>
   <div class="hero-names-overlay">
@@ -986,7 +987,7 @@ function fmtDate(d) {
 const SAMPLE_DATA = {
   slug:'', couple_names:'Sarah and Aiden', partner_1:'Sarah', partner_2:'Aiden',
   celebration_date:'2026-04-05', celebration_location:'La Jolla, California',
-  hero_image:'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png',
+  hero_image:'',
   events:[
     { id:'1', name:'The Ceremony',     date:'2026-04-05', time:'4:00 in the Evening', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },
     { id:'2', name:'The Reception',    date:'2026-04-05', time:'7:00 in the Evening', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },

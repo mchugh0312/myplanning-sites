@@ -146,17 +146,35 @@ function showScreen(icon, title, sub) {
 
 function showPasswordScreen(templateUrl) {
   document.getElementById('loadingScreen').outerHTML = `
-    <div class="loading" id="pwScreen" style="flex-direction:column;gap:0.75rem;text-align:center;padding:2rem">
-      <div style="font-size:2.5rem">🔒</div>
-      <div style="font-size:1.1rem;color:#040505">Password Protected</div>
-      <div style="font-size:0.85rem;color:#8d8863;margin-bottom:0.5rem">This celebration website is private.</div>
-      <input id="pwInput" type="password" placeholder="Enter password"
-        style="padding:0.75rem 1rem;border:1px solid #c8c5b8;border-radius:3px;font-size:0.9rem;width:280px;outline:none;text-align:center;background:#fff">
-      <button id="pwBtn"
-        style="padding:0.75rem 2rem;background:#8d8863;color:#fff;border:none;border-radius:999px;font-size:0.85rem;letter-spacing:0.08em;cursor:pointer;width:280px">
-        Enter
-      </button>
-      <div id="pwError" style="color:#c0392b;font-size:0.8rem;display:none">Incorrect password. Please try again.</div>
+    <div id="pwScreen" style="
+      display:flex;align-items:center;justify-content:center;
+      min-height:100vh;flex-direction:column;gap:24px;
+      background:#f9f7f5;font-family:'Instrument Serif',serif;padding:2rem;
+      background-image:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(169,189,196,0.12) 0%,transparent 60%),
+        radial-gradient(ellipse 40% 60% at 80% 20%,rgba(141,136,99,0.08) 0%,transparent 60%)">
+      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" style="width:56px;height:56px;object-fit:contain;opacity:0.55">
+      <div style="text-align:center">
+        <p style="font-size:1.8rem;color:#8d8863;font-style:italic;margin-bottom:6px">A private celebration</p>
+        <p style="font-size:0.85rem;color:#b5ad9a;letter-spacing:0.06em">Enter the password to continue</p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:300px">
+        <input id="pwInput" type="password" placeholder="Password"
+          style="width:100%;padding:12px 20px;border:1px solid #d4cfc4;border-radius:999px;
+            font-size:0.95rem;font-family:'Instrument Serif',serif;font-style:italic;
+            outline:none;text-align:center;background:#fff;color:#040505;
+            letter-spacing:0.05em">
+        <button id="pwBtn"
+          style="width:100%;padding:12px 20px;background:#8d8863;color:#fff;
+            border:none;border-radius:999px;font-size:0.85rem;
+            font-family:'Instrument Serif',serif;letter-spacing:0.1em;
+            cursor:pointer">
+          Enter
+        </button>
+        <div id="pwError" style="color:#c0392b;font-size:0.82rem;
+          font-family:'Instrument Serif',serif;font-style:italic;display:none">
+          Incorrect password — please try again.
+        </div>
+      </div>
     </div>`;
   document.getElementById('pwInput').focus();
   const tryPwd = async () => {
@@ -195,7 +213,11 @@ async function main() {
     const res = await fetch(`${API}/wedding-site/${encodeURIComponent(slug)}`);
 
     if (res.status === 404) { showScreen('🔍', 'Page not found', 'Check the URL and try again.'); return; }
-    if (res.status === 403) { showScreen('🔜', 'Coming soon', 'This website isn\'t published yet.'); return; }
+    if (res.status === 403) {
+      // 403 means Draft or Unpublished — show themed coming soon
+      showScreen('Coming Soon', 'This celebration is not yet published.');
+      return;
+    }
     if (!res.ok)            { showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.'); return; }
 
     const data = await res.json();
