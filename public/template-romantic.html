@@ -386,6 +386,82 @@ body.hydrating{visibility:hidden}
 .rsvp-success-icon{font-size:2rem;margin-bottom:0.5rem}
 .rsvp-success-msg{font-family:var(--serif);font-size:0.9rem;color:var(--olive);line-height:1.7;}
 
+/* ── TRAVEL ───────────────────────────────────────────────── */
+.travel-section{
+  background:var(--olive);padding:5rem 4rem;
+  position:relative;overflow:hidden;text-align:center;
+}
+.travel-inner{max-width:680px;margin:0 auto;position:relative;z-index:1;}
+.travel-content{
+  font-family:var(--serif);font-size:0.9rem;
+  color:rgba(255,255,255,0.88);line-height:1.9;
+  text-align:left;max-width:560px;margin:1.5rem auto 0;
+}
+.travel-flower-l{
+  position:absolute;left:-50px;bottom:-40px;
+  width:200px;opacity:0.8;transform:rotate(15deg) scaleX(-1);pointer-events:none;
+}
+
+/* ── GALLERY ──────────────────────────────────────────────── */
+.gallery-section{
+  background:var(--offwhite);padding:5rem 0;text-align:center;
+}
+.gallery-section-inner{max-width:100%;margin:0 auto;}
+/* Masonry-style collage grid */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:140px;
+  gap:6px;
+  padding:0;
+}
+.gallery-item{overflow:hidden;cursor:pointer;position:relative;}
+.gallery-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform 0.4s ease;
+}
+.gallery-item:hover img{transform:scale(1.06);}
+/* Varied sizes for collage feel */
+.gallery-item:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.gallery-item:nth-child(4){grid-column:span 2;}
+.gallery-item:nth-child(7){grid-row:span 2;}
+.gallery-item:nth-child(9){grid-column:span 2;}
+
+/* Lightbox */
+.gallery-lightbox{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(4,5,5,0.92);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.gallery-lightbox.open{opacity:1;pointer-events:auto;}
+.gallery-lightbox img{
+  max-width:90vw;max-height:88vh;
+  object-fit:contain;border-radius:4px;
+  box-shadow:0 8px 60px rgba(0,0,0,0.6);
+}
+.gallery-lb-close{
+  position:absolute;top:20px;right:24px;
+  background:none;border:none;color:#fff;
+  font-size:2rem;cursor:pointer;opacity:0.7;line-height:1;
+}
+.gallery-lb-close:hover{opacity:1;}
+.gallery-lb-prev,.gallery-lb-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,255,255,0.12);border:none;color:#fff;
+  font-size:1.8rem;cursor:pointer;padding:12px 18px;
+  border-radius:4px;transition:background 0.2s;
+}
+.gallery-lb-prev{left:16px;}
+.gallery-lb-next{right:16px;}
+.gallery-lb-prev:hover,.gallery-lb-next:hover{background:rgba(255,255,255,0.25);}
+.gallery-lb-counter{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,0.6);font-family:var(--serif);font-size:0.8rem;
+  letter-spacing:0.1em;
+}
+
+/* ── FOOTER ───────────────────────────────────────────────── */
 /* ── FOOTER ────────────────────────────────────────────────── */
 footer{background:var(--olive);padding:2.5rem;text-align:center;}
 .footer-names{font-family:var(--script);font-size:2rem;color:var(--white);font-weight:400;margin-bottom:0.4rem;}
@@ -434,8 +510,10 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .menu-drawer{width:290px}
   .rsvp-field-row{grid-template-columns:1fr}
   .travel-section{padding:3.5rem 1.5rem}
-  .gallery-section{padding:3.5rem 1.5rem}
-  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .gallery-section{padding:3rem 0}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px}
+  .gallery-lb-prev{left:6px;padding:10px 12px}
+  .gallery-lb-next{right:6px;padding:10px 12px}
   .registry-section{padding:3.5rem 1.5rem}
 }
 </style>
@@ -621,26 +699,35 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 
 <!-- TRAVEL -->
 <div class="travel-section" id="travel-section" style="display:none">
-  <img class="travel-flower" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <img class="travel-flower-l" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
   <div class="travel-inner">
-    <h2 class="section-title">Travel</h2>
-    <div class="section-rule"></div>
-    <div class="travel-content" id="travelContent"></div>
+    <h2 class="section-title" style="color:var(--white)">Travel</h2>
+    <div class="section-rule" style="background:rgba(255,255,255,0.4)"></div>
+    <div class="travel-content" id="travelContent">
+      The nearest airport is approximately 30 minutes from the venue. Uber and Lyft are readily available throughout the area.
+    </div>
   </div>
 </div>
 
 <!-- GALLERY -->
 <div class="gallery-section" id="gallery" style="display:none">
-  <div style="max-width:900px;margin:0 auto">
-    <h2 class="section-title">Gallery</h2>
-    <div class="section-rule"></div>
-    <div class="gallery-grid" id="galleryGrid"></div>
-  </div>
+  <h2 class="section-title" style="margin-bottom:0.4rem">Gallery</h2>
+  <div class="section-rule" style="margin-bottom:1.5rem"></div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="gallery-lightbox" id="galleryLightbox">
+  <button class="gallery-lb-close" onclick="closeLightbox()">&#215;</button>
+  <button class="gallery-lb-prev" onclick="shiftLightbox(-1)">&#8249;</button>
+  <img id="galleryLbImg" src="" alt="">
+  <button class="gallery-lb-next" onclick="shiftLightbox(1)">&#8250;</button>
+  <div class="gallery-lb-counter" id="galleryLbCounter"></div>
 </div>
 
 <!-- REGISTRY — uses the original .registry olive strip design -->
 <div class="registry" id="registry-section" style="display:none">
-  <div class="registry-title">Our Registry</div>
+  <div class="registry-title">See Our Registry</div>
   <div id="registryInfo" style="font-family:var(--serif);font-size:0.88rem;color:rgba(255,255,255,0.88);line-height:1.9;max-width:560px;margin:1.2rem auto 0;font-style:italic;"></div>
 </div>
 
@@ -989,30 +1076,36 @@ function hydrateTemplate(d) {
     }
   }
 
-  // ── Travel — own dedicated section ──────────────────────────────────
+  // ── Travel ───────────────────────────────────────────────────────────
   const travelSection = document.getElementById('travel-section');
   if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
-  if (menu.travel) {
+  if (menu.travel && d.travel_info) {
     const travelContent = document.getElementById('travelContent');
-    if (travelContent) travelContent.innerHTML = d.travel_info || '';
+    if (travelContent) travelContent.innerHTML = d.travel_info;
   }
 
   // ── Old registry strip — now used as the main registry section ────────
   const oldRegistry = document.getElementById('registry');
   if (oldRegistry) oldRegistry.style.display = 'none';
 
-  // ── Gallery ──────────────────────────────────────────────────────────
+  // ── Gallery — collage grid + lightbox ────────────────────────────────
+  var _galleryUrls = [];
+  var _galleryIdx  = 0;
   const gallerySection = document.getElementById('gallery');
   if (gallerySection) {
     const hasImages = d.gallery_images && d.gallery_images.length > 0;
     gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
+      _galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
       const grid = document.getElementById('galleryGrid');
       if (grid) {
         grid.innerHTML = '';
-        d.gallery_images.forEach(img => {
-          const div = document.createElement('div'); div.className = 'gallery-item';
-          div.innerHTML = `<img src="${img.url}" alt="" loading="lazy">`;
+        _galleryUrls.forEach(function(url, i) {
+          const div = document.createElement('div');
+          div.className = 'gallery-item';
+          div.setAttribute('data-idx', i);
+          div.innerHTML = '<img src="' + url + '" alt="" loading="lazy">';
+          div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
       }
@@ -1081,13 +1174,13 @@ const SAMPLE_DATA = {
   celebration_date:'2026-04-05', celebration_location:'La Jolla, California',
   hero_image:'',
   story:'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
-  weddings_info:'<strong>The Ceremony</strong><br>Saturday, April 5th, 2026 · 4:00 o’clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April 5th, 2026 · 7:00 o’clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em>',
-  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 · 7 O’Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101',
+  weddings_info:'<strong>The Ceremony</strong><br>Saturday, April 5th, 2026 &middot; 4:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April 5th, 2026 &middot; 7:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em>',
+  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101',
   accommodation_info:'<strong>Hyatt Regency La Jolla At Aventine</strong><br>Beyond the Shadow Glen Hotel Resort Block<br>3777 La Jolla Village Drive, La Jolla, CA 92037',
-  travel_info:'The nearest airport is San Diego International (SAN), approximately 20 minutes away by car.',
-  things_to_do:'Visit La Jolla Cove, explore Torrey Pines State Reserve, or enjoy the Gaslamp Quarter.',
-  faqs:'<strong>What should I wear?</strong><br>Cocktail Attire. Think elegant dresses, jumpsuits, suits and blazers.<br><br><strong>Will there be transportation?</strong><br>Shuttle services will be arranged from the ceremony to the reception.',
-  registry_info:'Your presence is the greatest gift of all. For those who wish to honour us, we have registered at the links below.',
+  travel_info:'The nearest airport is San Diego International Airport (SAN), approximately 20 minutes from the venue by car. Uber and Lyft are readily available. We recommend staying within a 10-minute drive of the venue.',
+  things_to_do:'Visit La Jolla Cove for stunning coastal views, explore Torrey Pines State Reserve, or spend an evening in the Gaslamp Quarter. Ask us for personalised recommendations.',
+  faqs:'<strong>What should I wear?</strong><br>Cocktail attire. Think elegant dresses, jumpsuits, suits and blazers. Denim, trainers and golf attire are not permitted.<br><br><strong>Will there be transportation?</strong><br>Shuttle services will be arranged from the ceremony to the evening reception.',
+  registry_info:'Your presence at our celebration is the greatest gift of all. For those who wish to honour us with a gift, we have registered at the links below.',
   events:[
     { id:'1', name:'The Ceremony',     date:'2026-04-05', time:'4:00 in the Evening', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },
     { id:'2', name:'The Reception',    date:'2026-04-05', time:'7:00 in the Evening', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },
@@ -1195,6 +1288,56 @@ if (_isPreview) {
       });
   }
 }
+// ── Gallery lightbox ──────────────────────────────────────────────────────────
+function openLightbox(idx) {
+  _galleryIdx = idx;
+  var lb = document.getElementById('galleryLightbox');
+  var img = document.getElementById('galleryLbImg');
+  if (!lb || !img || !_galleryUrls.length) return;
+  img.src = _galleryUrls[idx];
+  document.getElementById('galleryLbCounter').textContent = (idx+1) + ' / ' + _galleryUrls.length;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  var lb = document.getElementById('galleryLightbox');
+  if (lb) lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function shiftLightbox(dir) {
+  if (!_galleryUrls.length) return;
+  _galleryIdx = (_galleryIdx + dir + _galleryUrls.length) % _galleryUrls.length;
+  var img = document.getElementById('galleryLbImg');
+  if (img) img.src = _galleryUrls[_galleryIdx];
+  document.getElementById('galleryLbCounter').textContent = (_galleryIdx+1) + ' / ' + _galleryUrls.length;
+}
+// Close lightbox on backdrop click or Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft')  shiftLightbox(-1);
+  if (e.key === 'ArrowRight') shiftLightbox(1);
+});
+document.addEventListener('click', function(e) {
+  var lb = document.getElementById('galleryLightbox');
+  if (lb && lb.classList.contains('open') && e.target === lb) closeLightbox();
+});
+
+// Touch/swipe for mobile lightbox
+(function() {
+  var startX = null;
+  document.addEventListener('touchstart', function(e) {
+    var lb = document.getElementById('galleryLightbox');
+    if (lb && lb.classList.contains('open')) startX = e.touches[0].clientX;
+  });
+  document.addEventListener('touchend', function(e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) shiftLightbox(dx < 0 ? 1 : -1);
+    startX = null;
+  });
+})();
+
+
 </script>
 </body>
 </html>
