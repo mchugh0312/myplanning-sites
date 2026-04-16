@@ -23,13 +23,13 @@
   --olive:#8d8863;
   --offwhite:#f9f7f5;
   --black:#040505;
+  --text:#040505;
   --white:#ffffff;
-  /* Citadel Script loads from /fonts/. Dancing Script is the fallback until then. */
   --script:'Citadel Script','Dancing Script',cursive;
   --serif:'Instrument Serif',serif;
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--serif);color:#040505;background:var(--offwhite);overflow-x:hidden;}
+body{font-family:var(--serif);color:var(--text);background:var(--offwhite);overflow-x:hidden;}
 /* Hide body until hydrated to prevent flash of placeholder content */
 body.hydrating{visibility:hidden}
 
@@ -50,7 +50,7 @@ body.hydrating{visibility:hidden}
 .menu-close{
   position:absolute;top:1.5rem;right:1.8rem;
   background:none;border:none;font-size:1.4rem;
-  cursor:pointer;color:#040505;opacity:0.45;line-height:1;
+  cursor:pointer;color:var(--text);opacity:0.45;line-height:1;
 }
 .menu-close:hover{opacity:1}
 /* FIX 8: Menu title in script */
@@ -62,7 +62,7 @@ body.hydrating{visibility:hidden}
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
   font-family:var(--serif);font-size:1rem;
-  color:#040505;text-decoration:none;
+  color:var(--text);text-decoration:none;
   letter-spacing:0.04em;display:block;
   padding:0.7rem 0;
   border-bottom:1px solid rgba(141,136,99,0.18);
@@ -74,7 +74,7 @@ body.hydrating{visibility:hidden}
 .menu-links li a.active{
   text-decoration:underline;
   text-decoration-thickness:1px;
-  color:#040505;
+  color:var(--text);
 }
 
 /* ── NAV ──────────────────────────────────────────────────── */
@@ -85,9 +85,9 @@ body.hydrating{visibility:hidden}
   background:rgba(249,247,245,0.95);
   backdrop-filter:blur(8px);
 }
-.nav-logo{font-family:var(--script);font-size:1.5rem;color:#040505;font-weight:400;}
+.nav-logo{font-family:var(--script);font-size:1.5rem;color:var(--text);font-weight:400;}
 .nav-hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
-.nav-hamburger span{display:block;width:22px;height:1.5px;background:#040505;}
+.nav-hamburger span{display:block;width:22px;height:1.5px;background:var(--text);}
 
 /* ── HERO — full bleed, couple name bold & large centred ──── */
 .hero{position:relative;height:100vh;min-height:560px;overflow:hidden;}
@@ -144,7 +144,7 @@ body.hydrating{visibility:hidden}
   font-weight:600;           /* slightly bold */
   line-height:2.1;
   letter-spacing:0.04em;
-  color:#040505;             /* FIX 4: all text #040505 — but on olive bg use white */
+  color:var(--text);             /* FIX 4: all text #040505 — but on olive bg use white */
   color:rgba(255,255,255,0.92);
 }
 /* FIX 3: Dress code in Citadel Script, Title Case (not uppercase) */
@@ -177,7 +177,7 @@ body.hydrating{visibility:hidden}
 .section-inner{max-width:680px;margin:0 auto;}
 .section-title{
   font-family:var(--script);font-size:2.8rem;
-  color:#040505;font-weight:400;        /* FIX 4 */
+  color:var(--text);font-weight:400;        /* FIX 4 */
   text-align:center;margin-bottom:0.5rem;
 }
 .section-rule{width:50px;height:1px;background:var(--olive);margin:0 auto 2.8rem;}
@@ -189,13 +189,13 @@ body.hydrating{visibility:hidden}
 .other-event-card:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
 .other-event-name{
   font-family:var(--script);font-size:1.7rem;
-  color:#040505;font-weight:400;margin-bottom:0.7rem;  /* FIX 4 */
+  color:var(--text);font-weight:400;margin-bottom:0.7rem;  /* FIX 4 */
 }
 /* FIX 4: Other event detail text bigger, color #040505 */
 .other-event-detail{
   font-family:var(--serif);
   font-size:0.92rem;         /* was 0.8rem */
-  color:#040505;             /* FIX 4 */
+  color:var(--text);             /* FIX 4 */
   line-height:2;letter-spacing:0.03em;
 }
 
@@ -275,7 +275,7 @@ body.hydrating{visibility:hidden}
 .faq-q-text{
   font-family:var(--serif);
   font-size:0.92rem;
-  color:#040505;             /* FIX 4 & 6 */
+  color:var(--text);             /* FIX 4 & 6 */
   font-style:normal;         /* FIX 6: normal */
   letter-spacing:0.03em;line-height:1.4;
 }
@@ -289,7 +289,7 @@ body.hydrating{visibility:hidden}
   transition:max-height 0.35s ease,padding 0.35s ease;
   font-family:var(--serif);
   font-size:0.85rem;
-  color:#040505;             /* FIX 4 */
+  color:var(--text);             /* FIX 4 */
   font-style:italic;         /* FIX 6: answers italic */
   line-height:1.9;
 }
@@ -327,7 +327,7 @@ body.hydrating{visibility:hidden}
   width:100%;padding:0.85rem 1.4rem;
   border:none;background:transparent;
   font-family:var(--serif);font-size:0.88rem;
-  color:#040505;outline:none;display:block;
+  color:var(--text);outline:none;display:block;
 }
 .rsvp-name-input::placeholder{color:#c8c5be;font-style:italic;}
 /* Expandable section */
@@ -343,14 +343,14 @@ body.hydrating{visibility:hidden}
   border:1px solid rgba(141,136,99,0.25);
   background:var(--offwhite);
   font-family:var(--serif);font-size:0.82rem;
-  color:#040505;outline:none;border-radius:2px;
+  color:var(--text);outline:none;border-radius:2px;
 }
 .rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--olive)}
 .rsvp-textarea{
   width:100%;padding:0.65rem 0.9rem;resize:vertical;min-height:58px;
   border:1px solid rgba(141,136,99,0.25);
   background:var(--offwhite);font-family:var(--serif);
-  font-size:0.82rem;color:#040505;outline:none;border-radius:2px;
+  font-size:0.82rem;color:var(--text);outline:none;border-radius:2px;
 }
 .rsvp-textarea:focus{border-color:var(--olive)}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;}
@@ -363,7 +363,7 @@ body.hydrating{visibility:hidden}
   border:1px solid rgba(141,136,99,0.25);
   border-radius:2px;background:none;
   font-family:var(--serif);font-size:0.82rem;
-  color:#040505;cursor:pointer;text-align:center;
+  color:var(--text);cursor:pointer;text-align:center;
   margin-top:0.5rem;transition:background 0.2s;
 }
 .rsvp-add-guest:hover{background:rgba(141,136,99,0.06)}
@@ -398,8 +398,8 @@ body.hydrating{visibility:hidden}
   text-align:left;max-width:560px;margin:1.5rem auto 0;
 }
 .travel-flower-l{
-  position:absolute;right:-40px;bottom:-75px;
-  width:190px;opacity:0.9;z-index:10;pointer-events:none;
+  position:absolute;right:-30px;bottom:-60px;
+  width:120px;opacity:0.9;z-index:10;pointer-events:none;
 }
 
 /* ── GALLERY ──────────────────────────────────────────────── */
@@ -484,7 +484,7 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 }
 .story-rule-line{flex:1;max-width:80px;height:1px;background:rgba(141,136,99,0.35);}
 .story-text{
-  font-family:var(--serif);font-size:1rem;color:#040505;
+  font-family:var(--serif);font-size:1rem;color:var(--text);
   line-height:2;font-style:italic;text-align:center;
 }
 .story-heart{
@@ -582,6 +582,10 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   <!-- FIX 1: Flower at BOTTOM boundary (events ↔ other-events) -->
   <img class="flower-boundary-bottom"
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <div style="text-align:center;margin-bottom:2rem">
+    <h2 class="section-title" style="color:var(--white)">The Wedding</h2>
+    <div class="section-rule" style="background:rgba(255,255,255,0.4)"></div>
+  </div>
   <div class="events-grid" id="eventsGrid">
     <div class="event-card-primary">
       <div class="event-card-name">The Ceremony</div>
@@ -938,10 +942,20 @@ function hydrateTemplate(d) {
     document.getElementById('footerDate').textContent = [dp, d.celebration_location].filter(Boolean).join(' · ');
   }
 
-  // ── Custom colours ────────────────────────────────────────────────────
+  // ── Custom colours + CSS ──────────────────────────────────────────────
   if (d.customization) {
-    if (d.customization.primary_color) document.documentElement.style.setProperty('--olive', d.customization.primary_color);
+    if (d.customization.primary_color) document.documentElement.style.setProperty('--olive',   d.customization.primary_color);
     if (d.customization.accent_color)  document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
+    if (d.customization.text_color)    document.documentElement.style.setProperty('--text',     d.customization.text_color);
+  }
+  // Custom CSS — injected as a <style> block, applied after theme defaults
+  if (d.custom_css) {
+    var existingStyle = document.getElementById('custom-css-override');
+    if (existingStyle) existingStyle.remove();
+    var styleEl = document.createElement('style');
+    styleEl.id = 'custom-css-override';
+    styleEl.textContent = d.custom_css;
+    document.head.appendChild(styleEl);
   }
 
   // ── Custom font ────────────────────────────────────────────────────────
@@ -991,8 +1005,8 @@ function hydrateTemplate(d) {
         // Render weddings_info HTML full-width — user controls all formatting
         const card = document.createElement('div');
         card.className = 'event-card-primary';
-        card.style.cssText = 'grid-column:1/-1;text-align:left;max-width:680px;margin:0 auto;width:100%';
-        card.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.92);line-height:2;white-space:normal">' + d.weddings_info + '</div>';
+        card.style.cssText = 'grid-column:1/-1;text-align:center;max-width:680px;margin:0 auto;width:100%';
+        card.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.92);line-height:2;text-align:center">' + d.weddings_info + '</div>';
         grid.appendChild(card);
       } else if (d.events && d.events.length) {
         // Fallback: structured events from DB
@@ -1014,7 +1028,7 @@ function hydrateTemplate(d) {
     if (list) {
       if (d.events_info) {
         // User-authored HTML — renders the full section content
-        list.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;line-height:1.9">' + d.events_info + '</div>';
+        list.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;line-height:1.9;text-align:center">' + d.events_info + '</div>';
       } else if (d.events && d.events.length > 2) {
         // Fallback: structured events beyond the first 2
         list.innerHTML = '';
@@ -1172,7 +1186,7 @@ const SAMPLE_DATA = {
   ],
   gallery_images:[], rsvp_enabled:true, password_protected:false,
   website_mode:'Full', custom_font:'',
-  customization:{ primary_color:'#8d8863', accent_color:'#f9f7f5' },
+  customization:{ primary_color:'#8d8863', accent_color:'#f9f7f5', text_color:'' },
   menu_config:{
     home:true, story:true, wedding:true, other_events:true,
     accommodations:true, things_to_do:true, faqs:true, travel:true,
