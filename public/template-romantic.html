@@ -389,7 +389,7 @@ body.hydrating{visibility:hidden}
 /* ── TRAVEL ───────────────────────────────────────────────── */
 .travel-section{
   background:var(--olive);padding:5rem 4rem;
-  position:relative;overflow:hidden;text-align:center;
+  position:relative;overflow:visible;text-align:center;
 }
 .travel-inner{max-width:680px;margin:0 auto;position:relative;z-index:1;}
 .travel-content{
@@ -398,8 +398,8 @@ body.hydrating{visibility:hidden}
   text-align:left;max-width:560px;margin:1.5rem auto 0;
 }
 .travel-flower-l{
-  position:absolute;left:-50px;bottom:-40px;
-  width:200px;opacity:0.8;transform:rotate(15deg) scaleX(-1);pointer-events:none;
+  position:absolute;right:-40px;bottom:-75px;
+  width:190px;opacity:0.9;z-index:10;pointer-events:none;
 }
 
 /* ── GALLERY ──────────────────────────────────────────────── */
@@ -699,7 +699,7 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 
 <!-- TRAVEL -->
 <div class="travel-section" id="travel-section" style="display:none">
-  <img class="travel-flower-l" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <img class="travel-flower-l" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="" style="transform:scaleX(-1)">
   <div class="travel-inner">
     <h2 class="section-title" style="color:var(--white)">Travel</h2>
     <div class="section-rule" style="background:rgba(255,255,255,0.4)"></div>
@@ -988,28 +988,12 @@ function hydrateTemplate(d) {
     if (grid) {
       grid.innerHTML = '';
       if (d.weddings_info) {
-        // weddings_info is HTML from the rich editor.
-        // Parse it into individual event blocks separated by double <br> or <br><br>
-        // Each block renders in its own event-card-primary column.
-        const html = d.weddings_info;
-        // Split on double line breaks (the pattern used when typing between events in the editor)
-        const parts = html.split('<br><br>').map(function(p){ return p.trim(); }).filter(function(p){ return p && p.length > 3; });
-        if (parts.length >= 2) {
-          // Render as 2-column grid
-          parts.slice(0,2).forEach(function(part) {
-            const col = document.createElement('div');
-            col.className = 'event-card-primary';
-            col.innerHTML = '<div class="event-card-detail" style="line-height:2;white-space:normal">' + part + '</div>';
-            grid.appendChild(col);
-          });
-        } else {
-          // Single block — full width
-          const card = document.createElement('div');
-          card.className = 'event-card-primary';
-          card.style.cssText = 'grid-column:1/-1';
-          card.innerHTML = '<div class="event-card-detail" style="line-height:2">' + html + '</div>';
-          grid.appendChild(card);
-        }
+        // Render weddings_info HTML full-width — user controls all formatting
+        const card = document.createElement('div');
+        card.className = 'event-card-primary';
+        card.style.cssText = 'grid-column:1/-1;text-align:left;max-width:680px;margin:0 auto;width:100%';
+        card.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.92);line-height:2;white-space:normal">' + d.weddings_info + '</div>';
+        grid.appendChild(card);
       } else if (d.events && d.events.length) {
         // Fallback: structured events from DB
         d.events.slice(0,2).forEach(function(ev) {
