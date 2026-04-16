@@ -433,6 +433,7 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .flower-bottom-left{width:110px;left:20px;bottom:-48px}
   .menu-drawer{width:290px}
   .rsvp-field-row{grid-template-columns:1fr}
+  .travel-section{padding:3.5rem 1.5rem}
   .gallery-section{padding:3.5rem 1.5rem}
   .gallery-grid{grid-template-columns:repeat(2,1fr)}
   .registry-section{padding:3.5rem 1.5rem}
@@ -618,6 +619,16 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   <div class="registry-title">See Our Registry</div>
 </div>
 
+<!-- TRAVEL -->
+<div class="travel-section" id="travel-section" style="display:none">
+  <img class="travel-flower" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1688cc5f-ee66-49a8-84d2-c20b12fcc221.png" alt="">
+  <div class="travel-inner">
+    <h2 class="section-title">Travel</h2>
+    <div class="section-rule"></div>
+    <div class="travel-content" id="travelContent"></div>
+  </div>
+</div>
+
 <!-- GALLERY -->
 <div class="gallery-section" id="gallery" style="display:none">
   <div style="max-width:900px;margin:0 auto">
@@ -627,14 +638,10 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   </div>
 </div>
 
-<!-- REGISTRY -->
-<div class="registry-section" id="registry-section" style="display:none">
-  <div style="max-width:680px;margin:0 auto">
-    <h2 class="section-title" style="color:var(--white)">Our Registry</h2>
-    <div class="section-rule" style="background:rgba(255,255,255,0.4);margin-bottom:1rem"></div>
-    <div class="registry-info" id="registryInfo"></div>
-    <a class="registry-link-btn" id="registryLink" href="#" target="_blank" style="display:none">View Registry</a>
-  </div>
+<!-- REGISTRY — uses the original .registry olive strip design -->
+<div class="registry" id="registry-section" style="display:none">
+  <div class="registry-title">Our Registry</div>
+  <div id="registryInfo" style="font-family:var(--serif);font-size:0.88rem;color:rgba(255,255,255,0.88);line-height:1.9;max-width:560px;margin:1.2rem auto 0;font-style:italic;"></div>
 </div>
 
 <!-- RSVP: FIX 7 — matches screenshot exactly -->
@@ -862,7 +869,7 @@ function hydrateTemplate(d) {
   }
 
   // ── Save the Date mode: show only hero ────────────────────────────────
-  const allSections = ['our-story','events-primary','other-events','accommodations','need-to-know','registry','gallery','registry-section','rsvp'];
+  const allSections = ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'];
   if (isSaveTheDate) {
     allSections.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     _buildMenu({ home: true }, false);
@@ -894,14 +901,30 @@ function hydrateTemplate(d) {
     if (grid) {
       grid.innerHTML = '';
       if (d.weddings_info) {
-        // User-authored HTML: render as full-width styled card
-        const card = document.createElement('div');
-        card.className = 'event-card-primary';
-        card.style.cssText = 'grid-column:1/-1;max-width:680px;margin:0 auto;width:100%';
-        card.innerHTML = '<div class="event-card-detail" style="font-size:0.9rem;line-height:2;text-align:left">' + d.weddings_info + '</div>';
-        grid.appendChild(card);
+        // weddings_info is HTML from the rich editor.
+        // Parse it into individual event blocks separated by double <br> or <br><br>
+        // Each block renders in its own event-card-primary column.
+        const html = d.weddings_info;
+        // Split on double line breaks (the pattern used when typing between events in the editor)
+        const parts = html.split('<br><br>').map(function(p){ return p.trim(); }).filter(function(p){ return p && p.length > 3; })br>' && p !== '<br/>');
+        if (parts.length >= 2) {
+          // Render as 2-column grid
+          parts.slice(0,2).forEach(function(part) {
+            const col = document.createElement('div');
+            col.className = 'event-card-primary';
+            col.innerHTML = '<div class="event-card-detail" style="line-height:2;white-space:normal">' + part + '</div>';
+            grid.appendChild(col);
+          });
+        } else {
+          // Single block — full width
+          const card = document.createElement('div');
+          card.className = 'event-card-primary';
+          card.style.cssText = 'grid-column:1/-1';
+          card.innerHTML = '<div class="event-card-detail" style="line-height:2">' + html + '</div>';
+          grid.appendChild(card);
+        }
       } else if (d.events && d.events.length) {
-        // Fallback: structured events
+        // Fallback: structured events from DB
         d.events.slice(0,2).forEach(function(ev) {
           const col = document.createElement('div');
           col.className = 'event-card-primary';
@@ -946,7 +969,7 @@ function hydrateTemplate(d) {
 
   // ── Need to Knows / FAQs ─────────────────────────────────────────────
   const ntkSection = document.getElementById('need-to-know');
-  const showNTK    = menu.things_to_do || menu.faqs || menu.travel;
+  const showNTK    = menu.things_to_do || menu.faqs;
   if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
   if (showNTK) {
     const faqList = document.getElementById('faqList');
@@ -958,11 +981,7 @@ function hydrateTemplate(d) {
       item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">FAQs</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:normal">${d.faqs}</div>`;
       faqList.prepend(item);
     }
-    if (d.travel_info && menu.travel) {
-      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
-      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
-      faqList.appendChild(item);
-    }
+
     if (d.things_to_do && menu.things_to_do) {
       const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
       item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
@@ -970,7 +989,15 @@ function hydrateTemplate(d) {
     }
   }
 
-  // ── Old registry strip → hide (replaced by new registry-section) ──────
+  // ── Travel — own dedicated section ──────────────────────────────────
+  const travelSection = document.getElementById('travel-section');
+  if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
+  if (menu.travel) {
+    const travelContent = document.getElementById('travelContent');
+    if (travelContent) travelContent.innerHTML = d.travel_info || '';
+  }
+
+  // ── Old registry strip — now used as the main registry section ────────
   const oldRegistry = document.getElementById('registry');
   if (oldRegistry) oldRegistry.style.display = 'none';
 
@@ -1025,7 +1052,8 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.wedding,                                   href: '#events-primary',   label: 'The Wedding'    },
     { show: !!menu.other_events,                              href: '#other-events',     label: 'Other Events'   },
     { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
-    { show: !!(menu.things_to_do || menu.faqs || menu.travel),href: '#need-to-know',    label: 'Need to Knows'  },
+    { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',    label: 'Need to Knows'  },
+    { show: !!menu.travel,                                    href: '#travel-section',   label: 'Travel'         },
     { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'        },
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'   },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'           },
