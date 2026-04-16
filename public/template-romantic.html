@@ -433,6 +433,9 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .flower-bottom-left{width:110px;left:20px;bottom:-48px}
   .menu-drawer{width:290px}
   .rsvp-field-row{grid-template-columns:1fr}
+  .gallery-section{padding:3.5rem 1.5rem}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .registry-section{padding:3.5rem 1.5rem}
 }
 </style>
 </head>
@@ -615,6 +618,25 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   <div class="registry-title">See Our Registry</div>
 </div>
 
+<!-- GALLERY -->
+<div class="gallery-section" id="gallery" style="display:none">
+  <div style="max-width:900px;margin:0 auto">
+    <h2 class="section-title">Gallery</h2>
+    <div class="section-rule"></div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</div>
+
+<!-- REGISTRY -->
+<div class="registry-section" id="registry-section" style="display:none">
+  <div style="max-width:680px;margin:0 auto">
+    <h2 class="section-title" style="color:var(--white)">Our Registry</h2>
+    <div class="section-rule" style="background:rgba(255,255,255,0.4);margin-bottom:1rem"></div>
+    <div class="registry-info" id="registryInfo"></div>
+    <a class="registry-link-btn" id="registryLink" href="#" target="_blank" style="display:none">View Registry</a>
+  </div>
+</div>
+
 <!-- RSVP: FIX 7 — matches screenshot exactly -->
 <div class="rsvp-section" id="rsvp">
   <div class="rsvp-inner">
@@ -795,62 +817,55 @@ async function submitRSVP() {
 // ── Hydration ─────────────────────────────────────────────────
 function hydrateTemplate(d) {
   window._weddingSlug  = d.slug || '';
-  const names = d.couple_names || 'Sarah & Aiden';
-  const p1    = d.partner_1 || '';
-  const p2    = d.partner_2 || '';
-  const mode  = (d.website_mode || 'Full').toLowerCase();  // 'full' | 'save the date'
+  const names   = d.couple_names || 'Sarah & Aiden';
+  const p1      = d.partner_1 || '';
+  const p2      = d.partner_2 || '';
+  const mode    = (d.website_mode || 'Full').toLowerCase();
   const isSaveTheDate = mode.includes('save');
-  const menu  = d.menu_config || {};
-  const rsvpOn = d.rsvp_enabled !== false;
+  const menu    = d.menu_config || {};
+  const rsvpOn  = d.rsvp_enabled !== false;
 
-  // ── Names ────────────────────────────────────────────────
+  // ── Names ────────────────────────────────────────────────────────────
   document.getElementById('heroCoupleNames').textContent = names;
-  document.getElementById('navLogo').textContent =
-    p1 && p2 ? `${p1[0]} & ${p2[0]}` : names;
+  document.getElementById('navLogo').textContent = p1 && p2 ? `${p1[0]} & ${p2[0]}` : names;
   document.getElementById('footerNames').textContent = names;
   document.title = names;
 
-  // ── Hero image ────────────────────────────────────────────
+  // ── Hero image ────────────────────────────────────────────────────────
   if (d.hero_image) {
     document.getElementById('heroImg').src = d.hero_image;
     const bg = document.getElementById('needToKnowBg');
     if (bg) { bg.style.backgroundImage = `url('${d.hero_image}')`; bg.style.backgroundSize = 'cover'; bg.style.backgroundPosition = 'center'; }
   }
 
-  // ── Footer date ───────────────────────────────────────────
+  // ── Footer ────────────────────────────────────────────────────────────
   if (d.celebration_date || d.celebration_location) {
-    const dp = d.celebration_date
-      ? new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })
-      : '';
+    const dp = d.celebration_date ? new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) : '';
     document.getElementById('footerDate').textContent = [dp, d.celebration_location].filter(Boolean).join(' · ');
   }
 
-  // ── Custom colours ────────────────────────────────────────
+  // ── Custom colours ────────────────────────────────────────────────────
   if (d.customization) {
     if (d.customization.primary_color) document.documentElement.style.setProperty('--olive', d.customization.primary_color);
     if (d.customization.accent_color)  document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
   }
 
-  // ── Custom font ───────────────────────────────────────────
+  // ── Custom font ────────────────────────────────────────────────────────
   if (d.custom_font) {
-    // Load the font from Google Fonts and apply to --script or --serif
-    const cursiveFonts = ['Dancing Script','Pacifico','Great Vibes','Comic Neue'];
-    const isCursive    = cursiveFonts.some(f => d.custom_font.includes(f));
-    const fontLink     = document.createElement('link');
-    fontLink.rel  = 'stylesheet';
-    fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(d.custom_font)}&display=swap`;
+    const cursiveFonts = ['Dancing Script','Pacifico','Great Vibes'];
+    const isCursive = cursiveFonts.some(f => d.custom_font.includes(f));
+    const fontLink  = document.createElement('link');
+    fontLink.rel    = 'stylesheet';
+    fontLink.href   = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(d.custom_font)}&display=swap`;
     document.head.appendChild(fontLink);
-    if (isCursive) document.documentElement.style.setProperty('--script', `'${d.custom_font}',cursive`);
-    else           document.documentElement.style.setProperty('--serif',  `'${d.custom_font}',serif`);
+    document.documentElement.style.setProperty(isCursive ? '--script' : '--serif', `'${d.custom_font}',${isCursive ? 'cursive' : 'serif'}`);
   }
 
-  // ── Save the Date mode: show only hero + date info, hide everything else ──
-  const sectionsAll = ['events-primary','other-events','accommodations','need-to-know','registry','rsvp'];
+  // ── Save the Date mode: show only hero ────────────────────────────────
+  const allSections = ['our-story','events-primary','other-events','accommodations','need-to-know','registry','gallery','registry-section','rsvp'];
   if (isSaveTheDate) {
-    sectionsAll.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
-    // Update menu to only show Home
-    _buildMenu({ home: true });
-    // Add a "Save the Date" subtitle on hero
+    allSections.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    _buildMenu({ home: true }, false);
     const overlay = document.querySelector('.hero-names-overlay');
     if (overlay && !document.getElementById('saveTheDateLabel')) {
       const lbl = document.createElement('div');
@@ -859,99 +874,176 @@ function hydrateTemplate(d) {
       lbl.textContent = 'Save the Date';
       overlay.appendChild(lbl);
     }
-    return; // don't build out the rest for save-the-date mode
+    _reveal();
+    return;
   }
 
-  // ── Menu visibility ───────────────────────────────────────
-  _buildMenu(menu, rsvpOn);
-
-  // ── Section visibility based on menu_config ───────────────
-  const sectionMap = {
-    'our-story':      d.story && menu.story   !== false,
-    'events-primary': menu.events             !== false,
-    'other-events':   menu.events             !== false,
-    'accommodations': menu.travel             !== false,
-    'need-to-know':   menu.things_to_do       !== false || !!d.travel_info,
-    'registry':       menu.gallery            !== false,
-    'rsvp':           rsvpOn && menu.rsvp     !== false,
-  };
-  Object.entries(sectionMap).forEach(([id, show]) => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = show ? '' : 'none';
-  });
-
-  // ── Our Story — own section between hero and events ─────────────────────────
+  // ── Our Story ─────────────────────────────────────────────────────────
   const storySection = document.getElementById('our-story');
   const storyText    = document.getElementById('storyText');
   if (d.story && menu.story !== false && storySection && storyText) {
     storyText.textContent = d.story;
     storySection.style.display = '';
-  } else if (storySection) {
-    storySection.style.display = 'none';
-  }
+  } else if (storySection) { storySection.style.display = 'none'; }
 
-  // ── Need to Knows / FAQ — travel + things to do only ────────────────────────
-  const faqList = document.getElementById('faqList');
-  // Clear dynamically added FAQs
-  faqList.querySelectorAll('.faq-dynamic').forEach(el => el.remove());
-  if (d.travel_info) {
-    const item = document.createElement('div');
-    item.className = 'faq-item faq-dynamic';
-    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
-    faqList.appendChild(item);
-  }
-  if (d.things_to_do) {
-    const item = document.createElement('div');
-    item.className = 'faq-item faq-dynamic';
-    item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
-    faqList.appendChild(item);
-  }
-
-  // ── Events ────────────────────────────────────────────────
-  if (d.events && d.events.length) {
+  // ── The Wedding (primary events) ──────────────────────────────────────
+  const weddingSection = document.getElementById('events-primary');
+  if (weddingSection) weddingSection.style.display = menu.wedding !== false ? '' : 'none';
+  if (menu.wedding !== false) {
     const grid = document.getElementById('eventsGrid');
-    grid.innerHTML = '';
-    d.events.slice(0,2).forEach(ev => {
-      const col = document.createElement('div');
-      col.className = 'event-card-primary';
-      col.innerHTML = `
-        <div class="event-card-name">${ev.name}</div>
-        <div class="event-card-detail">
-          ${ev.date ? fmtDate(ev.date)+'<br>' : ''}
-          ${ev.time ? ev.time+'<br>' : ''}
-          ${ev.venue ? ev.venue+'<br>' : ''}
-          ${ev.address || ''}
-        </div>
-        ${ev.dress_code ? `<span class="event-card-dress">${ev.dress_code}</span>` : ''}`;
-      grid.appendChild(col);
-    });
-    if (d.events.length > 2) {
-      const list = document.getElementById('otherEventsList');
-      list.innerHTML = '';
-      d.events.slice(2).forEach(ev => {
-        const card = document.createElement('div');
-        card.className = 'other-event-card';
-        card.innerHTML = `
-          <div class="other-event-name">${ev.name}</div>
-          <div class="other-event-detail">
-            ${[fmtDate(ev.date), ev.time, ev.venue, ev.address].filter(Boolean).join('<br>')}
-          </div>`;
-        list.appendChild(card);
-      });
+    if (grid && d.weddings_info) {
+      // If custom weddings info provided, show it in an info card below the grid
+      let infoEl = document.getElementById('weddingsInfoText');
+      if (!infoEl) {
+        infoEl = document.createElement('p');
+        infoEl.id = 'weddingsInfoText';
+        infoEl.style.cssText = 'font-family:var(--serif);font-size:0.85rem;color:rgba(255,255,255,0.8);text-align:center;max-width:680px;margin:1.5rem auto 0;line-height:1.9;font-style:italic;';
+        weddingSection.appendChild(infoEl);
+      }
+      infoEl.textContent = d.weddings_info;
+    }
+    if (d.events && d.events.length) {
+      const grid2 = document.getElementById('eventsGrid');
+      if (grid2) {
+        grid2.innerHTML = '';
+        d.events.slice(0,2).forEach(ev => {
+          const col = document.createElement('div');
+          col.className = 'event-card-primary';
+          col.innerHTML = `<div class="event-card-name">${ev.name}</div><div class="event-card-detail">${ev.date ? fmtDate(ev.date)+'<br>' : ''}${ev.time ? ev.time+'<br>' : ''}${ev.venue ? ev.venue+'<br>' : ''}${ev.address || ''}</div>${ev.dress_code ? `<span class="event-card-dress">${ev.dress_code}</span>` : ''}`;
+          grid2.appendChild(col);
+        });
+      }
     }
   }
 
-  // ── RSVP ─────────────────────────────────────────────────
+  // ── Other Events ──────────────────────────────────────────────────────
+  const otherSection = document.getElementById('other-events');
+  if (otherSection) otherSection.style.display = menu.other_events !== false ? '' : 'none';
+  if (menu.other_events !== false) {
+    const list = document.getElementById('otherEventsList');
+    if (list) {
+      if (d.events_info) {
+        let infoEl = document.getElementById('eventsInfoText');
+        if (!infoEl) { infoEl = document.createElement('p'); infoEl.id = 'eventsInfoText'; infoEl.style.cssText = 'font-family:var(--serif);font-size:0.9rem;color:#040505;text-align:center;max-width:560px;margin:0 auto 2rem;line-height:1.9;font-style:italic;'; list.insertAdjacentElement('beforebegin', infoEl); }
+        infoEl.textContent = d.events_info;
+      }
+      if (d.events && d.events.length > 2) {
+        list.innerHTML = '';
+        d.events.slice(2).forEach(ev => {
+          const card = document.createElement('div'); card.className = 'other-event-card';
+          card.innerHTML = `<div class="other-event-name">${ev.name}</div><div class="other-event-detail">${[fmtDate(ev.date), ev.time, ev.venue, ev.address].filter(Boolean).join('<br>')}</div>`;
+          list.appendChild(card);
+        });
+      }
+    }
+  }
+
+  // ── Accommodations ────────────────────────────────────────────────────
+  const accomSection = document.getElementById('accommodations');
+  if (accomSection) accomSection.style.display = menu.accommodations !== false ? '' : 'none';
+  if (menu.accommodations !== false && d.accommodation_info) {
+    let accomText = document.getElementById('accomInfoText');
+    if (!accomText) {
+      accomText = document.createElement('p');
+      accomText.id = 'accomInfoText';
+      accomText.style.cssText = 'font-family:var(--serif);font-size:0.85rem;color:rgba(255,255,255,0.8);line-height:1.9;font-style:italic;margin-bottom:1.5rem;';
+      const accomList = document.getElementById('accomList');
+      if (accomList) accomList.insertAdjacentElement('afterbegin', accomText);
+    }
+    accomText.textContent = d.accommodation_info;
+  }
+
+  // ── Need to Knows / FAQs ─────────────────────────────────────────────
+  const ntkSection = document.getElementById('need-to-know');
+  const showNTK    = menu.things_to_do !== false || menu.faqs !== false;
+  if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
+  if (showNTK) {
+    const faqList = document.getElementById('faqList');
+    faqList.querySelectorAll('.faq-dynamic').forEach(el => el.remove());
+    // Custom FAQs text block
+    if (d.faqs && menu.faqs !== false) {
+      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
+      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">FAQs</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:normal;white-space:pre-line">${d.faqs}</div>`;
+      faqList.prepend(item);
+    }
+    if (d.travel_info && menu.travel !== false) {
+      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
+      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
+      faqList.appendChild(item);
+    }
+    if (d.things_to_do && menu.things_to_do !== false) {
+      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
+      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
+      faqList.appendChild(item);
+    }
+  }
+
+  // ── Old registry strip → hide (replaced by new registry-section) ──────
+  const oldRegistry = document.getElementById('registry');
+  if (oldRegistry) oldRegistry.style.display = 'none';
+
+  // ── Gallery ──────────────────────────────────────────────────────────
+  const gallerySection = document.getElementById('gallery');
+  if (gallerySection) {
+    const hasImages = d.gallery_images && d.gallery_images.length > 0;
+    gallerySection.style.display = (menu.gallery !== false && hasImages) ? '' : 'none';
+    if (hasImages) {
+      const grid = document.getElementById('galleryGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        d.gallery_images.forEach(img => {
+          const div = document.createElement('div'); div.className = 'gallery-item';
+          div.innerHTML = `<img src="${img.url}" alt="" loading="lazy">`;
+          grid.appendChild(div);
+        });
+      }
+    }
+  }
+
+  // ── Registry section ──────────────────────────────────────────────────
+  const registrySection = document.getElementById('registry-section');
+  if (registrySection) registrySection.style.display = menu.registry !== false ? '' : 'none';
+  if (menu.registry !== false) {
+    const infoEl = document.getElementById('registryInfo');
+    if (infoEl) infoEl.textContent = d.registry_info || '';
+  }
+
+  // ── RSVP ─────────────────────────────────────────────────────────────
+  const rsvpSection = document.getElementById('rsvp');
+  if (rsvpSection) rsvpSection.style.display = (rsvpOn && menu.rsvp !== false) ? '' : 'none';
   if (rsvpOn && menu.rsvp !== false) {
     if (d.events && d.events.length)
       buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
     else
-      buildRsvpBlocks([{ id:'wedding', label:'The Wedding' }]);
-  } else {
-    // Hide RSVP submit button and blocks if RSVP disabled
-    const rsvpSection = document.getElementById('rsvp');
-    if (rsvpSection) rsvpSection.style.display = 'none';
+      buildRsvpBlocks([{ id: 'wedding', label: 'The Wedding' }]);
   }
+
+  // ── Menu ─────────────────────────────────────────────────────────────
+  _buildMenu(menu, rsvpOn, d);
+  _reveal();
+}
+
+function _buildMenu(menu, rsvpOn, d) {
+  d = d || {};
+  const menuEl = document.getElementById('menuLinks');
+  if (!menuEl) return;
+  const links = [
+    { show: menu.home           !== false,                                             href: '#hero',            label: 'Home'                    },
+    { show: menu.story          !== false && !!d.story,                                href: '#our-story',       label: 'Our Story'               },
+    { show: menu.wedding        !== false,                                             href: '#events-primary',  label: 'The Wedding'             },
+    { show: menu.other_events   !== false,                                             href: '#other-events',    label: 'Other Events'            },
+    { show: menu.accommodations !== false,                                             href: '#accommodations',  label: 'Accommodations'          },
+    { show: (menu.things_to_do !== false || menu.faqs !== false || menu.travel !== false), href: '#need-to-know', label: 'Need to Knows'          },
+    { show: menu.gallery        !== false && !!d.gallery_images?.length,               href: '#gallery',         label: 'Gallery'                 },
+    { show: menu.registry       !== false,                                             href: '#registry-section',label: 'Our Registry'            },
+    { show: rsvpOn !== false && menu.rsvp !== false,                                   href: '#rsvp',            label: 'RSVP'                    },
+  ];
+  menuEl.innerHTML = '';
+  links.filter(l => l.show).forEach(l => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;
+    menuEl.appendChild(li);
+  });
 }
 
 // Build menu links based on menu_config
