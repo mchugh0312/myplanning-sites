@@ -1038,27 +1038,7 @@ function _buildMenu(menu, rsvpOn, d) {
   });
 }
 
-// Build menu links based on menu_config
-function _buildMenu(menu, rsvpOn) {
-  const menuEl = document.getElementById('menuLinks');
-  if (!menuEl) return;
-  const links = [
-    { show: !!menu.home,                                       href: '#hero',             label: 'Home'           },
-    { show: !!menu.story,                                      href: '#our-story',        label: 'Our Story'      },
-    { show: !!menu.wedding,                                    href: '#events-primary',   label: 'The Wedding'    },
-    { show: !!menu.other_events,                               href: '#other-events',     label: 'Other Events'   },
-    { show: !!menu.accommodations,                             href: '#accommodations',   label: 'Accommodations' },
-    { show: !!(menu.things_to_do || menu.faqs || menu.travel), href: '#need-to-know',    label: 'Need to Knows'  },
-    { show: !!menu.gallery,                                    href: '#registry',         label: 'Our Registry'   },
-    { show: !!rsvpOn && !!menu.rsvp,                           href: '#rsvp',             label: 'RSVP'           },
-  ];
-  menuEl.innerHTML = '';
-  links.filter(l => l.show).forEach(l => {
-    const li = document.createElement('li');
-    li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;
-    menuEl.appendChild(li);
-  });
-}
+
 
 function fmtDate(d) {
   if (!d) return '';
