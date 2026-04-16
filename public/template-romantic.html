@@ -823,7 +823,7 @@ function hydrateTemplate(d) {
   const mode    = (d.website_mode || 'Full').toLowerCase();
   const isSaveTheDate = mode.includes('save');
   const menu    = d.menu_config || {};
-  const rsvpOn  = d.rsvp_enabled !== false;
+  const rsvpOn  = d.rsvp_enabled === true;
 
   // ── Names ────────────────────────────────────────────────────────────
   document.getElementById('heroCoupleNames').textContent = names;
@@ -881,36 +881,32 @@ function hydrateTemplate(d) {
   // ── Our Story ─────────────────────────────────────────────────────────
   const storySection = document.getElementById('our-story');
   const storyText    = document.getElementById('storyText');
-  if (d.story && menu.story !== false && storySection && storyText) {
-    storyText.textContent = d.story;
+  if (d.story && menu.story && storySection && storyText) {
+    storyText.innerHTML = d.story;
     storySection.style.display = '';
   } else if (storySection) { storySection.style.display = 'none'; }
 
-  // ── The Wedding (primary events) ──────────────────────────────────────
+  // ── The Wedding ───────────────────────────────────────────────────────
   const weddingSection = document.getElementById('events-primary');
-  if (weddingSection) weddingSection.style.display = menu.wedding !== false ? '' : 'none';
-  if (menu.wedding !== false) {
+  if (weddingSection) weddingSection.style.display = menu.wedding ? '' : 'none';
+  if (menu.wedding) {
     const grid = document.getElementById('eventsGrid');
-    if (grid && d.weddings_info) {
-      // If custom weddings info provided, show it in an info card below the grid
-      let infoEl = document.getElementById('weddingsInfoText');
-      if (!infoEl) {
-        infoEl = document.createElement('p');
-        infoEl.id = 'weddingsInfoText';
-        infoEl.style.cssText = 'font-family:var(--serif);font-size:0.85rem;color:rgba(255,255,255,0.8);text-align:center;max-width:680px;margin:1.5rem auto 0;line-height:1.9;font-style:italic;';
-        weddingSection.appendChild(infoEl);
-      }
-      infoEl.textContent = d.weddings_info;
-    }
-    if (d.events && d.events.length) {
-      const grid2 = document.getElementById('eventsGrid');
-      if (grid2) {
-        grid2.innerHTML = '';
-        d.events.slice(0,2).forEach(ev => {
+    if (grid) {
+      grid.innerHTML = '';
+      if (d.weddings_info) {
+        // User-authored HTML: render as full-width styled card
+        const card = document.createElement('div');
+        card.className = 'event-card-primary';
+        card.style.cssText = 'grid-column:1/-1;max-width:680px;margin:0 auto;width:100%';
+        card.innerHTML = '<div class="event-card-detail" style="font-size:0.9rem;line-height:2;text-align:left">' + d.weddings_info + '</div>';
+        grid.appendChild(card);
+      } else if (d.events && d.events.length) {
+        // Fallback: structured events
+        d.events.slice(0,2).forEach(function(ev) {
           const col = document.createElement('div');
           col.className = 'event-card-primary';
-          col.innerHTML = `<div class="event-card-name">${ev.name}</div><div class="event-card-detail">${ev.date ? fmtDate(ev.date)+'<br>' : ''}${ev.time ? ev.time+'<br>' : ''}${ev.venue ? ev.venue+'<br>' : ''}${ev.address || ''}</div>${ev.dress_code ? `<span class="event-card-dress">${ev.dress_code}</span>` : ''}`;
-          grid2.appendChild(col);
+          col.innerHTML = '<div class="event-card-name">'+ev.name+'</div><div class="event-card-detail">'+(ev.date ? fmtDate(ev.date)+'<br>' : '')+(ev.time ? ev.time+'<br>' : '')+(ev.venue ? ev.venue+'<br>' : '')+(ev.address || '')+'</div>'+(ev.dress_code ? '<span class="event-card-dress">'+ev.dress_code+'</span>' : '');
+          grid.appendChild(col);
         });
       }
     }
@@ -918,20 +914,20 @@ function hydrateTemplate(d) {
 
   // ── Other Events ──────────────────────────────────────────────────────
   const otherSection = document.getElementById('other-events');
-  if (otherSection) otherSection.style.display = menu.other_events !== false ? '' : 'none';
-  if (menu.other_events !== false) {
+  if (otherSection) otherSection.style.display = menu.other_events ? '' : 'none';
+  if (menu.other_events) {
     const list = document.getElementById('otherEventsList');
     if (list) {
       if (d.events_info) {
-        let infoEl = document.getElementById('eventsInfoText');
-        if (!infoEl) { infoEl = document.createElement('p'); infoEl.id = 'eventsInfoText'; infoEl.style.cssText = 'font-family:var(--serif);font-size:0.9rem;color:#040505;text-align:center;max-width:560px;margin:0 auto 2rem;line-height:1.9;font-style:italic;'; list.insertAdjacentElement('beforebegin', infoEl); }
-        infoEl.textContent = d.events_info;
-      }
-      if (d.events && d.events.length > 2) {
+        // User-authored HTML — renders the full section content
+        list.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;line-height:1.9">' + d.events_info + '</div>';
+      } else if (d.events && d.events.length > 2) {
+        // Fallback: structured events beyond the first 2
         list.innerHTML = '';
-        d.events.slice(2).forEach(ev => {
-          const card = document.createElement('div'); card.className = 'other-event-card';
-          card.innerHTML = `<div class="other-event-name">${ev.name}</div><div class="other-event-detail">${[fmtDate(ev.date), ev.time, ev.venue, ev.address].filter(Boolean).join('<br>')}</div>`;
+        d.events.slice(2).forEach(function(ev) {
+          const card = document.createElement('div');
+          card.className = 'other-event-card';
+          card.innerHTML = '<div class="other-event-name">'+ev.name+'</div><div class="other-event-detail">'+[fmtDate(ev.date), ev.time, ev.venue, ev.address].filter(Boolean).join('<br>')+'</div>';
           list.appendChild(card);
         });
       }
@@ -940,38 +936,34 @@ function hydrateTemplate(d) {
 
   // ── Accommodations ────────────────────────────────────────────────────
   const accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = menu.accommodations !== false ? '' : 'none';
-  if (menu.accommodations !== false && d.accommodation_info) {
-    let accomText = document.getElementById('accomInfoText');
-    if (!accomText) {
-      accomText = document.createElement('p');
-      accomText.id = 'accomInfoText';
-      accomText.style.cssText = 'font-family:var(--serif);font-size:0.85rem;color:rgba(255,255,255,0.8);line-height:1.9;font-style:italic;margin-bottom:1.5rem;';
-      const accomList = document.getElementById('accomList');
-      if (accomList) accomList.insertAdjacentElement('afterbegin', accomText);
+  if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
+  if (menu.accommodations) {
+    const accomList = document.getElementById('accomList');
+    if (accomList && d.accommodation_info) {
+      accomList.innerHTML = `<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.88);line-height:1.9;">${d.accommodation_info}</div>`;
     }
-    accomText.textContent = d.accommodation_info;
   }
 
   // ── Need to Knows / FAQs ─────────────────────────────────────────────
   const ntkSection = document.getElementById('need-to-know');
-  const showNTK    = menu.things_to_do !== false || menu.faqs !== false;
+  const showNTK    = menu.things_to_do || menu.faqs || menu.travel;
   if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
   if (showNTK) {
     const faqList = document.getElementById('faqList');
     faqList.querySelectorAll('.faq-dynamic').forEach(el => el.remove());
     // Custom FAQs text block
-    if (d.faqs && menu.faqs !== false) {
+    if (d.faqs && menu.faqs) {
+      // faqs is HTML — render as a single expanded FAQ item with the full HTML inside
       const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
-      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">FAQs</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:normal;white-space:pre-line">${d.faqs}</div>`;
+      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">FAQs</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:normal">${d.faqs}</div>`;
       faqList.prepend(item);
     }
-    if (d.travel_info && menu.travel !== false) {
+    if (d.travel_info && menu.travel) {
       const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
       item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">How do I get there?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.travel_info}</div>`;
       faqList.appendChild(item);
     }
-    if (d.things_to_do && menu.things_to_do !== false) {
+    if (d.things_to_do && menu.things_to_do) {
       const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
       item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
       faqList.appendChild(item);
@@ -986,7 +978,7 @@ function hydrateTemplate(d) {
   const gallerySection = document.getElementById('gallery');
   if (gallerySection) {
     const hasImages = d.gallery_images && d.gallery_images.length > 0;
-    gallerySection.style.display = (menu.gallery !== false && hasImages) ? '' : 'none';
+    gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
       const grid = document.getElementById('galleryGrid');
       if (grid) {
@@ -1002,16 +994,16 @@ function hydrateTemplate(d) {
 
   // ── Registry section ──────────────────────────────────────────────────
   const registrySection = document.getElementById('registry-section');
-  if (registrySection) registrySection.style.display = menu.registry !== false ? '' : 'none';
-  if (menu.registry !== false) {
+  if (registrySection) registrySection.style.display = menu.registry ? '' : 'none';
+  if (menu.registry) {
     const infoEl = document.getElementById('registryInfo');
-    if (infoEl) infoEl.textContent = d.registry_info || '';
+    if (infoEl) infoEl.innerHTML = d.registry_info || '';
   }
 
   // ── RSVP ─────────────────────────────────────────────────────────────
   const rsvpSection = document.getElementById('rsvp');
-  if (rsvpSection) rsvpSection.style.display = (rsvpOn && menu.rsvp !== false) ? '' : 'none';
-  if (rsvpOn && menu.rsvp !== false) {
+  if (rsvpSection) rsvpSection.style.display = (rsvpOn && menu.rsvp) ? '' : 'none';
+  if (rsvpOn && menu.rsvp) {
     if (d.events && d.events.length)
       buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
     else
@@ -1028,15 +1020,15 @@ function _buildMenu(menu, rsvpOn, d) {
   const menuEl = document.getElementById('menuLinks');
   if (!menuEl) return;
   const links = [
-    { show: menu.home           !== false,                                             href: '#hero',            label: 'Home'                    },
-    { show: menu.story          !== false && !!d.story,                                href: '#our-story',       label: 'Our Story'               },
-    { show: menu.wedding        !== false,                                             href: '#events-primary',  label: 'The Wedding'             },
-    { show: menu.other_events   !== false,                                             href: '#other-events',    label: 'Other Events'            },
-    { show: menu.accommodations !== false,                                             href: '#accommodations',  label: 'Accommodations'          },
-    { show: (menu.things_to_do !== false || menu.faqs !== false || menu.travel !== false), href: '#need-to-know', label: 'Need to Knows'          },
-    { show: menu.gallery        !== false && !!d.gallery_images?.length,               href: '#gallery',         label: 'Gallery'                 },
-    { show: menu.registry       !== false,                                             href: '#registry-section',label: 'Our Registry'            },
-    { show: rsvpOn !== false && menu.rsvp !== false,                                   href: '#rsvp',            label: 'RSVP'                    },
+    { show: !!menu.home,                                      href: '#hero',             label: 'Home'           },
+    { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'      },
+    { show: !!menu.wedding,                                   href: '#events-primary',   label: 'The Wedding'    },
+    { show: !!menu.other_events,                              href: '#other-events',     label: 'Other Events'   },
+    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
+    { show: !!(menu.things_to_do || menu.faqs || menu.travel),href: '#need-to-know',    label: 'Need to Knows'  },
+    { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'        },
+    { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'   },
+    { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'           },
   ];
   menuEl.innerHTML = '';
   links.filter(l => l.show).forEach(l => {
@@ -1051,14 +1043,14 @@ function _buildMenu(menu, rsvpOn) {
   const menuEl = document.getElementById('menuLinks');
   if (!menuEl) return;
   const links = [
-    { show: menu.home         !== false,                    href: '#hero',           label: 'Home' },
-    { show: menu.story        !== false,                    href: '#our-story',      label: 'Our Story' },
-    { show: menu.events       !== false,                    href: '#events-primary', label: 'The Wedding' },
-    { show: menu.events       !== false,                    href: '#other-events',   label: 'Other Events' },
-    { show: menu.travel       !== false,                    href: '#accommodations', label: 'Recommended Accommodations' },
-    { show: menu.things_to_do !== false,                    href: '#need-to-know',   label: 'Need to Knows' },
-    { show: menu.gallery      !== false,                    href: '#registry',       label: 'Our Registry' },
-    { show: (rsvpOn !== false) && menu.rsvp !== false,      href: '#rsvp',           label: 'RSVP' },
+    { show: !!menu.home,                                       href: '#hero',             label: 'Home'           },
+    { show: !!menu.story,                                      href: '#our-story',        label: 'Our Story'      },
+    { show: !!menu.wedding,                                    href: '#events-primary',   label: 'The Wedding'    },
+    { show: !!menu.other_events,                               href: '#other-events',     label: 'Other Events'   },
+    { show: !!menu.accommodations,                             href: '#accommodations',   label: 'Accommodations' },
+    { show: !!(menu.things_to_do || menu.faqs || menu.travel), href: '#need-to-know',    label: 'Need to Knows'  },
+    { show: !!menu.gallery,                                    href: '#registry',         label: 'Our Registry'   },
+    { show: !!rsvpOn && !!menu.rsvp,                           href: '#rsvp',             label: 'RSVP'           },
   ];
   menuEl.innerHTML = '';
   links.filter(l => l.show).forEach(l => {
