@@ -547,12 +547,13 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 </nav>
 
 <!-- HERO: full bleed, couple name large + bold centred on photo -->
-<section class="hero" id="hero">
+<section class="hero" id="hero" style="background:linear-gradient(160deg,#c8c3b8 0%,#b0a99a 100%)">
   <div class="hero-image">
     <img id="heroImg"
       src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
       alt="Couple photo"
-      style="background:#f0ede8">
+      style="background:linear-gradient(135deg,#d4cfc4 0%,#c8c2b5 40%,#b8b2a5 100%)"
+      onerror="this.style.opacity=0"
   </div>
   <div class="hero-gradient"></div>
   <div class="hero-names-overlay">
@@ -1059,12 +1060,45 @@ function hydrateTemplate(d) {
   if (showNTK) {
     const faqList = document.getElementById('faqList');
     faqList.querySelectorAll('.faq-dynamic').forEach(el => el.remove());
-    // Custom FAQs text block
+    // Parse faqs HTML into individual accordion items
+    // Each <strong>Question</strong> followed by text becomes one FAQ item
     if (d.faqs && menu.faqs) {
-      // faqs is HTML — render as a single expanded FAQ item with the full HTML inside
-      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
-      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">FAQs</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:normal">${d.faqs}</div>`;
-      faqList.prepend(item);
+      // Parse faqs HTML into individual accordion items.
+      // Strategy: split the raw HTML on <br><br> boundaries.
+      // Each block's first line (up to first <br>) is the question; rest is the answer.
+      var rawHtml = d.faqs;
+      // Normalise: replace <br><br> with a sentinel, then split
+      var blocks = rawHtml.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '|||SPLIT|||').split('|||SPLIT|||');
+      var faqPairs = blocks.map(function(block) {
+        block = block.trim();
+        if (!block) return null;
+        // Split on first <br> — before = question line, after = answer
+        var brIdx = block.search(/<br\s*\/?>/i);
+        if (brIdx === -1) {
+          // No <br> inside block — whole block is the question, no answer
+          return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+        }
+        var questionHtml = block.substring(0, brIdx);
+        var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
+        // Strip tags from question for display
+        var questionText = questionHtml.replace(/<[^>]+>/g, '').trim();
+        return { q: questionText, a: answerHtml };
+      }).filter(Boolean);
+
+      if (faqPairs.length === 0) {
+        faqPairs = [{ q: 'FAQs', a: d.faqs }];
+      }
+
+      // Render: each pair = one accordion item (default collapsed)
+      faqPairs.forEach(function(pair) {
+        var item = document.createElement('div');
+        item.className = 'faq-item faq-dynamic';
+        item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">' + pair.q + '</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:italic">' + pair.a + '</div>';
+        faqList.prepend(item);
+      });
+      // Reverse so first question appears at top
+      var dynamic = Array.from(faqList.querySelectorAll('.faq-dynamic'));
+      dynamic.reverse().forEach(function(el) { faqList.prepend(el); });
     }
 
     if (d.things_to_do && menu.things_to_do) {
