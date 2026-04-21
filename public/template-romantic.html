@@ -1114,12 +1114,38 @@ function hydrateTemplate(d) {
     if (grid) {
       grid.innerHTML = '';
       if (d.weddings_info) {
-        // Render weddings_info HTML full-width — user controls all formatting
-        const card = document.createElement('div');
-        card.className = 'event-card-primary';
-        card.style.cssText = 'grid-column:1/-1;text-align:center;max-width:680px;margin:0 auto;width:100%';
-        card.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.92);line-height:2;text-align:center">' + d.weddings_info + '</div>';
-        grid.appendChild(card);
+        // Split on double <br> to get individual event blocks (Ceremony / Reception)
+        var wParts = d.weddings_info.replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
+                                    .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
+                                    .split('||SPLIT||')
+                                    .map(function(p) { return p.trim(); })
+                                    .filter(function(p) { return p.length > 3; });
+        if (wParts.length >= 2) {
+          // Two-column layout: Ceremony left, Reception right
+          wParts.slice(0, 2).forEach(function(part) {
+            var col = document.createElement('div');
+            col.className = 'event-card-primary';
+            // First line = event name (bold/strong), rest = details, last em = dress code
+            var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var eventName = nameMatch ? nameMatch[1] : '';
+            var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
+            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
+            var dressCode = dressMatch ? dressMatch[1] : '';
+            var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
+            col.innerHTML =
+              (eventName ? '<div class="event-card-name">' + eventName + '</div>' : '') +
+              (detail    ? '<div class="event-card-detail">' + detail + '</div>' : '') +
+              (dressCode ? '<span class="event-card-dress">' + dressCode + '</span>' : '');
+            grid.appendChild(col);
+          });
+        } else {
+          // Fallback: single full-width block
+          var card = document.createElement('div');
+          card.className = 'event-card-primary';
+          card.style.cssText = 'grid-column:1/-1';
+          card.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.92);line-height:2;text-align:center">' + d.weddings_info + '</div>';
+          grid.appendChild(card);
+        }
       } else if (d.events && d.events.length) {
         // Fallback: structured events from DB
         d.events.slice(0,2).forEach(function(ev) {
