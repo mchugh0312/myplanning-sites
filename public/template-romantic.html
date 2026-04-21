@@ -875,13 +875,34 @@ function onNameInput(input) {
 
 function addExtraGuest(btn) {
   var eventId = btn.closest('.rsvp-event-block').dataset.eventId;
-  const list = document.getElementById('extra-guests-' + eventId);
-  const row  = document.createElement('div');
+  var list = document.getElementById('extra-guests-' + eventId);
+  // Only allow one plus one per event
+  if (list.children.length > 0) return;
+  // Build meal options from current entree options
+  var mealOpts = '<option value="">Meal type</option>' +
+    '<option value="Vegetarian">Vegetarian</option>' +
+    '<option value="Non Vegetarian">Non-Vegetarian</option>' +
+    '<option value="Vegan">Vegan</option>' +
+    '<option value="Gluten Free">Gluten-Free</option>' +
+    '<option value="Kids Meal">Kids Meal</option>';
+  var entreeOpts = '<option value="">Entree (optional)</option>' +
+    _rsvpEntreeOptions.map(function(o) {
+      return '<option value="' + o.value + '">' + o.label + '</option>';
+    }).join('');
+  var row = document.createElement('div');
   row.className = 'extra-guest-row';
-  row.innerHTML = `
-    <input class="rsvp-text-input" type="text" placeholder="Additional guest name">
-    <button class="rsvp-remove-btn" onclick="this.parentElement.remove()">×</button>`;
+  row.innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.4rem">' +
+      '<input class="rsvp-text-input" type="text" placeholder="Plus one name" data-role="plus-one-name">' +
+      '<button class="rsvp-remove-btn" onclick="this.closest('.extra-guest-row').remove();document.querySelector('.rsvp-add-guest').style.display=''">×</button>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">' +
+      '<select class="rsvp-select" data-role="plus-one-meal">' + mealOpts + '</select>' +
+      '<select class="rsvp-select" data-role="plus-one-entree">' + entreeOpts + '</select>' +
+    '</div>';
   list.appendChild(row);
+  // Hide the button after one plus one is added
+  btn.style.display = 'none';
 }
 
 function checkShowSubmit() {
@@ -926,15 +947,24 @@ async function submitRSVP() {
           event_name:       label
         })
       }));
-      // Extra guests — name only, inherit attending + meal
-      block.querySelectorAll('.extra-guest-row input').forEach(function(inp) {
-        var g = inp.value.trim();
-        if (g) promises.push(fetch(API + '/rsvp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: slug, guest_name: g, attending: attending, event_name: label })
-        }));
-      });
+      // Plus one — reads the structured fields we added
+      var plusOneRow = exp && exp.querySelector('.extra-guest-row');
+      if (plusOneRow) {
+        var plusOneName   = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
+        var plusOneMeal   = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
+        var plusOneEntree = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
+        if (plusOneName.trim()) {
+          promises.push(fetch(API + '/rsvp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slug: slug, guest_name: plusOneName.trim(),
+              attending: attending, event_name: label,
+              meal_preference: plusOneMeal, entree_choice: plusOneEntree
+            })
+          }));
+        }
+      }
     });
     var results = await Promise.all(promises);
     // Check if any failed
