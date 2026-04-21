@@ -809,9 +809,9 @@ var _rsvpEntreeOptions = [
 ];
 
 function buildRsvpBlocks(events) {
-  const container = document.getElementById('rsvpBlocks');
+  var container = document.getElementById('rsvpBlocks');
   container.innerHTML = '';
-  const entreeOpts = _rsvpEntreeOptions.map(function(o) {
+  var entreeOpts = _rsvpEntreeOptions.map(function(o) {
     return '<option value="' + o.value + '">' + o.label + '</option>';
   }).join('');
   events.forEach(function(ev) {
@@ -828,7 +828,7 @@ function buildRsvpBlocks(events) {
           '<select class="rsvp-select" data-field="attending">' +
             '<option value="">Will you attend?</option>' +
             '<option value="yes">Attending</option>' +
-            '<option value="no">Can't make it</option>' +
+            '<option value="no">Cannot make it</option>' +
             '<option value="maybe">Not sure yet</option>' +
           '</select>' +
           '<select class="rsvp-select" data-field="meal">' +
@@ -856,7 +856,7 @@ function buildRsvpBlocks(events) {
           '<textarea class="rsvp-textarea" rows="2" placeholder="Message for the couple (optional)" data-field="notes"></textarea>' +
         '</div>' +
         '<div class="extra-guests-list" id="extra-guests-' + ev.id + '"></div>' +
-        '<button class="rsvp-add-guest" onclick="addExtraGuest('' + ev.id + '')">' +
+        '<button class="rsvp-add-guest" onclick="addExtraGuest(this)">' +
           '+ Add Another Guest' +
         '</button>' +
       '</div>';
@@ -873,7 +873,8 @@ function onNameInput(input) {
   checkShowSubmit();
 }
 
-function addExtraGuest(eventId) {
+function addExtraGuest(btn) {
+  var eventId = btn.closest('.rsvp-event-block').dataset.eventId;
   const list = document.getElementById('extra-guests-' + eventId);
   const row  = document.createElement('div');
   row.className = 'extra-guest-row';
