@@ -876,32 +876,62 @@ function onNameInput(input) {
 function addExtraGuest(btn) {
   var eventId = btn.closest('.rsvp-event-block').dataset.eventId;
   var list = document.getElementById('extra-guests-' + eventId);
-  // Only allow one plus one per event
-  if (list.children.length > 0) return;
-  // Build meal options from current entree options
-  var mealOpts = '<option value="">Meal type</option>' +
-    '<option value="Vegetarian">Vegetarian</option>' +
-    '<option value="Non Vegetarian">Non-Vegetarian</option>' +
-    '<option value="Vegan">Vegan</option>' +
-    '<option value="Gluten Free">Gluten-Free</option>' +
-    '<option value="Kids Meal">Kids Meal</option>';
-  var entreeOpts = '<option value="">Entree (optional)</option>' +
-    _rsvpEntreeOptions.map(function(o) {
-      return '<option value="' + o.value + '">' + o.label + '</option>';
-    }).join('');
+  if (list.children.length > 0) return; // only one plus one
+
+  var mealOpts = [
+    {v:'', l:'Meal type'},
+    {v:'Vegetarian', l:'Vegetarian'},
+    {v:'Non Vegetarian', l:'Non-Vegetarian'},
+    {v:'Vegan', l:'Vegan'},
+    {v:'Gluten Free', l:'Gluten-Free'},
+    {v:'Kids Meal', l:'Kids Meal'}
+  ];
+  var entreeOpts = [{v:'', l:'Entree (optional)'}].concat(
+    _rsvpEntreeOptions.map(function(o) { return {v: o.value, l: o.label}; })
+  );
+
+  function makeSelect(opts, role) {
+    var sel = document.createElement('select');
+    sel.className = 'rsvp-select';
+    sel.dataset.role = role;
+    opts.forEach(function(o) {
+      var opt = document.createElement('option');
+      opt.value = o.v; opt.textContent = o.l;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+
   var row = document.createElement('div');
   row.className = 'extra-guest-row';
-  row.innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.4rem">' +
-      '<input class="rsvp-text-input" type="text" placeholder="Plus one name" data-role="plus-one-name">' +
-      '<button class="rsvp-remove-btn" onclick="this.closest('.extra-guest-row').remove();document.querySelector('.rsvp-add-guest').style.display=''">×</button>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">' +
-      '<select class="rsvp-select" data-role="plus-one-meal">' + mealOpts + '</select>' +
-      '<select class="rsvp-select" data-role="plus-one-entree">' + entreeOpts + '</select>' +
-    '</div>';
+
+  // Name row
+  var nameRow = document.createElement('div');
+  nameRow.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.4rem';
+  var nameInput = document.createElement('input');
+  nameInput.className = 'rsvp-text-input';
+  nameInput.type = 'text';
+  nameInput.placeholder = 'Plus one full name';
+  nameInput.dataset.role = 'plus-one-name';
+  var removeBtn = document.createElement('button');
+  removeBtn.className = 'rsvp-remove-btn';
+  removeBtn.textContent = '×';
+  removeBtn.onclick = function() {
+    row.remove();
+    btn.style.display = '';
+  };
+  nameRow.appendChild(nameInput);
+  nameRow.appendChild(removeBtn);
+
+  // Meal row
+  var mealRow = document.createElement('div');
+  mealRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:0.5rem';
+  mealRow.appendChild(makeSelect(mealOpts, 'plus-one-meal'));
+  mealRow.appendChild(makeSelect(entreeOpts, 'plus-one-entree'));
+
+  row.appendChild(nameRow);
+  row.appendChild(mealRow);
   list.appendChild(row);
-  // Hide the button after one plus one is added
   btn.style.display = 'none';
 }
 
