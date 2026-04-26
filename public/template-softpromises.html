@@ -24,8 +24,6 @@ img{display:block;max-width:100%;}
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────── */
 body.thumbnail-mode .hero-section{height:40vh!important;min-height:0!important;}
-body.thumbnail-mode .hero-col{display:block!important;}
-body.thumbnail-mode .hero-col-centre{display:flex!important;}
 
 /* ── NAV ─────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
@@ -316,10 +314,7 @@ body.thumbnail-mode .hero-col-centre{display:flex!important;}
   .hero-section{grid-template-columns:1fr;height:auto;min-height:100vh;}
   .hero-section::before,.hero-section::after{display:none;}
   .hero-col{display:none;}
-  /* Keep columns visible in thumbnail preview mode even at narrow widths */
-  body.thumbnail-mode .hero-section{display:grid!important;grid-template-columns:1fr 0.55fr 1fr!important;height:40vh!important;min-height:0!important;}
-  body.thumbnail-mode .hero-col{display:block!important;}
-  body.thumbnail-mode .hero-col-centre{display:flex!important;}
+
   .hero-col-centre{height:100vh;min-height:500px;}
   .wedding-cards{grid-template-columns:1fr;gap:1rem;}
   .split-section{grid-template-columns:1fr;}
