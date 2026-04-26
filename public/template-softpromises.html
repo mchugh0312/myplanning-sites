@@ -23,7 +23,21 @@ body.hydrating{visibility:hidden;}
 img{display:block;max-width:100%;}
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────── */
-body.thumbnail-mode .hero-section{height:40vh!important;min-height:0!important;}
+body.thumbnail-mode .hero-section{
+  height:40vh!important;min-height:0!important;
+  grid-template-columns:1fr!important;
+}
+/* In thumbnail, show only the centre column (with names) as full-bleed */
+body.thumbnail-mode .hero-col:not(.hero-col-centre){display:none!important;}
+body.thumbnail-mode .hero-col-centre{
+  display:flex!important;
+  /* Show the picnic photo as background for the full hero */
+  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png')!important;
+  background-size:cover!important;background-position:center!important;
+}
+/* Move couple names to centre of hero in thumbnail */
+body.thumbnail-mode .hero-names{bottom:50%!important;transform:translate(-50%,50%)!important;}
+body.thumbnail-mode .hero-names-text{font-size:clamp(1.2rem,6vw,2rem)!important;}
 
 /* ── NAV ─────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
