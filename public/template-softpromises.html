@@ -25,6 +25,7 @@ img{display:block;max-width:100%;}
 /* ── THUMBNAIL MODE ──────────────────────────────────────── */
 body.thumbnail-mode .hero-section{height:40vh!important;min-height:0!important;}
 body.thumbnail-mode .hero-col{display:block!important;}
+body.thumbnail-mode .hero-col-centre{display:flex!important;}
 
 /* ── NAV ─────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
@@ -52,10 +53,8 @@ body.thumbnail-mode .hero-col{display:block!important;}
   overflow:hidden;
 }
 .hero-col{position:relative;overflow:hidden;}
-.hero-col img{width:100%;height:100%;object-fit:cover;object-position:center;}
 /* Centre column — narrow, names overlaid */
 .hero-col-centre{position:relative;display:flex;align-items:center;justify-content:center;}
-.hero-col-centre img{width:100%;height:100%;object-fit:cover;object-position:center;}
 /* Couple names — white Holiday script, centred on middle column */
 .hero-names{
   position:absolute;
@@ -317,6 +316,10 @@ body.thumbnail-mode .hero-col{display:block!important;}
   .hero-section{grid-template-columns:1fr;height:auto;min-height:100vh;}
   .hero-section::before,.hero-section::after{display:none;}
   .hero-col{display:none;}
+  /* Keep columns visible in thumbnail preview mode even at narrow widths */
+  body.thumbnail-mode .hero-section{display:grid!important;grid-template-columns:1fr 0.55fr 1fr!important;height:40vh!important;min-height:0!important;}
+  body.thumbnail-mode .hero-col{display:block!important;}
+  body.thumbnail-mode .hero-col-centre{display:flex!important;}
   .hero-col-centre{height:100vh;min-height:500px;}
   .wedding-cards{grid-template-columns:1fr;gap:1rem;}
   .split-section{grid-template-columns:1fr;}
@@ -344,24 +347,13 @@ body.thumbnail-mode .hero-col{display:block!important;}
 
 <!-- HOME — 3-column split -->
 <section class="hero-section" id="home">
-  <div class="hero-col">
-    <img id="heroImg1"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png"
-      alt="Couple">
-  </div>
-  <div class="hero-col hero-col-centre">
-    <img id="heroImg2"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png"
-      alt="Couple close-up">
+  <div class="hero-col" id="heroCol1" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png');background-size:cover;background-position:center;"></div>
+  <div class="hero-col hero-col-centre" id="heroCol2" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png');background-size:cover;background-position:center;">
     <div class="hero-names">
       <span class="hero-names-text" id="heroNames">A &amp; B</span>
     </div>
   </div>
-  <div class="hero-col">
-    <img id="heroImg3"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png"
-      alt="Couple sunset">
-  </div>
+  <div class="hero-col" id="heroCol3" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png');background-size:cover;background-position:center;"></div>
 </section>
 
 <!-- OUR STORY -->
@@ -490,9 +482,9 @@ function hydrateTemplate(d){
   // Update hero images if user uploaded
   if(d.gallery_images&&d.gallery_images.length){
     var urls=d.gallery_images.map(function(g){return typeof g==='string'?g:(g.url||'');}).filter(Boolean);
-    if(urls[0]&&el('heroImg1'))el('heroImg1').src=urls[0];
-    if(urls[1]&&el('heroImg2'))el('heroImg2').src=urls[1];
-    if(urls[2]&&el('heroImg3'))el('heroImg3').src=urls[2];
+    if(urls[0]&&el('heroCol1'))el('heroCol1').style.backgroundImage="url('"+urls[0]+"')";
+    if(urls[1]&&el('heroCol2'))el('heroCol2').style.backgroundImage="url('"+urls[1]+"')";
+    if(urls[2]&&el('heroCol3'))el('heroCol3').style.backgroundImage="url('"+urls[2]+"')";
   }
 
   var menu=d.menu_config||{};
