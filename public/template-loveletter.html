@@ -4,31 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Love Letters</title>
-
-<!-- Self-hosted fonts -->
 <style>
 @font-face {
-  font-family: 'Parfumerie Script';
-  src: url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),
-       url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');
-  font-weight: normal; font-style: normal;
+  font-family:'Parfumerie Script';
+  src:url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),
+      url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');
 }
 @font-face {
-  font-family: 'Lancelot';
-  src: url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),
-       url('/fonts/LANCELOTREGULARScript.woff') format('woff');
-  font-weight: normal; font-style: normal;
+  font-family:'Lancelot';
+  src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),
+      url('/fonts/LANCELOTREGULARScript.woff') format('woff');
 }
 @font-face {
-  font-family: 'Sloop Script Pro';
-  src: url('/fonts/SLOOPBOLDTWOScript.woff2') format('woff2'),
-       url('/fonts/SLOOPBOLDTWOScript.woff') format('woff');
-  font-weight: normal; font-style: normal;
+  font-family:'Sloop Script Pro';
+  src:url('/fonts/SLOOPBOLDTWOScript.woff2') format('woff2'),
+      url('/fonts/SLOOPBOLDTWOScript.woff') format('woff');
 }
-</style>
 
-<style>
-/* ── CSS VARIABLES ────────────────────────────────────────────────────────── */
 :root {
   --gold:     #afab57;
   --offwhite: #f2ece7;
@@ -36,598 +28,429 @@
   --greengray:#696c62;
   --text:     #3a2e30;
   --white:    #ffffff;
-  --script:   'Sloop Script Pro', 'Parfumerie Script', cursive;
-  --display:  'Lancelot', 'Parfumerie Script', serif;
-  --body:     'Lancelot', Georgia, serif;
+  --script:   'Sloop Script Pro','Parfumerie Script',cursive;
+  --display:  'Lancelot',Georgia,serif;
 }
 
-/* ── RESET & BASE ─────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--body);
-  color: var(--text);
-  background: var(--offwhite);
-}
-body.hydrating { visibility: hidden; }
-img { max-width: 100%; display: block; }
-a { color: inherit; text-decoration: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--display);color:var(--text);background:var(--offwhite);}
+body.hydrating{visibility:hidden;}
+img{max-width:100%;display:block;}
 
-/* ── NAVIGATION ───────────────────────────────────────────────────────────── */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(103,61,69,0.92);
-  backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.9rem 2.5rem;
+/* ── NAV (identical pattern to Pressed Petals) ─────────────────────── */
+.nav{
+  position:sticky;top:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;
+  background:rgba(103,61,69,0.95);
+  backdrop-filter:blur(8px);
 }
-.nav-couple {
-  font-family: var(--script);
-  font-size: 1.6rem;
-  color: var(--offwhite);
-  letter-spacing: 0.02em;
+.nav-logo{
+  font-family:var(--script);font-size:1.5rem;
+  color:var(--offwhite);font-weight:400;
 }
-.nav-links {
-  display: flex; gap: 1.8rem; list-style: none;
+.nav-hamburger{
+  background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;gap:5px;padding:4px;
 }
-.nav-links a {
-  font-family: var(--display);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--offwhite);
-  opacity: 0.85;
-  transition: opacity 0.2s;
-}
-.nav-links a:hover { opacity: 1; }
-
-/* Hamburger */
-.nav-hamburger {
-  display: none; flex-direction: column; gap: 5px;
-  background: none; border: none; cursor: pointer; padding: 4px;
-}
-.nav-hamburger span {
-  display: block; width: 22px; height: 2px;
-  background: var(--offwhite); border-radius: 2px; transition: all 0.3s;
-}
-.nav-mobile-menu {
-  display: none;
-  background: rgba(103,61,69,0.97);
-  padding: 1rem 2rem 1.5rem;
-}
-.nav-mobile-menu a {
-  display: block; padding: 0.55rem 0;
-  font-family: var(--display); font-size: 0.85rem;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--offwhite); opacity: 0.9;
+.nav-hamburger span{
+  display:block;width:22px;height:1.5px;background:var(--offwhite);
 }
 
-/* ── HERO / CAROUSEL ──────────────────────────────────────────────────────── */
-.hero {
-  position: relative;
-  height: 100vh; min-height: 600px;
-  overflow: hidden;
-  background: var(--greengray);
+/* ── MENU OVERLAY (right slide-in, same as Pressed Petals) ─────────── */
+.menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
+.menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
+.menu-drawer{
+  width:300px;background:var(--berry);
+  transform:translateX(100%);
+  transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:3rem;box-shadow:-8px 0 40px rgba(0,0,0,0.2);
+  pointer-events:auto;position:relative;
 }
-.hero-carousel {
-  display: flex; height: 100%;
-  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+.menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.35);pointer-events:auto;}
+.menu-overlay.open .menu-drawer{transform:translateX(0);}
+.menu-close{
+  position:absolute;top:1.2rem;right:1.4rem;
+  background:none;border:none;cursor:pointer;
+  font-size:1.6rem;color:var(--offwhite);opacity:0.7;line-height:1;
 }
-.hero-slide {
-  min-width: 100%; height: 100%; flex-shrink: 0;
-  position: relative;
+.menu-close:hover{opacity:1;}
+.menu-title{
+  font-family:var(--script);font-size:1.8rem;
+  color:var(--offwhite);margin-bottom:2rem;
 }
-.hero-slide img {
-  width: 100%; height: 100%; object-fit: cover;
-  object-position: center top;
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:1.2rem;}
+.menu-links a{
+  font-family:var(--display);font-size:0.82rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(242,236,231,0.8);text-decoration:none;
+  transition:color 0.2s;
 }
-.hero-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(103,61,69,0.15) 0%,
+.menu-links a:hover{color:var(--gold);}
+
+/* ── HERO — carousel with initials centred ─────────────────────────── */
+.hero{
+  position:relative;height:100vh;min-height:560px;overflow:hidden;
+  background:linear-gradient(160deg,#9a9480 0%,#7a7366 100%);
+}
+.hero-carousel{
+  position:absolute;inset:0;
+  display:flex;height:100%;
+  transition:transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.hero-slide{min-width:100%;height:100%;flex-shrink:0;position:relative;}
+.hero-slide img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.hero-gradient{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(103,61,69,0.10) 0%,
     rgba(103,61,69,0.05) 40%,
-    rgba(103,61,69,0.5) 100%
-  );
+    rgba(103,61,69,0.55) 100%);
 }
-.hero-initials {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  text-align: center; padding: 2.5rem 1rem 3rem;
-  pointer-events: none;
+/* Initials centred on hero */
+.hero-initials-wrap{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;width:90%;
 }
-.hero-initials-text {
-  font-family: var(--script);
-  font-size: clamp(3rem, 8vw, 6rem);
-  color: var(--offwhite);
-  text-shadow: 0 2px 20px rgba(103,61,69,0.4);
-  line-height: 1;
-  display: block;
+.hero-initials{
+  font-family:var(--script);
+  font-size:clamp(4rem,9vw,7rem);
+  color:var(--white);
+  line-height:1.05;
+  text-shadow:0 2px 24px rgba(103,61,69,0.45);
+  display:block;
 }
-.hero-date {
-  font-family: var(--display);
-  font-size: 0.85rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(242,236,231,0.85);
-  margin-top: 0.5rem;
-  display: block;
+.hero-date-line{
+  font-family:var(--display);
+  font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(242,236,231,0.8);margin-top:0.5rem;display:block;
 }
 /* Carousel dots */
-.carousel-dots {
-  position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 8px; z-index: 2;
+.carousel-dots{
+  position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:2;
 }
-.carousel-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: rgba(242,236,231,0.45);
-  border: none; cursor: pointer; padding: 0; transition: all 0.3s;
+.carousel-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(242,236,231,0.4);border:none;cursor:pointer;
+  padding:0;transition:all 0.3s;
 }
-.carousel-dot.active { background: var(--offwhite); transform: scale(1.2); }
-/* Carousel arrows */
-.carousel-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  background: rgba(103,61,69,0.5); border: none; cursor: pointer;
-  color: var(--offwhite); width: 36px; height: 36px;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; transition: background 0.2s; z-index: 2;
+.carousel-dot.active{background:var(--offwhite);transform:scale(1.25);}
+.carousel-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(103,61,69,0.45);border:none;cursor:pointer;
+  color:var(--offwhite);width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:background 0.2s;z-index:2;
 }
-.carousel-arrow:hover { background: rgba(103,61,69,0.8); }
-.carousel-arrow.prev { left: 1rem; }
-.carousel-arrow.next { right: 1rem; }
+.carousel-arrow:hover{background:rgba(103,61,69,0.8);}
+.carousel-arrow.prev{left:1rem;}
+.carousel-arrow.next{right:1rem;}
 
-/* ── SECTION WRAPPER ──────────────────────────────────────────────────────── */
-.section { padding: 4.5rem 2rem; }
-.section-inner { max-width: 860px; margin: 0 auto; }
-.section-title {
-  font-family: var(--script);
-  font-size: clamp(2rem, 5vw, 3rem);
-  color: var(--berry);
-  text-align: center;
-  line-height: 1.2;
-  margin-bottom: 0.6rem;
+/* ── SECTION BASE ─────────────────────────────────────────────────── */
+.section{padding:4.5rem 2rem;}
+.section-inner{max-width:820px;margin:0 auto;}
+.section-title{
+  font-family:var(--script);
+  font-size:clamp(1.8rem,4.5vw,2.8rem);
+  color:var(--berry);text-align:center;line-height:1.2;margin-bottom:0.5rem;
 }
-.section-rule {
-  width: 60px; height: 1px;
-  background: var(--gold);
-  margin: 0 auto 2rem;
-}
-.section-body {
-  font-family: var(--display);
-  font-size: 0.92rem;
-  line-height: 1.9;
-  text-align: center;
-  color: var(--text);
+.section-rule{width:50px;height:1px;background:var(--gold);margin:0 auto 2rem;}
+.section-body{
+  font-family:var(--display);font-size:0.88rem;
+  line-height:1.9;text-align:center;color:var(--text);
 }
 
-/* ── OUR STORY ────────────────────────────────────────────────────────────── */
-.story-section {
-  background: var(--offwhite);
+/* ── OUR STORY ────────────────────────────────────────────────────── */
+.story-section{background:var(--offwhite);}
+
+/* ── THE WEDDING ──────────────────────────────────────────────────── */
+.wedding-section{background:var(--berry);padding:4.5rem 2rem;position:relative;}
+.wedding-section .section-title{color:var(--offwhite);}
+.wedding-section .section-rule{background:var(--gold);}
+
+/* Two cards with flower IMAGE as separator (not CSS line) */
+.wedding-grid{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:0 1rem;
+  max-width:700px;margin:0 auto;align-items:center;
+}
+.wedding-flower-sep{
+  width:90px;
+  flex-shrink:0;
+  opacity:0.85;
+}
+.wedding-card{text-align:center;padding:0.5rem 1rem;}
+.wedding-card-title{
+  font-family:var(--script);font-size:1.6rem;
+  color:var(--offwhite);margin-bottom:0.7rem;line-height:1.2;
+}
+.wedding-card-detail{
+  font-family:var(--display);font-size:0.8rem;
+  color:rgba(242,236,231,0.88);line-height:1.9;
+}
+.wedding-card-dress{
+  display:block;margin-top:0.7rem;
+  font-family:var(--display);font-size:0.72rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);
 }
 
-/* ── THE WEDDING ──────────────────────────────────────────────────────────── */
-.wedding-section {
-  background: var(--berry);
-  padding: 4.5rem 2rem;
-  position: relative;
-  overflow: hidden;
+/* ── OTHER EVENTS ─────────────────────────────────────────────────── */
+.events-section{background:var(--offwhite);}
+.other-events-list{display:flex;flex-direction:column;gap:1.5rem;}
+.other-event-card{
+  border-left:3px solid var(--gold);
+  padding:0.9rem 1.4rem;background:var(--white);
 }
-.wedding-section .section-title { color: var(--offwhite); }
-.wedding-section .section-rule  { background: var(--gold); }
-.wedding-flower {
-  position: absolute;
-  right: -20px; top: 50%;
-  transform: translateY(-50%);
-  width: 160px; opacity: 0.55;
-  pointer-events: none;
+.other-event-title{
+  font-family:var(--script);font-size:1.3rem;
+  color:var(--berry);margin-bottom:0.3rem;
 }
-.wedding-grid {
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  gap: 0 2rem;
-  max-width: 700px; margin: 0 auto;
-  align-items: start;
-}
-.wedding-divider {
-  background: rgba(242,236,231,0.3);
-  height: 100%; min-height: 120px;
-  align-self: stretch;
-}
-.wedding-card {
-  text-align: center; padding: 0.5rem 1rem;
-}
-.wedding-card-title {
-  font-family: var(--script);
-  font-size: 1.7rem;
-  color: var(--offwhite);
-  margin-bottom: 0.8rem;
-  line-height: 1.2;
-}
-.wedding-card-detail {
-  font-family: var(--display);
-  font-size: 0.82rem;
-  color: rgba(242,236,231,0.88);
-  line-height: 1.9;
-}
-.wedding-card-dress {
-  display: block; margin-top: 0.8rem;
-  font-family: var(--display);
-  font-size: 0.76rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gold);
-}
-/* Welcome Cocktails box */
-.wedding-info-box {
-  max-width: 480px; margin: 2.5rem auto 0;
-  border: 1px solid rgba(242,236,231,0.25);
-  padding: 1.5rem 2rem; text-align: center;
-}
-.wedding-info-box-text {
-  font-family: var(--display);
-  font-size: 0.85rem;
-  color: rgba(242,236,231,0.9);
-  line-height: 1.9;
+.other-event-detail{
+  font-family:var(--display);font-size:0.8rem;
+  color:var(--greengray);line-height:1.8;
 }
 
-/* ── OTHER EVENTS ─────────────────────────────────────────────────────────── */
-.events-section {
-  background: var(--offwhite);
+/* ── ACCOMMODATIONS ───────────────────────────────────────────────── */
+.accommodations-section{background:var(--greengray);}
+.accommodations-section .section-title{color:var(--offwhite);}
+.accommodations-section .section-rule{background:var(--gold);}
+.accom-box{
+  border:1px solid rgba(242,236,231,0.3);
+  max-width:500px;margin:0 auto;padding:1.8rem 2rem;text-align:center;
 }
-.other-events-list {
-  display: flex; flex-direction: column; gap: 1.5rem;
+.accom-name{
+  font-family:var(--script);font-size:1.5rem;
+  color:var(--offwhite);margin-bottom:0.6rem;
 }
-.other-event-card {
-  background: var(--white);
-  border-left: 3px solid var(--gold);
-  padding: 1rem 1.5rem;
-  text-align: left;
+.accom-detail{
+  font-family:var(--display);font-size:0.8rem;
+  color:rgba(242,236,231,0.85);line-height:1.9;
 }
-.other-event-title {
-  font-family: var(--script);
-  font-size: 1.3rem;
-  color: var(--berry);
-  margin-bottom: 0.3rem;
+.accom-btn{
+  display:inline-block;margin-top:1.2rem;
+  padding:0.6rem 1.8rem;
+  border:1px solid var(--gold);color:var(--gold);
+  font-family:var(--display);font-size:0.73rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;background:transparent;
 }
-.other-event-detail {
-  font-family: var(--display);
-  font-size: 0.83rem;
-  color: var(--greengray);
-  line-height: 1.8;
+.accom-btn:hover{background:var(--gold);color:var(--white);}
+
+/* ── TRAVEL ───────────────────────────────────────────────────────── */
+.travel-section{background:var(--offwhite);}
+
+/* ── NEED TO KNOW / FAQ ───────────────────────────────────────────── */
+.ntk-section{background:var(--offwhite);}
+.faq-list{max-width:600px;margin:0 auto;}
+.faq-item{border-bottom:1px solid rgba(175,171,87,0.3);}
+.faq-question{
+  width:100%;background:none;border:none;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 0;text-align:left;gap:1rem;
+}
+.faq-q-text{font-family:var(--display);font-size:0.86rem;color:var(--berry);}
+.faq-icon{font-size:1.2rem;color:var(--gold);flex-shrink:0;transition:transform 0.3s;}
+.faq-answer{
+  font-family:var(--display);font-size:0.8rem;
+  color:var(--greengray);line-height:1.85;font-style:italic;
+  max-height:0;overflow:hidden;
+  transition:max-height 0.35s ease,padding 0.2s;padding-bottom:0;
+}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-item.open .faq-answer{max-height:400px;padding-bottom:1rem;}
+
+/* ── GALLERY ──────────────────────────────────────────────────────── */
+.gallery-section{background:var(--berry);}
+.gallery-section .section-title{color:var(--offwhite);}
+.gallery-section .section-rule{background:var(--gold);}
+.gallery-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:4px;max-width:820px;margin:0 auto;
+}
+.gallery-cell{overflow:hidden;cursor:pointer;aspect-ratio:1;position:relative;}
+.gallery-cell img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
+.gallery-cell:hover img{transform:scale(1.06);}
+.gallery-lightbox{
+  position:fixed;inset:0;z-index:999;background:rgba(40,20,25,0.92);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);
+}
+.gallery-lightbox.open{display:flex;}
+.gallery-lightbox img{max-width:88vw;max-height:88vh;object-fit:contain;}
+.gallery-lb-close{
+  position:absolute;top:1.2rem;right:1.5rem;
+  background:none;border:none;color:var(--offwhite);font-size:2rem;cursor:pointer;
+}
+.gallery-lb-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(103,61,69,0.6);border:none;cursor:pointer;
+  color:var(--offwhite);width:44px;height:44px;border-radius:50%;
+  font-size:1.2rem;display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;
+}
+.gallery-lb-arrow:hover{background:rgba(103,61,69,0.9);}
+.gallery-lb-arrow.prev{left:1.2rem;}
+.gallery-lb-arrow.next{right:1.2rem;}
+.gallery-lb-counter{
+  position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);
+  font-family:var(--display);font-size:0.75rem;letter-spacing:0.1em;
+  color:rgba(242,236,231,0.6);
 }
 
-/* ── ACCOMMODATIONS ───────────────────────────────────────────────────────── */
-.accommodations-section { background: var(--greengray); }
-.accommodations-section .section-title { color: var(--offwhite); }
-.accommodations-section .section-rule  { background: var(--gold); }
-.accommodations-section .section-body  { color: rgba(242,236,231,0.9); }
-.accom-box {
-  border: 1px solid rgba(242,236,231,0.3);
-  max-width: 520px; margin: 0 auto;
-  padding: 1.8rem 2rem; text-align: center;
-}
-.accom-name {
-  font-family: var(--script);
-  font-size: 1.5rem;
-  color: var(--offwhite);
-  margin-bottom: 0.6rem;
-}
-.accom-detail {
-  font-family: var(--display);
-  font-size: 0.83rem;
-  color: rgba(242,236,231,0.85);
-  line-height: 1.9;
-}
-.accom-btn {
-  display: inline-block; margin-top: 1.2rem;
-  padding: 0.6rem 1.8rem;
-  border: 1px solid var(--gold);
-  color: var(--gold);
-  font-family: var(--display);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s;
-  background: transparent; text-decoration: none;
-}
-.accom-btn:hover { background: var(--gold); color: var(--white); }
+/* ── REGISTRY ─────────────────────────────────────────────────────── */
+.registry-section{background:var(--offwhite);}
 
-/* ── TRAVEL / NEED TO KNOW ────────────────────────────────────────────────── */
-.travel-section { background: var(--offwhite); }
-.ntk-section    { background: var(--offwhite); }
-
-/* FAQ accordion */
-.faq-list { max-width: 620px; margin: 0 auto; }
-.faq-item { border-bottom: 1px solid rgba(175,171,87,0.3); }
-.faq-question {
-  width: 100%; background: none; border: none; cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1rem 0; text-align: left; gap: 1rem;
+/* ── RSVP ─────────────────────────────────────────────────────────── */
+.rsvp-section{background:var(--greengray);}
+.rsvp-section .section-title{color:var(--offwhite);}
+.rsvp-section .section-rule{background:var(--gold);}
+.rsvp-form-wrap{max-width:480px;margin:0 auto;}
+.rsvp-event-block{margin-bottom:2.5rem;}
+.rsvp-event-label{
+  font-family:var(--script);font-size:1.3rem;
+  color:var(--offwhite);text-align:center;margin-bottom:1rem;
 }
-.faq-q-text {
-  font-family: var(--display);
-  font-size: 0.88rem;
-  color: var(--berry);
-  font-weight: normal;
+.rsvp-name-input{
+  width:100%;background:rgba(242,236,231,0.12);
+  border:none;border-bottom:1px solid rgba(175,171,87,0.5);
+  color:var(--offwhite);font-family:var(--display);font-size:0.85rem;
+  padding:0.65rem 0.2rem;outline:none;transition:border-color 0.2s;
 }
-.faq-icon {
-  font-size: 1.2rem; color: var(--gold); flex-shrink: 0; transition: transform 0.3s;
+.rsvp-name-input::placeholder{color:rgba(242,236,231,0.4);}
+.rsvp-name-input:focus{border-bottom-color:var(--gold);}
+.rsvp-expanded{display:none;}
+.rsvp-expanded.visible{display:block;}
+.rsvp-field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;}
+.rsvp-field-row.full{grid-template-columns:1fr;}
+.rsvp-select{
+  width:100%;background:rgba(242,236,231,0.12);
+  border:none;border-bottom:1px solid rgba(175,171,87,0.5);
+  color:var(--offwhite);font-family:var(--display);font-size:0.8rem;
+  padding:0.6rem 0.2rem;outline:none;appearance:none;cursor:pointer;
+  transition:border-color 0.2s;
 }
-.faq-answer {
-  font-family: var(--display);
-  font-size: 0.83rem;
-  color: var(--greengray);
-  line-height: 1.85;
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.35s ease, padding 0.2s;
-  padding-bottom: 0;
-  font-style: italic;
+.rsvp-select:focus{border-bottom-color:var(--gold);}
+.rsvp-select option{background:var(--greengray);color:var(--offwhite);}
+.rsvp-text-input{
+  width:100%;background:rgba(242,236,231,0.12);
+  border:none;border-bottom:1px solid rgba(175,171,87,0.5);
+  color:var(--offwhite);font-family:var(--display);font-size:0.8rem;
+  padding:0.6rem 0.2rem;outline:none;transition:border-color 0.2s;
 }
-.faq-item.open .faq-icon { transform: rotate(45deg); }
-.faq-item.open .faq-answer { max-height: 400px; padding-bottom: 1rem; }
-
-/* ── GALLERY ──────────────────────────────────────────────────────────────── */
-.gallery-section { background: var(--berry); }
-.gallery-section .section-title { color: var(--offwhite); }
-.gallery-section .section-rule  { background: var(--gold); }
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  max-width: 820px; margin: 0 auto;
+.rsvp-text-input::placeholder{color:rgba(242,236,231,0.4);}
+.rsvp-text-input:focus{border-bottom-color:var(--gold);}
+.rsvp-textarea{
+  width:100%;resize:vertical;min-height:65px;
+  background:rgba(242,236,231,0.12);
+  border:none;border-bottom:1px solid rgba(175,171,87,0.5);
+  color:var(--offwhite);font-family:var(--display);font-size:0.8rem;
+  padding:0.6rem 0.2rem;outline:none;transition:border-color 0.2s;
 }
-.gallery-cell {
-  overflow: hidden; cursor: pointer; aspect-ratio: 1;
-  position: relative;
+.rsvp-textarea:focus{border-bottom-color:var(--gold);}
+.extra-guest-row{margin-bottom:0.8rem;}
+.rsvp-remove-btn{
+  background:none;border:none;cursor:pointer;
+  color:rgba(242,236,231,0.5);font-size:1.1rem;padding:0 0.3rem;
+  transition:color 0.2s;
 }
-.gallery-cell img {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.4s ease;
+.rsvp-remove-btn:hover{color:var(--offwhite);}
+.rsvp-add-guest{
+  display:block;width:100%;background:none;
+  border:1px solid rgba(175,171,87,0.35);color:var(--gold);
+  font-family:var(--display);font-size:0.76rem;letter-spacing:0.08em;
+  padding:0.6rem;margin-top:0.8rem;cursor:pointer;transition:all 0.2s;text-align:center;
 }
-.gallery-cell:hover img { transform: scale(1.05); }
-.gallery-cell:nth-child(3n+1):nth-last-child(1),
-.gallery-cell:nth-child(3n+1):nth-last-child(2) {
-  grid-column: span 2; aspect-ratio: 2;
+.rsvp-add-guest:hover{border-color:var(--gold);background:rgba(175,171,87,0.1);}
+.rsvp-submit{
+  display:block;width:100%;margin-top:2rem;background:var(--berry);
+  border:none;color:var(--offwhite);font-family:var(--display);
+  font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.9rem 2rem;cursor:pointer;transition:background 0.2s;
+}
+.rsvp-submit:hover{background:#7d4b53;}
+.rsvp-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.rsvp-success{
+  display:none;text-align:center;padding:2rem 1rem;
+  font-family:var(--script);font-size:2rem;color:var(--offwhite);
 }
 
-/* Lightbox */
-.gallery-lightbox {
-  position: fixed; inset: 0; z-index: 999;
-  background: rgba(40,20,25,0.92);
-  display: none; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
+/* ── FOOTER ───────────────────────────────────────────────────────── */
+.footer{background:var(--berry);text-align:center;padding:2.5rem 1rem;}
+.footer-couple{
+  font-family:var(--script);font-size:2.2rem;
+  color:var(--offwhite);display:block;margin-bottom:0.4rem;
 }
-.gallery-lightbox.open { display: flex; }
-.gallery-lightbox img {
-  max-width: 88vw; max-height: 88vh;
-  object-fit: contain;
-  border: 2px solid rgba(242,236,231,0.15);
-}
-.gallery-lb-close {
-  position: absolute; top: 1.2rem; right: 1.5rem;
-  background: none; border: none; color: var(--offwhite);
-  font-size: 2rem; cursor: pointer; line-height: 1;
-}
-.gallery-lb-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  background: rgba(103,61,69,0.6); border: none; cursor: pointer;
-  color: var(--offwhite); width: 44px; height: 44px;
-  border-radius: 50%; font-size: 1.2rem;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s;
-}
-.gallery-lb-arrow:hover { background: rgba(103,61,69,0.9); }
-.gallery-lb-arrow.prev { left: 1.2rem; }
-.gallery-lb-arrow.next { right: 1.2rem; }
-.gallery-lb-counter {
-  position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
-  font-family: var(--display); font-size: 0.78rem; letter-spacing: 0.1em;
-  color: rgba(242,236,231,0.65);
+.footer-tagline{
+  font-family:var(--display);font-size:0.72rem;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(242,236,231,0.55);
 }
 
-/* ── OUR REGISTRY ─────────────────────────────────────────────────────────── */
-.registry-section { background: var(--offwhite); }
-.registry-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
-.registry-link {
-  display: inline-block; padding: 0.65rem 2rem;
-  border: 1px solid var(--berry);
-  font-family: var(--display);
-  font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--berry); transition: all 0.2s;
-}
-.registry-link:hover { background: var(--berry); color: var(--offwhite); }
-
-/* ── RSVP ─────────────────────────────────────────────────────────────────── */
-.rsvp-section { background: var(--greengray); }
-.rsvp-section .section-title { color: var(--offwhite); }
-.rsvp-section .section-rule  { background: var(--gold); }
-.rsvp-form-wrap { max-width: 500px; margin: 0 auto; }
-.rsvp-event-block { margin-bottom: 2.5rem; }
-.rsvp-event-label {
-  font-family: var(--script);
-  font-size: 1.3rem;
-  color: var(--offwhite);
-  text-align: center;
-  margin-bottom: 1rem;
-}
-.rsvp-name-row { margin-bottom: 0.8rem; }
-.rsvp-name-input {
-  width: 100%;
-  background: rgba(242,236,231,0.12);
-  border: none; border-bottom: 1px solid rgba(175,171,87,0.5);
-  color: var(--offwhite);
-  font-family: var(--display); font-size: 0.85rem;
-  padding: 0.65rem 0.2rem;
-  outline: none; transition: border-color 0.2s;
-  letter-spacing: 0.04em;
-}
-.rsvp-name-input::placeholder { color: rgba(242,236,231,0.45); }
-.rsvp-name-input:focus { border-bottom-color: var(--gold); }
-.rsvp-expanded { display: none; }
-.rsvp-expanded.visible { display: block; }
-.rsvp-field-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-.rsvp-field-row.full { grid-template-columns: 1fr; }
-.rsvp-select {
-  width: 100%;
-  background: rgba(242,236,231,0.12);
-  border: none; border-bottom: 1px solid rgba(175,171,87,0.5);
-  color: var(--offwhite);
-  font-family: var(--display); font-size: 0.82rem;
-  padding: 0.6rem 0.2rem; outline: none;
-  appearance: none; cursor: pointer;
-  transition: border-color 0.2s;
-}
-.rsvp-select:focus { border-bottom-color: var(--gold); }
-.rsvp-select option { background: var(--greengray); color: var(--offwhite); }
-.rsvp-text-input {
-  width: 100%;
-  background: rgba(242,236,231,0.12);
-  border: none; border-bottom: 1px solid rgba(175,171,87,0.5);
-  color: var(--offwhite);
-  font-family: var(--display); font-size: 0.82rem;
-  padding: 0.6rem 0.2rem; outline: none;
-  transition: border-color 0.2s;
-}
-.rsvp-text-input::placeholder { color: rgba(242,236,231,0.4); }
-.rsvp-text-input:focus { border-bottom-color: var(--gold); }
-.rsvp-textarea {
-  width: 100%; resize: vertical; min-height: 70px;
-  background: rgba(242,236,231,0.12);
-  border: none; border-bottom: 1px solid rgba(175,171,87,0.5);
-  color: var(--offwhite);
-  font-family: var(--display); font-size: 0.82rem;
-  padding: 0.6rem 0.2rem; outline: none;
-  transition: border-color 0.2s;
-}
-.rsvp-textarea:focus { border-bottom-color: var(--gold); }
-.extra-guest-row { margin-bottom: 0.8rem; }
-.rsvp-remove-btn {
-  background: none; border: none; cursor: pointer;
-  color: rgba(242,236,231,0.5); font-size: 1.1rem;
-  padding: 0 0.3rem; transition: color 0.2s;
-}
-.rsvp-remove-btn:hover { color: var(--offwhite); }
-.rsvp-add-guest {
-  display: block; width: 100%;
-  background: none;
-  border: 1px solid rgba(175,171,87,0.35);
-  color: var(--gold);
-  font-family: var(--display); font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  padding: 0.6rem; margin-top: 0.8rem;
-  cursor: pointer; transition: all 0.2s;
-  text-align: center;
-}
-.rsvp-add-guest:hover { border-color: var(--gold); background: rgba(175,171,87,0.1); }
-.rsvp-submit {
-  display: block; width: 100%; margin-top: 2rem;
-  background: var(--berry);
-  border: none; color: var(--offwhite);
-  font-family: var(--display); font-size: 0.82rem;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.9rem 2rem; cursor: pointer;
-  transition: background 0.2s;
-}
-.rsvp-submit:hover { background: #7d4b53; }
-.rsvp-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-.rsvp-success {
-  display: none; text-align: center;
-  padding: 2rem 1rem;
-  font-family: var(--script);
-  font-size: 2rem;
-  color: var(--offwhite);
-}
-
-/* ── FOOTER ───────────────────────────────────────────────────────────────── */
-.footer {
-  background: var(--berry);
-  text-align: center;
-  padding: 2.5rem 1rem;
-}
-.footer-couple {
-  font-family: var(--script);
-  font-size: 2.2rem;
-  color: var(--offwhite);
-  display: block;
-  margin-bottom: 0.5rem;
-}
-.footer-tagline {
-  font-family: var(--display);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(242,236,231,0.6);
-}
-
-/* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .nav-links { display: none; }
-  .nav-hamburger { display: flex; }
-  .nav-mobile-menu.open { display: block; }
-  .wedding-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .wedding-divider { display: none; }
-  .section { padding: 3rem 1.2rem; }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-  .rsvp-field-row { grid-template-columns: 1fr; }
-  .gallery-grid { grid-template-columns: 1fr 1fr; }
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .wedding-grid{grid-template-columns:1fr;gap:1.5rem;}
+  .wedding-flower-sep{display:none;}
+  .section{padding:3rem 1.2rem;}
+  .rsvp-field-row{grid-template-columns:1fr;}
+  .gallery-grid{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
-
 <body class="hydrating">
 
-<!-- ── NAVIGATION ─────────────────────────────────────────────────────────── -->
-<nav class="nav" id="mainNav">
-  <div class="nav-couple" id="navCouple">A &amp; B</div>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#story">Our Story</a></li>
-    <li><a href="#wedding">The Wedding</a></li>
-    <li><a href="#events">Other Events</a></li>
-    <li><a href="#accommodations">Stay</a></li>
-    <li><a href="#gallery">Gallery</a></li>
-    <li><a href="#registry">Registry</a></li>
-    <li><a href="#rsvp">RSVP</a></li>
-  </ul>
-  <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+<!-- MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-backdrop" onclick="closeMenu()"></div>
+  <div class="menu-drawer">
+    <button class="menu-close" onclick="closeMenu()">×</button>
+    <div class="menu-title">Menu</div>
+    <ul class="menu-links" id="menuLinks">
+      <li><a href="#hero"            onclick="handleMenuClick(this)">Home</a></li>
+      <li><a href="#story"           onclick="handleMenuClick(this)">Our Story</a></li>
+      <li><a href="#wedding"         onclick="handleMenuClick(this)">The Wedding</a></li>
+      <li><a href="#events"          onclick="handleMenuClick(this)">Other Events</a></li>
+      <li><a href="#accommodations"  onclick="handleMenuClick(this)">Accommodations</a></li>
+      <li><a href="#travel"          onclick="handleMenuClick(this)">Travel</a></li>
+      <li><a href="#ntk"             onclick="handleMenuClick(this)">Need to Know</a></li>
+      <li><a href="#gallery"         onclick="handleMenuClick(this)">Gallery</a></li>
+      <li><a href="#registry"        onclick="handleMenuClick(this)">Registry</a></li>
+      <li><a href="#rsvp"            onclick="handleMenuClick(this)">RSVP</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <span class="nav-logo" id="navCouple">A &amp; B</span>
+  <button class="nav-hamburger" onclick="openMenu()" aria-label="Open menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
-<div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="#story"          onclick="closeMobileMenu()">Our Story</a>
-  <a href="#wedding"        onclick="closeMobileMenu()">The Wedding</a>
-  <a href="#events"         onclick="closeMobileMenu()">Other Events</a>
-  <a href="#accommodations" onclick="closeMobileMenu()">Stay</a>
-  <a href="#travel"         onclick="closeMobileMenu()">Travel</a>
-  <a href="#gallery"        onclick="closeMobileMenu()">Gallery</a>
-  <a href="#registry"       onclick="closeMobileMenu()">Registry</a>
-  <a href="#rsvp"           onclick="closeMobileMenu()">RSVP</a>
-</div>
 
-<!-- ── HERO CAROUSEL ──────────────────────────────────────────────────────── -->
-<section class="hero" id="hero" style="background:linear-gradient(160deg,#9a9480 0%,#7a7366 100%)">
+<!-- HERO -->
+<section class="hero" id="hero">
   <div class="hero-carousel" id="heroCarousel">
-    <!-- slides injected by JS -->
     <div class="hero-slide">
-      <img id="heroImgMain"
-        src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png"
-        alt="Couple photo" style="width:100%;height:100%;object-fit:cover;object-position:center top">
-      <div class="hero-overlay"></div>
+      <img id="heroImgDefault"
+        src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png"
+        alt="Couple photo">
+      <div class="hero-gradient"></div>
     </div>
   </div>
-  <button class="carousel-arrow prev" id="carouselPrev" onclick="shiftCarousel(-1)">&#8592;</button>
-  <button class="carousel-arrow next" id="carouselNext" onclick="shiftCarousel(1)">&#8594;</button>
+  <button class="carousel-arrow prev" id="carouselPrev" onclick="shiftCarousel(-1)" style="display:none">&#8592;</button>
+  <button class="carousel-arrow next" id="carouselNext" onclick="shiftCarousel(1)"  style="display:none">&#8594;</button>
   <div class="carousel-dots" id="carouselDots"></div>
-  <div class="hero-initials">
-    <span class="hero-initials-text" id="heroInitials">A &amp; B</span>
-    <span class="hero-date" id="heroDate"></span>
+  <div class="hero-initials-wrap">
+    <span class="hero-initials" id="heroInitials">A &amp; B</span>
+    <span class="hero-date-line" id="heroDate"></span>
   </div>
 </section>
 
-<!-- ── OUR STORY ──────────────────────────────────────────────────────────── -->
+<!-- OUR STORY -->
 <section class="section story-section" id="story" style="display:none">
   <div class="section-inner">
     <h2 class="section-title">Our Story</h2>
@@ -636,30 +459,27 @@ a { color: inherit; text-decoration: none; }
   </div>
 </section>
 
-<!-- ── THE WEDDING ────────────────────────────────────────────────────────── -->
+<!-- THE WEDDING -->
 <section class="wedding-section" id="wedding" style="display:none">
-  <img class="wedding-flower"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6e27a5bd-5a9d-4e9a-a607-e8a7c4215978.png"
-    alt="">
   <div class="section-inner">
     <h2 class="section-title">The Wedding</h2>
     <div class="section-rule"></div>
     <div class="wedding-grid" id="weddingGrid">
-      <!-- injected by JS -->
+      <!-- two cards + flower separator injected by JS -->
     </div>
   </div>
 </section>
 
-<!-- ── OTHER EVENTS ───────────────────────────────────────────────────────── -->
+<!-- OTHER EVENTS -->
 <section class="section events-section" id="events" style="display:none">
   <div class="section-inner">
     <h2 class="section-title">Other Events</h2>
     <div class="section-rule"></div>
-    <div id="otherEventsList" class="other-events-list"></div>
+    <div class="other-events-list" id="otherEventsList"></div>
   </div>
 </section>
 
-<!-- ── ACCOMMODATIONS ─────────────────────────────────────────────────────── -->
+<!-- ACCOMMODATIONS -->
 <section class="section accommodations-section" id="accommodations" style="display:none">
   <div class="section-inner">
     <h2 class="section-title">Where to Stay</h2>
@@ -668,36 +488,32 @@ a { color: inherit; text-decoration: none; }
   </div>
 </section>
 
-<!-- ── TRAVEL ─────────────────────────────────────────────────────────────── -->
+<!-- TRAVEL -->
 <section class="section travel-section" id="travel" style="display:none">
   <div class="section-inner">
-    <h2 class="section-title">Getting There</h2>
-    <div class="section-rule" style="background:var(--gold)"></div>
+    <h2 class="section-title" style="color:var(--berry)">Getting There</h2>
+    <div class="section-rule"></div>
     <div class="section-body" id="travelText"></div>
   </div>
 </section>
 
-<!-- ── NEED TO KNOW ────────────────────────────────────────────────────────── -->
+<!-- NEED TO KNOW -->
 <section class="section ntk-section" id="ntk" style="display:none">
   <div class="section-inner">
-    <h2 class="section-title">Need to Know</h2>
-    <div class="section-rule" style="background:var(--gold)"></div>
-    <div class="faq-list" id="faqList">
-      <!-- static FAQs can go here, dynamic ones appended by JS -->
-    </div>
+    <h2 class="section-title" style="color:var(--berry)">Need to Know</h2>
+    <div class="section-rule"></div>
+    <div class="faq-list" id="faqList"></div>
   </div>
 </section>
 
-<!-- ── GALLERY ────────────────────────────────────────────────────────────── -->
+<!-- GALLERY -->
 <section class="section gallery-section" id="gallery" style="display:none">
   <div class="section-inner" style="max-width:860px">
     <h2 class="section-title">Gallery</h2>
-    <div class="section-rule" style="background:var(--gold)"></div>
+    <div class="section-rule"></div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 </section>
-
-<!-- Gallery lightbox -->
 <div class="gallery-lightbox" id="galleryLightbox">
   <button class="gallery-lb-close" onclick="closeLightbox()">&#215;</button>
   <button class="gallery-lb-arrow prev" onclick="shiftLightbox(-1)">&#8592;</button>
@@ -706,7 +522,7 @@ a { color: inherit; text-decoration: none; }
   <div class="gallery-lb-counter" id="galleryLbCounter"></div>
 </div>
 
-<!-- ── REGISTRY ───────────────────────────────────────────────────────────── -->
+<!-- REGISTRY -->
 <section class="section registry-section" id="registry" style="display:none">
   <div class="section-inner">
     <h2 class="section-title">See Our Registry</h2>
@@ -715,33 +531,32 @@ a { color: inherit; text-decoration: none; }
   </div>
 </section>
 
-<!-- ── RSVP ───────────────────────────────────────────────────────────────── -->
+<!-- RSVP -->
 <section class="section rsvp-section" id="rsvp" style="display:none">
   <div class="section-inner">
     <h2 class="section-title">RSVP</h2>
-    <div class="section-rule" style="background:var(--gold)"></div>
+    <div class="section-rule"></div>
     <div class="rsvp-form-wrap">
       <div id="rsvpBlocks"></div>
       <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">
         Send Your Reply
       </button>
-      <div class="rsvp-success" id="rsvpSuccess">
-        Thank you &#10084;
-      </div>
+      <div class="rsvp-success" id="rsvpSuccess">Thank you &#10084;</div>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
-<footer class="footer" id="footer">
+<!-- FOOTER -->
+<footer class="footer">
   <span class="footer-couple" id="footerCouple">A &amp; B</span>
   <span class="footer-tagline" id="footerDate"></span>
 </footer>
 
 <script>
-const API = 'https://wedding-recommender.onrender.com';
+const API        = 'https://wedding-recommender.onrender.com';
+const _DEFAULT_IMG = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png';
+const _FLOWER_URL  = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6e27a5bd-5a9d-4e9a-a607-e8a7c4215978.png';
 
-// ── URL / preview detection ────────────────────────────────────────────────
 const _params    = new URLSearchParams(window.location.search);
 const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p => p);
@@ -751,35 +566,19 @@ const _isPreview = !_liveSlug;
 const _pwdParam  = _params.get('pwd') || '';
 
 // ── Menu ──────────────────────────────────────────────────────────────────
-function _buildMenu(menu) {
-  var links = document.getElementById('navLinks');
-  var mobileMenu = document.getElementById('navMobileMenu');
-  if (!links) return;
-  var items = [
-    { href:'#story',          label:'Our Story',    show: menu.story          },
-    { href:'#wedding',        label:'The Wedding',  show: menu.wedding        },
-    { href:'#events',         label:'Other Events', show: menu.other_events   },
-    { href:'#accommodations', label:'Stay',         show: menu.accommodations  },
-    { href:'#travel',         label:'Travel',       show: menu.travel         },
-    { href:'#gallery',        label:'Gallery',      show: menu.gallery        },
-    { href:'#registry',       label:'Registry',     show: menu.registry       },
-    { href:'#rsvp',           label:'RSVP',         show: menu.rsvp           },
-  ];
-  links.innerHTML = items.filter(i => i.show).map(i =>
-    '<li><a href="' + i.href + '">' + i.label + '</a></li>'
-  ).join('');
-  if (mobileMenu) {
-    mobileMenu.innerHTML = items.filter(i => i.show).map(i =>
-      '<a href="' + i.href + '" onclick="closeMobileMenu()">' + i.label + '</a>'
-    ).join('');
+function openMenu()  { document.getElementById('menuOverlay').classList.add('open'); }
+function closeMenu() { document.getElementById('menuOverlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+function handleMenuClick(link) {
+  closeMenu();
+  var href = link.getAttribute('href');
+  if (href && href !== '#') {
+    setTimeout(function() {
+      var el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior:'smooth' });
+    }, 350);
   }
-}
-
-function toggleMobileMenu() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeMobileMenu() {
-  document.getElementById('navMobileMenu').classList.remove('open');
+  return false;
 }
 
 // ── Carousel ──────────────────────────────────────────────────────────────
@@ -791,43 +590,35 @@ function buildCarousel(urls) {
   var carousel = document.getElementById('heroCarousel');
   var dots     = document.getElementById('carouselDots');
   if (!carousel) return;
-  if (!urls || urls.length === 0) {
-    // Keep default slide
-    return;
-  }
   carousel.innerHTML = urls.map(function(url) {
     return '<div class="hero-slide">' +
-      '<img src="' + url + '" alt="Couple photo" style="width:100%;height:100%;object-fit:cover;object-position:center top">' +
-      '<div class="hero-overlay"></div>' +
+      '<img src="' + url + '" alt="Couple photo">' +
+      '<div class="hero-gradient"></div>' +
     '</div>';
   }).join('');
   if (dots) {
     dots.innerHTML = urls.map(function(_, i) {
-      return '<button class="carousel-dot' + (i === 0 ? ' active' : '') + '" onclick="goToSlide(' + i + ')"></button>';
+      return '<button class="carousel-dot' + (i===0?' active':'') + '" onclick="goToSlide(' + i + ')"></button>';
     }).join('');
   }
-  document.getElementById('carouselPrev').style.display = urls.length > 1 ? '' : 'none';
-  document.getElementById('carouselNext').style.display = urls.length > 1 ? '' : 'none';
+  var show = urls.length > 1;
+  document.getElementById('carouselPrev').style.display = show ? '' : 'none';
+  document.getElementById('carouselNext').style.display = show ? '' : 'none';
 }
 
 function goToSlide(idx) {
   _carouselIdx = idx;
   var carousel = document.getElementById('heroCarousel');
-  if (carousel) carousel.style.transform = 'translateX(-' + (idx * 100) + '%)';
-  document.querySelectorAll('.carousel-dot').forEach(function(d, i) {
+  if (carousel) carousel.style.transform = 'translateX(-' + (idx*100) + '%)';
+  document.querySelectorAll('.carousel-dot').forEach(function(d,i) {
     d.classList.toggle('active', i === idx);
   });
 }
-
 function shiftCarousel(dir) {
   var total = _carouselUrls.length || 1;
   goToSlide((_carouselIdx + dir + total) % total);
 }
-
-// Auto-advance every 5s
-setInterval(function() {
-  if (_carouselUrls.length > 1) shiftCarousel(1);
-}, 5000);
+setInterval(function() { if (_carouselUrls.length > 1) shiftCarousel(1); }, 5000);
 
 // ── Gallery state ─────────────────────────────────────────────────────────
 var _galleryUrls = [];
@@ -835,45 +626,41 @@ var _galleryIdx  = 0;
 
 // ── Entree options ────────────────────────────────────────────────────────
 var _rsvpEntreeOptions = [
-  { value:'Chicken',     label:'Chicken'     },
-  { value:'Fish',        label:'Fish'        },
-  { value:'Vegetarian',  label:'Vegetarian'  },
-  { value:'Vegan',       label:'Vegan'       },
-  { value:'Kids Meal',   label:'Kids Meal'   },
+  {value:'Chicken',label:'Chicken'},{value:'Fish',label:'Fish'},
+  {value:'Vegetarian',label:'Vegetarian'},{value:'Vegan',label:'Vegan'},
+  {value:'Kids Meal',label:'Kids Meal'},
 ];
 
-// ── Main hydration ────────────────────────────────────────────────────────
+// ── HYDRATE ───────────────────────────────────────────────────────────────
 function hydrateTemplate(d) {
   window._weddingSlug = d.slug || '';
 
-  // Names & initials
   var p1 = d.partner_1 || '';
   var p2 = d.partner_2 || '';
-  var initials = (p1 ? p1.charAt(0) : 'A') + ' & ' + (p2 ? p2.charAt(0) : 'B');
   var coupleNames = d.couple_names || (p1 && p2 ? p1 + ' & ' + p2 : 'A & B');
-  var navCouple = document.getElementById('navCouple');
-  var heroInitials = document.getElementById('heroInitials');
-  var footerCouple = document.getElementById('footerCouple');
-  if (navCouple)    navCouple.textContent    = coupleNames;
-  if (heroInitials) heroInitials.textContent = coupleNames;
-  if (footerCouple) footerCouple.textContent = coupleNames;
+
+  // Initials for hero = first letter of each name joined with &
+  var initials = (p1 ? p1.charAt(0) : 'A') + ' & ' + (p2 ? p2.charAt(0) : 'B');
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el('navCouple'))    el('navCouple').textContent    = coupleNames;
+  if (el('heroInitials')) el('heroInitials').textContent = initials;
+  if (el('footerCouple')) el('footerCouple').textContent = coupleNames;
 
   // Date
   var dateStr = '';
   if (d.celebration_date) {
     try {
       var dt = new Date(d.celebration_date + 'T00:00:00Z');
-      dateStr = dt.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric', timeZone:'UTC' });
-    } catch (ex) { dateStr = d.celebration_date; }
+      dateStr = dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
+    } catch(ex) { dateStr = d.celebration_date; }
   }
-  var heroDate = document.getElementById('heroDate');
-  var footerDate = document.getElementById('footerDate');
-  if (heroDate)  heroDate.textContent  = dateStr;
-  if (footerDate) footerDate.textContent = dateStr;
+  if (el('heroDate'))   el('heroDate').textContent   = dateStr;
+  if (el('footerDate')) el('footerDate').textContent = dateStr;
 
-  // Carousel — hero images + gallery images combined
+  // Hero images — use default if user has none
   var heroImgs = [];
-  if (d.hero_image) heroImgs.push(d.hero_image);
+  if (d.hero_image)                              heroImgs.push(d.hero_image);
   if (d.gallery_images && d.gallery_images.length) {
     d.gallery_images.forEach(function(g) {
       var url = typeof g === 'string' ? g : (g.url || '');
@@ -882,12 +669,8 @@ function hydrateTemplate(d) {
   }
   if (heroImgs.length) {
     buildCarousel(heroImgs);
-  } else {
-    // Keep default image, hide nav arrows
-    document.getElementById('carouselPrev').style.display = 'none';
-    document.getElementById('carouselNext').style.display = 'none';
-    document.getElementById('carouselDots').style.display = 'none';
   }
+  // If no user images, default image already in HTML — leave as-is
 
   // Custom colours
   if (d.customization) {
@@ -896,246 +679,215 @@ function hydrateTemplate(d) {
     if (d.customization.text_color)    document.documentElement.style.setProperty('--text',     d.customization.text_color);
   }
   if (d.custom_css) {
-    var existing = document.getElementById('custom-css-override');
-    if (existing) existing.remove();
-    var styleEl = document.createElement('style');
-    styleEl.id = 'custom-css-override';
-    styleEl.textContent = d.custom_css;
-    document.head.appendChild(styleEl);
+    var ex = document.getElementById('custom-css-override');
+    if (ex) ex.remove();
+    var s = document.createElement('style');
+    s.id = 'custom-css-override'; s.textContent = d.custom_css;
+    document.head.appendChild(s);
   }
 
   // RSVP config
-  if (d.rsvp_config) {
-    if (d.rsvp_config.entrees && d.rsvp_config.entrees.length) {
-      _rsvpEntreeOptions = d.rsvp_config.entrees.map(function(e) { return { value:e, label:e }; });
-    }
+  if (d.rsvp_config && d.rsvp_config.entrees && d.rsvp_config.entrees.length) {
+    _rsvpEntreeOptions = d.rsvp_config.entrees.map(function(e) { return {value:e,label:e}; });
   }
 
   var menu = d.menu_config || {};
 
-  // Build nav
-  _buildMenu(menu);
-
-  // ── Story ──────────────────────────────────────────────────────────────
-  var storySection = document.getElementById('story');
-  if (storySection) storySection.style.display = menu.story ? '' : 'none';
+  // ── Story ────────────────────────────────────────────────────────────
+  var storyEl = document.getElementById('story');
+  if (storyEl) storyEl.style.display = menu.story ? '' : 'none';
   if (menu.story && d.story) {
-    var storyEl = document.getElementById('storyText');
-    if (storyEl) storyEl.innerHTML = d.story;
+    var st = document.getElementById('storyText');
+    if (st) st.innerHTML = d.story;
   }
 
-  // ── The Wedding ────────────────────────────────────────────────────────
-  var weddingSection = document.getElementById('wedding');
-  if (weddingSection) weddingSection.style.display = menu.wedding ? '' : 'none';
+  // ── The Wedding ──────────────────────────────────────────────────────
+  var weddingEl = document.getElementById('wedding');
+  if (weddingEl) weddingEl.style.display = menu.wedding ? '' : 'none';
   if (menu.wedding) {
     var grid = document.getElementById('weddingGrid');
     if (grid && d.weddings_info) {
       grid.innerHTML = '';
-      // Split on double <br>
       var wParts = d.weddings_info
-        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '||SPLIT||')
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||')
-        .map(function(p) { return p.trim(); })
-        .filter(function(p) { return p.length > 3; });
+        .map(function(p){return p.trim();})
+        .filter(function(p){return p.length>3;});
 
-      function makeWeddingCard(html) {
-        var nameMatch  = html.match(/^<strong>([^<]+)<\/strong>/i);
-        var eventName  = nameMatch ? nameMatch[1] : '';
-        var rest       = nameMatch ? html.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : html;
-        var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-        var dressCode  = dressMatch ? dressMatch[1] : '';
-        var detail     = dressMatch ? rest.replace(dressMatch[0],'').replace(/<br\s*\/?>\s*$/i,'').trim() : rest;
+      function makeCard(html) {
+        var nm = html.match(/^<strong>([^<]+)<\/strong>/i);
+        var title  = nm ? nm[1] : '';
+        var rest   = nm ? html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : html;
+        var dm     = rest.match(/<em>([^<]+)<\/em>\s*$/i);
+        var dress  = dm ? dm[1] : '';
+        var detail = dm ? rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim() : rest;
         return '<div class="wedding-card">' +
-          (eventName ? '<div class="wedding-card-title">'  + eventName  + '</div>' : '') +
-          (detail    ? '<div class="wedding-card-detail">' + detail     + '</div>' : '') +
-          (dressCode ? '<span class="wedding-card-dress">' + dressCode  + '</span>' : '') +
+          (title  ? '<div class="wedding-card-title">'  + title  + '</div>' : '') +
+          (detail ? '<div class="wedding-card-detail">' + detail + '</div>' : '') +
+          (dress  ? '<span class="wedding-card-dress">' + dress  + '</span>' : '') +
         '</div>';
       }
 
       if (wParts.length >= 2) {
+        // Flower IMAGE as separator between the two event cards
         grid.innerHTML =
-          makeWeddingCard(wParts[0]) +
-          '<div class="wedding-divider"></div>' +
-          makeWeddingCard(wParts[1]);
+          makeCard(wParts[0]) +
+          '<div style="display:flex;align-items:center;justify-content:center">' +
+            '<img src="' + _FLOWER_URL + '" class="wedding-flower-sep" alt="">' +
+          '</div>' +
+          makeCard(wParts[1]);
       } else if (wParts.length === 1) {
-        grid.innerHTML = makeWeddingCard(wParts[0]);
+        grid.innerHTML = '<div style="grid-column:1/-1">' + makeCard(wParts[0]) + '</div>';
       }
     }
   }
 
-  // ── Other Events ───────────────────────────────────────────────────────
-  var eventsSection = document.getElementById('events');
-  if (eventsSection) eventsSection.style.display = menu.other_events ? '' : 'none';
+  // ── Other Events ─────────────────────────────────────────────────────
+  var eventsEl = document.getElementById('events');
+  if (eventsEl) eventsEl.style.display = menu.other_events ? '' : 'none';
   if (menu.other_events) {
     var evList = document.getElementById('otherEventsList');
     if (evList && d.events_info) {
       evList.innerHTML = '';
       var evParts = d.events_info
-        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '||SPLIT||')
-        .split('||SPLIT||')
-        .map(function(p) { return p.trim(); })
-        .filter(function(p) { return p.length > 3; });
-      if (evParts.length === 0) evParts = [d.events_info];
+        .replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+        .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
+      if (!evParts.length) evParts = [d.events_info];
       evParts.forEach(function(part) {
-        var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
-        var evName  = nameMatch ? nameMatch[1] : '';
-        var rest    = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : part;
+        var nm = part.match(/^<strong>([^<]+)<\/strong>/i);
         var card = document.createElement('div');
         card.className = 'other-event-card';
-        card.innerHTML = (evName ? '<div class="other-event-title">' + evName + '</div>' : '') +
-          '<div class="other-event-detail">' + rest + '</div>';
+        card.innerHTML = (nm ? '<div class="other-event-title">' + nm[1] + '</div>' : '') +
+          '<div class="other-event-detail">' + (nm ? part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : part) + '</div>';
         evList.appendChild(card);
       });
     }
   }
 
-  // ── Accommodations ─────────────────────────────────────────────────────
-  var accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
+  // ── Accommodations ────────────────────────────────────────────────────
+  var accomEl = document.getElementById('accommodations');
+  if (accomEl) accomEl.style.display = menu.accommodations ? '' : 'none';
   if (menu.accommodations && d.accommodation_info) {
-    var accomEl = document.getElementById('accomContent');
-    if (accomEl) {
-      var nameMatch = d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
-      var accomName = nameMatch ? nameMatch[1] : '';
-      var rest = nameMatch ? d.accommodation_info.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : d.accommodation_info;
-      accomEl.innerHTML =
-        '<div class="accom-box">' +
-          (accomName ? '<div class="accom-name">'   + accomName + '</div>' : '') +
-          (rest       ? '<div class="accom-detail">' + rest       + '</div>' : '') +
-          '<a class="accom-btn" href="#" target="_blank">Book Now</a>' +
+    var acEl = document.getElementById('accomContent');
+    if (acEl) {
+      var nm = d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
+      var acName = nm ? nm[1] : '';
+      var rest   = nm ? d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim() : d.accommodation_info;
+      acEl.innerHTML = '<div class="accom-box">' +
+        (acName ? '<div class="accom-name">' + acName + '</div>' : '') +
+        (rest   ? '<div class="accom-detail">' + rest + '</div>' : '') +
+        '<a class="accom-btn" href="#" target="_blank">Book Now</a>' +
         '</div>';
     }
   }
 
-  // ── Travel ─────────────────────────────────────────────────────────────
-  var travelSection = document.getElementById('travel');
-  if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
+  // ── Travel ───────────────────────────────────────────────────────────
+  var travEl = document.getElementById('travel');
+  if (travEl) travEl.style.display = menu.travel ? '' : 'none';
   if (menu.travel && d.travel_info) {
-    var travelEl = document.getElementById('travelText');
-    if (travelEl) travelEl.innerHTML = d.travel_info;
+    var tv = document.getElementById('travelText');
+    if (tv) tv.innerHTML = d.travel_info;
   }
 
-  // ── Need to Know / FAQs ────────────────────────────────────────────────
-  var ntkSection = document.getElementById('ntk');
+  // ── Need to Know ──────────────────────────────────────────────────────
+  var ntkEl = document.getElementById('ntk');
   var showNTK = menu.things_to_do || menu.faqs;
-  if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
+  if (ntkEl) ntkEl.style.display = showNTK ? '' : 'none';
   if (showNTK && d.faqs) {
     var faqList = document.getElementById('faqList');
-    faqList.querySelectorAll('.faq-dynamic').forEach(function(el) { el.remove(); });
-    var rawHtml = d.faqs;
-    var blocks = rawHtml
-      .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '||SPLIT||')
-      .split('||SPLIT||')
-      .map(function(b) { return b.trim(); })
-      .filter(Boolean);
-    var faqPairs = blocks.map(function(block) {
+    faqList.querySelectorAll('.faq-dynamic').forEach(function(el){el.remove();});
+    var blocks = d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+      .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
+    var pairs = blocks.map(function(block) {
       var brIdx = block.search(/<br\s*\/?>/i);
-      if (brIdx === -1) return { q: block.replace(/<[^>]+>/g,'').trim(), a:'' };
-      var q = block.substring(0, brIdx).replace(/<[^>]+>/g,'').trim();
-      var a = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i,'').trim();
-      return { q:q, a:a };
+      if (brIdx===-1) return {q:block.replace(/<[^>]+>/g,'').trim(),a:''};
+      return {q:block.substring(0,brIdx).replace(/<[^>]+>/g,'').trim(),
+              a:block.substring(brIdx).replace(/^(<br\s*\/?>)+/i,'').trim()};
     });
-    if (!faqPairs.length) faqPairs = [{ q:'FAQs', a:d.faqs }];
-    faqPairs.forEach(function(pair) {
-      var item = document.createElement('div');
-      item.className = 'faq-item faq-dynamic';
-      item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)">' +
-        '<span class="faq-q-text">' + pair.q + '</span>' +
-        '<span class="faq-icon">+</span>' +
-        '</button>' +
-        '<div class="faq-answer" style="font-style:italic">' + pair.a + '</div>';
+    if (!pairs.length) pairs=[{q:'FAQs',a:d.faqs}];
+    pairs.forEach(function(pair) {
+      var item=document.createElement('div'); item.className='faq-item faq-dynamic';
+      item.innerHTML='<button class="faq-question" onclick="toggleFaq(this)">'+
+        '<span class="faq-q-text">'+pair.q+'</span>'+
+        '<span class="faq-icon">+</span></button>'+
+        '<div class="faq-answer">'+pair.a+'</div>';
       faqList.appendChild(item);
     });
   }
 
-  // ── Gallery ────────────────────────────────────────────────────────────
-  var gallerySection = document.getElementById('gallery');
-  if (gallerySection) gallerySection.style.display = menu.gallery ? '' : 'none';
+  // ── Gallery ───────────────────────────────────────────────────────────
+  var gallEl = document.getElementById('gallery');
+  if (gallEl) gallEl.style.display = menu.gallery ? '' : 'none';
   if (menu.gallery && d.gallery_images && d.gallery_images.length) {
-    _galleryUrls = d.gallery_images.map(function(g) {
-      return typeof g === 'string' ? g : (g.url || '');
-    }).filter(Boolean);
-    var galleryGrid = document.getElementById('galleryGrid');
-    if (galleryGrid) {
-      galleryGrid.innerHTML = _galleryUrls.map(function(url, i) {
-        return '<div class="gallery-cell" onclick="openLightbox(' + i + ')">' +
-          '<img src="' + url + '" alt="Gallery photo ' + (i+1) + '" loading="lazy">' +
-        '</div>';
-      }).join('');
-    }
+    _galleryUrls = d.gallery_images.map(function(g){return typeof g==='string'?g:(g.url||'');}).filter(Boolean);
+    var gg = document.getElementById('galleryGrid');
+    if (gg) gg.innerHTML = _galleryUrls.map(function(url,i){
+      return '<div class="gallery-cell" onclick="openLightbox('+i+')"><img src="'+url+'" alt="" loading="lazy"></div>';
+    }).join('');
   }
 
-  // ── Registry ───────────────────────────────────────────────────────────
-  var registrySection = document.getElementById('registry');
-  if (registrySection) registrySection.style.display = menu.registry ? '' : 'none';
+  // ── Registry ──────────────────────────────────────────────────────────
+  var regEl = document.getElementById('registry');
+  if (regEl) regEl.style.display = menu.registry ? '' : 'none';
   if (menu.registry) {
-    var regEl = document.getElementById('registryInfo');
-    if (regEl && d.registry_info) regEl.innerHTML = d.registry_info;
+    var ri = document.getElementById('registryInfo');
+    if (ri && d.registry_info) ri.innerHTML = d.registry_info;
   }
 
-  // ── RSVP ───────────────────────────────────────────────────────────────
-  var rsvpSection = document.getElementById('rsvp');
-  if (rsvpSection) rsvpSection.style.display = menu.rsvp ? '' : 'none';
+  // ── RSVP ──────────────────────────────────────────────────────────────
+  var rsvpEl = document.getElementById('rsvp');
+  if (rsvpEl) rsvpEl.style.display = menu.rsvp ? '' : 'none';
   if (menu.rsvp) {
-    var rsvpEvents = (d.events && d.events.length)
-      ? d.events.map(function(ev) { return { id: ev.id || ev.name, label: ev.label || ev.name }; })
-      : [{ id:'wedding', label:'The Wedding' }];
-    buildRsvpBlocks(rsvpEvents);
+    var evs = (d.events && d.events.length)
+      ? d.events.map(function(ev){return{id:ev.id||ev.name,label:ev.label||ev.name};})
+      : [{id:'wedding',label:'The Wedding'}];
+    buildRsvpBlocks(evs);
   }
 }
 
 // ── FAQ toggle ────────────────────────────────────────────────────────────
-function toggleFaq(btn) {
-  var item = btn.closest('.faq-item');
-  item.classList.toggle('open');
-}
+function toggleFaq(btn) { btn.closest('.faq-item').classList.toggle('open'); }
 
-// ── RSVP form ─────────────────────────────────────────────────────────────
+// ── RSVP ─────────────────────────────────────────────────────────────────
 function buildRsvpBlocks(events) {
   var container = document.getElementById('rsvpBlocks');
   container.innerHTML = '';
-  var entreeOpts = _rsvpEntreeOptions.map(function(o) {
-    return '<option value="' + o.value + '">' + o.label + '</option>';
+  var entreeOpts = _rsvpEntreeOptions.map(function(o){
+    return '<option value="'+o.value+'">'+o.label+'</option>';
   }).join('');
   events.forEach(function(ev) {
     var block = document.createElement('div');
     block.className = 'rsvp-event-block';
     block.dataset.eventId = ev.id;
     block.innerHTML =
-      '<div class="rsvp-event-label">' + ev.label + '</div>' +
-      '<div class="rsvp-name-row">' +
-        '<input class="rsvp-name-input" type="text" placeholder="Your full name" oninput="onNameInput(this)">' +
-      '</div>' +
-      '<div class="rsvp-expanded" id="expanded-' + ev.id + '">' +
+      '<div class="rsvp-event-label">'+ev.label+'</div>'+
+      '<div class="rsvp-name-row"><input class="rsvp-name-input" type="text" placeholder="Your full name" oninput="onNameInput(this)"></div>'+
+      '<div class="rsvp-expanded" id="expanded-'+ev.id+'">' +
         '<div class="rsvp-field-row">' +
-          '<select class="rsvp-select" data-field="attending">' +
-            '<option value="">Will you attend?</option>' +
-            '<option value="yes">Attending</option>' +
-            '<option value="no">Cannot make it</option>' +
-            '<option value="maybe">Not sure yet</option>' +
-          '</select>' +
-          '<select class="rsvp-select" data-field="meal">' +
-            '<option value="">Meal preference</option>' +
-            '<option value="Vegetarian">Vegetarian</option>' +
-            '<option value="Non Vegetarian">Non-Vegetarian</option>' +
-            '<option value="Vegan">Vegan</option>' +
-            '<option value="Gluten Free">Gluten-Free</option>' +
-            '<option value="Kids Meal">Kids Meal</option>' +
-          '</select>' +
-        '</div>' +
-        '<div class="rsvp-field-row">' +
-          '<select class="rsvp-select" data-field="entree" style="grid-column:1/-1">' +
-            '<option value="">Entree choice</option>' + entreeOpts +
-          '</select>' +
-        '</div>' +
+          '<select class="rsvp-select" data-field="attending">'+
+            '<option value="">Will you attend?</option>'+
+            '<option value="yes">Attending</option>'+
+            '<option value="no">Cannot make it</option>'+
+            '<option value="maybe">Not sure yet</option>'+
+          '</select>'+
+          '<select class="rsvp-select" data-field="meal">'+
+            '<option value="">Meal preference</option>'+
+            '<option value="Vegetarian">Vegetarian</option>'+
+            '<option value="Non Vegetarian">Non-Vegetarian</option>'+
+            '<option value="Vegan">Vegan</option>'+
+            '<option value="Gluten Free">Gluten-Free</option>'+
+            '<option value="Kids Meal">Kids Meal</option>'+
+          '</select>'+
+        '</div>'+
         '<div class="rsvp-field-row full">' +
-          '<input class="rsvp-text-input" type="email" placeholder="Email address" data-field="email">' +
-        '</div>' +
-        '<div class="rsvp-field-row full">' +
-          '<textarea class="rsvp-textarea" rows="2" placeholder="Dietary requirements or message..." data-field="notes"></textarea>' +
-        '</div>' +
-        '<div class="extra-guests-list" id="extra-guests-' + ev.id + '"></div>' +
-        '<button class="rsvp-add-guest" onclick="addExtraGuest(this)">+ Add Plus One</button>' +
+          '<select class="rsvp-select" data-field="entree">'+
+            '<option value="">Entree choice</option>'+entreeOpts+
+          '</select>'+
+        '</div>'+
+        '<div class="rsvp-field-row full"><input class="rsvp-text-input" type="email" placeholder="Email address" data-field="email"></div>'+
+        '<div class="rsvp-field-row full"><textarea class="rsvp-textarea" rows="2" placeholder="Dietary requirements or message..." data-field="notes"></textarea></div>'+
+        '<div class="extra-guests-list" id="extra-guests-'+ev.id+'"></div>'+
+        '<button class="rsvp-add-guest" onclick="addExtraGuest(this)">+ Add Plus One</button>'+
       '</div>';
     container.appendChild(block);
   });
@@ -1144,258 +896,122 @@ function buildRsvpBlocks(events) {
 
 function onNameInput(input) {
   var block = input.closest('.rsvp-event-block');
-  var eid = block.dataset.eventId;
-  var expanded = document.getElementById('expanded-' + eid);
-  if (input.value.trim().length >= 2) {
-    expanded.classList.add('visible');
-  } else {
-    expanded.classList.remove('visible');
-  }
+  var exp   = document.getElementById('expanded-'+block.dataset.eventId);
+  if (input.value.trim().length >= 2) exp.classList.add('visible');
+  else exp.classList.remove('visible');
   checkShowSubmit();
 }
-
 function checkShowSubmit() {
-  var anyName = false;
-  document.querySelectorAll('.rsvp-name-input').forEach(function(inp) {
-    if (inp.value.trim().length >= 2) anyName = true;
-  });
+  var any = false;
+  document.querySelectorAll('.rsvp-name-input').forEach(function(i){ if(i.value.trim().length>=2) any=true; });
   var btn = document.getElementById('rsvpSubmitBtn');
-  if (btn) btn.style.display = anyName ? 'block' : 'none';
+  if (btn) btn.style.display = any ? 'block' : 'none';
 }
 
 function addExtraGuest(btn) {
-  var eventId = btn.closest('.rsvp-event-block').dataset.eventId;
-  var list = document.getElementById('extra-guests-' + eventId);
+  var list = document.getElementById('extra-guests-'+btn.closest('.rsvp-event-block').dataset.eventId);
   if (list.children.length > 0) return;
-
-  var mealOpts = [
-    {v:'', l:'Meal preference'},
-    {v:'Vegetarian', l:'Vegetarian'},
-    {v:'Non Vegetarian', l:'Non-Vegetarian'},
-    {v:'Vegan', l:'Vegan'},
-    {v:'Gluten Free', l:'Gluten-Free'},
-    {v:'Kids Meal', l:'Kids Meal'}
-  ];
-  var entreeOptsList = [{v:'', l:'Entree choice'}].concat(
-    _rsvpEntreeOptions.map(function(o) { return {v:o.value, l:o.label}; })
-  );
-
-  function makeSelect(opts, role) {
-    var sel = document.createElement('select');
-    sel.className = 'rsvp-select';
-    sel.dataset.role = role;
-    opts.forEach(function(o) {
-      var opt = document.createElement('option');
-      opt.value = o.v; opt.textContent = o.l;
-      sel.appendChild(opt);
-    });
-    return sel;
-  }
-
-  var row = document.createElement('div');
-  row.className = 'extra-guest-row';
-
-  var nameRow = document.createElement('div');
-  nameRow.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.5rem';
-  var nameInput = document.createElement('input');
-  nameInput.className = 'rsvp-name-input';
-  nameInput.type = 'text';
-  nameInput.placeholder = 'Plus one full name';
-  nameInput.dataset.role = 'plus-one-name';
-  var removeBtn = document.createElement('button');
-  removeBtn.className = 'rsvp-remove-btn';
-  removeBtn.textContent = '×';
-  removeBtn.onclick = function() { row.remove(); btn.style.display = ''; };
-  nameRow.appendChild(nameInput);
-  nameRow.appendChild(removeBtn);
-
-  var mealRow = document.createElement('div');
-  mealRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem';
-  mealRow.appendChild(makeSelect(mealOpts, 'plus-one-meal'));
-  mealRow.appendChild(makeSelect(entreeOptsList, 'plus-one-entree'));
-
-  row.appendChild(nameRow);
-  row.appendChild(mealRow);
-  list.appendChild(row);
-  btn.style.display = 'none';
+  var mealOpts=[{v:'',l:'Meal preference'},{v:'Vegetarian',l:'Vegetarian'},{v:'Non Vegetarian',l:'Non-Vegetarian'},{v:'Vegan',l:'Vegan'},{v:'Gluten Free',l:'Gluten-Free'},{v:'Kids Meal',l:'Kids Meal'}];
+  var enOpts=[{v:'',l:'Entree choice'}].concat(_rsvpEntreeOptions.map(function(o){return{v:o.value,l:o.label};}));
+  function makeSelect(opts,role){var s=document.createElement('select');s.className='rsvp-select';s.dataset.role=role;opts.forEach(function(o){var op=document.createElement('option');op.value=o.v;op.textContent=o.l;s.appendChild(op);});return s;}
+  var row=document.createElement('div'); row.className='extra-guest-row';
+  var nr=document.createElement('div'); nr.style.cssText='display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.5rem';
+  var ni=document.createElement('input'); ni.className='rsvp-name-input'; ni.type='text'; ni.placeholder='Plus one full name'; ni.dataset.role='plus-one-name';
+  var rb=document.createElement('button'); rb.className='rsvp-remove-btn'; rb.textContent='×'; rb.onclick=function(){row.remove();btn.style.display='';};
+  nr.appendChild(ni); nr.appendChild(rb);
+  var mr=document.createElement('div'); mr.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem';
+  mr.appendChild(makeSelect(mealOpts,'plus-one-meal')); mr.appendChild(makeSelect(enOpts,'plus-one-entree'));
+  row.appendChild(nr); row.appendChild(mr); list.appendChild(row); btn.style.display='none';
 }
 
 async function submitRSVP() {
   if (_isPreview) { alert('RSVP is disabled in preview mode.'); return; }
-  var blocks = document.querySelectorAll('.rsvp-event-block');
-  var slug   = window._weddingSlug || '';
-  var btn    = document.getElementById('rsvpSubmitBtn');
-  btn.disabled = true; btn.textContent = 'Sending...';
+  var blocks=document.querySelectorAll('.rsvp-event-block');
+  var slug=window._weddingSlug||'';
+  var btn=document.getElementById('rsvpSubmitBtn');
+  btn.disabled=true; btn.textContent='Sending...';
   try {
-    var promises = [];
+    var promises=[];
     blocks.forEach(function(block) {
-      var name = block.querySelector('.rsvp-name-input').value.trim();
-      if (!name) return;
-      var eid      = block.dataset.eventId;
-      var exp      = document.getElementById('expanded-' + eid);
-      var attending    = (exp && exp.querySelector('[data-field="attending"]'))  ? exp.querySelector('[data-field="attending"]').value  : 'yes';
-      var meal         = (exp && exp.querySelector('[data-field="meal"]'))       ? exp.querySelector('[data-field="meal"]').value       : '';
-      var entree       = (exp && exp.querySelector('[data-field="entree"]'))     ? exp.querySelector('[data-field="entree"]').value     : '';
-      var email        = (exp && exp.querySelector('[data-field="email"]'))      ? exp.querySelector('[data-field="email"]').value      : '';
-      var notes        = (exp && exp.querySelector('[data-field="notes"]'))      ? exp.querySelector('[data-field="notes"]').value      : '';
-      var label        = block.querySelector('.rsvp-event-label').textContent;
-      promises.push(fetch(API + '/rsvp', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ slug:slug, guest_name:name, attending:attending,
-          meal_preference:meal, entree_choice:entree, email:email, message:notes, event_name:label })
-      }));
-      var plusOneRow = exp && exp.querySelector('.extra-guest-row');
-      if (plusOneRow) {
-        var plusOneName   = (plusOneRow.querySelector('[data-role="plus-one-name"]')   || {}).value || '';
-        var plusOneMeal   = (plusOneRow.querySelector('[data-role="plus-one-meal"]')   || {}).value || '';
-        var plusOneEntree = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
-        if (plusOneName.trim()) {
-          promises.push(fetch(API + '/rsvp', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ slug:slug, guest_name:plusOneName.trim(), attending:attending,
-              meal_preference:plusOneMeal, entree_choice:plusOneEntree, event_name:label })
-          }));
-        }
+      var name=block.querySelector('.rsvp-name-input').value.trim(); if(!name) return;
+      var eid=block.dataset.eventId;
+      var exp=document.getElementById('expanded-'+eid);
+      var g=function(f){return (exp&&exp.querySelector('[data-field="'+f+'"]'))||{};};
+      var label=block.querySelector('.rsvp-event-label').textContent;
+      promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({slug:slug,guest_name:name,attending:(g('attending').value||'yes'),
+          meal_preference:g('meal').value||'',entree_choice:g('entree').value||'',
+          email:g('email').value||'',message:g('notes').value||'',event_name:label})}));
+      var por=exp&&exp.querySelector('.extra-guest-row');
+      if(por){
+        var pn=(por.querySelector('[data-role="plus-one-name"]')||{}).value||'';
+        if(pn.trim()) promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({slug:slug,guest_name:pn.trim(),attending:g('attending').value||'yes',
+            meal_preference:(por.querySelector('[data-role="plus-one-meal"]')||{}).value||'',
+            entree_choice:(por.querySelector('[data-role="plus-one-entree"]')||{}).value||'',event_name:label})}));
       }
     });
-    var results = await Promise.all(promises);
-    var failed = results.filter(function(r) { return !r.ok; });
-    if (failed.length) throw new Error('Some RSVPs failed');
-    document.getElementById('rsvpSuccess').style.display = 'block';
-    btn.style.display = 'none';
-  } catch(e) {
-    alert('Something went wrong. Please try again.');
-    btn.disabled = false; btn.textContent = 'Send Your Reply';
-  }
+    await Promise.all(promises);
+    document.getElementById('rsvpSuccess').style.display='block';
+    btn.style.display='none';
+  } catch(e){ alert('Something went wrong. Please try again.'); btn.disabled=false; btn.textContent='Send Your Reply'; }
 }
 
-// ── Gallery lightbox ───────────────────────────────────────────────────────
-function openLightbox(idx) {
-  _galleryIdx = idx;
-  var lb  = document.getElementById('galleryLightbox');
-  var img = document.getElementById('galleryLbImg');
-  if (!lb || !img || !_galleryUrls.length) return;
-  img.src = _galleryUrls[idx];
-  document.getElementById('galleryLbCounter').textContent = (idx+1) + ' / ' + _galleryUrls.length;
-  lb.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  var lb = document.getElementById('galleryLightbox');
-  if (lb) lb.classList.remove('open');
-  document.body.style.overflow = '';
-}
-function shiftLightbox(dir) {
-  if (!_galleryUrls.length) return;
-  _galleryIdx = (_galleryIdx + dir + _galleryUrls.length) % _galleryUrls.length;
-  var img = document.getElementById('galleryLbImg');
-  if (img) img.src = _galleryUrls[_galleryIdx];
-  document.getElementById('galleryLbCounter').textContent = (_galleryIdx+1) + ' / ' + _galleryUrls.length;
-}
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape')      closeLightbox();
-  if (e.key === 'ArrowLeft')   shiftLightbox(-1);
-  if (e.key === 'ArrowRight')  shiftLightbox(1);
-});
-document.addEventListener('click', function(e) {
-  var lb = document.getElementById('galleryLightbox');
-  if (lb && lb.classList.contains('open') && e.target === lb) closeLightbox();
-});
-(function() {
-  var startX = null;
-  document.addEventListener('touchstart', function(e) {
-    var lb = document.getElementById('galleryLightbox');
-    if (lb && lb.classList.contains('open')) startX = e.touches[0].clientX;
-  });
-  document.addEventListener('touchend', function(e) {
-    if (startX === null) return;
-    var dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 50) shiftLightbox(dx < 0 ? 1 : -1);
-    startX = null;
-  });
-})();
+// ── Lightbox ──────────────────────────────────────────────────────────────
+function openLightbox(idx){_galleryIdx=idx;var lb=document.getElementById('galleryLightbox');var img=document.getElementById('galleryLbImg');if(!lb||!img||!_galleryUrls.length)return;img.src=_galleryUrls[idx];document.getElementById('galleryLbCounter').textContent=(idx+1)+' / '+_galleryUrls.length;lb.classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(){var lb=document.getElementById('galleryLightbox');if(lb)lb.classList.remove('open');document.body.style.overflow='';}
+function shiftLightbox(dir){if(!_galleryUrls.length)return;_galleryIdx=(_galleryIdx+dir+_galleryUrls.length)%_galleryUrls.length;var img=document.getElementById('galleryLbImg');if(img)img.src=_galleryUrls[_galleryIdx];document.getElementById('galleryLbCounter').textContent=(_galleryIdx+1)+' / '+_galleryUrls.length;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox();if(e.key==='ArrowLeft')shiftLightbox(-1);if(e.key==='ArrowRight')shiftLightbox(1);});
+document.addEventListener('click',function(e){var lb=document.getElementById('galleryLightbox');if(lb&&lb.classList.contains('open')&&e.target===lb)closeLightbox();});
+(function(){var sx=null;document.addEventListener('touchstart',function(e){var lb=document.getElementById('galleryLightbox');if(lb&&lb.classList.contains('open'))sx=e.touches[0].clientX;});document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)shiftLightbox(dx<0?1:-1);sx=null;});})();
 
-// ── SAMPLE DATA ────────────────────────────────────────────────────────────
+// ── SAMPLE DATA ───────────────────────────────────────────────────────────
 const SAMPLE_DATA = {
-  slug:'', couple_names:'Anya & Aiden', partner_1:'Anya', partner_2:'Aiden',
-  celebration_date:'2027-03-14',
-  hero_image:'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png',
-  gallery_images:[],
+  slug:'',couple_names:'Anya & Aiden',partner_1:'Anya',partner_2:'Aiden',
+  celebration_date:'2027-03-14',hero_image:'',gallery_images:[],
   story:'We met by chance at a small bookshop in the rain. What began as shelter from a storm became a love that weathered every season.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, March 14th, 2027 &middot; 4 o&rsquo;clock in the Evening<br>The Grand Pavilion<br>12 Riverside Drive, London<br><em>Black Tie</em><br><br><strong>The Reception</strong><br>Saturday, March 14th, 2027 &middot; 7 o&rsquo;clock in the Evening<br>The Grand Pavilion<br>12 Riverside Drive, London<br><em>Black Tie</em>',
-  events_info:'<strong>Welcome Dinner</strong><br>Friday, March 13th, 2027 &middot; 7 o&rsquo;clock in the Evening<br>The Library Room, Hotel Maison<br>6 Garden Square, London',
-  accommodation_info:'<strong>Hotel Maison</strong><br>6 Garden Square, London<br>A room block has been reserved for guests at a special rate.',
-  travel_info:'The nearest station is Riverside Central, a 10-minute walk from the venue. Taxis and ride-shares are readily available.',
-  things_to_do:'Explore the riverside market, visit the botanical gardens, or take a boat tour along the Thames.',
-  faqs:'<strong>What is the dress code?</strong><br>Black tie — floor-length gowns or formal suits and ties.<br><br><strong>Are children welcome?</strong><br>We kindly ask that the ceremony and reception remain adults-only, with the exception of nursing infants.',
+  events_info:'<strong>Welcome Dinner</strong><br>Friday, March 13th, 2027 &middot; 7 o&rsquo;clock in the Evening<br>The Library Room, Hotel Maison',
+  accommodation_info:'<strong>Hotel Maison</strong><br>6 Garden Square, London<br>A room block has been reserved at a special rate.',
+  travel_info:'The nearest station is Riverside Central, a 10-minute walk from the venue.',
+  things_to_do:'Explore the riverside market or visit the botanical gardens.',
+  faqs:'<strong>What is the dress code?</strong><br>Black tie — floor-length gowns or formal suits.<br><br><strong>Are children welcome?</strong><br>We kindly ask that the ceremony remain adults-only.',
   registry_info:'Your presence is our greatest gift. Should you wish to give, we are registered at the links below.',
-  events:[], rsvp_config:{ entrees:['Beef','Salmon','Vegetarian','Vegan'], allow_plus_one:true },
+  events:[],rsvp_config:{entrees:['Beef','Salmon','Vegetarian','Vegan'],allow_plus_one:true},
   website_mode:'Full',
-  customization:{ primary_color:'#673d45', accent_color:'#afab57', text_color:'' },
-  custom_css:'',
-  menu_config:{
-    home:true, story:true, wedding:true, other_events:true,
-    accommodations:true, travel:true, things_to_do:true, faqs:true,
-    gallery:false, registry:true, rsvp:true
-  }
+  customization:{primary_color:'#673d45',accent_color:'#afab57',text_color:''},custom_css:'',
+  menu_config:{home:true,story:true,wedding:true,other_events:true,accommodations:true,
+    travel:true,things_to_do:true,faqs:true,gallery:false,registry:true,rsvp:true}
 };
 
-// ── Reveal helper ──────────────────────────────────────────────────────────
-function _reveal() { document.body.classList.remove('hydrating'); }
+function _reveal(){document.body.classList.remove('hydrating');}
 
-// ── Entry point ────────────────────────────────────────────────────────────
-if (_isPreview) {
+if(_isPreview){
   _reveal();
-  let _got = false;
-  window.addEventListener('message', e => {
-    if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
-      _got = true; hydrateTemplate(e.data.payload);
-    }
+  var _got=false;
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='HYDRATE_TEMPLATE'){_got=true;hydrateTemplate(e.data.payload);}
   });
-  setTimeout(() => { if (!_got) hydrateTemplate(SAMPLE_DATA); }, 800);
-} else {
-  const _sessionKey  = 'weddingData_' + _liveSlug;
-  const _sessionData = sessionStorage.getItem(_sessionKey);
-  if (_sessionData) {
-    try {
-      const d = JSON.parse(_sessionData);
-      sessionStorage.removeItem(_sessionKey);
-      hydrateTemplate(d); _reveal();
-      if (window.location.search.includes('slug=')) {
-        window.history.replaceState({}, d.couple_names || '', '/' + _liveSlug);
-      }
-    } catch {
-      sessionStorage.removeItem(_sessionKey); _reveal(); _fetchAndHydrate();
-    }
-  } else {
-    document.body.innerHTML = `<style>
-      @keyframes petalSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    </style>
-    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;
-      flex-direction:column;gap:20px;background:#f2ece7">
-      <div style="width:40px;height:40px;border:2px solid #afab57;border-top-color:transparent;
-        border-radius:50%;animation:petalSpin 0.9s linear infinite"></div>
-      <p style="font-family:'Lancelot',serif;color:#673d45;font-size:1.2rem;letter-spacing:0.1em">
-        Your celebration awaits</p>
-    </div>`;
-    _reveal(); _fetchAndHydrate();
+  setTimeout(function(){if(!_got)hydrateTemplate(SAMPLE_DATA);},800);
+}else{
+  const _sessionKey='weddingData_'+_liveSlug;
+  const _sessionData=sessionStorage.getItem(_sessionKey);
+  if(_sessionData){
+    try{const d=JSON.parse(_sessionData);sessionStorage.removeItem(_sessionKey);hydrateTemplate(d);_reveal();
+      if(window.location.search.includes('slug='))window.history.replaceState({},d.couple_names||'','/'+_liveSlug);
+    }catch{sessionStorage.removeItem(_sessionKey);_reveal();_fetchAndHydrate();}
+  }else{
+    document.body.innerHTML='<style>@keyframes spin{100%{transform:rotate(360deg)}}</style>'+
+      '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px;background:#f2ece7">'+
+      '<div style="width:36px;height:36px;border:2px solid #afab57;border-top-color:transparent;border-radius:50%;animation:spin 0.9s linear infinite"></div>'+
+      '<p style="font-family:\'Lancelot\',serif;color:#673d45;font-size:1.1rem;letter-spacing:0.1em">Your celebration awaits</p></div>';
+    _reveal();_fetchAndHydrate();
   }
-
-  function _fetchAndHydrate() {
-    const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
-      + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
-    fetch(_apiUrl)
-      .then(r => { if (!r.ok) throw r.status; return r.json(); })
-      .then(d => {
-        if (d.password_required) {
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;flex-direction:column;gap:1rem;background:#f2ece7;color:#673d45"><p>&#128274; Password protected.</p></div>';
-          return;
-        }
-        hydrateTemplate(d);
-      })
-      .catch(() => {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;flex-direction:column;gap:1rem;background:#f2ece7;color:#673d45"><p>Wedding site not found.</p></div>';
-      });
+  function _fetchAndHydrate(){
+    const _apiUrl=API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):'');
+    fetch(_apiUrl).then(function(r){if(!r.ok)throw r.status;return r.json();})
+      .then(function(d){if(d.password_required){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;color:#673d45;background:#f2ece7"><p>&#128274; Password protected.</p></div>';return;}hydrateTemplate(d);})
+      .catch(function(){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;color:#673d45;background:#f2ece7"><p>Wedding site not found.</p></div>';});
   }
 }
 </script>
