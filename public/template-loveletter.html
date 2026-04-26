@@ -434,6 +434,12 @@ img{max-width:100%;display:block;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   .rsvp-field-row{grid-template-columns:1fr;}
 }
+
+/* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
+body.thumbnail-mode  .hero{
+  height:40vh;min-height:200px;
+}
+body.thumbnail-mode .hero-carousel{height:40vh;min-height:200px;}
 </style>
 </head>
 <body class="hydrating">
@@ -606,6 +612,14 @@ img{max-width:100%;display:block;}
 </footer>
 
 <script>
+
+// ── Thumbnail mode detection ──────────────────────────────
+(function(){
+  if(new URLSearchParams(window.location.search).get('thumbnail')==='1'){
+    document.body.classList.add('thumbnail-mode');
+  }
+})();
+
 const API         = 'https://wedding-recommender.onrender.com';
 const _FLOWER_URL = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6e27a5bd-5a9d-4e9a-a607-e8a7c4215978.png';
 const _DEFAULT_IMG= 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/a9bef259-3a3f-45b4-83fb-bfaa434bcdba.png';

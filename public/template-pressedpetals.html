@@ -516,6 +516,12 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .gallery-lb-next{right:6px;padding:10px 12px}
   .registry-section{padding:3.5rem 1.5rem}
 }
+
+/* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
+body.thumbnail-mode  .hero{
+  height:40vh;min-height:200px;
+}
+body.thumbnail-mode .hero-carousel{height:40vh;min-height:200px;}
 </style>
 </head>
 <body class="hydrating">
@@ -760,6 +766,14 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 </footer>
 
 <script>
+
+// ── Thumbnail mode detection ──────────────────────────────
+(function(){
+  if(new URLSearchParams(window.location.search).get('thumbnail')==='1'){
+    document.body.classList.add('thumbnail-mode');
+  }
+})();
+
 const API = 'https://wedding-recommender.onrender.com';
 
 // Slug detection:
