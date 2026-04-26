@@ -4,66 +4,783 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Soft Promises</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{
-  min-height:100vh;
-  background:linear-gradient(160deg,#b5958a 0%,#8a7470 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:Georgia,serif;color:#f9f7f5;text-align:center;padding:2rem;
+@font-face{font-family:'Holiday';src:url('/fonts/HOLIDAYScript.woff2') format('woff2'),url('/fonts/HOLIDAYScript.woff') format('woff');font-weight:normal;font-style:normal;}
+
+:root{
+  --blue:    #d7dde4;
+  --dark:    #32344b;
+  --white:   #ffffff;
+  --script:  'Holiday','Parfumerie Script',cursive;
+  --serif:   'EB Garamond','Garamond',Georgia,serif;
 }
-body.hydrating{visibility:hidden}
-.name{font-size:clamp(2rem,6vw,3.5rem);font-style:italic;letter-spacing:0.03em;margin-bottom:1rem;}
-.tag{font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.65;margin-bottom:3rem;}
-.pill{
-  display:inline-block;padding:0.6rem 2rem;
-  border:1px solid rgba(255,255,255,0.45);
-  font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
-  opacity:0.8;border-radius:999px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--serif);color:var(--dark);background:var(--white);}
+body.hydrating{visibility:hidden;}
+img{display:block;max-width:100%;}
+
+/* ── THUMBNAIL MODE ──────────────────────────────────────── */
+body.thumbnail-mode .hero-section{height:35vh!important;}
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
+.nav-btn{background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--white);opacity:0.8;text-shadow:0 1px 4px rgba(0,0,0,0.3);}
+
+/* ── MENU OVERLAY — right slide-in ──────────────────────── */
+.menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
+.menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s;pointer-events:none;}
+.menu-drawer{width:280px;background:var(--dark);transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);display:flex;flex-direction:column;justify-content:center;padding:3rem 2.5rem;pointer-events:auto;position:relative;}
+.menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.4);pointer-events:auto;}
+.menu-overlay.open .menu-drawer{transform:translateX(0);}
+.menu-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;cursor:pointer;font-size:1.4rem;color:rgba(255,255,255,0.6);}
+.menu-close:hover{color:var(--white);}
+.menu-name{font-family:var(--script);font-size:1.8rem;color:var(--white);margin-bottom:2rem;}
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:1.1rem;}
+.menu-links a{font-family:var(--serif);font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);text-decoration:none;transition:color 0.2s;}
+.menu-links a:hover{color:var(--white);}
+
+/* ── HERO — 3-column split ───────────────────────────────── */
+.hero-section{
+  height:100vh;min-height:500px;
+  display:grid;
+  grid-template-columns:1fr 0.55fr 1fr;
+  position:relative;
+  overflow:hidden;
+}
+.hero-col{position:relative;overflow:hidden;}
+.hero-col img{width:100%;height:100%;object-fit:cover;object-position:center;}
+/* Centre column — narrow, names overlaid */
+.hero-col-centre{position:relative;display:flex;align-items:center;justify-content:center;}
+.hero-col-centre img{width:100%;height:100%;object-fit:cover;object-position:center;}
+/* Couple names — white Holiday script, centred on middle column */
+.hero-names{
+  position:absolute;
+  bottom:25%;left:50%;transform:translateX(-50%);
+  width:100%;text-align:center;
+  pointer-events:none;z-index:2;
+}
+.hero-names-text{
+  font-family:var(--script);
+  font-size:clamp(1.8rem,4vw,3rem);
+  color:var(--white);
+  white-space:nowrap;
+  text-shadow:0 1px 8px rgba(0,0,0,0.2);
+}
+/* Thin dividers between columns */
+.hero-section::before{
+  content:'';position:absolute;top:0;bottom:0;
+  left:calc(100% / 2.55);
+  width:1px;background:rgba(255,255,255,0.35);z-index:1;
+}
+.hero-section::after{
+  content:'';position:absolute;top:0;bottom:0;
+  left:calc(100% - 100% / 2.55);
+  width:1px;background:rgba(255,255,255,0.35);z-index:1;
+}
+
+/* ── OUR STORY ───────────────────────────────────────────── */
+.story-section{background:var(--blue);padding:5rem 2rem;text-align:center;}
+.story-title{font-family:var(--script);font-size:clamp(2rem,5vw,3rem);color:var(--white);margin-bottom:0.5rem;}
+.story-rule{width:40px;height:1px;background:rgba(255,255,255,0.4);margin:0 auto 2rem;}
+.story-body{font-family:var(--serif);font-size:0.92rem;color:var(--white);line-height:2;max-width:560px;margin:0 auto;}
+
+/* ── THE WEDDING ─────────────────────────────────────────── */
+.wedding-section{background:var(--blue);padding:4rem 2rem;}
+.wedding-invite{
+  font-family:var(--serif);font-size:1rem;
+  color:var(--white);text-align:center;line-height:1.7;
+  max-width:560px;margin:0 auto 3rem;
+}
+.wedding-invite em,.wedding-invite i{
+  font-family:var(--script);font-size:1.4em;
+  font-style:normal;
+}
+.wedding-cards{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:1.5rem;max-width:680px;margin:0 auto;
+}
+.wedding-card{
+  border:1px solid rgba(255,255,255,0.4);
+  padding:2rem 1.5rem;text-align:center;
+}
+.wedding-card-name{
+  font-family:var(--script);
+  font-size:clamp(1.5rem,3.5vw,2.2rem);
+  color:var(--white);margin-bottom:1.2rem;line-height:1.2;
+}
+.wedding-card-detail{
+  font-family:var(--serif);font-size:0.82rem;
+  color:rgba(255,255,255,0.88);line-height:2;
+}
+.wedding-card-dress{
+  display:block;margin-top:1rem;
+  font-family:var(--script);font-size:1.1rem;
+  color:rgba(255,255,255,0.8);
+}
+
+/* ── OTHER EVENTS ────────────────────────────────────────── */
+.events-section{background:var(--blue);padding:4rem 2rem;}
+.events-inner{max-width:480px;margin:0 auto;}
+.event-box{
+  border:1px solid rgba(255,255,255,0.35);
+  padding:2.5rem 2rem;text-align:center;
+  margin-bottom:2rem;
+}
+.event-name{
+  font-family:var(--script);
+  font-size:clamp(1.6rem,4vw,2.4rem);
+  color:var(--white);margin-bottom:1.4rem;line-height:1.2;
+}
+.event-detail{
+  font-family:var(--serif);font-size:0.83rem;
+  color:rgba(255,255,255,0.88);line-height:2;
+}
+.event-dress{
+  display:block;margin-top:1.2rem;
+  font-family:var(--script);font-size:1.1rem;
+  color:rgba(255,255,255,0.8);
+}
+
+/* ── ACCOMMODATION & TRAVEL — split layout ───────────────── */
+.split-section{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:320px;
+}
+.split-content{
+  background:var(--white);
+  padding:3.5rem 3rem;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.split-photo{overflow:hidden;}
+.split-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.split-label{
+  font-family:var(--script);
+  font-size:2rem;color:var(--dark);margin-bottom:0.7rem;
+}
+.split-rule{width:40px;height:1px;background:rgba(50,52,75,0.2);margin:0 0 1.2rem;}
+.split-name{
+  font-family:var(--serif);font-size:0.92rem;
+  color:var(--dark);line-height:1.7;margin-bottom:0.5rem;font-weight:600;
+}
+.split-note{
+  font-family:var(--serif);font-size:0.8rem;
+  color:var(--dark);line-height:1.7;font-style:italic;margin-bottom:1.5rem;
+}
+.split-btn{
+  display:inline-block;
+  border:1px solid var(--blue);color:var(--dark);
+  font-family:var(--serif);font-size:0.75rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.6rem 1.8rem;cursor:pointer;
+  background:transparent;text-decoration:none;
+  transition:all 0.2s;width:fit-content;
+}
+.split-btn:hover{background:var(--blue);}
+
+/* ── NEED TO KNOWS ───────────────────────────────────────── */
+.ntk-section{background:var(--blue);padding:5rem 2rem 4rem;text-align:center;}
+.ntk-title{
+  font-family:var(--script);
+  font-size:clamp(2rem,5vw,3rem);
+  color:var(--white);margin-bottom:3rem;
+}
+.ntk-inner{max-width:520px;margin:0 auto;}
+.ntk-item{margin-bottom:2.5rem;}
+.ntk-question{
+  font-family:var(--serif);font-size:0.95rem;
+  font-weight:600;color:var(--white);margin-bottom:0.8rem;
+}
+.ntk-answer{
+  font-family:var(--serif);font-size:0.8rem;
+  font-style:italic;color:rgba(255,255,255,0.85);
+  line-height:2;max-width:440px;margin:0 auto;
+}
+.ntk-decoration{
+  width:100px;margin:2.5rem auto 0;
+  opacity:0.55;
+  filter:brightness(10);/* makes the dark SVG appear white */
+}
+
+/* ── GALLERY ─────────────────────────────────────────────── */
+.gallery-section{background:var(--white);padding:4rem 2rem;}
+.gallery-title{font-family:var(--script);font-size:clamp(2rem,4vw,2.8rem);color:var(--dark);text-align:center;margin-bottom:0.5rem;}
+.gallery-rule{width:40px;height:1px;background:rgba(50,52,75,0.2);margin:0 auto 2rem;}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:820px;margin:0 auto;}
+.gallery-cell{overflow:hidden;aspect-ratio:1;cursor:pointer;}
+.gallery-cell img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
+.gallery-cell:hover img{transform:scale(1.05);}
+
+/* ── REGISTRY ────────────────────────────────────────────── */
+.registry-section{
+  background:var(--white);
+  padding:4rem 2rem;
+  text-align:center;
+  border-top:1px solid rgba(50,52,75,0.1);
+}
+.registry-title{
+  font-family:var(--script);
+  font-size:clamp(1.8rem,4vw,2.8rem);
+  color:var(--dark);
+}
+.registry-body{
+  font-family:var(--serif);font-size:0.82rem;
+  color:rgba(50,52,75,0.65);line-height:1.9;margin-top:0.8rem;
+}
+
+/* ── RSVP ────────────────────────────────────────────────── */
+.rsvp-section{background:var(--blue);padding:5rem 2rem;text-align:center;}
+.rsvp-title{
+  font-family:var(--script);
+  font-size:clamp(2.2rem,5vw,3.2rem);
+  color:var(--white);margin-bottom:0.5rem;
+}
+.rsvp-deadline{
+  font-family:var(--serif);font-size:0.8rem;
+  color:rgba(255,255,255,0.75);margin-bottom:2rem;
+}
+.rsvp-deadline sup{font-size:0.6em;vertical-align:super;}
+.rsvp-wrap{max-width:480px;margin:0 auto;text-align:left;}
+/* Rectangular white-bordered name input */
+.rsvp-name-input{
+  width:100%;background:var(--white);
+  border:1px solid rgba(50,52,75,0.15);
+  font-family:var(--serif);font-size:0.9rem;
+  color:var(--dark);padding:0.85rem 1.2rem;
+  outline:none;text-align:center;margin-bottom:1.5rem;
+}
+.rsvp-name-input::placeholder{color:rgba(50,52,75,0.4);}
+.rsvp-event-label{
+  font-family:var(--serif);font-size:0.95rem;
+  font-weight:600;color:var(--dark);margin:1rem 0 0.6rem;
+}
+.rsvp-expanded{display:none;}
+.rsvp-expanded.visible{display:block;}
+/* White bordered select */
+.rsvp-select-wrap{position:relative;margin-bottom:0.6rem;}
+.rsvp-select{
+  width:100%;background:var(--white);
+  border:1px solid rgba(50,52,75,0.15);
+  font-family:var(--serif);font-size:0.82rem;
+  color:rgba(50,52,75,0.6);
+  padding:0.7rem 2rem 0.7rem 0.9rem;
+  outline:none;appearance:none;cursor:pointer;
+}
+.rsvp-select:focus{border-color:var(--dark);color:var(--dark);}
+.rsvp-chevron{
+  position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);
+  font-size:0.6rem;color:rgba(50,52,75,0.4);pointer-events:none;
+}
+.rsvp-text-input{
+  width:100%;background:var(--white);
+  border:1px solid rgba(50,52,75,0.15);
+  font-family:var(--serif);font-size:0.82rem;color:var(--dark);
+  padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;
+}
+.rsvp-add-guest{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  background:none;border:1px solid rgba(255,255,255,0.4);
+  font-family:var(--serif);font-size:0.75rem;
+  color:rgba(255,255,255,0.85);padding:0.4rem 0.9rem;
+  cursor:pointer;margin-top:0.5rem;margin-bottom:1.5rem;
+  transition:all 0.2s;
+}
+.rsvp-add-guest:hover{background:rgba(255,255,255,0.15);}
+.rsvp-extra-list{margin-bottom:0.5rem;}
+.extra-guest-row{margin-bottom:0.5rem;}
+.rsvp-remove-btn{background:none;border:none;cursor:pointer;color:rgba(50,52,75,0.35);font-size:1rem;padding:0 0.2rem;}
+.rsvp-divider{border:none;border-top:1px solid rgba(50,52,75,0.12);margin:1.5rem 0;}
+.rsvp-submit{
+  display:block;background:var(--dark);color:var(--white);
+  font-family:var(--serif);font-size:0.75rem;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.85rem 2.5rem;border:none;cursor:pointer;
+  transition:opacity 0.2s;margin-top:0.5rem;
+}
+.rsvp-submit:hover{opacity:0.8;}
+.rsvp-submit:disabled{opacity:0.35;cursor:not-allowed;}
+.rsvp-success{
+  display:none;margin-top:2rem;text-align:center;
+  font-family:var(--script);font-size:2rem;color:var(--white);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer{background:var(--dark);text-align:center;padding:2.5rem 1rem;}
+.footer-couple{font-family:var(--script);font-size:2rem;color:var(--white);display:block;margin-bottom:0.4rem;}
+.footer-date{font-family:var(--serif);font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:768px){
+  .hero-section{grid-template-columns:1fr;height:auto;min-height:100vh;}
+  .hero-section::before,.hero-section::after{display:none;}
+  .hero-col{display:none;}
+  .hero-col-centre{height:100vh;min-height:500px;}
+  .wedding-cards{grid-template-columns:1fr;gap:1rem;}
+  .split-section{grid-template-columns:1fr;}
+  .split-photo{height:280px;}
+  .gallery-grid{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
 <body class="hydrating">
-  <div class="name" id="coupleName">A &amp; B</div>
-  <div class="tag">Soft Promises &mdash; Coming Soon</div>
-  <div class="pill">Template in development</div>
+
+<!-- MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-backdrop" onclick="closeMenu()"></div>
+  <div class="menu-drawer">
+    <button class="menu-close" onclick="closeMenu()">×</button>
+    <div class="menu-name" id="menuCoupleName">Soft Promises</div>
+    <ul class="menu-links" id="menuLinks"></ul>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn" onclick="openMenu()" aria-label="Menu">&#9776;</button>
+</nav>
+
+<!-- HOME — 3-column split -->
+<section class="hero-section" id="home">
+  <div class="hero-col">
+    <img id="heroImg1"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png"
+      alt="Couple">
+  </div>
+  <div class="hero-col hero-col-centre">
+    <img id="heroImg2"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png"
+      alt="Couple close-up">
+    <div class="hero-names">
+      <span class="hero-names-text" id="heroNames">A &amp; B</span>
+    </div>
+  </div>
+  <div class="hero-col">
+    <img id="heroImg3"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png"
+      alt="Couple sunset">
+  </div>
+</section>
+
+<!-- OUR STORY -->
+<section class="story-section" id="story" style="display:none">
+  <div class="story-title">Our Story</div>
+  <div class="story-rule"></div>
+  <div class="story-body" id="storyText"></div>
+</section>
+
+<!-- THE WEDDING -->
+<section class="wedding-section" id="wedding" style="display:none">
+  <div class="wedding-invite" id="weddingInvite"></div>
+  <div class="wedding-cards" id="weddingCards"></div>
+</section>
+
+<!-- OTHER EVENTS -->
+<section class="events-section" id="events" style="display:none">
+  <div class="events-inner" id="otherEventsList"></div>
+</section>
+
+<!-- ACCOMMODATION -->
+<div class="split-section" id="accommodations" style="display:none">
+  <div class="split-content" id="accomContent"></div>
+  <div class="split-photo"><img id="accomPhoto"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png"
+    alt="Accommodation"></div>
+</div>
+
+<!-- TRAVEL -->
+<div class="split-section" id="travel" style="display:none">
+  <div class="split-photo" style="order:-1"><img id="travelPhoto"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png"
+    alt="Travel"></div>
+  <div class="split-content" id="travelContent"></div>
+</div>
+
+<!-- NEED TO KNOWS -->
+<section class="ntk-section" id="ntk" style="display:none">
+  <div class="ntk-title">Need to Knows</div>
+  <div class="ntk-inner" id="ntkList"></div>
+  <img class="ntk-decoration"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/232269a0-8368-4a48-9188-fe2df41b6d35.png"
+    alt="" id="ntkDecoration">
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery" style="display:none">
+  <div style="max-width:860px;margin:0 auto">
+    <div class="gallery-title">Gallery</div>
+    <div class="gallery-rule"></div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- REGISTRY -->
+<section class="registry-section" id="registry" style="display:none">
+  <div class="registry-title">See Our Registry</div>
+  <div class="registry-body" id="registryBody"></div>
+</section>
+
+<!-- RSVP -->
+<section class="rsvp-section" id="rsvp" style="display:none">
+  <div class="rsvp-title">Rsvp Please</div>
+  <div class="rsvp-deadline" id="rsvpDeadline"></div>
+  <div class="rsvp-wrap">
+    <div id="rsvpBlocks"></div>
+    <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">Send My RSVP</button>
+    <div class="rsvp-success" id="rsvpSuccess">Thank you &#10084;</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-couple" id="footerCouple">A &amp; B</span>
+  <span class="footer-date" id="footerDate"></span>
+</footer>
+
 <script>
 const API = 'https://wedding-recommender.onrender.com';
-const _params    = new URLSearchParams(window.location.search);
-const _slugParam = _params.get('slug') || '';
-const _pathParts = window.location.pathname.split('/').filter(p => p);
-const _firstPart = _pathParts[0] || '';
-const _liveSlug  = _slugParam || (_firstPart !== 'template-softpromises.html' ? _firstPart : '');
+const _p = new URLSearchParams(window.location.search);
+const _slug = _p.get('slug')||'';
+const _path = window.location.pathname.split('/').filter(function(s){return s;})[0]||'';
+const _liveSlug = _slug||(_path!=='template-softpromises.html'?_path:'');
 const _isPreview = !_liveSlug;
+const _pwdParam = _p.get('pwd')||'';
+(function(){if(_p.get('thumbnail')==='1')document.body.classList.add('thumbnail-mode');})();
 
-function _reveal() { document.body.classList.remove('hydrating'); }
+function openMenu(){document.getElementById('menuOverlay').classList.add('open');}
+function closeMenu(){document.getElementById('menuOverlay').classList.remove('open');}
+function handleMenuClick(link){closeMenu();var href=link.getAttribute('href');if(href&&href!=='#'){setTimeout(function(){var el=document.querySelector(href);if(el)el.scrollIntoView({behavior:'smooth'});},350);}return false;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
 
-function hydrateTemplate(d) {
-  var el = document.getElementById('coupleName');
-  if (el && d.couple_names) el.textContent = d.couple_names;
+var _rsvpEntreeOptions=[
+  {value:'Chicken',label:'Chicken'},{value:'Fish',label:'Fish'},
+  {value:'Vegetarian',label:'Vegetarian'},{value:'Vegan',label:'Vegan'},
+  {value:'Kids Meal',label:'Kids Meal'}
+];
+
+function hydrateTemplate(d){
+  window._weddingSlug=d.slug||'';
+  var p1=d.partner_1||'',p2=d.partner_2||'';
+  var names=d.couple_names||(p1&&p2?p1+' & '+p2:'A & B');
+  function el(id){return document.getElementById(id);}
+  if(el('heroNames'))el('heroNames').textContent=names;
+  if(el('menuCoupleName'))el('menuCoupleName').textContent=names;
+  if(el('footerCouple'))el('footerCouple').textContent=names;
+
+  var dateStr='';
+  if(d.celebration_date){
+    try{var dt=new Date(d.celebration_date+'T00:00:00Z');
+      dateStr=dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
+    }catch(ex){dateStr=d.celebration_date;}
+  }
+  if(el('footerDate'))el('footerDate').textContent=dateStr;
+
+  if(el('rsvpDeadline')&&d.rsvp_config&&d.rsvp_config.deadline)
+    el('rsvpDeadline').innerHTML='by '+d.rsvp_config.deadline;
+  else if(el('rsvpDeadline')&&dateStr)
+    el('rsvpDeadline').textContent='by '+dateStr;
+
+  if(d.rsvp_config&&d.rsvp_config.entrees&&d.rsvp_config.entrees.length)
+    _rsvpEntreeOptions=d.rsvp_config.entrees.map(function(e){return{value:e,label:e};});
+
+  if(d.custom_css){var s=document.createElement('style');s.textContent=d.custom_css;document.head.appendChild(s);}
+
+  // Update hero images if user uploaded
+  if(d.gallery_images&&d.gallery_images.length){
+    var urls=d.gallery_images.map(function(g){return typeof g==='string'?g:(g.url||'');}).filter(Boolean);
+    if(urls[0]&&el('heroImg1'))el('heroImg1').src=urls[0];
+    if(urls[1]&&el('heroImg2'))el('heroImg2').src=urls[1];
+    if(urls[2]&&el('heroImg3'))el('heroImg3').src=urls[2];
+  }
+
+  var menu=d.menu_config||{};
+  var ml=el('menuLinks');
+  if(ml){
+    var items=[
+      {h:'#home',l:'Home',s:true},
+      {h:'#story',l:'Our Story',s:menu.story},
+      {h:'#wedding',l:'The Wedding',s:menu.wedding},
+      {h:'#events',l:'Other Events',s:menu.other_events},
+      {h:'#accommodations',l:'Accommodations',s:menu.accommodations},
+      {h:'#travel',l:'Travel',s:menu.travel},
+      {h:'#ntk',l:'Need to Know',s:menu.things_to_do||menu.faqs},
+      {h:'#gallery',l:'Gallery',s:menu.gallery},
+      {h:'#registry',l:'Registry',s:menu.registry},
+      {h:'#rsvp',l:'RSVP',s:menu.rsvp}
+    ];
+    ml.innerHTML=items.filter(function(i){return i.s;}).map(function(i){
+      return'<li><a href="'+i.h+'" onclick="handleMenuClick(this)">'+i.l+'</a></li>';
+    }).join('');
+  }
+
+  // Our Story
+  var stEl=el('story');if(stEl)stEl.style.display=menu.story?'':'none';
+  if(menu.story&&d.story){var st=el('storyText');if(st)st.innerHTML=d.story;}
+
+  // The Wedding
+  var wEl=el('wedding');if(wEl)wEl.style.display=menu.wedding?'':'none';
+  if(menu.wedding){
+    // Invitation line: "Name and Name lovingly invite you to celebrate their wedding."
+    var invite=el('weddingInvite');
+    if(invite){
+      var n1=p1||'They',n2=p2||(p1?'':'They');
+      var inviteHtml=(p1&&p2?p1+' and '+p2:'They')+
+        ' <i>lovingly invite</i> you to <i>celebrate</i> their wedding.';
+      invite.innerHTML=inviteHtml;
+    }
+    var wCards=el('weddingCards');
+    if(wCards&&d.weddings_info){
+      wCards.innerHTML='';
+      var wParts=d.weddings_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+        .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
+      function makeWCard(html){
+        var nm=html.match(/^<strong>([^<]+)<\/strong>/i);
+        var title=nm?nm[1]:'';
+        var rest=nm?html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():html;
+        var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);
+        var dress=dm?dm[1]:'';
+        var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;
+        return'<div class="wedding-card">'+
+          (title?'<div class="wedding-card-name">'+title+'</div>':'')+
+          (detail?'<div class="wedding-card-detail">'+detail+'</div>':'')+
+          (dress?'<span class="wedding-card-dress">'+dress+'</span>':'')+
+          '</div>';
+      }
+      wParts.forEach(function(part){wCards.innerHTML+=makeWCard(part);});
+    }
+  }
+
+  // Other Events
+  var evEl=el('events');if(evEl)evEl.style.display=menu.other_events?'':'none';
+  if(menu.other_events){
+    var evList=el('otherEventsList');
+    if(evList&&d.events_info){
+      evList.innerHTML='';
+      var evParts=d.events_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+        .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
+      if(!evParts.length)evParts=[d.events_info];
+      evParts.forEach(function(part){
+        var nm=part.match(/^<strong>([^<]+)<\/strong>/i);
+        var evName=nm?nm[1]:'';
+        var rest=nm?part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():part;
+        var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);
+        var dress=dm?dm[1]:'';
+        var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;
+        var box=document.createElement('div');box.className='event-box';
+        box.innerHTML=(evName?'<div class="event-name">'+evName+'</div>':'')+
+          (detail?'<div class="event-detail">'+detail+'</div>':'')+
+          (dress?'<span class="event-dress">'+dress+'</span>':'');
+        evList.appendChild(box);
+      });
+    }
+  }
+
+  // Accommodations — left content, right photo
+  var acEl=el('accommodations');if(acEl)acEl.style.display=menu.accommodations?'':'none';
+  if(menu.accommodations&&d.accommodation_info){
+    var acContent=el('accomContent');
+    if(acContent){
+      var nm=d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
+      var acName=nm?nm[1]:'Hotel';
+      var rest=nm?d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():d.accommodation_info;
+      var lines=rest.split(/<br\s*\/?>/i).map(function(s){return s.replace(/<[^>]+>/g,'').trim();}).filter(Boolean);
+      var venueName=lines.slice(0,2).join('<br>');
+      var note=lines.slice(2).join(' ');
+      acContent.innerHTML=
+        '<div class="split-label">'+acName+'</div>'+
+        '<div class="split-rule"></div>'+
+        '<div class="split-name">'+venueName+'</div>'+
+        (note?'<div class="split-note">'+note+'</div>':'')+
+        '<a class="split-btn" href="#" target="_blank">Book Now</a>';
+    }
+  }
+
+  // Travel — left photo, right content
+  var trEl=el('travel');if(trEl)trEl.style.display=menu.travel?'':'none';
+  if(menu.travel&&d.travel_info){
+    var trContent=el('travelContent');
+    if(trContent){
+      var tText=d.travel_info.replace(/<[^>]+>/g,'').trim();
+      var airportMatch=tText.match(/([A-Z][^.,(]+(?:airport|Airport)[^.,)]*)/);
+      var tName=airportMatch?airportMatch[0].trim():'Airport';
+      var tNote=tText.replace(tName,'').replace(/^[.,\s]+/,'').trim();
+      trContent.innerHTML=
+        '<div class="split-label">Flights</div>'+
+        '<div class="split-rule"></div>'+
+        '<div class="split-name">'+tName+'</div>'+
+        (tNote?'<div class="split-note">'+tNote+'</div>':'')+
+        '<a class="split-btn" href="#" target="_blank">Book Now</a>';
+    }
+  }
+
+  // Need to Knows
+  var ntkEl=el('ntk');
+  if(ntkEl)ntkEl.style.display=(menu.things_to_do||menu.faqs)?'':'none';
+  if((menu.things_to_do||menu.faqs)&&d.faqs){
+    var nl=el('ntkList');
+    if(nl){
+      nl.innerHTML='';
+      var blocks=d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+        .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
+      blocks.forEach(function(block){
+        var bi=block.search(/<br\s*\/?>/i);
+        var q=bi===-1?block.replace(/<[^>]+>/g,'').trim():block.substring(0,bi).replace(/<[^>]+>/g,'').trim();
+        var a=bi===-1?'':block.substring(bi).replace(/^(<br\s*\/?>)+/i,'').trim();
+        var item=document.createElement('div');item.className='ntk-item';
+        item.innerHTML=(q?'<div class="ntk-question">'+q+'</div>':'')+(a?'<div class="ntk-answer">'+a+'</div>':'');
+        nl.appendChild(item);
+      });
+    }
+  }
+
+  // Gallery
+  var galEl=el('gallery');if(galEl)galEl.style.display=menu.gallery?'':'none';
+
+  // Registry
+  var regEl=el('registry');if(regEl)regEl.style.display=menu.registry?'':'none';
+  if(menu.registry){var rb=el('registryBody');if(rb&&d.registry_info)rb.innerHTML=d.registry_info;}
+
+  // RSVP
+  var rsvpEl=el('rsvp');if(rsvpEl)rsvpEl.style.display=menu.rsvp?'':'none';
+  if(menu.rsvp){
+    var evs=(d.events&&d.events.length)
+      ?d.events.map(function(ev){return{id:ev.id||ev.name,label:ev.label||ev.name};})
+      :[{id:'wedding',label:'The Wedding'}];
+    buildRsvpBlocks(evs);
+  }
 }
 
-if (_isPreview) {
-  _reveal();
-  window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'HYDRATE_TEMPLATE') hydrateTemplate(e.data.payload);
+function buildRsvpBlocks(events){
+  var container=document.getElementById('rsvpBlocks');container.innerHTML='';
+  var entreeOpts=_rsvpEntreeOptions.map(function(o){
+    return'<option value="'+o.value+'">'+o.label+'</option>';
+  }).join('');
+  events.forEach(function(ev){
+    var block=document.createElement('div');block.className='rsvp-event-block';block.dataset.eventId=ev.id;
+    var label=document.createElement('div');label.className='rsvp-event-label';label.textContent=ev.label;
+    block.appendChild(label);
+    var nameInput=document.createElement('input');
+    nameInput.className='rsvp-name-input';nameInput.type='text';
+    nameInput.placeholder='Your full name';nameInput.oninput=function(){onNameInput(nameInput);};
+    block.appendChild(nameInput);
+    var expanded=document.createElement('div');expanded.className='rsvp-expanded';expanded.id='expanded-'+ev.id;
+    // Attend
+    var aw=document.createElement('div');aw.className='rsvp-select-wrap';
+    var as=document.createElement('select');as.className='rsvp-select';as.dataset.field='attending';
+    ['','yes','no','maybe'].forEach(function(v,i){
+      var o=document.createElement('option');o.value=v;
+      o.textContent=['Do you plan to attend?','Attending','Cannot make it','Not sure yet'][i];
+      as.appendChild(o);
+    });
+    var ac=document.createElement('span');ac.className='rsvp-chevron';ac.textContent='▾';
+    aw.appendChild(as);aw.appendChild(ac);expanded.appendChild(aw);
+    // Entree
+    var ew=document.createElement('div');ew.className='rsvp-select-wrap';
+    var es=document.createElement('select');es.className='rsvp-select';es.dataset.field='entree';
+    var def=document.createElement('option');def.value='';def.textContent='Your entrée choice';es.appendChild(def);
+    _rsvpEntreeOptions.forEach(function(o){var op=document.createElement('option');op.value=o.value;op.textContent=o.label;es.appendChild(op);});
+    var ec=document.createElement('span');ec.className='rsvp-chevron';ec.textContent='▾';
+    ew.appendChild(es);ew.appendChild(ec);expanded.appendChild(ew);
+    // Email
+    var ei=document.createElement('input');ei.className='rsvp-text-input';ei.type='email';ei.placeholder='Email address';ei.dataset.field='email';
+    expanded.appendChild(ei);
+    // Extra guests
+    var extraList=document.createElement('div');extraList.className='rsvp-extra-list';extraList.id='extra-guests-'+ev.id;
+    expanded.appendChild(extraList);
+    // Add guest btn
+    var addBtn=document.createElement('button');addBtn.className='rsvp-add-guest';addBtn.textContent='+ Add Invited Guest';
+    addBtn.onclick=function(){addExtraGuest(addBtn);};
+    expanded.appendChild(addBtn);
+    block.appendChild(expanded);
+    container.appendChild(block);
   });
-  setTimeout(function() { hydrateTemplate({couple_names:'A & B'}); }, 800);
-} else {
-  const _sessionKey  = 'weddingData_' + _liveSlug;
-  const _sessionData = sessionStorage.getItem(_sessionKey);
-  if (_sessionData) {
-    try {
-      const d = JSON.parse(_sessionData);
-      sessionStorage.removeItem(_sessionKey);
-      hydrateTemplate(d); _reveal();
-    } catch { _reveal(); }
-  } else {
-    _reveal();
-    fetch(API + '/wedding-site/' + encodeURIComponent(_liveSlug))
-      .then(function(r) { return r.json(); })
-      .then(function(d) { hydrateTemplate(d); })
-      .catch(function() {});
+  checkShowSubmit();
+}
+
+function onNameInput(inp){
+  var block=inp.closest('.rsvp-event-block');
+  var exp=document.getElementById('expanded-'+block.dataset.eventId);
+  if(inp.value.trim().length>=2)exp.classList.add('visible');
+  else exp.classList.remove('visible');
+  checkShowSubmit();
+}
+function checkShowSubmit(){
+  var any=false;
+  document.querySelectorAll('.rsvp-event-block .rsvp-name-input').forEach(function(i){if(i.value.trim().length>=2)any=true;});
+  var btn=document.getElementById('rsvpSubmitBtn');if(btn)btn.style.display=any?'block':'none';
+}
+function addExtraGuest(btn){
+  var block=btn.closest('.rsvp-event-block');
+  var list=document.getElementById('extra-guests-'+block.dataset.eventId);
+  if(list.children.length>0)return;
+  var row=document.createElement('div');row.className='extra-guest-row';
+  var ni=document.createElement('input');ni.className='rsvp-name-input';ni.type='text';ni.placeholder='Enter Invited Guest Name';ni.dataset.role='plus-one-name';
+  var rb=document.createElement('button');rb.className='rsvp-remove-btn';rb.textContent='×';
+  rb.onclick=function(){row.remove();btn.style.display='';};
+  row.appendChild(ni);row.appendChild(rb);list.appendChild(row);btn.style.display='none';
+}
+
+async function submitRSVP(){
+  if(_isPreview){alert('RSVP disabled in preview.');return;}
+  var btn=document.getElementById('rsvpSubmitBtn');btn.disabled=true;btn.textContent='Sending...';
+  try{
+    var promises=[];
+    document.querySelectorAll('.rsvp-event-block').forEach(function(block){
+      var name=block.querySelector('.rsvp-name-input').value.trim();if(!name)return;
+      var eid=block.dataset.eventId;var exp=document.getElementById('expanded-'+eid);
+      var g=function(f){return(exp&&exp.querySelector('[data-field="'+f+'"]'))||{};};
+      var label=block.querySelector('.rsvp-event-label').textContent;
+      promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({slug:window._weddingSlug||'',guest_name:name,
+          attending:g('attending').value||'yes',entree_choice:g('entree').value||'',
+          email:g('email').value||'',event_name:label})}));
+      var por=exp&&exp.querySelector('.rsvp-extra-list .extra-guest-row');
+      if(por){
+        var pn=(por.querySelector('[data-role="plus-one-name"]')||{}).value||'';
+        if(pn.trim())promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({slug:window._weddingSlug||'',guest_name:pn.trim(),
+            attending:g('attending').value||'yes',event_name:label})}));
+      }
+    });
+    await Promise.all(promises);
+    document.getElementById('rsvpSuccess').style.display='block';btn.style.display='none';
+  }catch(e){alert('Something went wrong. Please try again.');btn.disabled=false;btn.textContent='Send My RSVP';}
+}
+
+const SAMPLE_DATA={
+  slug:'',couple_names:'Alice & Conrad',partner_1:'Alice',partner_2:'Conrad',
+  celebration_date:'2026-04-04',hero_image:'',gallery_images:[],
+  story:'Two hearts that found each other in the quiet spaces between moments.',
+  weddings_info:'<strong>The Ceremony</strong><br>Saturday, April Fourth, 2026<br>6 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April Fourth, 2026<br>7 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em>',
+  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April Third, 2026<br>7 O\'Clock in the Evening<br>Ultimate Skybox at DiamondView Tower<br>350 Tenth Ave,<br>San Diego, CA 92101<br><em>Evening Casual</em>',
+  accommodation_info:'<strong>Hotel</strong><br>Hyatt Regency La Jolla at Aventine<br>Request the Elizabeth & Joseph room block',
+  travel_info:'San Diego National Airport. Approximately 30 minutes from the venue.',
+  faqs:'<strong>What should I wear to the wedding?</strong><br>The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.<br><br><strong>Will there be transportation?</strong><br>No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.<br><br><strong>Will the ceremony be indoors or outdoors?</strong><br>Here is a little more about the setting so you can plan accordingly and arrive feeling prepared.',
+  registry_info:'',events:[],
+  rsvp_config:{entrees:['Beef','Salmon','Vegetarian','Vegan'],allow_plus_one:true,deadline:'February 15<sup>th</sup>, 2026'},
+  website_mode:'Full',customization:{primary_color:'',accent_color:'',text_color:''},custom_css:'',
+  menu_config:{home:true,story:false,wedding:true,other_events:true,accommodations:true,
+    travel:true,things_to_do:true,faqs:true,gallery:false,registry:true,rsvp:true}
+};
+
+function _reveal(){document.body.classList.remove('hydrating');}
+if(_isPreview){
+  _reveal();var _got=false;
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='HYDRATE_TEMPLATE'){_got=true;hydrateTemplate(e.data.payload);}});
+  setTimeout(function(){if(!_got)hydrateTemplate(SAMPLE_DATA);},800);
+}else{
+  var _sk='weddingData_'+_liveSlug,_sd=sessionStorage.getItem(_sk);
+  if(_sd){
+    try{var _d=JSON.parse(_sd);sessionStorage.removeItem(_sk);hydrateTemplate(_d);_reveal();
+      if(window.location.search.includes('slug='))window.history.replaceState({},_d.couple_names||'','/'+_liveSlug);
+    }catch(ex){sessionStorage.removeItem(_sk);_reveal();_fetch();}
+  }else{_reveal();_fetch();}
+  function _fetch(){
+    fetch(API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):''))
+      .then(function(r){if(!r.ok)throw r.status;return r.json();})
+      .then(function(d){if(d.password_required){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:EB Garamond,serif;color:var(--dark);background:var(--blue);font-size:2rem"><p>Password Protected</p></div>';return;}hydrateTemplate(d);})
+      .catch(function(){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:EB Garamond,serif;color:var(--dark);background:var(--blue)"><p>Site not found.</p></div>';});
   }
 }
 </script>

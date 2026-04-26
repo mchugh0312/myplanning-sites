@@ -7,52 +7,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
 body{
   font-family:'Instrument Serif',Georgia,serif;
   background:#4a5240;
   color:#ffffff;
-  min-height:100vh;
+  /* Always vertically centred — even in thumbnail iframe */
+  min-height:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:2rem;
 }
 body.hydrating{visibility:hidden;}
-body.thumbnail-mode{min-height:35vh;}
+/* In thumbnail mode: iframe is scaled to 50% and shows top portion.
+   To appear centred IN the visible thumbnail area, push content down ~25% */
+body.thumbnail-mode{
+  justify-content:center;
+  padding-top:20%;
+}
 .couple{
-  font-size:clamp(1.8rem,5vw,3rem);
+  font-size:clamp(1.6rem,4vw,2.4rem);
   font-style:italic;
   color:#ffffff;
   margin-bottom:0.5rem;
   line-height:1.2;
-}
-.template-name{
-  font-size:clamp(0.7rem,2vw,0.85rem);
-  letter-spacing:0.18em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.55);
-  margin-bottom:2.5rem;
-}
-.coming-soon{
-  font-size:clamp(1.4rem,4vw,2.2rem);
-  font-style:italic;
-  color:#ffffff;
-  margin-bottom:0.6rem;
-}
-.coming-desc{
-  font-size:0.78rem;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.5);
+  opacity:0.7;
 }
 .divider{
-  width:40px;height:1px;
-  background:rgba(255,255,255,0.3);
-  margin:0 auto 2rem;
+  width:30px;height:1px;
+  background:rgba(255,255,255,0.35);
+  margin:0 auto 1.5rem;
+}
+.coming-soon{
+  font-size:clamp(1.4rem,3.5vw,2rem);
+  font-style:italic;
+  color:#ffffff;
+  margin-bottom:0.5rem;
+}
+.coming-desc{
+  font-size:0.72rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.45);
 }
 </style>
 </head>
 <body class="hydrating">
   <div class="couple" id="coupleNames">A &amp; B</div>
-  <div class="template-name">Stolen Glances</div>
   <div class="divider"></div>
   <div class="coming-soon">Coming Soon</div>
   <div class="coming-desc">This template is in development</div>
@@ -68,9 +68,6 @@ function hydrateTemplate(d){
   if(el)el.textContent=names;
 }
 var _got=false;
-var _slug=new URLSearchParams(window.location.search).get('slug')||'';
-var _path=window.location.pathname.split('/').filter(function(s){return s;})[0]||'';
-var _live=_slug||(_path!=='template-stolenglances.html'?_path:'');
 _reveal();
 window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='HYDRATE_TEMPLATE'){
