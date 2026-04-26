@@ -89,7 +89,7 @@ img{max-width:100%;display:block;}
 }
 .home-couple-name{
   font-family:var(--script);
-  font-size:clamp(2.5rem,6vw,4.5rem);
+  font-size:clamp(3.5rem,8vw,6rem);
   color:var(--black);
   text-align:center;
   line-height:1.2;
@@ -135,18 +135,17 @@ img{max-width:100%;display:block;}
 }
 .wedding-card-name{
   font-family:var(--script);
-  font-size:clamp(1.6rem,3.5vw,2.4rem);
+  font-size:clamp(2rem,4vw,3rem);
   color:var(--white);
   margin-bottom:1.5rem;line-height:1.2;
 }
 .wedding-card-detail{
-  font-family:var(--serif);font-size:0.85rem;
-  color:var(--white);line-height:2;
-  /* Each line already on its own via <br> tags */
+  font-family:var(--serif);font-size:1rem;
+  color:var(--white);line-height:2.1;
 }
 .wedding-card-dress{
   display:block;margin-top:1.5rem;
-  font-family:var(--script);font-size:1.25rem;
+  font-family:var(--script);font-size:1.6rem;
   color:var(--white);
 }
 
@@ -169,17 +168,17 @@ img{max-width:100%;display:block;}
 }
 .other-event-name{
   font-family:var(--script);
-  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-size:clamp(2rem,5vw,3.2rem);
   color:var(--black);
-  margin-bottom:1.4rem;line-height:1.2;
+  margin-bottom:1.6rem;line-height:1.2;
 }
 .other-event-detail{
-  font-family:var(--serif);font-size:0.85rem;
-  color:var(--black);line-height:2.1;text-align:center;
+  font-family:var(--serif);font-size:1rem;
+  color:var(--black);line-height:2.2;text-align:center;
 }
 .other-event-dress{
   display:block;margin-top:1.5rem;
-  font-family:var(--script);font-size:1.6rem;
+  font-family:var(--script);font-size:2rem;
   color:var(--black);
 }
 
@@ -240,23 +239,23 @@ img{max-width:100%;display:block;}
 }
 .ntk-title{
   font-family:var(--script);
-  font-size:clamp(2rem,5vw,3rem);
+  font-size:clamp(2.5rem,6vw,4rem);
   color:var(--white);text-align:center;margin-bottom:3.5rem;
 }
-.ntk-inner{max-width:540px;margin:0 auto;}
+.ntk-inner{max-width:560px;margin:0 auto;}
 .ntk-item{
   text-align:center;margin-bottom:3rem;padding-bottom:3rem;
   border-bottom:none;
 }
 .ntk-item:last-child{margin-bottom:0;padding-bottom:0;}
 .ntk-question{
-  font-family:var(--serif);font-size:0.95rem;font-weight:bold;
+  font-family:var(--serif);font-size:1.1rem;font-weight:bold;
   color:var(--white);margin-bottom:0.9rem;
 }
 .ntk-answer{
-  font-family:var(--serif);font-size:0.78rem;font-style:italic;
+  font-family:var(--serif);font-size:0.88rem;font-style:italic;
   color:rgba(249,247,245,0.85);line-height:2;
-  text-align:center;max-width:440px;margin:0 auto;
+  text-align:center;max-width:480px;margin:0 auto;
 }
 /* Candelabra image at bottom of NTK section */
 .ntk-candelabra{
@@ -299,7 +298,7 @@ img{max-width:100%;display:block;}
 }
 .registry-title{
   font-family:var(--script);
-  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-size:clamp(2.2rem,5vw,3.5rem);
   color:var(--black);
   text-align:center;line-height:1.2;
 }
@@ -318,7 +317,7 @@ img{max-width:100%;display:block;}
 }
 .rsvp-title{
   font-family:var(--script);
-  font-size:clamp(2rem,5vw,3rem);
+  font-size:clamp(2.5rem,6vw,4rem);
   color:var(--black);
   margin-bottom:0.5rem;
 }
@@ -795,10 +794,11 @@ function hydrateTemplate(d) {
     else if (dateStr) dl.innerHTML='by '+dateStr;
   }
 
-  // Custom colours
+  // Custom colours — F&E uses fixed palette, only override if explicitly different from defaults
   if (d.customization) {
-    if (d.customization.primary_color) document.documentElement.style.setProperty('--black',    d.customization.primary_color);
-    if (d.customization.text_color)    document.documentElement.style.setProperty('--text',     d.customization.text_color);
+    // Only override --black if it's actually a dark color (not a light/colored theme override)
+    // For this template, the black sections are critical — don't override with primary_color
+    if (d.customization.text_color) document.documentElement.style.setProperty('--text', d.customization.text_color);
   }
   if (d.custom_css) {
     var ex=document.getElementById('custom-css-override'); if(ex) ex.remove();
