@@ -22,22 +22,7 @@ body{font-family:var(--serif);color:var(--dark);background:var(--white);}
 body.hydrating{visibility:hidden;}
 img{display:block;max-width:100%;}
 
-/* ── THUMBNAIL MODE ──────────────────────────────────────── */
-body.thumbnail-mode .hero-section{
-  height:40vh!important;min-height:0!important;
-  grid-template-columns:1fr!important;
-}
-/* In thumbnail, show only the centre column (with names) as full-bleed */
-body.thumbnail-mode .hero-col:not(.hero-col-centre){display:none!important;}
-body.thumbnail-mode .hero-col-centre{
-  display:flex!important;
-  /* Show the picnic photo as background for the full hero */
-  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png')!important;
-  background-size:cover!important;background-position:center!important;
-}
-/* Move couple names to centre of hero in thumbnail */
-body.thumbnail-mode .hero-names{bottom:50%!important;transform:translate(-50%,50%)!important;}
-body.thumbnail-mode .hero-names-text{font-size:clamp(1.2rem,6vw,2rem)!important;}
+/* ── THUMBNAIL MODE — overrides are at the bottom of this style block ─── */
 
 /* ── NAV ─────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
@@ -334,7 +319,28 @@ body.thumbnail-mode .hero-names-text{font-size:clamp(1.2rem,6vw,2rem)!important;
   .split-section{grid-template-columns:1fr;}
   .split-photo{height:280px;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
+
+  /* Thumbnail overrides inside @media so they win over the display:none above */
+  body.thumbnail-mode .hero-section{
+    grid-template-columns:1fr 1fr 1fr!important;
+    height:40vh!important;
+    min-height:0!important;
+    display:grid!important;
+  }
+  body.thumbnail-mode .hero-col{display:block!important;}
+  body.thumbnail-mode .hero-col-centre{display:flex!important;}
 }
+/* Also repeat outside @media for extra specificity */
+body.thumbnail-mode .hero-section{
+  grid-template-columns:1fr 1fr 1fr!important;
+  height:40vh!important;min-height:0!important;display:grid!important;
+}
+body.thumbnail-mode .hero-col{display:block!important;}
+body.thumbnail-mode .hero-col-centre{display:flex!important;}
+body.thumbnail-mode .hero-names{bottom:30%!important;left:50%!important;transform:translateX(-50%)!important;width:100%!important;text-align:center!important;}
+body.thumbnail-mode .hero-names-text{font-size:0.5rem!important;white-space:normal!important;}
+body.thumbnail-mode .hero-section::before,
+body.thumbnail-mode .hero-section::after{display:block!important;}
 </style>
 </head>
 <body class="hydrating">
