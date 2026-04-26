@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To Have & Hold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f9f9f7;--bg2:#f0f0ec;--accent:#2c4a35;--text:#1a2820;--white:#ffffff;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Cinzel',Georgia,serif;background:var(--bg);color:var(--text);}
+body.hydrating{visibility:hidden;}
+body.thumbnail-mode .hero-section{min-height:35vh!important;}
+
+.nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
+.nav-btn{background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text);opacity:0.65;}
+.menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
+.menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s;pointer-events:none;}
+.menu-drawer{width:280px;background:var(--accent);transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);display:flex;flex-direction:column;justify-content:center;padding:3rem 2.5rem;pointer-events:auto;position:relative;}
+.menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.4);pointer-events:auto;}
+.menu-overlay.open .menu-drawer{transform:translateX(0);}
+.menu-close{position:absolute;top:1rem;right:1.2rem;background:none;border:none;cursor:pointer;font-size:1.4rem;color:rgba(255,255,255,0.7);}
+.menu-name{font-size:1.5rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:white;margin-bottom:2rem;line-height:1.3;}
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:1rem;}
+.menu-links a{font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.75);text-decoration:none;transition:color 0.2s;}
+.menu-links a:hover{color:white;}
+
+.hero-section{min-height:100vh;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative;}
+.hero-couple{font-size:clamp(2.8rem,7vw,5rem);font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);line-height:1.2;margin-bottom:0.8rem;}
+.hero-date{font-size:0.78rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text);opacity:0.5;margin-top:0.5rem;}
+.hero-dots{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:0.3;}
+.hero-dot.active{opacity:1;}
+
+.section{padding:5rem 2rem;max-width:820px;margin:0 auto;text-align:center;}
+.section-dark{background:var(--accent);color:white;padding:5rem 2rem;}
+.section-alt{background:var(--bg2);padding:5rem 2rem;}
+.section-title{font-size:clamp(2rem,5vw,3.2rem);font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;}
+.section-dark .section-title{color:white;}
+.section-alt .section-title{color:var(--accent);}
+.section-rule{width:40px;height:1px;background:var(--accent);opacity:0.35;margin:0 auto 2rem;}
+.section-dark .section-rule{background:rgba(255,255,255,0.4);}
+.section-body{font-size:0.9rem;line-height:2;color:var(--text);}
+.section-dark .section-body{color:rgba(255,255,255,0.85);}
+
+.wedding-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:680px;margin:0 auto;}
+.wedding-card-title{font-size:1.8rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:white;margin-bottom:1rem;}
+.wedding-card-detail{font-size:0.88rem;color:rgba(255,255,255,0.85);line-height:2.1;}
+.wedding-card-dress{font-size:1.2rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-top:1rem;display:block;}
+
+.ntk-item{margin-bottom:2.5rem;text-align:center;}
+.ntk-question{font-size:0.95rem;font-weight:bold;color:white;margin-bottom:0.7rem;}
+.ntk-answer{font-size:0.82rem;font-style:italic;color:rgba(255,255,255,0.8);line-height:2;max-width:480px;margin:0 auto;}
+
+.arch-section{background:var(--accent);padding:5rem 2rem;}
+.arch-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:620px;margin:0 auto;}
+.arch-card{background:var(--bg);border-radius:120px 120px 4px 4px;border:1.5px solid rgba(0,0,0,0.08);padding:2.5rem 1.8rem 2rem;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.arch-card-label{font-size:1.3rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.6rem;}
+.arch-card-rule{width:40px;height:1px;background:var(--accent);opacity:0.25;margin:0 auto 1rem;}
+.arch-card-name{font-size:0.9rem;font-weight:bold;color:var(--text);margin-bottom:0.6rem;line-height:1.5;}
+.arch-card-note{font-size:0.75rem;font-style:italic;color:var(--text);opacity:0.6;margin-bottom:1.2rem;flex:1;line-height:1.6;}
+.arch-card-btn{background:var(--accent);color:white;border:none;font-size:0.72rem;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;padding:0.7rem 1.5rem;cursor:pointer;width:100%;transition:opacity 0.2s;text-decoration:none;display:block;}
+.arch-card-btn:hover{opacity:0.8;}
+
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:820px;margin:0 auto;}
+.gallery-cell{overflow:hidden;aspect-ratio:1;cursor:pointer;}
+.gallery-cell img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
+.gallery-cell:hover img{transform:scale(1.05);}
+
+.registry-section{background:var(--bg2);padding:4rem 2rem;text-align:center;}
+.registry-title{font-size:clamp(2rem,5vw,3rem);font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);}
+
+.rsvp-section{background:var(--bg);padding:5rem 2rem;text-align:center;}
+.rsvp-title{font-size:clamp(2.2rem,5vw,3.2rem);font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem;}
+.rsvp-deadline{font-size:0.78rem;color:var(--text);opacity:0.55;margin-bottom:2rem;}
+.rsvp-wrap{max-width:480px;margin:0 auto;text-align:left;}
+.rsvp-name-input{width:100%;background:transparent;border:1px solid rgba(0,0,0,0.18);font-family:'Cinzel',serif;font-size:0.88rem;color:var(--text);padding:0.8rem 1.2rem;outline:none;margin-bottom:1.2rem;text-align:center;}
+.rsvp-name-input::placeholder{color:rgba(0,0,0,0.28);}
+.rsvp-event-label{font-size:0.95rem;font-weight:600;color:var(--accent);margin:1rem 0 0.5rem;}
+.rsvp-expanded{display:none;}
+.rsvp-expanded.visible{display:block;}
+.rsvp-select{width:100%;background:transparent;border:1px solid rgba(0,0,0,0.18);font-family:'Cinzel',serif;font-size:0.8rem;color:var(--text);padding:0.6rem 0.8rem;outline:none;margin-bottom:0.6rem;appearance:none;cursor:pointer;}
+.rsvp-add-guest{background:none;border:1px solid rgba(0,0,0,0.18);font-family:'Cinzel',serif;font-size:0.76rem;color:var(--accent);padding:0.45rem 1rem;cursor:pointer;margin-top:0.4rem;margin-bottom:1rem;transition:all 0.2s;}
+.rsvp-add-guest:hover{background:var(--accent);color:white;}
+.extra-guest-row{margin-bottom:0.5rem;}
+.rsvp-remove-btn{background:none;border:none;cursor:pointer;color:rgba(0,0,0,0.28);font-size:1rem;padding:0 0.2rem;}
+.rsvp-submit{display:block;width:auto;background:var(--accent);color:white;font-family:'Cinzel',serif;font-size:0.76rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.85rem 2.5rem;border:none;cursor:pointer;margin-top:1rem;transition:opacity 0.2s;}
+.rsvp-submit:hover{opacity:0.8;}
+.rsvp-submit:disabled{opacity:0.35;cursor:not-allowed;}
+.rsvp-success{display:none;margin-top:2rem;font-size:1.8rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);}
+
+.footer{background:var(--accent);text-align:center;padding:2.5rem 1rem;}
+.footer-name{font-size:1.8rem;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;color:white;display:block;margin-bottom:0.4rem;}
+.footer-date{font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.45);}
+
+@media(max-width:640px){
+  .wedding-grid{grid-template-columns:1fr;gap:1.5rem;}
+  .arch-cards{grid-template-columns:1fr;max-width:280px;}
+  .gallery-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body class="hydrating">
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-backdrop" onclick="closeMenu()"></div>
+  <div class="menu-drawer">
+    <button class="menu-close" onclick="closeMenu()">x</button>
+    <div class="menu-name" id="menuName">To Have & Hold</div>
+    <ul class="menu-links" id="menuLinks"></ul>
+  </div>
+</div>
+<nav class="nav"><button class="nav-btn" onclick="openMenu()" aria-label="Menu">&#9776;</button></nav>
+
+<section class="hero-section" id="home">
+  <div class="hero-couple" id="heroCoupleNames">A &amp; B</div>
+  <div class="hero-date" id="heroDate"></div>
+  <div class="hero-dots"><div class="hero-dot active"></div><div class="hero-dot"></div><div class="hero-dot"></div></div>
+</section>
+
+<section class="section-alt" id="story" style="display:none">
+  <div class="section" style="padding:0"><div class="section-title">Our Story</div><div class="section-rule"></div><div class="section-body" id="storyText"></div></div>
+</section>
+
+<section class="section-dark" id="wedding" style="display:none">
+  <div style="max-width:780px;margin:0 auto"><div class="wedding-grid" id="weddingGrid"></div></div>
+</section>
+
+<section class="section-alt" id="events" style="display:none">
+  <div class="section" style="padding:0" id="otherEventsList"></div>
+</section>
+
+<section class="arch-section" id="travel" style="display:none">
+  <div class="arch-cards" id="travelCards"></div>
+</section>
+
+<section class="section-dark" id="ntk" style="display:none">
+  <div class="section" style="padding:0;max-width:560px">
+    <div class="section-title" style="color:white">Need to Knows</div>
+    <div class="section-rule" style="background:rgba(255,255,255,0.4)"></div>
+    <div id="ntkList"></div>
+  </div>
+</section>
+
+<section style="background:var(--bg2);padding:5rem 2rem" id="gallery" style="display:none">
+  <div style="max-width:860px;margin:0 auto;text-align:center">
+    <div class="section-title">Gallery</div><div class="section-rule"></div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<section class="registry-section" id="registry" style="display:none">
+  <div class="registry-title">See Our Registry</div>
+  <div style="font-size:0.8rem;color:var(--text);opacity:0.6;margin-top:0.8rem;line-height:1.9" id="registryBody"></div>
+</section>
+
+<section class="rsvp-section" id="rsvp" style="display:none">
+  <div class="rsvp-title">Rsvp Please</div>
+  <div class="rsvp-deadline" id="rsvpDeadline"></div>
+  <div class="rsvp-wrap">
+    <div id="rsvpBlocks"></div>
+    <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">Send My RSVP</button>
+    <div class="rsvp-success" id="rsvpSuccess">Thank you &#10084;</div>
+  </div>
+</section>
+
+<footer class="footer">
+  <span class="footer-name" id="footerName">A &amp; B</span>
+  <span class="footer-date" id="footerDate"></span>
+</footer>
+
+<script>
+const API='https://wedding-recommender.onrender.com';
+const _p=new URLSearchParams(window.location.search);
+const _slug=_p.get('slug')||'';
+const _path=window.location.pathname.split('/').filter(function(s){return s;})[0]||'';
+const _liveSlug=_slug||(_path!=='template-tohaveandhold.html'?_path:'');
+const _isPreview=!_liveSlug;
+const _pwdParam=_p.get('pwd')||'';
+(function(){if(_p.get('thumbnail')==='1')document.body.classList.add('thumbnail-mode');})();
+
+function openMenu(){document.getElementById('menuOverlay').classList.add('open');}
+function closeMenu(){document.getElementById('menuOverlay').classList.remove('open');}
+function handleMenuClick(link){closeMenu();var href=link.getAttribute('href');if(href&&href!=='#'){setTimeout(function(){var el=document.querySelector(href);if(el)el.scrollIntoView({behavior:'smooth'});},350);}return false;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
+
+var _rsvpEntreeOptions=[{value:'Chicken',label:'Chicken'},{value:'Fish',label:'Fish'},{value:'Vegetarian',label:'Vegetarian'},{value:'Vegan',label:'Vegan'},{value:'Kids Meal',label:'Kids Meal'}];
+
+function hydrateTemplate(d){
+  window._weddingSlug=d.slug||'';
+  var p1=d.partner_1||'',p2=d.partner_2||'';
+  var names=d.couple_names||(p1&&p2?p1+' & '+p2:'A & B');
+  function el(id){return document.getElementById(id);}
+  if(el('heroCoupleNames'))el('heroCoupleNames').textContent=names;
+  if(el('menuName'))el('menuName').textContent=names;
+  if(el('footerName'))el('footerName').textContent=names;
+  var dateStr='';
+  if(d.celebration_date){try{var dt=new Date(d.celebration_date+'T00:00:00Z');dateStr=dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});}catch(ex){dateStr=d.celebration_date;}}
+  if(el('heroDate'))el('heroDate').textContent=dateStr;
+  if(el('footerDate'))el('footerDate').textContent=dateStr;
+  if(el('rsvpDeadline')&&d.rsvp_config&&d.rsvp_config.deadline)el('rsvpDeadline').textContent='by '+d.rsvp_config.deadline;
+  if(d.rsvp_config&&d.rsvp_config.entrees&&d.rsvp_config.entrees.length)
+    _rsvpEntreeOptions=d.rsvp_config.entrees.map(function(e){return{value:e,label:e};});
+  if(d.custom_css){var s=document.createElement('style');s.textContent=d.custom_css;document.head.appendChild(s);}
+  var menu=d.menu_config||{};
+  var ml=el('menuLinks');
+  if(ml){var items=[{h:'#home',l:'Home',s:true},{h:'#story',l:'Our Story',s:menu.story},{h:'#wedding',l:'The Wedding',s:menu.wedding},{h:'#events',l:'Other Events',s:menu.other_events},{h:'#travel',l:'Travel & Stay',s:menu.travel||menu.accommodations},{h:'#ntk',l:'Need to Knows',s:menu.things_to_do||menu.faqs},{h:'#gallery',l:'Gallery',s:menu.gallery},{h:'#registry',l:'Registry',s:menu.registry},{h:'#rsvp',l:'RSVP',s:menu.rsvp}];ml.innerHTML=items.filter(function(i){return i.s;}).map(function(i){return'<li><a href="'+i.h+'" onclick="handleMenuClick(this)">'+i.l+'</a></li>';}).join('');}
+
+  var stEl=el('story');if(stEl)stEl.style.display=menu.story?'':'none';
+  if(menu.story&&d.story){var st=el('storyText');if(st)st.innerHTML=d.story;}
+
+  var wEl=el('wedding');if(wEl)wEl.style.display=menu.wedding?'':'none';
+  if(menu.wedding){var grid=el('weddingGrid');if(grid&&d.weddings_info){grid.innerHTML='';var wParts=d.weddings_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||').split('||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});function makeWC(html){var nm=html.match(/^<strong>([^<]+)<\/strong>/i);var title=nm?nm[1]:'';var rest=nm?html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():html;var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);var dress=dm?dm[1]:'';var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;return'<div style="text-align:center">'+(title?'<div class="wedding-card-title">'+title+'</div>':'')+(detail?'<div class="wedding-card-detail">'+detail+'</div>':'')+(dress?'<span class="wedding-card-dress">'+dress+'</span>':'')+'</div>';}if(wParts.length>=2){grid.innerHTML=makeWC(wParts[0])+makeWC(wParts[1]);}else if(wParts.length===1){grid.style.gridTemplateColumns='1fr';grid.innerHTML=makeWC(wParts[0]);}}}
+
+  var evEl=el('events');if(evEl)evEl.style.display=menu.other_events?'':'none';
+  if(menu.other_events){var evList=el('otherEventsList');if(evList&&d.events_info){evList.innerHTML='';var evParts=d.events_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||').split('||').map(function(p){return p.trim();}).filter(Boolean);if(!evParts.length)evParts=[d.events_info];evParts.forEach(function(part){var nm=part.match(/^<strong>([^<]+)<\/strong>/i);var evName=nm?nm[1]:'';var rest=nm?part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():part;var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);var dress=dm?dm[1]:'';var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;var item=document.createElement('div');item.style.cssText='text-align:center;margin-bottom:2.5rem;';item.innerHTML=(evName?'<div style="font-size:clamp(1.8rem,4vw,2.6rem);color:var(--accent);margin-bottom:1rem">'+evName+'</div>':'')+(detail?'<div style="font-size:0.88rem;color:var(--text);line-height:2.1">'+detail+'</div>':'')+(dress?'<div style="font-size:1.3rem;color:var(--accent);margin-top:1rem">'+dress+'</div>':'');evList.appendChild(item);});}}
+
+  var trEl=el('travel');if(trEl)trEl.style.display=(menu.travel||menu.accommodations)?'':'none';
+  if(menu.travel||menu.accommodations){var tc=el('travelCards');if(tc){tc.innerHTML='';var cards=[];if(d.accommodation_info){var nm=d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);var rest=nm?d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():d.accommodation_info;var np=rest.split(/<br\s*\/?>/i).map(function(s){return s.replace(/<[^>]+>/g,'').trim();}).filter(Boolean);cards.push({label:'Hotel',name:np.slice(0,2).join(' '),note:np.slice(2).join(' ')});}if(d.travel_info){var tt=d.travel_info.replace(/<[^>]+>/g,'').trim();var am=tt.match(/([A-Z][^.]+(?:airport|Airport)[^.]*)/);cards.push({label:'Flights',name:am?am[0].trim():'Airport',note:tt.replace(am?am[0]:'','').replace(/^[.,\s]+/,'').trim()});}cards.forEach(function(card){var div=document.createElement('div');div.className='arch-card';div.innerHTML='<div class="arch-card-label">'+card.label+'</div><div class="arch-card-rule"></div><div class="arch-card-name">'+card.name+'</div>'+(card.note?'<div class="arch-card-note">'+card.note+'</div>':'')+'<a class="arch-card-btn" href="#" target="_blank">Book Now</a>';tc.appendChild(div);});}}
+
+  var ntkEl=el('ntk');if(ntkEl)ntkEl.style.display=(menu.things_to_do||menu.faqs)?'':'none';
+  if((menu.things_to_do||menu.faqs)&&d.faqs){var nl=el('ntkList');if(nl){nl.innerHTML='';var blocks=d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||').split('||').map(function(b){return b.trim();}).filter(Boolean);blocks.forEach(function(block){var bi=block.search(/<br\s*\/?>/i);var q=bi===-1?block.replace(/<[^>]+>/g,'').trim():block.substring(0,bi).replace(/<[^>]+>/g,'').trim();var a=bi===-1?'':block.substring(bi).replace(/^(<br\s*\/?>)+/i,'').trim();var item=document.createElement('div');item.className='ntk-item';item.innerHTML=(q?'<div class="ntk-question">'+q+'</div>':'')+(a?'<div class="ntk-answer">'+a+'</div>':'');nl.appendChild(item);});}}
+
+  var galEl=el('gallery');if(galEl)galEl.style.display=menu.gallery?'':'none';
+  var regEl=el('registry');if(regEl)regEl.style.display=menu.registry?'':'none';
+  if(menu.registry){var rb=el('registryBody');if(rb&&d.registry_info)rb.innerHTML=d.registry_info;}
+
+  var rsvpEl=el('rsvp');if(rsvpEl)rsvpEl.style.display=menu.rsvp?'':'none';
+  if(menu.rsvp){var evs=(d.events&&d.events.length)?d.events.map(function(ev){return{id:ev.id||ev.name,label:ev.label||ev.name};}):([{id:'wedding',label:'The Wedding'}]);buildRsvpBlocks(evs);}
+}
+
+function buildRsvpBlocks(events){
+  var container=document.getElementById('rsvpBlocks');container.innerHTML='';
+  var entreeOpts=_rsvpEntreeOptions.map(function(o){return'<option value="'+o.value+'">'+o.label+'</option>';}).join('');
+  events.forEach(function(ev){
+    var block=document.createElement('div');block.className='rsvp-event-block';block.dataset.eventId=ev.id;
+    block.innerHTML='<div class="rsvp-event-label">'+ev.label+'</div><div><input class="rsvp-name-input" type="text" placeholder="Your full name" oninput="onNameInput(this)"></div><div class="rsvp-expanded" id="expanded-'+ev.id+'"><select class="rsvp-select" data-field="attending"><option value="">Will you attend?</option><option value="yes">Attending</option><option value="no">Cannot make it</option><option value="maybe">Not sure</option></select><select class="rsvp-select" data-field="entree"><option value="">Entree choice</option>'+entreeOpts+'</select><input class="rsvp-name-input" type="email" placeholder="Email address" data-field="email"><div id="extra-guests-'+ev.id+'"></div><button class="rsvp-add-guest" onclick="addExtraGuest(this)">+ Add Plus One</button></div>';
+    container.appendChild(block);
+  });
+  checkShowSubmit();
+}
+function onNameInput(inp){var block=inp.closest('.rsvp-event-block');var exp=document.getElementById('expanded-'+block.dataset.eventId);if(inp.value.trim().length>=2)exp.classList.add('visible');else exp.classList.remove('visible');checkShowSubmit();}
+function checkShowSubmit(){var any=false;document.querySelectorAll('.rsvp-event-block .rsvp-name-input').forEach(function(i){if(i.value.trim().length>=2)any=true;});var btn=document.getElementById('rsvpSubmitBtn');if(btn)btn.style.display=any?'block':'none';}
+function addExtraGuest(btn){var list=document.getElementById('extra-guests-'+btn.closest('.rsvp-event-block').dataset.eventId);if(list.children.length>0)return;var row=document.createElement('div');row.className='extra-guest-row';var ni=document.createElement('input');ni.className='rsvp-name-input';ni.type='text';ni.placeholder='Plus one name';ni.dataset.role='plus-one-name';var rb=document.createElement('button');rb.className='rsvp-remove-btn';rb.textContent='x';rb.onclick=function(){row.remove();btn.style.display='';};row.appendChild(ni);row.appendChild(rb);list.appendChild(row);btn.style.display='none';}
+async function submitRSVP(){if(_isPreview){alert('RSVP disabled in preview.');return;}var btn=document.getElementById('rsvpSubmitBtn');btn.disabled=true;btn.textContent='Sending...';try{var promises=[];document.querySelectorAll('.rsvp-event-block').forEach(function(block){var name=block.querySelector('.rsvp-name-input').value.trim();if(!name)return;var eid=block.dataset.eventId;var exp=document.getElementById('expanded-'+eid);var g=function(f){return(exp&&exp.querySelector('[data-field="'+f+'"]'))||{};};promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:window._weddingSlug||'',guest_name:name,attending:g('attending').value||'yes',entree_choice:g('entree').value||'',email:g('email').value||'',event_name:block.querySelector('.rsvp-event-label').textContent})}));var por=exp&&exp.querySelector('.extra-guest-row');if(por){var pn=(por.querySelector('[data-role="plus-one-name"]')||{}).value||'';if(pn.trim())promises.push(fetch(API+'/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:window._weddingSlug||'',guest_name:pn.trim(),attending:g('attending').value||'yes',event_name:block.querySelector('.rsvp-event-label').textContent})}))}});await Promise.all(promises);document.getElementById('rsvpSuccess').style.display='block';btn.style.display='none';}catch(e){alert('Something went wrong.');btn.disabled=false;btn.textContent='Send My RSVP';}}
+
+const SAMPLE={slug:'',couple_names:'A & B',partner_1:'A',partner_2:'B',celebration_date:'2027-06-14',hero_image:'',gallery_images:[],story:'Two people, one perfect moment.',weddings_info:'<strong>The Ceremony</strong><br>Saturday, June 14th, 2027<br>6 O\'Clock in the Evening<br>The Grand Estate<br><em>Black Tie</em><br><br><strong>The Reception</strong><br>Saturday, June 14th, 2027<br>8 O\'Clock in the Evening<br>The Grand Estate<br><em>Black Tie</em>',events_info:'<strong>Welcome Dinner</strong><br>Friday, June 13th, 2027<br>7 O\'Clock in the Evening<br>The Garden Terrace<br><em>Smart Casual</em>',accommodation_info:'<strong>The Grand Hotel</strong><br>1 Grand Avenue<br>Room block reserved',travel_info:'International Airport, 25 minutes from the venue.',faqs:'<strong>What should I wear?</strong><br>Black tie attire for the ceremony.<br><br><strong>Will there be transportation?</strong><br>Shuttle service provided from the hotel.',registry_info:'',events:[],rsvp_config:{entrees:['Beef','Salmon','Vegetarian','Vegan'],allow_plus_one:true,deadline:'April 1st, 2027'},website_mode:'Full',customization:{primary_color:'',accent_color:'',text_color:''},custom_css:'',menu_config:{home:true,story:true,wedding:true,other_events:true,accommodations:true,travel:true,things_to_do:true,faqs:true,gallery:false,registry:true,rsvp:true}};
+function _reveal(){document.body.classList.remove('hydrating');}
+if(_isPreview){_reveal();var _got=false;window.addEventListener('message',function(e){if(e.data&&e.data.type==='HYDRATE_TEMPLATE'){_got=true;hydrateTemplate(e.data.payload);}});setTimeout(function(){if(!_got)hydrateTemplate(SAMPLE);},800);}
+else{var _sk='weddingData_'+_liveSlug,_sd=sessionStorage.getItem(_sk);if(_sd){try{var _d=JSON.parse(_sd);sessionStorage.removeItem(_sk);hydrateTemplate(_d);_reveal();}catch(ex){sessionStorage.removeItem(_sk);_reveal();_fetch();}}else{_reveal();_fetch();}function _fetch(){fetch(API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):'')).then(function(r){if(!r.ok)throw r.status;return r.json();}).then(function(d){if(d.password_required){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Georgia,serif;color:var(--accent);background:var(--bg);font-size:2rem"><p>Password Protected</p></div>';return;}hydrateTemplate(d);}).catch(function(){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Georgia,serif;color:var(--accent);background:var(--bg)"><p>Site not found.</p></div>';});}}
+</script>
+</body>
+</html>
