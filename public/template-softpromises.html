@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Promises</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:linear-gradient(160deg,#b5958a 0%,#8a7470 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:Georgia,serif;color:#f9f7f5;text-align:center;padding:2rem;
+}
+body.hydrating{visibility:hidden}
+.name{font-size:clamp(2rem,6vw,3.5rem);font-style:italic;letter-spacing:0.03em;margin-bottom:1rem;}
+.tag{font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.65;margin-bottom:3rem;}
+.pill{
+  display:inline-block;padding:0.6rem 2rem;
+  border:1px solid rgba(255,255,255,0.45);
+  font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+  opacity:0.8;border-radius:999px;
+}
+</style>
+</head>
+<body class="hydrating">
+  <div class="name" id="coupleName">A &amp; B</div>
+  <div class="tag">Soft Promises &mdash; Coming Soon</div>
+  <div class="pill">Template in development</div>
+<script>
+const API = 'https://wedding-recommender.onrender.com';
+const _params    = new URLSearchParams(window.location.search);
+const _slugParam = _params.get('slug') || '';
+const _pathParts = window.location.pathname.split('/').filter(p => p);
+const _firstPart = _pathParts[0] || '';
+const _liveSlug  = _slugParam || (_firstPart !== 'template-softpromises.html' ? _firstPart : '');
+const _isPreview = !_liveSlug;
+
+function _reveal() { document.body.classList.remove('hydrating'); }
+
+function hydrateTemplate(d) {
+  var el = document.getElementById('coupleName');
+  if (el && d.couple_names) el.textContent = d.couple_names;
+}
+
+if (_isPreview) {
+  _reveal();
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'HYDRATE_TEMPLATE') hydrateTemplate(e.data.payload);
+  });
+  setTimeout(function() { hydrateTemplate({couple_names:'A & B'}); }, 800);
+} else {
+  const _sessionKey  = 'weddingData_' + _liveSlug;
+  const _sessionData = sessionStorage.getItem(_sessionKey);
+  if (_sessionData) {
+    try {
+      const d = JSON.parse(_sessionData);
+      sessionStorage.removeItem(_sessionKey);
+      hydrateTemplate(d); _reveal();
+    } catch { _reveal(); }
+  } else {
+    _reveal();
+    fetch(API + '/wedding-site/' + encodeURIComponent(_liveSlug))
+      .then(function(r) { return r.json(); })
+      .then(function(d) { hydrateTemplate(d); })
+      .catch(function() {});
+  }
+}
+</script>
+</body>
+</html>

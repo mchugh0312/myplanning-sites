@@ -122,14 +122,18 @@ const API = 'https://wedding-recommender.onrender.com';
 // Map template label → template file path on Vercel
 // Add new templates here as you build them
 const TEMPLATE_MAP = {
-  'romantic':   '/template-romantic.html',
-  'elegant':    '/template-romantic.html',
-  'classic':    '/template-romantic.html',
-  'modern':     '/template-romantic.html',
-  'minimalist': '/template-romantic.html',
-  'rustic':     '/template-romantic.html',
+  'romantic':    '/template-pressedpetals.html',
+  'pressed petals':'/template-pressedpetals.html',
+  'love letters':  '/template-loveletter.html',
+  'forever & ever':'/template-foreverever.html',
+  'soft promises': '/template-softpromises.html',
+  'elegant':    '/template-pressedpetals.html',
+  'classic':    '/template-pressedpetals.html',
+  'modern':     '/template-pressedpetals.html',
+  'minimalist': '/template-pressedpetals.html',
+  'rustic':     '/template-pressedpetals.html',
 };
-const DEFAULT_TEMPLATE = '/template-romantic.html';
+const DEFAULT_TEMPLATE = '/template-pressedpetals.html';
 
 // Parse slug from path: weddings.myplanning.ai/sarah-and-john
 const path = window.location.pathname.split('/').filter(p => p);
