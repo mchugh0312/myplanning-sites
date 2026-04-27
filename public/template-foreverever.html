@@ -802,15 +802,14 @@ async function submitRSVP() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slug:             slug,
-          guest_name:       name,
-          attending:        attending,
-          meal_preference:  meal,
-          entree_choice:    entree,
-          email:            email,
-          dietary_notes:    dietary,
-          message:          notes,
-          event_name:       label
+          slug:            slug,
+          guest_name:      name,
+          attending:       attending || 'yes',
+          meal_preference: meal || '',
+          entree_choice:   entree || '',
+          email:           email || '',
+          message:         notes || '',
+          event_name:      label
         })
       }));
       // Plus one — reads the structured fields we added
