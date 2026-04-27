@@ -1,0 +1,209 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   MyPlanning.ai — Printess buyer-side white-label theme
+   Host this file at: https://myplanning.ai/printess-theme.css
+   It is loaded INSIDE the Printess iframe via the cssUrl attach property,
+   so selectors target Printess's own DOM classes.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Brand tokens ──────────────────────────────────────────────────────── */
+:root {
+  --mp-sage:        #4B5244;
+  --mp-dusty-blue:  #A9BDC4;
+  --mp-warm-brown:  #8C7D6E;
+  --mp-off-white:   #F9F7F5;
+  --mp-near-black:  #121212;
+  --mp-border:      #E8E6E4;
+
+  /* Bootstrap overrides Printess uses internally */
+  --bs-primary:        var(--mp-sage);
+  --bs-primary-rgb:    75, 82, 68;
+  --bs-secondary:      var(--mp-dusty-blue);
+  --bs-light:          var(--mp-off-white);
+  --bs-body-bg:        var(--mp-off-white);
+  --bs-body-color:     var(--mp-near-black);
+  --bs-border-color:   var(--mp-border);
+  --bs-border-radius:  4px;
+  --bs-link-color:     var(--mp-sage);
+}
+
+/* ── Typography ────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Open+Sans:wght@400;500;600&display=swap');
+
+body,
+.printess-buyer-side,
+.modal-content,
+.offcanvas {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  background-color: var(--mp-off-white) !important;
+  color: var(--mp-near-black) !important;
+}
+
+h1, h2, h3, .modal-title, .offcanvas-title {
+  font-family: 'Instrument Serif', serif !important;
+  font-weight: normal !important;
+  color: var(--mp-near-black) !important;
+}
+
+/* ── Splash / loading screen — kill the Printess wordmark moment ───────── */
+/* These cover Printess's loading container with our brand color so the
+   user only sees off-white before our parent-page splash takes over. */
+.printess-loading-overlay,
+.printess-startup-screen,
+#printess-startup,
+#printess-loading {
+  background-color: var(--mp-off-white) !important;
+}
+
+/* Replace any default Printess loading logo with ours */
+.printess-loading-overlay img,
+.printess-startup-screen img,
+#printess-startup img {
+  content: url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6b4bfc3e-e616-43d8-8ee8-4b98c25a09e2.png') !important;
+  max-height: 48px !important;
+  width: auto !important;
+}
+
+/* Spinner color */
+.spinner-border,
+.spinner-grow {
+  color: var(--mp-sage) !important;
+}
+
+/* ── Top toolbar ───────────────────────────────────────────────────────── */
+.desktop-title-bar,
+.mobile-navbar,
+.printess-buyer-side > .navbar {
+  background-color: var(--mp-off-white) !important;
+  border-bottom: 1px solid var(--mp-border) !important;
+  color: var(--mp-near-black) !important;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+/* Primary — Save, Add to basket, Done */
+.btn-primary,
+.btn.primary,
+.printess-buyer-side .btn-primary {
+  background-color: var(--mp-sage) !important;
+  border-color: var(--mp-sage) !important;
+  color: #FFFFFF !important;
+  border-radius: 999px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 500 !important;
+}
+.btn-primary:hover,
+.btn.primary:hover {
+  background-color: #3a4035 !important;
+  border-color: #3a4035 !important;
+}
+
+/* Secondary — Back, Cancel, neutral actions */
+.btn-secondary,
+.btn-outline-secondary {
+  background-color: transparent !important;
+  border: 1.5px solid var(--mp-sage) !important;
+  color: var(--mp-sage) !important;
+  border-radius: 999px !important;
+  padding: 0.5rem 1.5rem !important;
+}
+.btn-secondary:hover,
+.btn-outline-secondary:hover {
+  background-color: var(--mp-sage) !important;
+  color: #FFFFFF !important;
+}
+
+/* Tertiary / icon buttons */
+.btn-light,
+.btn-outline-light {
+  background-color: var(--mp-dusty-blue) !important;
+  border-color: var(--mp-dusty-blue) !important;
+  color: #FFFFFF !important;
+  border-radius: 4px !important;
+}
+
+/* ── Property panel (right side / bottom on mobile) ────────────────────── */
+.printess-buyer-side .property-panel,
+.printess-buyer-side .properties,
+.offcanvas {
+  background-color: #FFFFFF !important;
+  border-color: var(--mp-border) !important;
+}
+
+.form-label,
+.property-label {
+  color: var(--mp-warm-brown) !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* ── Form inputs ───────────────────────────────────────────────────────── */
+.form-control,
+.form-select,
+input[type="text"],
+input[type="number"],
+textarea {
+  border-radius: 4px !important;
+  border-color: var(--mp-border) !important;
+  background-color: #FFFFFF !important;
+  color: var(--mp-near-black) !important;
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--mp-sage) !important;
+  box-shadow: 0 0 0 0.15rem rgba(75, 82, 68, 0.18) !important;
+}
+
+/* ── Color picker swatches, selection rings ────────────────────────────── */
+.printess-buyer-side .selected,
+.printess-buyer-side .active {
+  outline-color: var(--mp-sage) !important;
+  border-color: var(--mp-sage) !important;
+}
+
+/* ── Tabs / accordion headers ──────────────────────────────────────────── */
+.nav-tabs .nav-link.active,
+.accordion-button:not(.collapsed) {
+  color: var(--mp-sage) !important;
+  border-bottom-color: var(--mp-sage) !important;
+  background-color: var(--mp-off-white) !important;
+}
+
+.accordion-button:not(.collapsed)::after {
+  filter: invert(28%) sepia(8%) saturate(700%) hue-rotate(70deg) brightness(95%);
+}
+
+/* ── Modal / dialog ────────────────────────────────────────────────────── */
+.modal-content {
+  border-radius: 4px !important;
+  border: 1px solid var(--mp-border) !important;
+}
+
+.modal-header {
+  border-bottom-color: var(--mp-border) !important;
+  background-color: var(--mp-off-white) !important;
+}
+
+/* ── Mobile bottom toolbar ─────────────────────────────────────────────── */
+.mobile-property-bar,
+.mobile-toolbar {
+  background-color: #FFFFFF !important;
+  border-top: 1px solid var(--mp-border) !important;
+}
+
+/* ── Misc cleanups ─────────────────────────────────────────────────────── */
+.text-muted,
+.text-secondary {
+  color: var(--mp-warm-brown) !important;
+}
+
+a, a:visited {
+  color: var(--mp-sage) !important;
+}
+
+/* Hide any "Powered by Printess" footer if present */
+.printess-credit,
+.powered-by-printess {
+  display: none !important;
+}
