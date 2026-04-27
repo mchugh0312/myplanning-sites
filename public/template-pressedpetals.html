@@ -1003,14 +1003,27 @@ async function submitRSVP() {
       }
     });
     var results = await Promise.all(promises);
-    // Check if any failed
-    var failed = results.filter(function(r) { return !r.ok; });
-    if (failed.length > 0) throw new Error(failed.length + ' RSVP(s) failed to save');
+    // Check if any failed and capture error detail
+    var failedDetails = [];
+    for (var ri = 0; ri < results.length; ri++) {
+      if (!results[ri].ok) {
+        try {
+          var errBody = await results[ri].json();
+          failedDetails.push(errBody.detail || ('HTTP ' + results[ri].status));
+        } catch(je) {
+          failedDetails.push('HTTP ' + results[ri].status);
+        }
+      }
+    }
+    if (failedDetails.length > 0) {
+      console.error('RSVP API errors:', failedDetails);
+      throw new Error(failedDetails.join(' | '));
+    }
     document.getElementById('rsvpSuccess').style.display = 'block';
     btn.style.display = 'none';
   } catch(e) {
     console.error('RSVP error:', e);
-    alert('Something went wrong. Please try again.');
+    alert('RSVP error: ' + (e.message || 'unknown'));
     btn.disabled = false; btn.textContent = 'Submit Your Rsvp';
   }
 }
