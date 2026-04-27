@@ -79,13 +79,10 @@ body.hydrating{visibility:hidden}
 
 /* ── NAV ──────────────────────────────────────────────────── */
 .nav{
-  position:sticky;top:0;z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1rem 2rem;
-  background:rgba(249,247,245,0.95);
-  backdrop-filter:blur(8px);
+  position:fixed;top:0;right:0;z-index:500;
+  padding:1rem 1.5rem;
+  background:transparent;
 }
-.nav-logo{font-family:var(--script);font-size:1.5rem;color:var(--text);font-weight:400;}
 .nav-hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
 .nav-hamburger span{display:block;width:22px;height:1.5px;background:var(--text);}
 
@@ -544,7 +541,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 
 <!-- NAV -->
 <nav class="nav">
-  <span class="nav-logo" id="navLogo">S & A</span>
   <button class="nav-hamburger" onclick="openMenu()" aria-label="Open menu">
     <span></span><span></span><span></span>
   </button>
@@ -1033,7 +1029,7 @@ function hydrateTemplate(d) {
 
   // ── Names ────────────────────────────────────────────────────────────
   document.getElementById('heroCoupleNames').textContent = names;
-  document.getElementById('navLogo').textContent = p1 && p2 ? `${p1[0]} & ${p2[0]}` : names;
+  // nav logo removed
   document.getElementById('footerNames').textContent = names;
   document.title = names;
 

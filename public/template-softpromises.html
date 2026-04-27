@@ -24,16 +24,33 @@ img{display:block;max-width:100%;}
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────────── */
 body.thumbnail-mode .hero-section{
-  height:66.67vw!important;min-height:0!important;display:grid!important;
-  grid-template-columns:1fr 1fr 1fr!important;
+  height:66.67vw!important;min-height:0!important;
+  display:block!important;
+  /* Composite all 3 images as a single horizontal background strip */
+  background-image:
+    url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1cbba2b4-1d3f-4431-99db-64b768676669.png'),
+    url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/43ecc0a6-58fd-4723-a2c3-6a8b8f0c4d5c.png'),
+    url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/f7d52065-42ac-4d89-9817-e84976a4056d.png')!important;
+  background-size:33.33% 100%, 33.33% 100%, 33.33% 100%!important;
+  background-position:0% center, 50% center, 100% center!important;
+  background-repeat:no-repeat, no-repeat, no-repeat!important;
+  position:relative!important;
 }
 body.thumbnail-mode .hero-col,
-body.thumbnail-mode .hero-col-centre{display:block!important;}
-body.thumbnail-mode .hero-col-centre{display:flex!important;}
+body.thumbnail-mode .hero-col-centre{display:none!important;}
 body.thumbnail-mode .hero-section::before,
-body.thumbnail-mode .hero-section::after{display:block!important;}
-body.thumbnail-mode .hero-names-text{font-size:0.45rem!important;white-space:nowrap!important;}
-body.thumbnail-mode .hero-names{bottom:20%!important;}
+body.thumbnail-mode .hero-section::after{display:none!important;}
+body.thumbnail-mode .hero-names{
+  display:flex!important;position:absolute!important;
+  bottom:20%!important;left:50%!important;
+  transform:translateX(-50%)!important;
+  width:auto!important;
+}
+body.thumbnail-mode .hero-names-text{
+  font-size:clamp(0.5rem,3.5vw,0.9rem)!important;
+  white-space:nowrap!important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.4)!important;
+}
 
 /* ── NAV ──────────────────────────────────────────────────────── */
 .nav{position:fixed;top:0;right:0;z-index:500;padding:1rem 1.5rem;}
@@ -166,10 +183,9 @@ body.thumbnail-mode .hero-names{bottom:20%!important;}
   .split-section{grid-template-columns:1fr;}
   .split-photo{height:280px;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
-  /* Thumbnail overrides inside @media to beat display:none above */
-  body.thumbnail-mode .hero-section{height:66.67vw!important;min-height:0!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;}
-  body.thumbnail-mode .hero-col,body.thumbnail-mode .hero-col-centre{display:block!important;}
-  body.thumbnail-mode .hero-col-centre{display:flex!important;}
+  /* Thumbnail mode: CSS background handles display */
+  body.thumbnail-mode .hero-section{height:66.67vw!important;min-height:0!important;display:block!important;}
+  body.thumbnail-mode .hero-col,body.thumbnail-mode .hero-col-centre{display:none!important;}
   body.thumbnail-mode .hero-section::before,body.thumbnail-mode .hero-section::after{display:block!important;}
 }
 </style>
@@ -181,7 +197,7 @@ body.thumbnail-mode .hero-names{bottom:20%!important;}
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-name" id="menuCoupleName">Soft Promises</div>
+    <div class="menu-name" id="menuCoupleName">Menu</div>
     <ul class="menu-links" id="menuLinks"></ul>
   </div>
 </div>
@@ -304,7 +320,7 @@ function hydrateTemplate(d){
   var names=d.couple_names||(p1&&p2?p1+' & '+p2:'A & B');
   function el(id){return document.getElementById(id);}
   if(el('heroNames'))el('heroNames').textContent=names;
-  if(el('menuCoupleName'))el('menuCoupleName').textContent=names;
+  // menu title stays as 'Menu'
   if(el('footerCouple'))el('footerCouple').textContent=names;
 
   var dateStr='';

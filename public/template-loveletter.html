@@ -27,13 +27,10 @@ img{max-width:100%;display:block;}
 
 /* ── NAV ───────────────────────────────────────────────────── */
 .nav{
-  position:sticky;top:0;z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0.9rem 1.8rem;
-  background:rgba(103,61,69,0.95);
-  backdrop-filter:blur(8px);
+  position:fixed;top:0;right:0;z-index:500;
+  padding:1rem 1.5rem;
+  background:transparent;
 }
-.nav-logo{font-family:var(--script);font-size:1.4rem;color:var(--offwhite);}
 .nav-hamburger{
   background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;gap:5px;padding:4px;
@@ -465,7 +462,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 
 <!-- NAV -->
 <nav class="nav">
-  <span class="nav-logo" id="navCouple">A &amp; B</span>
   <button class="nav-hamburger" onclick="openMenu()" aria-label="Open menu">
     <span></span><span></span><span></span>
   </button>
@@ -692,9 +688,7 @@ function hydrateTemplate(d) {
   var p2 = d.partner_2 || '';
   var names = d.couple_names || (p1&&p2 ? p1+' & '+p2 : 'A & B');
 
-  // Nav couple names
-  var nc = document.getElementById('navCouple');
-  if (nc) nc.textContent = names;
+  // Nav logo removed
 
   // Hero initials — first letter of each partner (T & L style)
   var il = document.getElementById('heroInitL');

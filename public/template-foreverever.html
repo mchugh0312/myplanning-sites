@@ -57,15 +57,7 @@ img{max-width:100%;display:block;}
   font-size:1.5rem;color:rgba(249,247,245,0.6);line-height:1;
 }
 .menu-close:hover{color:var(--offwhite);}
-.menu-header{
-  font-family:var(--script);font-size:1.8rem;
-  color:var(--offwhite);margin-bottom:0.3rem;
-}
-.menu-sub{
-  font-family:var(--serif);font-size:0.68rem;
-  letter-spacing:0.12em;text-transform:uppercase;
-  color:rgba(249,247,245,0.4);margin-bottom:2.5rem;
-}
+
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:1rem;}
 .menu-links a{
   font-family:var(--serif);font-size:0.82rem;
@@ -501,8 +493,7 @@ body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!importan
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-header" id="menuCoupleName">Forever &amp; Ever</div>
-    <div class="menu-sub">Wedding Website</div>
+    <div class="menu-title" id="menuCoupleName" style="font-family:var(--script);font-size:1.5rem;color:var(--offwhite);margin-bottom:2rem">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#home"          onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#story"         onclick="handleMenuClick(this)">Our Story</a></li>
