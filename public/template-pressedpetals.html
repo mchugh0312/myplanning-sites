@@ -895,48 +895,101 @@ function lookupGuest(block, name) {
   var eventId  = block.dataset.eventId;
   var expanded = document.getElementById('expanded-' + eventId);
 
-  fetch(API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-lookup?name=' + encodeURIComponent(name))
-    .then(function(r) { return r.ok ? r.json() : null; })
+  // Visible indicator: place ABOVE the expanded section (always visible regardless
+  // of expansion state). Distinct banner style — left border, padded background.
+  var statusEl = block.querySelector('.rsvp-lookup-status');
+  if (!statusEl) {
+    statusEl = document.createElement('div');
+    statusEl.className = 'rsvp-lookup-status';
+    statusEl.style.cssText = [
+      'font-family:var(--serif)',
+      'font-size:0.85rem',
+      'padding:0.5rem 0.8rem',
+      'margin:0.5rem 0 0.4rem',
+      'border-left:3px solid #A9BDC4',
+      'background:rgba(169,189,196,0.1)',
+      'border-radius:4px',
+      'color:#4B5244',
+      'transition:opacity 0.2s'
+    ].join(';');
+    // Insert AFTER the name input (which is the first .rsvp-name-input in the block),
+    // and BEFORE the expanded section.
+    var nameInput = block.querySelector('.rsvp-name-input');
+    if (nameInput && nameInput.parentNode) {
+      // Insert after the name input's row container, just above expanded
+      if (expanded && expanded.parentNode === block) {
+        block.insertBefore(statusEl, expanded);
+      } else {
+        nameInput.parentNode.insertBefore(statusEl, nameInput.nextSibling);
+      }
+    } else {
+      block.appendChild(statusEl);
+    }
+  }
+  statusEl.textContent = 'Checking guest list…';
+  statusEl.style.borderLeftColor = '#A9BDC4';
+  statusEl.style.background      = 'rgba(169,189,196,0.1)';
+  statusEl.style.color           = '#8C7D6E';
+
+  var lookupUrl = API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-lookup?name=' + encodeURIComponent(name);
+  console.log('[RSVP lookup]', lookupUrl);
+
+  fetch(lookupUrl)
+    .then(function(r) {
+      if (!r.ok) {
+        console.warn('[RSVP lookup] HTTP', r.status);
+        return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
+      }
+      return r.json();
+    })
     .then(function(json) {
-      if (!json) return;
+      console.log('[RSVP lookup] response', json);
       var addBtn   = expanded.querySelector('.rsvp-add-guest');
       var listEl   = expanded.querySelector('.extra-guests-list');
 
       if (json.found === true) {
-        // Cache resolved guest info on the block — submitRSVP picks this up.
-        block.dataset.guestId         = json.guest_id || '';
-        block.dataset.plusOneAllowed  = json.plus_one_allowed ? '1' : '0';
+        block.dataset.guestId          = json.guest_id || '';
+        block.dataset.plusOneAllowed   = json.plus_one_allowed ? '1' : '0';
         block.dataset.householdAllowed = String(json.household_members_allowed || 0);
-        block.dataset.lookupState     = 'found';
+        block.dataset.lookupState      = 'found';
 
-        // Per-guest plus-one allowance — overrides the global website toggle.
-        if (addBtn) {
-          addBtn.style.display = json.plus_one_allowed ? '' : 'none';
-        }
-        // If a plus-one row was already added but is no longer allowed, remove it silently.
+        statusEl.textContent           = '✓ Found you on the list — ' + json.name;
+        statusEl.style.borderLeftColor = '#4B5244';
+        statusEl.style.background      = 'rgba(75,82,68,0.08)';
+        statusEl.style.color           = '#4B5244';
+
+        if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
         if (listEl && !json.plus_one_allowed) {
           listEl.innerHTML = '';
           if (addBtn) addBtn.style.display = 'none';
         }
       } else if (json.ambiguous) {
-        // Ambiguous match — surface candidates so the guest can pick the right one.
         block.dataset.lookupState = 'ambiguous';
         block.dataset.guestId = '';
+        statusEl.textContent           = 'Multiple matches — please pick yours below';
+        statusEl.style.borderLeftColor = '#B69400';
+        statusEl.style.background      = 'rgba(182,148,0,0.08)';
+        statusEl.style.color           = '#B69400';
         showAmbiguousMatches(block, json.matches || []);
       } else {
-        // No match — guest typed a name not on the list. Allow RSVP to proceed (bride
-        // may want to capture surprise attendees), but use the global plus-one default.
         block.dataset.lookupState = 'unknown';
         block.dataset.guestId = '';
         block.dataset.plusOneAllowed = (window._globalAllowPlusOne === false) ? '0' : '1';
-        if (addBtn) {
-          addBtn.style.display = (window._globalAllowPlusOne === false) ? 'none' : '';
-        }
+        statusEl.textContent           = "We couldn't find your name on the list — please contact the couple if you think this is a mistake.";
+        statusEl.style.borderLeftColor = '#C23331';
+        statusEl.style.background      = 'rgba(194,51,49,0.08)';
+        statusEl.style.color           = '#C23331';
+        if (addBtn) addBtn.style.display = (window._globalAllowPlusOne === false) ? 'none' : '';
       }
     })
     .catch(function(err) {
-      // On network error, don't block the RSVP — just fall back silently.
-      console.warn('Guest lookup failed:', err);
+      console.warn('[RSVP lookup] error:', err);
+      // Don't block submission on lookup error — clear the banner.
+      if (statusEl) {
+        statusEl.textContent           = '';
+        statusEl.style.background      = 'transparent';
+        statusEl.style.borderLeftColor = 'transparent';
+      }
     });
 }
 
@@ -1012,8 +1065,29 @@ function addExtraGuest(btn) {
   var nameInput = document.createElement('input');
   nameInput.className = 'rsvp-text-input';
   nameInput.type = 'text';
-  nameInput.placeholder = 'Plus one full name';
+  // Default name: "[Primary]'s Plus One" so the seating chart never shows "Unnamed Record".
+  // The guest can edit if they know their plus-one's actual name.
+  var primaryBlock = btn.closest('.rsvp-event-block');
+  var primaryName  = primaryBlock ? (primaryBlock.querySelector('.rsvp-name-input').value || '').trim() : '';
+  var defaultPlusOneName = primaryName ? primaryName + "'s Plus One" : '';
+  nameInput.value = defaultPlusOneName;
+  nameInput.placeholder = "Plus one full name (or leave as default)";
   nameInput.dataset.role = 'plus-one-name';
+  // Live-update the default if primary types/changes their name afterwards
+  // — but only if user hasn't manually customized the plus-one name
+  nameInput.dataset.isDefault = '1';
+  nameInput.addEventListener('input', function() { nameInput.dataset.isDefault = '0'; });
+  if (primaryBlock) {
+    var primaryInput = primaryBlock.querySelector('.rsvp-name-input');
+    if (primaryInput) {
+      primaryInput.addEventListener('input', function() {
+        if (nameInput.dataset.isDefault === '1') {
+          var n = (primaryInput.value || '').trim();
+          nameInput.value = n ? n + "'s Plus One" : '';
+        }
+      });
+    }
+  }
   var removeBtn = document.createElement('button');
   removeBtn.className = 'rsvp-remove-btn';
   removeBtn.textContent = '×';
