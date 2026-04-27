@@ -747,7 +747,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
       Submit Your Rsvp
     </button>
     <div class="rsvp-success" id="rsvpSuccess">
-      <div class="rsvp-success-icon">🎉</div>
       <div class="rsvp-success-msg">Thank you! Your RSVP has been received.<br>We can't wait to celebrate with you.</div>
     </div>
   </div>
@@ -872,12 +871,107 @@ function buildRsvpBlocks(events) {
   checkShowSubmit();
 }
 
+// Per-block debounce timers for the guest-lookup call
+var _guestLookupTimers = {};
+
 function onNameInput(input) {
   const block    = input.closest('.rsvp-event-block');
   const eventId  = block.dataset.eventId;
   const expanded = document.getElementById('expanded-' + eventId);
   expanded.classList.toggle('visible', input.value.trim().length >= 2);
   checkShowSubmit();
+  // Debounced server lookup — figures out if this specific guest is allowed a plus-one.
+  // The bride sets Plus One Allowed per-guest in the planner; the form respects it.
+  if (_guestLookupTimers[eventId]) clearTimeout(_guestLookupTimers[eventId]);
+  _guestLookupTimers[eventId] = setTimeout(function() {
+    lookupGuest(block, input.value.trim());
+  }, 500);
+}
+
+function lookupGuest(block, name) {
+  if (_isPreview) return;                        // No backend calls in preview
+  var slug = window._weddingSlug || '';
+  if (!slug || !name || name.length < 2) return;
+  var eventId  = block.dataset.eventId;
+  var expanded = document.getElementById('expanded-' + eventId);
+
+  fetch(API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-lookup?name=' + encodeURIComponent(name))
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(json) {
+      if (!json) return;
+      var addBtn   = expanded.querySelector('.rsvp-add-guest');
+      var listEl   = expanded.querySelector('.extra-guests-list');
+
+      if (json.found === true) {
+        // Cache resolved guest info on the block — submitRSVP picks this up.
+        block.dataset.guestId         = json.guest_id || '';
+        block.dataset.plusOneAllowed  = json.plus_one_allowed ? '1' : '0';
+        block.dataset.householdAllowed = String(json.household_members_allowed || 0);
+        block.dataset.lookupState     = 'found';
+
+        // Per-guest plus-one allowance — overrides the global website toggle.
+        if (addBtn) {
+          addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+        }
+        // If a plus-one row was already added but is no longer allowed, remove it silently.
+        if (listEl && !json.plus_one_allowed) {
+          listEl.innerHTML = '';
+          if (addBtn) addBtn.style.display = 'none';
+        }
+      } else if (json.ambiguous) {
+        // Ambiguous match — surface candidates so the guest can pick the right one.
+        block.dataset.lookupState = 'ambiguous';
+        block.dataset.guestId = '';
+        showAmbiguousMatches(block, json.matches || []);
+      } else {
+        // No match — guest typed a name not on the list. Allow RSVP to proceed (bride
+        // may want to capture surprise attendees), but use the global plus-one default.
+        block.dataset.lookupState = 'unknown';
+        block.dataset.guestId = '';
+        block.dataset.plusOneAllowed = (window._globalAllowPlusOne === false) ? '0' : '1';
+        if (addBtn) {
+          addBtn.style.display = (window._globalAllowPlusOne === false) ? 'none' : '';
+        }
+      }
+    })
+    .catch(function(err) {
+      // On network error, don't block the RSVP — just fall back silently.
+      console.warn('Guest lookup failed:', err);
+    });
+}
+
+function showAmbiguousMatches(block, matches) {
+  // Render a small picker above the expanded fields so the user disambiguates.
+  var eventId  = block.dataset.eventId;
+  var expanded = document.getElementById('expanded-' + eventId);
+  var existing = expanded.querySelector('.rsvp-name-disambig');
+  if (existing) existing.remove();
+  if (!matches.length) return;
+
+  var wrap = document.createElement('div');
+  wrap.className = 'rsvp-name-disambig';
+  wrap.style.cssText = 'background:#f9f7f5;border:1px solid #e3dfd6;border-radius:6px;padding:0.55rem 0.7rem;margin-bottom:0.6rem;font-family:var(--serif);font-size:0.78rem;color:var(--olive);';
+  var label = document.createElement('div');
+  label.textContent = 'We found a few matches — please pick yours:';
+  label.style.cssText = 'margin-bottom:0.4rem;font-size:0.72rem;color:#888';
+  wrap.appendChild(label);
+
+  matches.forEach(function(m) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = m.name;
+    btn.style.cssText = 'display:block;width:100%;text-align:left;border:1px solid #e3dfd6;background:#fff;padding:0.4rem 0.6rem;border-radius:4px;margin-bottom:0.3rem;cursor:pointer;font-family:var(--serif);font-size:0.85rem;color:var(--text);';
+    btn.onclick = function() {
+      // Pin the chosen match and re-run lookup with the exact name
+      var nameInput = block.querySelector('.rsvp-name-input');
+      if (nameInput) nameInput.value = m.name;
+      wrap.remove();
+      lookupGuest(block, m.name);
+    };
+    wrap.appendChild(btn);
+  });
+  // Insert at the top of the expanded section
+  expanded.insertBefore(wrap, expanded.firstChild);
 }
 
 function addExtraGuest(btn) {
@@ -969,38 +1063,50 @@ async function submitRSVP() {
       var dietary      = (exp && exp.querySelector('[data-field="dietary"]'))  ? exp.querySelector('[data-field="dietary"]').value  : '';
       var notes        = (exp && exp.querySelector('[data-field="notes"]'))    ? exp.querySelector('[data-field="notes"]').value    : '';
       var label        = block.querySelector('.rsvp-event-label').textContent;
-      promises.push(fetch(API + '/rsvp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          slug:            slug,
-          guest_name:      name,
-          attending:       attending || 'yes',
-          meal_preference: meal || '',
-          entree_choice:   entree || '',
-          email:           email || '',
-          message:         notes || '',
-          event_name:      label
-        })
-      }));
-      // Plus one — reads the structured fields we added
+
+      // Resolved guest_id from the lookup step (if any). Backend uses this as the
+      // source of truth for plus-one allowance — defense in depth.
+      var resolvedGuestId = block.dataset.guestId || null;
+
+      // Collect plus-one as an extra_guests entry so the backend creates a
+      // separate Guest List row for them with a shared Couple Group, AND a
+      // matching Seating row. This is one HTTP request, not two — keeps the
+      // coupleGroup atomic.
+      var extraGuests = [];
       var plusOneRow = exp && exp.querySelector('.extra-guest-row');
       if (plusOneRow) {
         var plusOneName   = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
         var plusOneMeal   = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
         var plusOneEntree = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
         if (plusOneName.trim()) {
-          promises.push(fetch(API + '/rsvp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              slug: slug, guest_name: plusOneName.trim(),
-              attending: attending, event_name: label,
-              meal_preference: plusOneMeal, entree_choice: plusOneEntree
-            })
-          }));
+          extraGuests.push({
+            name:   plusOneName.trim(),
+            meal:   plusOneMeal,
+            entree: plusOneEntree,
+          });
         }
       }
+
+      promises.push(fetch(API + '/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug:            slug,
+          guest_name:      name,
+          guest_id:        resolvedGuestId,        // null is fine — backend falls back to name match
+          attending:       attending || 'yes',
+          meal_preference: meal || '',
+          entree_choice:   entree || '',
+          email:           email || '',
+          dietary_notes:   dietary || '',
+          message:         notes || '',
+          event_name:      label,
+          // Mark plus_one true if they added an extra guest — backend will enforce
+          // per-guest allowance and silently drop unauthorized plus-ones.
+          plus_one:        extraGuests.length > 0,
+          extra_guests:    extraGuests,
+        })
+      }));
     });
     var results = await Promise.all(promises);
     // Check if any failed and capture error detail
@@ -1073,10 +1179,13 @@ function hydrateTemplate(d) {
         return { value: e, label: e };
       });
     }
-    // Show/hide "Add Another Guest" button based on allow_plus_one
+    // Cache global setting for the unknown-guest fallback path in lookupGuest()
+    window._globalAllowPlusOne = d.rsvp_config.allow_plus_one !== false;
+    // Initial visibility of "Add Another Guest" — overridden per-block once
+    // the guest types their name and the lookup completes.
     var addGuestBtns = document.querySelectorAll('.rsvp-add-guest');
     addGuestBtns.forEach(function(btn) {
-      btn.style.display = d.rsvp_config.allow_plus_one === false ? 'none' : '';
+      btn.style.display = window._globalAllowPlusOne ? '' : 'none';
     });
   }
   // Custom CSS — injected as a <style> block, applied after theme defaults
