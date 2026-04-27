@@ -580,6 +580,12 @@ function lookupGuest(block, name) {
   var eventId  = block.dataset.eventId;
   var expanded = document.getElementById('expanded-' + eventId);
 
+  // Clear any stale disambiguation picker from a previous lookup.
+  if (expanded) {
+    var staleDisambig = expanded.querySelector('.rsvp-name-disambig');
+    if (staleDisambig) staleDisambig.remove();
+  }
+
   // Visible feedback banner — placed as a sibling of the name input, above
   // the expanded section. Stays visible regardless of expansion state.
   var statusEl = block.querySelector('.rsvp-lookup-status');
@@ -682,6 +688,11 @@ function lookupGuest(block, name) {
 }
 
 function showAmbiguousMatches(block, matches) {
+  // Render a small picker so the user disambiguates between guests with similar
+  // (or identical) names. Each match shows the masked email so duplicates can be
+  // distinguished. Selection sends the picked guest_id to /guest-by-id/, which
+  // bypasses fuzzy matching entirely — avoids the loop where two guests with
+  // literally the same name keep returning ambiguous.
   var eventId  = block.dataset.eventId;
   var expanded = document.getElementById('expanded-' + eventId);
   if (!expanded) return;
@@ -700,17 +711,76 @@ function showAmbiguousMatches(block, matches) {
   matches.forEach(function(m) {
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = m.name;
-    btn.style.cssText = 'display:block;width:100%;text-align:left;border:1px solid #e3dfd6;background:#fff;padding:0.4rem 0.6rem;border-radius:4px;margin-bottom:0.3rem;cursor:pointer;font-family:var(--serif, serif);font-size:0.85rem;color:#121212;';
+    btn.style.cssText = 'display:block;width:100%;text-align:left;border:1px solid #e3dfd6;background:#fff;padding:0.45rem 0.7rem;border-radius:4px;margin-bottom:0.3rem;cursor:pointer;font-family:var(--serif, serif);font-size:0.85rem;color:#121212;';
+    var nameSpan = document.createElement('div');
+    nameSpan.textContent = m.name;
+    nameSpan.style.cssText = 'font-weight:500;';
+    btn.appendChild(nameSpan);
+    if (m.hint) {
+      var hintSpan = document.createElement('div');
+      hintSpan.textContent = m.hint;
+      hintSpan.style.cssText = 'font-size:0.7rem;color:#999;font-family:Open Sans, sans-serif;margin-top:2px;';
+      btn.appendChild(hintSpan);
+    }
     btn.onclick = function() {
       var nameInput = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
       if (nameInput) nameInput.value = m.name;
       wrap.remove();
-      lookupGuest(block, m.name);
+      lookupGuestById(block, m.id, m.name);
     };
     wrap.appendChild(btn);
   });
   expanded.insertBefore(wrap, expanded.firstChild);
+}
+
+function lookupGuestById(block, guestId, displayName) {
+  if (typeof _isPreview !== 'undefined' && _isPreview) return;
+  var slug = window._weddingSlug || '';
+  if (!slug || !guestId) return;
+  var eventId  = block.dataset.eventId;
+  var expanded = document.getElementById('expanded-' + eventId);
+  var statusEl = block.querySelector('.rsvp-lookup-status');
+  if (statusEl) {
+    statusEl.textContent = 'Confirming…';
+    statusEl.style.borderLeftColor = '#A9BDC4';
+    statusEl.style.background      = 'rgba(169,189,196,0.1)';
+    statusEl.style.color           = '#8C7D6E';
+  }
+  var url = API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-by-id/' + encodeURIComponent(guestId);
+  console.log('[RSVP lookup-by-id]', url);
+  fetch(url)
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(json) {
+      console.log('[RSVP lookup-by-id] response', json);
+      if (!json || !json.found) {
+        block.dataset.lookupState = 'unknown';
+        block.dataset.guestId = '';
+        if (statusEl) {
+          statusEl.textContent           = "We couldn't verify that guest. Please try again.";
+          statusEl.style.borderLeftColor = '#C23331';
+          statusEl.style.background      = 'rgba(194,51,49,0.08)';
+          statusEl.style.color           = '#C23331';
+        }
+        checkShowSubmit();
+        return;
+      }
+      block.dataset.guestId          = json.guest_id || '';
+      block.dataset.plusOneAllowed   = json.plus_one_allowed ? '1' : '0';
+      block.dataset.householdAllowed = String(json.household_members_allowed || 0);
+      block.dataset.lookupState      = 'found';
+      if (statusEl) {
+        statusEl.textContent           = '✓ Found you on the list — ' + (json.name || displayName);
+        statusEl.style.borderLeftColor = '#4B5244';
+        statusEl.style.background      = 'rgba(75,82,68,0.08)';
+        statusEl.style.color           = '#4B5244';
+      }
+      var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
+      if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      checkShowSubmit();
+    })
+    .catch(function(err) {
+      console.warn('[RSVP lookup-by-id] error:', err);
+    });
 }
 
 function checkShowSubmit() {
