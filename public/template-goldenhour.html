@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soft Promises</title>
+<title>Golden Hour</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
@@ -298,7 +298,7 @@ const API = 'https://wedding-recommender.onrender.com';
 const _p = new URLSearchParams(window.location.search);
 const _slug = _p.get('slug')||'';
 const _path = window.location.pathname.split('/').filter(function(s){return s;})[0]||'';
-const _liveSlug = _slug||(_path!=='template-softpromises.html'?_path:'');
+const _liveSlug = _slug||(_path!=='template-goldenhour.html'?_path:'');
 const _isPreview = !_liveSlug;
 const _pwdParam = _p.get('pwd')||'';
 (function(){if(_p.get('thumbnail')==='1')document.body.classList.add('thumbnail-mode');})();

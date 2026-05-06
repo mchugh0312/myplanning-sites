@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love Letters</title>
+<title>Heirloom Bloom</title>
 <style>
 @font-face{font-family:'Parfumerie Script';src:url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');}
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');}
@@ -624,7 +624,7 @@ const _params    = new URLSearchParams(window.location.search);
 const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p=>p);
 const _firstPart = _pathParts[0] || '';
-const _liveSlug  = _slugParam || (_firstPart !== 'template-loveletter.html' ? _firstPart : '');
+const _liveSlug  = _slugParam || (_firstPart !== 'template-heirloombloom.html' ? _firstPart : '');
 const _isPreview = !_liveSlug;
 const _pwdParam  = _params.get('pwd') || '';
 
