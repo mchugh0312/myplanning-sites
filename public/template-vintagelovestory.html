@@ -4,77 +4,2267 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vintage Love Story</title>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!--
+  VINTAGE LOVE STORY — typography:
+    - Instrument Serif (display + body serif — names, section titles, body text)
+    - Stack Sans Headline (utility uppercase — nav, hero arc, dates, dropdowns, RSVP labels)
+  Fonts are self-hosted as .woff2 from /public/fonts/
+
+  Recurring asset:
+    The oval frame ornament (asset 92b20dd3-...svg) wraps every section
+    title and is rendered via .oval-title — left/right lines extend from it.
+-->
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
+@font-face{
+  font-family:'Instrument Serif';
+  src:url('/fonts/INSTRUMENTSERIFRegular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Instrument Serif';
+  src:url('/fonts/INSTRUMENTSERIFItalic.woff2') format('woff2');
+  font-weight:400;font-style:italic;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINERegular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINELight.woff2') format('woff2');
+  font-weight:300;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINEMedium.woff2') format('woff2');
+  font-weight:500;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINESemiBold.woff2') format('woff2');
+  font-weight:600;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINEBold.woff2') format('woff2');
+  font-weight:700;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Stack Sans Headline';
+  src:url('/fonts/STACKSANSHEADLINEExtraLight.woff2') format('woff2');
+  font-weight:200;font-style:normal;font-display:swap;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brown:#513229;       /* dark brown — nav, Our Story bg, Registry bg, Submit btn */
+  --black:#000000;
+  --ivory:#fffdf5;       /* ivory — page bg, text on dark sections */
+  --blue:#d8ebf9;        /* baby blue — ampersand, ceremony figure oval, accent */
+  --text:#1a1a1a;
+  --muted:#6a6a6a;
+  --display:'Instrument Serif', Georgia, serif;
+  --sans:'Stack Sans Headline', 'Inter', system-ui, -apple-system, sans-serif;
+}
+html{scroll-behavior:smooth}
 body{
-  font-family:'Instrument Serif',Georgia,serif;
-  background:#4a5240;
-  color:#ffffff;
-  /* Always vertically centred — even in thumbnail iframe */
-  min-height:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:2rem;
+  font-family:var(--display);color:var(--text);
+  background:var(--ivory);overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  font-size:16px;line-height:1.55;
 }
-body.hydrating{visibility:hidden;}
-/* In thumbnail mode: iframe is scaled to 50% and shows top portion.
-   To appear centred IN the visible thumbnail area, push content down ~25% */
-body.thumbnail-mode{
+body.hydrating{visibility:hidden}
+
+/* ── TOP NAV BAR (full-width brown, horizontal links) ─────── */
+.top-nav{
+  background:var(--brown);
+  color:var(--ivory);
+  padding:1.1rem 1.5rem;
+  display:flex;
   justify-content:center;
-  padding-top:20%;
+  align-items:center;
+  gap:clamp(1rem, 4vw, 3rem);
+  flex-wrap:wrap;
+  position:sticky;
+  top:0;
+  z-index:50;
 }
-.couple{
-  font-size:clamp(1.6rem,4vw,2.4rem);
-  font-style:italic;
-  color:#ffffff;
-  margin-bottom:0.5rem;
-  line-height:1.2;
-  opacity:0.7;
-}
-.divider{
-  width:30px;height:1px;
-  background:rgba(255,255,255,0.35);
-  margin:0 auto 1.5rem;
-}
-.coming-soon{
-  font-size:clamp(1.4rem,3.5vw,2rem);
-  font-style:italic;
-  color:#ffffff;
-  margin-bottom:0.5rem;
-}
-.coming-desc{
-  font-size:0.72rem;
-  letter-spacing:0.12em;
+.top-nav a{
+  font-family:var(--sans);
+  font-size:0.74rem;
+  letter-spacing:0.18em;
   text-transform:uppercase;
-  color:rgba(255,255,255,0.45);
+  color:var(--ivory);
+  text-decoration:none;
+  font-weight:400;
+  transition:opacity 0.2s;
+  white-space:nowrap;
 }
+.top-nav a:hover,
+.top-nav a.active{opacity:0.7;}
+
+/* Mobile: collapse to hamburger */
+.nav-mobile-toggle{
+  display:none;
+  background:none;border:none;cursor:pointer;
+  padding:6px;
+  flex-direction:column;gap:5px;
+  margin-left:auto;
+}
+.nav-mobile-toggle span{
+  display:block;width:22px;height:1.5px;background:var(--ivory);
+  transition:transform 0.3s, opacity 0.3s;
+}
+.nav-mobile-toggle.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+.nav-mobile-toggle.open span:nth-child(2){opacity:0;}
+.nav-mobile-toggle.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
+
+/* ── OVAL TITLE COMPONENT (used everywhere) ──────────────── */
+.oval-title-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  margin:0 auto 2.4rem;
+  max-width:560px;
+  padding:0 1rem;
+}
+.oval-title-line{
+  flex:1;
+  height:1px;
+  background:currentColor;
+  opacity:0.55;
+}
+.oval-title{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0.65rem 2.2rem;
+  flex-shrink:0;
+}
+.oval-title::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:1px solid currentColor;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0.85;
+}
+.oval-title span{
+  font-family:var(--display);
+  font-size:1.05rem;
+  font-weight:400;
+  letter-spacing:0.005em;
+  position:relative;
+  z-index:1;
+  white-space:nowrap;
+}
+
+/* ── HERO (ivory, arc text, big serif names with blue ampersand) */
+.hero{
+  background:var(--ivory);
+  padding:4rem 2rem 3.5rem;
+  text-align:center;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.hero-arc{
+  margin:0 auto 1.5rem;
+  display:block;
+  max-width:420px;
+}
+.hero-arc text{
+  font-family:var(--sans);
+  font-size:11px;
+  letter-spacing:0.28em;
+  fill:var(--text);
+  text-transform:uppercase;
+}
+.hero-couple-name{
+  font-family:var(--display);
+  font-size:clamp(3rem, 11vw, 7rem);
+  color:var(--text);
+  font-weight:400;
+  line-height:0.95;
+  letter-spacing:-0.02em;
+  margin-bottom:1.4rem;
+}
+.hero-couple-name .ampersand{
+  color:var(--blue);
+  font-weight:400;
+  margin:0 0.05em;
+  font-style:italic;
+  display:inline-block;
+}
+.hero-date{
+  font-family:var(--sans);
+  font-size:0.78rem;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--text);
+  font-weight:400;
+}
+.hero-date sup{font-size:0.65em;letter-spacing:0;}
+
+/* ── THE WEDDING (Ceremony + figure oval + Reception) ────── */
+.wedding-section{
+  background:var(--ivory);
+  padding:3.5rem 2rem 4rem;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.wedding-grid{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:2rem;
+  max-width:880px;
+  margin:0 auto;
+  align-items:center;
+}
+.wedding-col{
+  text-align:center;
+}
+.wedding-col-title{
+  font-family:var(--display);
+  font-size:clamp(1.5rem, 3vw, 1.95rem);
+  font-weight:400;
+  margin-bottom:1rem;
+  color:var(--text);
+}
+.wedding-col-meta{
+  font-family:var(--sans);
+  font-size:0.82rem;
+  color:var(--text);
+  line-height:1.85;
+  letter-spacing:0.01em;
+  font-weight:400;
+}
+.wedding-col-meta .day{display:block;margin-bottom:0.5rem;}
+.wedding-col-meta .time{display:block;margin-bottom:1rem;font-weight:500;}
+.wedding-col-meta .venue{display:block;font-weight:600;}
+.wedding-col-meta .address{display:block;}
+
+/* The bride+groom oval figure */
+.wedding-figure{
+  width:clamp(120px, 18vw, 170px);
+  aspect-ratio:3/4;
+  background:var(--blue);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+}
+.wedding-figure img{
+  width:88%;height:88%;
+  object-fit:contain;
+  display:block;
+}
+
+/* ── OUR STORY (dark brown, 2-col text + 3 photos) ──────── */
+.our-story{
+  background:var(--brown);
+  color:var(--ivory);
+  padding:4rem 2rem 4.5rem;
+  text-align:center;
+}
+.our-story .oval-title-line{background:var(--ivory);opacity:0.7;}
+.our-story .oval-title::before{border-color:var(--ivory);opacity:0.7;}
+.our-story .oval-title span{color:var(--ivory);}
+.story-body{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.5rem;
+  max-width:780px;
+  margin:0 auto 2.6rem;
+  text-align:left;
+}
+.story-col{
+  font-family:var(--display);
+  font-size:1.05rem;
+  color:var(--ivory);
+  line-height:1.55;
+  font-weight:400;
+}
+.story-photos{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:1rem;
+  max-width:780px;
+  margin:0 auto;
+}
+.story-photo{
+  aspect-ratio:3/4;
+  overflow:hidden;
+  border-radius:14px;
+  background:#3a2620;
+}
+.story-photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+
+/* ── EVENTS (ivory, 2-col with vertical divider) ────────── */
+.events-section{
+  background:var(--ivory);
+  padding:3.5rem 2rem 4rem;
+  text-align:center;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.events-grid{
+  display:grid;
+  grid-template-columns:1fr 1px 1fr;
+  gap:2rem;
+  max-width:780px;
+  margin:0 auto;
+  align-items:start;
+}
+.events-divider{
+  width:1px;
+  background:rgba(0,0,0,0.4);
+  align-self:stretch;
+  min-height:200px;
+}
+.event-col{
+  text-align:center;
+}
+.event-col-title{
+  font-family:var(--display);
+  font-size:clamp(1.4rem, 3vw, 1.8rem);
+  margin-bottom:1rem;
+  color:var(--text);
+  font-weight:400;
+}
+.event-col-meta{
+  font-family:var(--sans);
+  font-size:0.82rem;
+  color:var(--text);
+  line-height:1.85;
+  font-weight:400;
+}
+.event-col-meta .day{display:block;margin-bottom:0.85rem;}
+.event-col-meta .time{display:block;margin-bottom:1rem;font-weight:500;}
+.event-col-meta .venue{display:block;font-weight:600;}
+.event-col-meta .address{display:block;}
+
+/* ── TRAVEL INFO (ivory, 2-col with vertical divider) ───── */
+.travel-section{
+  background:var(--ivory);
+  padding:3.5rem 2rem 4rem;
+  text-align:center;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.travel-grid{
+  display:grid;
+  grid-template-columns:1fr 1px 1fr;
+  gap:2rem;
+  max-width:780px;
+  margin:0 auto;
+  align-items:start;
+}
+.travel-divider{
+  width:1px;
+  background:rgba(0,0,0,0.4);
+  align-self:stretch;
+  min-height:200px;
+}
+.travel-col{text-align:center;}
+.travel-col-title{
+  font-family:var(--display);
+  font-size:clamp(1.4rem, 3vw, 1.8rem);
+  margin-bottom:1.4rem;
+  color:var(--text);
+  font-weight:400;
+}
+.travel-item{
+  font-family:var(--sans);
+  font-size:0.82rem;
+  color:var(--text);
+  line-height:1.7;
+  margin-bottom:1.4rem;
+  font-weight:400;
+}
+.travel-item:last-child{margin-bottom:0;}
+.travel-item-name{display:block;}
+.travel-item-meta{display:block;color:var(--text);}
+.travel-note{
+  font-family:var(--sans);
+  font-style:italic;
+  font-size:0.78rem;
+  color:var(--muted);
+  margin-top:1.6rem;
+}
+
+/* ── FAQS (ivory, oval title, always-open list) ──────────── */
+.need-to-know{
+  background:var(--ivory);
+  padding:3.5rem 2rem 4rem;
+  text-align:center;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.faq-list{
+  max-width:560px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:1.8rem;
+}
+.faq-item{text-align:center;}
+.faq-question{
+  width:100%;background:none;border:none;cursor:default;
+  display:block;padding:0;
+  font-family:inherit;
+}
+.faq-q-text{
+  font-family:var(--display);
+  font-size:1.1rem;
+  color:var(--text);
+  font-weight:400;
+  margin-bottom:0.6rem;
+  display:block;
+  line-height:1.4;
+}
+.faq-icon{display:none;}
+.faq-answer{
+  font-family:var(--sans);
+  font-size:0.82rem;
+  color:var(--text);
+  line-height:1.85;
+  max-width:440px;
+  margin:0 auto;
+  font-weight:400;
+}
+
+/* ── REGISTRY (dark brown, lace corners, oval CTA) ───────── */
+.registry-wrap{
+  background:var(--brown);
+  position:relative;
+  padding:4rem 2rem;
+  overflow:hidden;
+  text-align:center;
+}
+.registry-lace{
+  position:absolute;
+  width:clamp(120px, 22vw, 200px);
+  pointer-events:none;
+  user-select:none;
+  filter:brightness(0) invert(1) opacity(0.75);  /* renders dark SVG as ivory */
+}
+.registry-lace.tl{top:-10px;left:-10px;}
+.registry-lace.br{bottom:-10px;right:-10px;transform:scale(-1,-1);}
+.registry-section{
+  position:relative;z-index:2;
+  display:inline-block;
+  text-decoration:none;
+  cursor:pointer;
+}
+.registry-cta{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:1.1rem 3.2rem;
+  border:1px solid var(--ivory);
+  border-radius:50%;
+  font-family:var(--display);
+  font-size:clamp(1.3rem, 2.6vw, 1.7rem);
+  color:var(--ivory);
+  font-weight:400;
+  letter-spacing:0.005em;
+  text-decoration:none;
+  transition:background 0.25s, color 0.25s;
+}
+.registry-cta:hover{background:var(--ivory);color:var(--brown);}
+.registry-info{
+  margin-top:1.2rem;
+  font-family:var(--sans);
+  font-size:0.78rem;
+  color:rgba(255,253,245,0.75);
+  font-style:italic;
+}
+
+/* ── RSVP (ivory, oval title, master name → events → submit) */
+.rsvp-section{
+  background:var(--ivory);
+  padding:3.5rem 2rem 5rem;
+  text-align:center;
+}
+.rsvp-deadline{
+  font-family:var(--sans);
+  font-size:0.92rem;
+  color:var(--text);
+  margin-bottom:1.6rem;
+  font-weight:400;
+}
+.rsvp-deadline sup{font-size:0.7em;}
+.rsvp-master-name-wrap{
+  max-width:380px;
+  margin:0 auto 2.5rem;
+}
+.rsvp-name-input{
+  width:100%;padding:0.95rem 1.6rem;
+  border:1px solid var(--text);
+  background:transparent;
+  border-radius:999px;
+  font-family:var(--sans);font-size:0.85rem;
+  color:var(--text);outline:none;display:block;
+  text-align:center;
+  font-weight:400;
+  transition:border-color 0.2s;
+}
+.rsvp-name-input:focus{border-color:var(--brown);}
+.rsvp-name-input::placeholder{color:rgba(0,0,0,0.4);}
+.rsvp-event-block{
+  max-width:380px;
+  margin:0 auto 1.6rem;
+  text-align:center;
+}
+.rsvp-event-label{
+  font-family:var(--display);
+  font-size:1.15rem;
+  color:var(--text);
+  margin-bottom:0.7rem;
+  font-weight:400;
+}
+.rsvp-expanded{display:block;}
+.rsvp-field-row{margin-bottom:0.5rem;}
+.rsvp-field-row:last-child{margin-bottom:0;}
+.rsvp-select,.rsvp-text-input{
+  width:100%;padding:0.85rem 1.6rem;
+  border:1px solid var(--text);
+  background:transparent;
+  font-family:var(--sans);font-size:0.85rem;
+  color:var(--text);outline:none;border-radius:999px;
+  transition:border-color 0.2s;
+  appearance:none;
+  -webkit-appearance:none;
+  font-weight:400;
+}
+.rsvp-select{
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8" width="12" height="8"><path fill="%23000000" d="M1 1l5 5 5-5"/></svg>');
+  background-repeat:no-repeat;
+  background-position:right 1.4rem center;
+  padding-right:2.8rem;
+  cursor:pointer;
+}
+.rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--brown);}
+.rsvp-text-input::placeholder{color:rgba(0,0,0,0.4);}
+.rsvp-bottom{
+  max-width:380px;
+  margin:2rem auto 0;
+}
+.rsvp-add-guest{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.5rem;
+  width:100%;
+  padding:0.85rem 1.6rem;
+  margin-bottom:0.8rem;
+  background:transparent;
+  border:1px solid var(--text);
+  border-radius:999px;
+  font-family:var(--sans);
+  font-size:0.85rem;
+  color:var(--text);
+  font-weight:400;
+  cursor:pointer;
+  transition:background 0.2s;
+}
+.rsvp-add-guest:hover{background:rgba(0,0,0,0.04);}
+.rsvp-add-guest .plus{
+  font-size:1rem;line-height:1;
+}
+.extra-guests-list{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.6rem;}
+.extra-guest-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:0.5rem;
+  align-items:center;
+}
+.rsvp-remove-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:1.1rem;color:rgba(0,0,0,0.4);padding:0.3rem 0.6rem;line-height:1;
+}
+.rsvp-remove-btn:hover{color:var(--text);}
+.rsvp-submit{
+  display:inline-block;
+  padding:0.95rem 3.2rem;
+  margin:1.6rem auto 0;
+  background:var(--black);color:var(--ivory);
+  border:none;border-radius:999px;
+  cursor:pointer;font-family:var(--sans);
+  font-size:0.85rem;
+  font-weight:500;
+  letter-spacing:0.04em;
+  transition:opacity 0.2s, background 0.2s;
+}
+.rsvp-submit:hover{background:#222;}
+.rsvp-success{
+  display:none;
+  max-width:420px;
+  margin:1.5rem auto 0;
+  background:transparent;
+  border:1px solid var(--text);
+  border-radius:14px;
+  padding:1.6rem;
+  text-align:center;
+  font-family:var(--display);
+  color:var(--text);font-size:1.05rem;line-height:1.55;
+}
+
+/* ── GALLERY (optional, only if user provides images) ────── */
+.gallery-section{
+  background:var(--ivory);
+  padding:3.5rem 0 3rem;
+  text-align:center;
+  border-bottom:1px solid rgba(81,50,41,0.5);
+}
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:140px;
+  gap:6px;
+  padding:0 1rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.gallery-item{overflow:hidden;cursor:pointer;position:relative;border-radius:8px;}
+.gallery-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform 0.4s ease;
+}
+.gallery-item:hover img{transform:scale(1.06);}
+.gallery-item:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.gallery-item:nth-child(4){grid-column:span 2;}
+.gallery-item:nth-child(7){grid-row:span 2;}
+.gallery-item:nth-child(9){grid-column:span 2;}
+.gallery-lightbox{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(20,12,10,0.95);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.gallery-lightbox.open{opacity:1;pointer-events:auto;}
+.gallery-lightbox img{
+  max-width:90vw;max-height:88vh;
+  object-fit:contain;border-radius:6px;
+  box-shadow:0 8px 60px rgba(0,0,0,0.6);
+}
+.gallery-lb-close{
+  position:absolute;top:20px;right:24px;
+  background:none;border:none;color:#fff;
+  font-size:2rem;cursor:pointer;opacity:0.8;line-height:1;
+}
+.gallery-lb-close:hover{opacity:1;}
+.gallery-lb-prev,.gallery-lb-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(255,253,245,0.18);border:none;color:#fff;
+  font-size:1.8rem;cursor:pointer;padding:12px 18px;
+  border-radius:50%;transition:background 0.2s;
+}
+.gallery-lb-prev{left:16px;}
+.gallery-lb-next{right:16px;}
+.gallery-lb-prev:hover,.gallery-lb-next:hover{background:rgba(255,253,245,0.3);}
+.gallery-lb-counter{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  color:rgba(255,253,245,0.65);font-family:var(--sans);font-size:0.78rem;
+  letter-spacing:0.1em;
+}
+
+/* ── FOOTER ───────────────────────────────────────────────── */
+footer{
+  background:var(--brown);
+  padding:2.4rem 2rem;
+  text-align:center;
+  color:var(--ivory);
+}
+.footer-names{
+  font-family:var(--display);
+  font-size:1.7rem;
+  margin-bottom:0.4rem;
+  font-weight:400;
+}
+.footer-names .ampersand{color:var(--blue);}
+.footer-date{
+  font-family:var(--sans);
+  font-size:0.74rem;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:rgba(255,253,245,0.7);
+}
+
+/* ── MENU OVERLAY (mobile only — closed by default) ──────── */
+.menu-overlay{position:fixed;inset:0;z-index:1100;display:flex;pointer-events:none;}
+.menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
+.menu-drawer{
+  width:280px;background:var(--brown);
+  transform:translateX(100%);
+  transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
+  display:flex;flex-direction:column;
+  padding:3rem 2rem;
+  pointer-events:auto;
+  margin-left:auto;
+}
+.menu-overlay.open .menu-drawer{transform:translateX(0)}
+.menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.4);pointer-events:auto;}
+.menu-overlay.open{pointer-events:auto}
+.menu-drawer a{
+  font-family:var(--sans);
+  font-size:0.85rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--ivory);
+  text-decoration:none;
+  padding:0.7rem 0;
+  display:block;
+  border-bottom:1px solid rgba(255,253,245,0.15);
+}
+.menu-drawer a:hover{opacity:0.7;}
+
+/* ── MOBILE ───────────────────────────────────────────────── */
+@media(max-width:768px){
+  .top-nav{
+    justify-content:space-between;
+    gap:0.5rem;
+    padding:0.9rem 1.2rem;
+  }
+  .top-nav a{display:none;}
+  .top-nav .top-nav-brand{
+    display:block;
+    font-family:var(--display);
+    font-size:1.05rem;
+    letter-spacing:0;
+    text-transform:none;
+    color:var(--ivory);
+  }
+  .top-nav .top-nav-brand .ampersand{color:var(--blue);}
+  .nav-mobile-toggle{display:flex;}
+
+  .hero{padding:2.5rem 1.4rem 2.5rem;}
+  .hero-arc{max-width:300px;margin-bottom:1rem;}
+  .hero-couple-name{font-size:clamp(2.4rem, 14vw, 4.5rem);}
+
+  .wedding-section{padding:2.5rem 1.4rem 3rem;}
+  .wedding-grid{
+    grid-template-columns:1fr;
+    gap:2rem;
+  }
+  .wedding-figure{
+    margin:0 auto;
+    width:140px;
+    order:-1;
+  }
+  .wedding-grid .wedding-col:nth-of-type(1){order:0;}
+  .wedding-grid .wedding-figure{order:1;margin:0.5rem auto;}
+  .wedding-grid .wedding-col:nth-of-type(2){order:2;}
+
+  .our-story{padding:3rem 1.4rem 3.5rem;}
+  .story-body{grid-template-columns:1fr;gap:1.4rem;text-align:left;}
+  .story-photos{grid-template-columns:repeat(3, 1fr);gap:0.5rem;}
+
+  .events-section,
+  .travel-section{padding:2.5rem 1.4rem 3rem;}
+  .events-grid,
+  .travel-grid{
+    grid-template-columns:1fr;
+    gap:2rem;
+  }
+  .events-divider,
+  .travel-divider{
+    width:60%;
+    height:1px;
+    min-height:0;
+    justify-self:center;
+  }
+
+  .need-to-know{padding:2.5rem 1.4rem 3rem;}
+  .registry-wrap{padding:3rem 1.4rem;}
+  .registry-lace{width:90px;}
+  .rsvp-section{padding:2.5rem 1.4rem 4rem;}
+
+  .gallery-section{padding:2.5rem 0;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;padding:0 0.5rem;}
+}
+
+@media(min-width:769px){
+  .nav-mobile-toggle{display:none;}
+  .top-nav-brand{display:none;}
+}
+
+/* ── THUMBNAIL MODE ──────────────────────────────────────── */
+body.thumbnail-mode .top-nav{padding:0.6rem 1rem;}
+body.thumbnail-mode .top-nav a{font-size:0.6rem;letter-spacing:0.1em;}
+body.thumbnail-mode .hero{padding:1.5rem 1rem;}
+body.thumbnail-mode .hero-couple-name{font-size:clamp(1.6rem,12vw,3rem);}
 </style>
 </head>
 <body class="hydrating">
-  <div class="couple" id="coupleNames">A &amp; B</div>
-  <div class="divider"></div>
-  <div class="coming-soon">Coming Soon</div>
-  <div class="coming-desc">This template is in development</div>
+
+<!-- TOP NAV -->
+<nav class="top-nav" id="topNav">
+  <span class="top-nav-brand" id="navBrand">Iris <span class="ampersand">&amp;</span> Nathan</span>
+  <a href="#hero">Home</a>
+  <a href="#our-story">Our Story</a>
+  <a href="#wedding">Event Details</a>
+  <a href="#travel-section">Travel Info</a>
+  <a href="#need-to-know">FAQs</a>
+  <a href="#registry-section">Registry</a>
+  <a href="#rsvp">RSVP</a>
+  <button class="nav-mobile-toggle" onclick="toggleMobileMenu(this)" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-backdrop" onclick="closeMobileMenu()"></div>
+  <div class="menu-drawer" id="menuDrawer">
+    <!-- links injected by JS to mirror top-nav -->
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <svg class="hero-arc" viewBox="0 0 420 60" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <path id="arc-path" d="M 30 55 Q 210 -10 390 55"></path>
+    </defs>
+    <text>
+      <textPath href="#arc-path" startOffset="50%" text-anchor="middle">JOIN US FOR THE WEDDING OF</textPath>
+    </text>
+  </svg>
+  <h1 class="hero-couple-name" id="heroCoupleNames">Iris<span class="ampersand">&amp;</span>Nathan</h1>
+  <div class="hero-date" id="heroDate">SEPTEMBER 24<sup>TH</sup>, 2026</div>
+</section>
+
+<!-- THE WEDDING (Ceremony + figure + Reception) -->
+<section class="wedding-section" id="wedding">
+  <div class="wedding-grid" id="weddingGrid">
+    <div class="wedding-col">
+      <h2 class="wedding-col-title">The Ceremony</h2>
+      <div class="wedding-col-meta">
+        <span class="day">Saturday, 09.24.2026</span>
+        <span class="time">4:00–5:00PM</span>
+        <span class="venue">Fairmeadow Park</span>
+        <span class="address">5656 Jackson Ave,<br>Chicago, IL 60650</span>
+      </div>
+    </div>
+    <div class="wedding-figure">
+      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg" alt="Bride and groom illustration">
+    </div>
+    <div class="wedding-col">
+      <h2 class="wedding-col-title">The Reception</h2>
+      <div class="wedding-col-meta">
+        <span class="day">Saturday, 09.24.2026</span>
+        <span class="time">6:00–11:00PM</span>
+        <span class="venue">The Ivory Room</span>
+        <span class="address">1234 Clark Street,<br>Chicago, IL 60650</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUR STORY -->
+<section class="our-story" id="our-story" style="display:none">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>Our Story</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="story-body" id="storyBody">
+    <div class="story-col" id="storyCol1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+    <div class="story-col" id="storyCol2"></div>
+  </div>
+  <div class="story-photos" id="storyPhotos">
+    <div class="story-photo"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5609b651-0075-4191-afec-f4d72f5122f0.jpeg" alt=""></div>
+    <div class="story-photo"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/03966318-60aa-4a3e-9c7f-0174c3ccc932.jpeg" alt=""></div>
+    <div class="story-photo"><img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9c5b8cdc-b227-4902-93b2-a6ee1cf070dc.jpeg" alt=""></div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section class="events-section" id="events" style="display:none">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>Events</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="events-grid" id="eventsGrid">
+    <div class="event-col">
+      <h3 class="event-col-title">Welcome Party</h3>
+      <div class="event-col-meta">
+        <span class="day">Friday, 09.23.2026</span>
+        <span class="time">6–9PM</span>
+        <span class="venue">Little Wine Bar</span>
+        <span class="address">9853 S Drexel Ave<br>Chicago, IL 60628</span>
+      </div>
+    </div>
+    <div class="events-divider"></div>
+    <div class="event-col">
+      <h3 class="event-col-title">Sunday Brunch</h3>
+      <div class="event-col-meta">
+        <span class="day">Sunday, 09.25.2026</span>
+        <span class="time">11:00AM–1:00PM</span>
+        <span class="venue">Clark's Cafe</span>
+        <span class="address">1234 Clark Ave,<br>Chicago, IL 60650</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAVEL INFO -->
+<section class="travel-section" id="travel-section">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>Travel Info</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="travel-grid" id="travelGrid">
+    <div class="travel-col">
+      <h3 class="travel-col-title">Airports</h3>
+      <div class="travel-item">
+        <span class="travel-item-name">Chicago O'Hare International<br>Airport</span>
+        <span class="travel-item-meta">(ORD)</span>
+      </div>
+      <div class="travel-item">
+        <span class="travel-item-name">Chicago Midway International<br>Airport</span>
+        <span class="travel-item-meta">(MDW)</span>
+      </div>
+    </div>
+    <div class="travel-divider"></div>
+    <div class="travel-col">
+      <h3 class="travel-col-title">Hotels</h3>
+      <div class="travel-item">
+        <span class="travel-item-name">Windy City Inn</span>
+        <span class="travel-item-meta">7958 S May St<br>Chicago, IL 60620</span>
+      </div>
+      <div class="travel-item">
+        <span class="travel-item-name">Lakeshore Plaza Hotel</span>
+        <span class="travel-item-meta">680 N Lake Shore Dr<br>Chicago, IL 60611</span>
+      </div>
+      <div class="travel-note">*Request the Iris &amp; Nathan room block</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQS -->
+<section class="need-to-know" id="need-to-know">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>FAQs</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="faq-list" id="faqList">
+    <div class="faq-item">
+      <div class="faq-q-text">What should I wear to the wedding?</div>
+      <div class="faq-answer">The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q-text">Will there be transportation?</div>
+      <div class="faq-answer">No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q-text">Will the ceremony be indoors or outdoors?</div>
+      <div class="faq-answer">Here is a little more info about the setting so you can plan accordingly and arrive feeling prepared.</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery-section" id="gallery" style="display:none">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>Gallery</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="gallery-lightbox" id="galleryLightbox">
+  <button class="gallery-lb-close" onclick="closeLightbox()">&#215;</button>
+  <button class="gallery-lb-prev" onclick="shiftLightbox(-1)">&#8249;</button>
+  <img id="galleryLbImg" src="" alt="">
+  <button class="gallery-lb-next" onclick="shiftLightbox(1)">&#8250;</button>
+  <div class="gallery-lb-counter" id="galleryLbCounter"></div>
+</div>
+
+<!-- REGISTRY -->
+<section class="registry-wrap" id="registry-wrap">
+  <img class="registry-lace tl"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
+  <img class="registry-lace br"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
+  <a class="registry-section" id="registry-section" href="#" target="_blank">
+    <span class="registry-cta">View our registry</span>
+  </a>
+  <div class="registry-info" id="registryInfo"></div>
+</section>
+
+<!-- RSVP -->
+<section class="rsvp-section" id="rsvp">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>RSVP</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <p class="rsvp-deadline" id="rsvpDeadline">Kindly send us your response by August 1<sup>st</sup></p>
+  <div class="rsvp-master-name-wrap">
+    <input class="rsvp-name-input rsvp-master-input" type="text" placeholder="Enter your first and last name" oninput="onMasterNameInput(this)">
+  </div>
+  <div id="rsvpBlocks"></div>
+  <div class="rsvp-bottom" id="rsvpBottom">
+    <div class="extra-guests-list" id="extra-guests-shared"></div>
+    <button class="rsvp-add-guest" onclick="addExtraGuestShared(this)" style="display:none">
+      <span class="plus">+</span><span>Add invited guest</span>
+    </button>
+  </div>
+  <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">
+    Submit RSVP
+  </button>
+  <div class="rsvp-success" id="rsvpSuccess">
+    Thank you! Your RSVP has been received.<br>We can't wait to celebrate with you.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-names" id="footerNames">Iris <span class="ampersand">&amp;</span> Nathan</div>
+  <div class="footer-date" id="footerDate">September 24<sup>th</sup>, 2026 · Chicago, IL</div>
+</footer>
+
 <script>
+
+// ── Thumbnail mode detection ──────────────────────────────
 (function(){
-  var p=new URLSearchParams(window.location.search);
-  if(p.get('thumbnail')==='1')document.body.classList.add('thumbnail-mode');
-})();
-function _reveal(){document.body.classList.remove('hydrating');}
-function hydrateTemplate(d){
-  var names=d.couple_names||(d.partner_1&&d.partner_2?d.partner_1+' & '+d.partner_2:'A & B');
-  var el=document.getElementById('coupleNames');
-  if(el)el.textContent=names;
-}
-var _got=false;
-_reveal();
-window.addEventListener('message',function(e){
-  if(e.data&&e.data.type==='HYDRATE_TEMPLATE'){
-    _got=true;hydrateTemplate(e.data.payload);
+  if(new URLSearchParams(window.location.search).get('thumbnail')==='1'){
+    document.body.classList.add('thumbnail-mode');
   }
+})();
+
+const API = 'https://wedding-recommender.onrender.com';
+
+const _params    = new URLSearchParams(window.location.search);
+const _slugParam = _params.get('slug') || '';
+const _pathParts = window.location.pathname.split('/').filter(p => p);
+const _firstPart = _pathParts[0] || '';
+const _liveSlug  = _slugParam
+  || (_firstPart && _firstPart.indexOf('.') === -1 && !_firstPart.startsWith('template-')
+      ? _firstPart : '');
+const _isPreview = !_liveSlug;
+const _pwdParam  = _params.get('pwd') || '';
+
+// ── Mobile menu (mirrors top-nav links) ─────────────────────
+function toggleMobileMenu(btn) {
+  var overlay = document.getElementById('menuOverlay');
+  if (overlay.classList.contains('open')) closeMobileMenu();
+  else openMobileMenu();
+}
+function openMobileMenu() {
+  // Mirror current top-nav links into the drawer
+  var drawer = document.getElementById('menuDrawer');
+  var topLinks = document.querySelectorAll('.top-nav a');
+  drawer.innerHTML = '';
+  topLinks.forEach(function(a) {
+    var clone = a.cloneNode(true);
+    clone.onclick = function() { closeMobileMenu(); };
+    drawer.appendChild(clone);
+  });
+  document.getElementById('menuOverlay').classList.add('open');
+  document.querySelector('.nav-mobile-toggle').classList.add('open');
+}
+function closeMobileMenu() {
+  document.getElementById('menuOverlay').classList.remove('open');
+  document.querySelector('.nav-mobile-toggle').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
+
+// FAQ no-op (always-open in this template)
+function toggleFaq() { /* no-op */ }
+
+// ── RSVP ─────────────────────────────────────────────────────
+var _rsvpEntreeOptions = [
+  { value: 'Chicken', label: 'Chicken' },
+  { value: 'Fish',    label: 'Fish' },
+  { value: 'Beef',    label: 'Beef' },
+  { value: 'Vegetarian', label: 'Vegetarian' },
+  { value: 'Vegan',   label: 'Vegan' },
+  { value: 'Kids Meal', label: 'Kids Meal' },
+];
+
+// Vintage Love Story RSVP layout per screenshot:
+//   - Master name input at top (separate, above all events)
+//   - Each event has its own "Do you plan to attend?" dropdown
+//   - The Wedding event ALSO gets an "Your Entrée Choice" dropdown
+//   - At bottom: "+ Add invited guest" button → reveals invited-guest name input
+//   - Submit RSVP pill
+function buildRsvpBlocks(events) {
+  var container = document.getElementById('rsvpBlocks');
+  container.innerHTML = '';
+  if (!events || events.length === 0) return;
+
+  var entreeOpts = _rsvpEntreeOptions.map(function(o) {
+    return '<option value="' + o.value + '">' + o.label + '</option>';
+  }).join('');
+
+  events.forEach(function(ev) {
+    var block = document.createElement('div');
+    block.className = 'rsvp-event-block';
+    block.dataset.eventId = ev.id;
+
+    // Heuristic: include entrée dropdown for the "wedding" event (or events
+    // whose label contains "ceremony" / "reception" / "wedding").
+    var isWeddingEvt = /wedding|ceremony|reception/i.test(ev.label || '');
+
+    block.innerHTML =
+      '<div class="rsvp-event-label">' + ev.label + '</div>' +
+      '<div class="rsvp-expanded" id="expanded-' + ev.id + '">' +
+        '<div class="rsvp-field-row">' +
+          '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
+            '<option value="">Do you plan to attend?</option>' +
+            '<option value="yes">Yes — attending</option>' +
+            '<option value="no">No — cannot make it</option>' +
+            '<option value="maybe">Not sure yet</option>' +
+          '</select>' +
+        '</div>' +
+        (isWeddingEvt ?
+          '<div class="rsvp-field-row">' +
+            '<select class="rsvp-select" data-field="entree">' +
+              '<option value="">Your Entrée Choice</option>' +
+              entreeOpts +
+            '</select>' +
+          '</div>' : '') +
+        // Hidden fields preserved for backend compatibility
+        '<input type="hidden" data-field="meal" value="">' +
+        '<input type="hidden" data-field="email" value="">' +
+        '<input type="hidden" data-field="dietary" value="">' +
+        '<input type="hidden" data-field="notes" value="">' +
+      '</div>';
+    container.appendChild(block);
+  });
+
+  checkShowSubmit();
+}
+
+var _masterLookupTimer = null;
+
+function onMasterNameInput(input) {
+  document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+    b.dataset.guestName = input.value.trim();
+  });
+  checkShowSubmit();
+  if (_masterLookupTimer) clearTimeout(_masterLookupTimer);
+  _masterLookupTimer = setTimeout(function() {
+    lookupMasterGuest(input.value.trim());
+  }, 500);
+}
+
+function lookupMasterGuest(name) {
+  if (_isPreview) return;
+  var slug = window._weddingSlug || '';
+  if (!slug || !name || name.length < 2) return;
+
+  var statusEl = document.querySelector('.rsvp-master-status');
+  if (!statusEl) {
+    statusEl = document.createElement('div');
+    statusEl.className = 'rsvp-master-status';
+    statusEl.style.cssText = [
+      'font-family:var(--sans)',
+      'font-size:0.78rem',
+      'padding:0.5rem 1rem',
+      'margin:0.6rem auto 0',
+      'max-width:380px',
+      'border-left:3px solid #d8ebf9',
+      'background:rgba(216,235,249,0.3)',
+      'border-radius:4px',
+      'color:#513229',
+      'text-align:left'
+    ].join(';');
+    var wrap = document.querySelector('.rsvp-master-name-wrap');
+    if (wrap) wrap.appendChild(statusEl);
+  }
+  var staleDisambig = document.querySelector('.rsvp-name-disambig');
+  if (staleDisambig) staleDisambig.remove();
+
+  statusEl.textContent = 'Checking guest list…';
+  statusEl.style.borderLeftColor = '#d8ebf9';
+  statusEl.style.background      = 'rgba(216,235,249,0.3)';
+  statusEl.style.color           = '#513229';
+
+  var lookupUrl = API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-lookup?name=' + encodeURIComponent(name);
+  console.log('[RSVP lookup]', lookupUrl);
+
+  fetch(lookupUrl)
+    .then(function(r) {
+      if (!r.ok) {
+        console.warn('[RSVP lookup] HTTP', r.status);
+        return r.text().then(function(t) { throw new Error('HTTP ' + r.status + ': ' + t); });
+      }
+      return r.json();
+    })
+    .then(function(json) {
+      console.log('[RSVP lookup] response', json);
+      var addBtn = document.querySelector('.rsvp-add-guest');
+      var listEl = document.getElementById('extra-guests-shared');
+
+      if (json.found === true) {
+        document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+          b.dataset.guestId          = json.guest_id || '';
+          b.dataset.plusOneAllowed   = json.plus_one_allowed ? '1' : '0';
+          b.dataset.householdAllowed = String(json.household_members_allowed || 0);
+          b.dataset.lookupState      = 'found';
+        });
+        statusEl.textContent           = '✓ Found you on the list — ' + json.name;
+        statusEl.style.borderLeftColor = '#513229';
+        statusEl.style.background      = 'rgba(81,50,41,0.06)';
+        statusEl.style.color           = '#513229';
+        if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+        if (listEl && !json.plus_one_allowed) {
+          listEl.innerHTML = '';
+          if (addBtn) addBtn.style.display = 'none';
+        }
+      } else if (json.ambiguous) {
+        document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+          b.dataset.lookupState = 'ambiguous';
+          b.dataset.guestId = '';
+        });
+        statusEl.textContent           = 'Multiple matches — please pick yours below';
+        statusEl.style.borderLeftColor = '#b69400';
+        statusEl.style.background      = 'rgba(228,197,103,0.18)';
+        statusEl.style.color           = '#7a5a00';
+        if (addBtn) addBtn.style.display = 'none';
+        if (listEl) listEl.innerHTML = '';
+        showAmbiguousMatches(json.matches || []);
+      } else {
+        document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+          b.dataset.lookupState = 'unknown';
+          b.dataset.guestId = '';
+          b.dataset.plusOneAllowed = '0';
+        });
+        statusEl.textContent           = "We couldn't find your name on the guest list. RSVPs are by invitation only — please contact the couple if you believe this is a mistake.";
+        statusEl.style.borderLeftColor = '#c23331';
+        statusEl.style.background      = 'rgba(194,51,49,0.08)';
+        statusEl.style.color           = '#c23331';
+        if (addBtn) addBtn.style.display = 'none';
+        if (listEl) listEl.innerHTML = '';
+      }
+      checkShowSubmit();
+    })
+    .catch(function(err) {
+      console.warn('[RSVP lookup] error:', err);
+      document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+        b.dataset.lookupState = 'error';
+        b.dataset.guestId = '';
+      });
+      if (statusEl) {
+        statusEl.textContent           = 'Could not check the guest list right now. Please try again.';
+        statusEl.style.borderLeftColor = '#c23331';
+        statusEl.style.background      = 'rgba(194,51,49,0.08)';
+        statusEl.style.color           = '#c23331';
+      }
+      checkShowSubmit();
+    });
+}
+
+function showAmbiguousMatches(matches) {
+  var existing = document.querySelector('.rsvp-name-disambig');
+  if (existing) existing.remove();
+  if (!matches.length) return;
+
+  var wrap = document.createElement('div');
+  wrap.className = 'rsvp-name-disambig';
+  wrap.style.cssText = 'background:#fffdf5;border:1px solid rgba(81,50,41,0.25);border-radius:8px;padding:0.6rem 0.7rem;margin:0.6rem auto 0;max-width:380px;font-family:var(--sans);font-size:0.78rem;color:#513229;text-align:left;';
+  var label = document.createElement('div');
+  label.textContent = 'We found a few matches — please pick yours:';
+  label.style.cssText = 'margin-bottom:0.4rem;font-size:0.72rem;color:#777';
+  wrap.appendChild(label);
+
+  matches.forEach(function(m) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.style.cssText = 'display:block;width:100%;text-align:left;border:1px solid rgba(81,50,41,0.18);background:#fff;padding:0.5rem 0.7rem;border-radius:6px;margin-bottom:0.3rem;cursor:pointer;font-family:var(--sans);font-size:0.85rem;color:#1a1a1a;';
+    var nameSpan = document.createElement('div');
+    nameSpan.textContent = m.name;
+    nameSpan.style.cssText = 'font-weight:500;';
+    btn.appendChild(nameSpan);
+    if (m.hint) {
+      var hintSpan = document.createElement('div');
+      hintSpan.textContent = m.hint;
+      hintSpan.style.cssText = 'font-size:0.7rem;color:#999;margin-top:2px;';
+      btn.appendChild(hintSpan);
+    }
+    btn.onclick = function() {
+      var nameInput = document.querySelector('.rsvp-master-input');
+      if (nameInput) nameInput.value = m.name;
+      wrap.remove();
+      lookupGuestById(m.id, m.name);
+    };
+    wrap.appendChild(btn);
+  });
+  var nameWrap = document.querySelector('.rsvp-master-name-wrap');
+  if (nameWrap) nameWrap.appendChild(wrap);
+}
+
+function lookupGuestById(guestId, displayName) {
+  if (_isPreview) return;
+  var slug = window._weddingSlug || '';
+  if (!slug || !guestId) return;
+
+  var statusEl = document.querySelector('.rsvp-master-status');
+  if (statusEl) {
+    statusEl.textContent = 'Confirming…';
+    statusEl.style.borderLeftColor = '#d8ebf9';
+    statusEl.style.background      = 'rgba(216,235,249,0.3)';
+    statusEl.style.color           = '#513229';
+  }
+  var url = API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-by-id/' + encodeURIComponent(guestId);
+  fetch(url)
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(json) {
+      if (!json || !json.found) {
+        document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+          b.dataset.lookupState = 'unknown';
+          b.dataset.guestId = '';
+        });
+        if (statusEl) {
+          statusEl.textContent           = "We couldn't verify that guest. Please try again.";
+          statusEl.style.borderLeftColor = '#c23331';
+          statusEl.style.background      = 'rgba(194,51,49,0.08)';
+          statusEl.style.color           = '#c23331';
+        }
+        checkShowSubmit();
+        return;
+      }
+      document.querySelectorAll('.rsvp-event-block').forEach(function(b) {
+        b.dataset.guestId          = json.guest_id || '';
+        b.dataset.plusOneAllowed   = json.plus_one_allowed ? '1' : '0';
+        b.dataset.householdAllowed = String(json.household_members_allowed || 0);
+        b.dataset.lookupState      = 'found';
+      });
+      if (statusEl) {
+        statusEl.textContent           = '✓ Found you on the list — ' + (json.name || displayName);
+        statusEl.style.borderLeftColor = '#513229';
+        statusEl.style.background      = 'rgba(81,50,41,0.06)';
+        statusEl.style.color           = '#513229';
+      }
+      var addBtn = document.querySelector('.rsvp-add-guest');
+      if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      checkShowSubmit();
+    });
+}
+
+function addExtraGuestShared(btn) {
+  var list = document.getElementById('extra-guests-shared');
+  if (!list || list.children.length > 0) return;
+
+  var row = document.createElement('div');
+  row.className = 'extra-guest-row';
+
+  var nameInput = document.createElement('input');
+  nameInput.className = 'rsvp-text-input';
+  nameInput.type = 'text';
+  var primaryNameInput = document.querySelector('.rsvp-master-input');
+  var primaryName = primaryNameInput ? (primaryNameInput.value || '').trim() : '';
+  var defaultPlusOneName = primaryName ? primaryName + "'s Plus One" : '';
+  nameInput.value = defaultPlusOneName;
+  nameInput.placeholder = "Enter invited guest's name";
+  nameInput.dataset.role = 'plus-one-name';
+  nameInput.dataset.isDefault = '1';
+  nameInput.addEventListener('input', function() { nameInput.dataset.isDefault = '0'; });
+  if (primaryNameInput) {
+    primaryNameInput.addEventListener('input', function() {
+      if (nameInput.dataset.isDefault === '1') {
+        var n = (primaryNameInput.value || '').trim();
+        nameInput.value = n ? n + "'s Plus One" : '';
+      }
+    });
+  }
+  var removeBtn = document.createElement('button');
+  removeBtn.className = 'rsvp-remove-btn';
+  removeBtn.textContent = '×';
+  removeBtn.onclick = function() {
+    row.remove();
+    btn.style.display = '';
+  };
+  row.appendChild(nameInput);
+  row.appendChild(removeBtn);
+
+  list.appendChild(row);
+  btn.style.display = 'none';
+}
+
+function checkShowSubmit() {
+  var masterInput = document.querySelector('.rsvp-master-input');
+  var nameVal = masterInput ? (masterInput.value || '').trim() : '';
+  if (nameVal.length < 2) { _toggleSubmit(false); return; }
+
+  var blocks = document.querySelectorAll('.rsvp-event-block');
+  var matched = false;
+  var anyAttending = false;
+  blocks.forEach(function(block) {
+    if (block.dataset.lookupState === 'found') matched = true;
+    var att = block.querySelector('[data-field="attending"]');
+    if (att && att.value) anyAttending = true;
+  });
+  if (!matched) { _toggleSubmit(false); return; }
+  if (!anyAttending) { _toggleSubmit(false); return; }
+
+  _toggleSubmit(true);
+}
+
+function _toggleSubmit(show) {
+  var btn = document.getElementById('rsvpSubmitBtn');
+  if (btn) btn.style.display = show ? 'inline-block' : 'none';
+}
+
+async function submitRSVP() {
+  if (_isPreview) { alert('RSVP is disabled in preview mode.'); return; }
+
+  var masterInput = document.querySelector('.rsvp-master-input');
+  var name = masterInput ? masterInput.value.trim() : '';
+  if (!name) return;
+
+  var slug   = window._weddingSlug || '';
+  var btn    = document.getElementById('rsvpSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    var promises = [];
+    var blocks = document.querySelectorAll('.rsvp-event-block');
+
+    var plusOneRow = document.querySelector('#extra-guests-shared .extra-guest-row');
+    var plusOneAttached = false;
+
+    blocks.forEach(function(block) {
+      if (block.dataset.lookupState !== 'found' || !block.dataset.guestId) return;
+      var attending  = (block.querySelector('[data-field="attending"]') || {}).value || 'yes';
+      var entree     = (block.querySelector('[data-field="entree"]')    || {}).value || '';
+      var label      = block.querySelector('.rsvp-event-label').textContent;
+
+      var resolvedGuestId = block.dataset.guestId || null;
+
+      var extraGuests = [];
+      if (!plusOneAttached && plusOneRow) {
+        var plusOneName   = (plusOneRow.querySelector('[data-role="plus-one-name"]')   || {}).value || '';
+        if (plusOneName.trim()) {
+          extraGuests.push({
+            name:   plusOneName.trim(),
+            meal:   '',
+            entree: '',
+          });
+          plusOneAttached = true;
+        }
+      }
+
+      promises.push(fetch(API + '/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug:            slug,
+          guest_name:      name,
+          guest_id:        resolvedGuestId,
+          attending:       attending || 'yes',
+          meal_preference: '',
+          entree_choice:   entree || '',
+          email:           '',
+          dietary_notes:   '',
+          message:         '',
+          event_name:      label,
+          plus_one:        extraGuests.length > 0,
+          extra_guests:    extraGuests,
+        })
+      }));
+    });
+
+    var results = await Promise.all(promises);
+    var failedDetails = [];
+    for (var ri = 0; ri < results.length; ri++) {
+      if (!results[ri].ok) {
+        try {
+          var errBody = await results[ri].json();
+          failedDetails.push(errBody.detail || ('HTTP ' + results[ri].status));
+        } catch(je) {
+          failedDetails.push('HTTP ' + results[ri].status);
+        }
+      }
+    }
+    if (failedDetails.length > 0) {
+      console.error('RSVP API errors:', failedDetails);
+      throw new Error(failedDetails.join(' | '));
+    }
+    document.getElementById('rsvpSuccess').style.display = 'block';
+    btn.style.display = 'none';
+  } catch(e) {
+    console.error('RSVP error:', e);
+    alert('RSVP error: ' + (e.message || 'unknown'));
+    btn.disabled = false; btn.textContent = 'Submit RSVP';
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function ordSuffix(n) {
+  if (n>=11 && n<=13) return 'th';
+  var m = n%10;
+  return m===1?'st':m===2?'nd':m===3?'rd':'th';
+}
+
+function fmtVintageDate(d) {
+  // "Saturday, 09.24.2026"
+  if (!d) return '';
+  try {
+    var dt = new Date(d);
+    var weekday = dt.toLocaleDateString('en-US', { weekday:'long' });
+    var mm = String(dt.getMonth()+1).padStart(2, '0');
+    var dd = String(dt.getDate()).padStart(2, '0');
+    var yy = dt.getFullYear();
+    return weekday + ', ' + mm + '.' + dd + '.' + yy;
+  } catch(e) { return d; }
+}
+
+function fmtVintageDateShort(d) {
+  // "Sunday, 09.25.2026"
+  return fmtVintageDate(d);
+}
+
+// Parse a single event blob (HTML between <strong>...</strong>) into structured pieces
+function parseEventBlob(part) {
+  var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+  var eventName = nameMatch ? nameMatch[1] : '';
+  var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
+
+  var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
+  var dressCode = dressMatch ? dressMatch[1] : '';
+  var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
+
+  var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
+
+  var dateLine = '';
+  var timeLine = '';
+  var detailLines = [];
+
+  lines.forEach(function(line) {
+    var clean = line.replace(/<[^>]+>/g, '').trim();
+    if (!dateLine && /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|January|February|March|April|May|June|July|August|September|October|November|December)/i.test(clean)) {
+      dateLine = clean;
+    } else if (!timeLine && /\d{1,2}\s*(?::\d{2})?\s*(?:[–-]|to)\s*\d{1,2}|\d{1,2}:\d{2}|\bo['’]clock\b|\bAM\b|\bPM\b|\bam\b|\bpm\b/i.test(clean)) {
+      timeLine = clean;
+    } else {
+      detailLines.push(clean);
+    }
+  });
+
+  var venue = detailLines.length ? detailLines[0] : '';
+  var address = detailLines.length > 1 ? detailLines.slice(1).join('<br>') : '';
+
+  // Reformat date as Vintage style if parseable
+  if (dateLine) {
+    var parsed = new Date(dateLine);
+    if (!isNaN(parsed)) dateLine = fmtVintageDate(dateLine);
+  }
+
+  return {
+    eventName: eventName,
+    dateLine: dateLine,
+    timeLine: timeLine,
+    venue: venue,
+    address: address,
+    dressCode: dressCode
+  };
+}
+
+// Render an event into a wedding column or events column
+function renderColMeta(parsed) {
+  return '<div class="event-col-meta">' +
+    (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
+    (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
+    (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
+    (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '') +
+  '</div>';
+}
+
+function renderWeddingColMeta(parsed) {
+  return '<div class="wedding-col-meta">' +
+    (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
+    (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
+    (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
+    (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '') +
+  '</div>';
+}
+
+function parseAllEventsFromBlob(blob) {
+  if (!blob) return [];
+  var parts = blob.replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
+                  .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
+                  .split('||SPLIT||')
+                  .map(function(p) { return p.trim(); })
+                  .filter(function(p) { return p.length > 3; });
+  return parts.map(parseEventBlob);
+}
+
+// Render accommodations + travel into the Travel Info section.
+// Vintage Love Story has a single "Travel Info" section combining both
+// hotels (from accommodation_info) AND airports (from travel_info or hardcoded).
+function hydrateTravelInfo(d, menu) {
+  var grid = document.getElementById('travelGrid');
+  if (!grid) return;
+
+  // Hotels: parsed from accommodation_info
+  var hotels = parseAllEventsFromBlob(d.accommodation_info || '');
+  // hotels here are events with eventName=hotel name, dateLine likely empty,
+  // and venue+address actually being address lines. So we re-parse simpler:
+  var hotelItems = [];
+  if (d.accommodation_info) {
+    var blob = d.accommodation_info;
+    var blocks = blob.replace(/(<br\s*\/?>\s*){3,}/gi, '||SPLIT||').split('||SPLIT||');
+    blocks.forEach(function(blk) {
+      blk = blk.trim();
+      if (!blk) return;
+      var nameMatch = blk.match(/<strong>([^<]+)<\/strong>/i);
+      var name = nameMatch ? nameMatch[1].trim() : '';
+      var rest = nameMatch ? blk.replace(nameMatch[0], '').trim() : blk;
+      // Extract italic note
+      var emMatch = rest.match(/<em>([^<]+)<\/em>/i);
+      var note = emMatch ? emMatch[1].trim() : '';
+      rest = emMatch ? rest.replace(emMatch[0], '').trim() : rest;
+      // Strip leading/trailing <br>s, keep internal ones for the address
+      rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
+      hotelItems.push({ name: name, address: rest, note: note });
+    });
+  }
+
+  // Airports: parsed from travel_info (treat whole blob as one or multiple airport entries)
+  var airportItems = [];
+  if (d.travel_info) {
+    var tBlob = d.travel_info;
+    var tBlocks = tBlob.replace(/(<br\s*\/?>\s*){3,}/gi, '||SPLIT||').split('||SPLIT||');
+    tBlocks.forEach(function(blk) {
+      blk = blk.trim();
+      if (!blk) return;
+      var nameMatch = blk.match(/<strong>([^<]+)<\/strong>/i);
+      var name = nameMatch ? nameMatch[1].trim() : '';
+      var rest = nameMatch ? blk.replace(nameMatch[0], '').trim() : blk;
+      // Extract code-style line in parens, e.g. "(ORD)" — keep as the meta line
+      rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
+      airportItems.push({ name: name, meta: rest });
+    });
+  }
+
+  var airportsHtml = '';
+  if (airportItems.length) {
+    airportsHtml = airportItems.map(function(a) {
+      return '<div class="travel-item">' +
+        (a.name ? '<span class="travel-item-name">' + a.name + '</span>' : '') +
+        (a.meta ? '<span class="travel-item-meta">' + a.meta + '</span>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  var hotelsHtml = '';
+  if (hotelItems.length) {
+    hotelsHtml = hotelItems.map(function(h) {
+      return '<div class="travel-item">' +
+        (h.name ? '<span class="travel-item-name">' + h.name + '</span>' : '') +
+        (h.address ? '<span class="travel-item-meta">' + h.address + '</span>' : '') +
+      '</div>';
+    }).join('');
+    // Find first note across hotels for the *room block message
+    var firstNote = '';
+    for (var i = 0; i < hotelItems.length; i++) {
+      if (hotelItems[i].note) { firstNote = hotelItems[i].note; break; }
+    }
+    if (firstNote) hotelsHtml += '<div class="travel-note">*' + firstNote + '</div>';
+  }
+
+  // If neither airports nor hotels are available, hide the section
+  var travelSection = document.getElementById('travel-section');
+  if (!airportsHtml && !hotelsHtml) {
+    if (travelSection) travelSection.style.display = 'none';
+    return;
+  }
+
+  // Build the grid — both columns, with divider, even if one is empty
+  var leftHtml = '<div class="travel-col">' +
+    '<h3 class="travel-col-title">Airports</h3>' +
+    (airportsHtml || '<div class="travel-item" style="color:#999;font-style:italic">No airport info provided.</div>') +
+  '</div>';
+  var rightHtml = '<div class="travel-col">' +
+    '<h3 class="travel-col-title">Hotels</h3>' +
+    (hotelsHtml || '<div class="travel-item" style="color:#999;font-style:italic">No hotel info provided.</div>') +
+  '</div>';
+
+  grid.innerHTML = leftHtml + '<div class="travel-divider"></div>' + rightHtml;
+}
+
+// Hydrate the wedding section (Ceremony + figure + Reception)
+// Vintage Love Story expects exactly 2 events (ceremony + reception) here.
+// If the user provided a wedding_info blob with 2 sub-events, use them;
+// otherwise fall back to first 2 events in d.events.
+function hydrateWeddingSection(d, menu) {
+  var grid = document.getElementById('weddingGrid');
+  if (!grid) return;
+
+  var parsed = parseAllEventsFromBlob(d.weddings_info || '');
+  // We always need exactly 2 columns. If only 1 wedding event, show it once
+  // and skip the second column visually.
+  var ceremony = parsed[0] || null;
+  var reception = parsed[1] || null;
+
+  // If parsed has nothing but d.events has wedding-shaped events, use them
+  if (!ceremony && d.events && d.events.length) {
+    var weddingEvents = d.events.filter(function(e) {
+      return /wedding|ceremony|reception/i.test(e.name || '');
+    });
+    if (weddingEvents.length >= 1) {
+      ceremony = {
+        eventName: weddingEvents[0].name || 'The Ceremony',
+        dateLine: weddingEvents[0].date ? fmtVintageDate(weddingEvents[0].date) : '',
+        timeLine: weddingEvents[0].time || '',
+        venue: weddingEvents[0].venue || '',
+        address: weddingEvents[0].address || ''
+      };
+    }
+    if (weddingEvents.length >= 2) {
+      reception = {
+        eventName: weddingEvents[1].name || 'The Reception',
+        dateLine: weddingEvents[1].date ? fmtVintageDate(weddingEvents[1].date) : '',
+        timeLine: weddingEvents[1].time || '',
+        venue: weddingEvents[1].venue || '',
+        address: weddingEvents[1].address || ''
+      };
+    }
+  }
+
+  if (!ceremony) {
+    // No data — keep static defaults already in DOM
+    return;
+  }
+
+  // Override default event names if the parsed eventName looks generic
+  var ceremonyTitle = ceremony.eventName || 'The Ceremony';
+  var receptionTitle = (reception && reception.eventName) || 'The Reception';
+
+  var leftHtml = '<div class="wedding-col">' +
+    '<h2 class="wedding-col-title">' + ceremonyTitle + '</h2>' +
+    renderWeddingColMeta(ceremony) +
+  '</div>';
+  var figureHtml = '<div class="wedding-figure">' +
+    '<img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg" alt="Bride and groom illustration">' +
+  '</div>';
+  var rightHtml = reception
+    ? '<div class="wedding-col">' +
+        '<h2 class="wedding-col-title">' + receptionTitle + '</h2>' +
+        renderWeddingColMeta(reception) +
+      '</div>'
+    : '<div class="wedding-col"></div>';
+
+  grid.innerHTML = leftHtml + figureHtml + rightHtml;
+}
+
+// Hydrate the Events section (other_events) — 2 events side-by-side
+function hydrateEventsSection(d, menu) {
+  var grid = document.getElementById('eventsGrid');
+  var section = document.getElementById('events');
+  if (!grid || !section) return;
+
+  if (!menu.other_events || !d.events_info) {
+    section.style.display = 'none';
+    return;
+  }
+
+  var parsed = parseAllEventsFromBlob(d.events_info);
+  if (parsed.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+
+  // Render each parsed event as its own column
+  var html = '';
+  parsed.forEach(function(p, i) {
+    if (i > 0) html += '<div class="events-divider"></div>';
+    html += '<div class="event-col">' +
+      '<h3 class="event-col-title">' + (p.eventName || 'Event') + '</h3>' +
+      renderColMeta(p) +
+    '</div>';
+  });
+  grid.innerHTML = html;
+
+  // Adjust grid template based on number of events
+  if (parsed.length === 1) {
+    grid.style.gridTemplateColumns = '1fr';
+  } else if (parsed.length === 2) {
+    grid.style.gridTemplateColumns = '1fr 1px 1fr';
+  } else {
+    // 3+ events — use repeating columns with thinner dividers
+    var cols = [];
+    for (var i = 0; i < parsed.length; i++) {
+      cols.push('1fr');
+      if (i < parsed.length - 1) cols.push('1px');
+    }
+    grid.style.gridTemplateColumns = cols.join(' ');
+  }
+}
+
+// ── Hydration ─────────────────────────────────────────────────
+function hydrateTemplate(d) {
+  window._weddingSlug  = d.slug || '';
+  const names   = d.couple_names || 'Iris & Nathan';
+  const p1      = d.partner_1 || '';
+  const p2      = d.partner_2 || '';
+  const mode    = (d.website_mode || 'Full').toLowerCase();
+  const isSaveTheDate = mode.includes('save');
+  const menu    = d.menu_config || {};
+  const rsvpOn  = d.rsvp_enabled === true;
+
+  // ── Names ─────────────────────────────────────────────────────────────
+  const heroEl = document.getElementById('heroCoupleNames');
+  if (heroEl) {
+    var splitMatch = names.match(/^(.+?)\s+(?:&|and|And|AND)\s+(.+)$/);
+    if (splitMatch) {
+      heroEl.innerHTML = splitMatch[1].trim() +
+        '<span class="ampersand">&amp;</span>' + splitMatch[2].trim();
+    } else {
+      heroEl.textContent = names;
+    }
+  }
+  // Footer + nav brand
+  var footerNamesEl = document.getElementById('footerNames');
+  var navBrandEl    = document.getElementById('navBrand');
+  if (splitMatch = names.match(/^(.+?)\s+(?:&|and|And|AND)\s+(.+)$/)) {
+    var n1 = splitMatch[1].trim(), n2 = splitMatch[2].trim();
+    if (footerNamesEl) footerNamesEl.innerHTML = n1 + ' <span class="ampersand">&amp;</span> ' + n2;
+    if (navBrandEl)    navBrandEl.innerHTML    = n1 + ' <span class="ampersand">&amp;</span> ' + n2;
+  } else {
+    if (footerNamesEl) footerNamesEl.textContent = names;
+    if (navBrandEl)    navBrandEl.textContent    = names;
+  }
+  document.title = names;
+
+  // ── Hero date (above-fold) ───────────────────────────────────────────
+  if (d.celebration_date) {
+    try {
+      var hd = new Date(d.celebration_date);
+      var month = hd.toLocaleDateString('en-US', { month:'long' }).toUpperCase();
+      var day = hd.getDate();
+      var year = hd.getFullYear();
+      var suffix = ordSuffix(day).toUpperCase();
+      var heroDateEl = document.getElementById('heroDate');
+      if (heroDateEl) heroDateEl.innerHTML = month + ' ' + day + '<sup>' + suffix + '</sup>, ' + year;
+
+      var fEl = document.getElementById('footerDate');
+      var pieces = [];
+      var fMonth = hd.toLocaleDateString('en-US', { month:'long' });
+      pieces.push(fMonth + ' ' + day + '<sup>' + ordSuffix(day) + '</sup>, ' + year);
+      if (d.celebration_location) pieces.push(d.celebration_location);
+      if (fEl) fEl.innerHTML = pieces.join(' · ');
+    } catch(e) {}
+  } else if (d.celebration_location) {
+    var fEl2 = document.getElementById('footerDate');
+    if (fEl2) fEl2.textContent = d.celebration_location;
+  }
+
+  // ── RSVP deadline ────────────────────────────────────────────────────
+  var deadlineEl = document.getElementById('rsvpDeadline');
+  if (deadlineEl) {
+    var deadlineSrc = d.rsvp_deadline || null;
+    if (!deadlineSrc && d.celebration_date) {
+      try {
+        var cd = new Date(d.celebration_date);
+        cd.setDate(cd.getDate() - 42);
+        deadlineSrc = cd.toISOString();
+      } catch(e) {}
+    }
+    if (deadlineSrc) {
+      try {
+        var dl = new Date(deadlineSrc);
+        var month = dl.toLocaleDateString('en-US', { month:'long' });
+        var day = dl.getDate();
+        var year = dl.getFullYear();
+        // Vintage Love Story shows just month + day with ordinal, no year — matching the design
+        deadlineEl.innerHTML = 'Kindly send us your response by ' + month + ' ' + day + '<sup>' + ordSuffix(day) + '</sup>';
+      } catch(e) {}
+    }
+  }
+
+  // ── Custom colours ────────────────────────────────────────────────────
+  // primary_color → brown (nav, story bg, registry bg, submit btn)
+  // accent_color  → blue (ampersand, ceremony figure oval)
+  if (d.customization) {
+    if (d.customization.primary_color) {
+      document.documentElement.style.setProperty('--brown', d.customization.primary_color);
+    }
+    if (d.customization.accent_color) {
+      document.documentElement.style.setProperty('--blue', d.customization.accent_color);
+    }
+    if (d.customization.text_color) {
+      document.documentElement.style.setProperty('--text', d.customization.text_color);
+    }
+  }
+
+  // ── RSVP config ───────────────────────────────────────────────────────
+  if (d.rsvp_config) {
+    if (d.rsvp_config.entrees && d.rsvp_config.entrees.length) {
+      _rsvpEntreeOptions = d.rsvp_config.entrees.map(function(e) {
+        return { value: e, label: e };
+      });
+    }
+    window._globalAllowPlusOne = d.rsvp_config.allow_plus_one !== false;
+  }
+
+  // ── Custom CSS ────────────────────────────────────────────────────────
+  if (d.custom_css) {
+    var existingStyle = document.getElementById('custom-css-override');
+    if (existingStyle) existingStyle.remove();
+    var styleEl = document.createElement('style');
+    styleEl.id = 'custom-css-override';
+    styleEl.textContent = d.custom_css;
+    document.head.appendChild(styleEl);
+  }
+
+  // ── Custom font ────────────────────────────────────────────────────────
+  if (d.custom_font) {
+    const fontLink  = document.createElement('link');
+    fontLink.rel    = 'stylesheet';
+    fontLink.href   = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(d.custom_font)}&display=swap`;
+    document.head.appendChild(fontLink);
+    document.documentElement.style.setProperty('--display', `'${d.custom_font}',serif`);
+  }
+
+  // ── Save the Date mode: show only hero ────────────────────────────────
+  const sectionIds = ['wedding','our-story','events','travel-section','need-to-know','gallery','registry-wrap','rsvp'];
+  if (isSaveTheDate) {
+    sectionIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    _hideNavLinks();
+    _reveal();
+    return;
+  }
+
+  // ── The Wedding section (Ceremony + figure + Reception) ─────────────
+  var weddingSection = document.getElementById('wedding');
+  if (menu.wedding) {
+    weddingSection.style.display = '';
+    hydrateWeddingSection(d, menu);
+  } else {
+    weddingSection.style.display = 'none';
+  }
+
+  // ── Our Story ─────────────────────────────────────────────────────────
+  const storySection = document.getElementById('our-story');
+  if (d.story && menu.story && storySection) {
+    // Split the story into 2 columns at roughly the midpoint of words
+    var storyHtml = d.story;
+    var storyText = storyHtml.replace(/<[^>]+>/g, ' ').trim();
+    var words = storyText.split(/\s+/);
+    if (words.length > 30) {
+      var mid = Math.floor(words.length / 2);
+      var col1 = words.slice(0, mid).join(' ');
+      var col2 = words.slice(mid).join(' ');
+      var c1 = document.getElementById('storyCol1');
+      var c2 = document.getElementById('storyCol2');
+      if (c1) c1.textContent = col1;
+      if (c2) c2.textContent = col2;
+    } else {
+      var c1b = document.getElementById('storyCol1');
+      var c2b = document.getElementById('storyCol2');
+      if (c1b) c1b.textContent = storyText;
+      if (c2b) c2b.textContent = '';
+    }
+    storySection.style.display = '';
+  } else if (storySection) {
+    storySection.style.display = 'none';
+  }
+
+  // ── Events (other_events) ────────────────────────────────────────────
+  hydrateEventsSection(d, menu);
+
+  // ── Travel Info (combines accommodations + travel_info) ─────────────
+  var travelSection = document.getElementById('travel-section');
+  var showTravel = menu.accommodations || menu.travel;
+  if (travelSection) travelSection.style.display = showTravel ? '' : 'none';
+  if (showTravel) hydrateTravelInfo(d, menu);
+
+  // ── FAQs ──────────────────────────────────────────────────────────────
+  const ntkSection = document.getElementById('need-to-know');
+  const showNTK    = menu.things_to_do || menu.faqs;
+  if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
+  if (showNTK) {
+    const faqList = document.getElementById('faqList');
+    if (d.faqs && menu.faqs) {
+      faqList.innerHTML = '';
+      var rawHtml = d.faqs;
+      var blocks = rawHtml.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '|||SPLIT|||').split('|||SPLIT|||');
+      var faqPairs = blocks.map(function(block) {
+        block = block.trim();
+        if (!block) return null;
+        var brIdx = block.search(/<br\s*\/?>/i);
+        if (brIdx === -1) {
+          return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+        }
+        var questionHtml = block.substring(0, brIdx);
+        var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
+        var questionText = questionHtml.replace(/<[^>]+>/g, '').trim();
+        return { q: questionText, a: answerHtml };
+      }).filter(Boolean);
+
+      if (faqPairs.length === 0) {
+        faqPairs = [{ q: 'FAQs', a: d.faqs }];
+      }
+
+      faqPairs.forEach(function(pair) {
+        var item = document.createElement('div');
+        item.className = 'faq-item';
+        item.innerHTML = '<div class="faq-q-text">' + pair.q + '</div>' +
+                         (pair.a ? '<div class="faq-answer">' + pair.a + '</div>' : '');
+        faqList.appendChild(item);
+      });
+    }
+
+    if (d.things_to_do && menu.things_to_do) {
+      const item = document.createElement('div');
+      item.className = 'faq-item';
+      item.innerHTML = '<div class="faq-q-text">Things to do nearby?</div><div class="faq-answer">' + d.things_to_do + '</div>';
+      faqList.appendChild(item);
+    }
+  }
+
+  // ── Gallery ──────────────────────────────────────────────────────────
+  const gallerySection = document.getElementById('gallery');
+  if (gallerySection) {
+    const hasImages = d.gallery_images && d.gallery_images.length > 0;
+    gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
+    if (hasImages) {
+      _galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
+      const grid = document.getElementById('galleryGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        _galleryUrls.forEach(function(url, i) {
+          const div = document.createElement('div');
+          div.className = 'gallery-item';
+          div.setAttribute('data-idx', i);
+          div.innerHTML = '<img src="' + url + '" alt="" loading="lazy">';
+          div.addEventListener('click', function(){ openLightbox(i); });
+          grid.appendChild(div);
+        });
+      }
+    }
+  }
+
+  // ── Registry ─────────────────────────────────────────────────────────
+  const registrySection = document.getElementById('registry-section');
+  const registryWrap = document.getElementById('registry-wrap');
+  if (registryWrap) registryWrap.style.display = menu.registry ? '' : 'none';
+  if (menu.registry) {
+    const infoEl = document.getElementById('registryInfo');
+    if (d.registry_info) {
+      var urlMatch = d.registry_info.match(/href=["']([^"']+)["']/i)
+                  || d.registry_info.match(/(https?:\/\/[^\s<"]+)/i);
+      if (urlMatch) registrySection.setAttribute('href', urlMatch[1]);
+      var stripped = d.registry_info.replace(/<a [^>]*>([^<]*)<\/a>/g, '$1').replace(/https?:\/\/\S+/g, '');
+      if (infoEl) infoEl.innerHTML = stripped.trim() ? stripped : '';
+    }
+  }
+
+  // ── RSVP ─────────────────────────────────────────────────────────────
+  const rsvpSection = document.getElementById('rsvp');
+  if (rsvpSection) rsvpSection.style.display = (rsvpOn && menu.rsvp) ? '' : 'none';
+  if (rsvpOn && menu.rsvp) {
+    if (d.events && d.events.length)
+      buildRsvpBlocks(d.events.map(ev => ({ id: ev.id || ev.name, label: ev.name })));
+    else
+      buildRsvpBlocks([{ id: 'wedding', label: 'Wedding Ceremony & Reception' }]);
+    var addBtn = document.querySelector('.rsvp-add-guest');
+    if (addBtn && window._globalAllowPlusOne !== false) addBtn.style.display = '';
+  }
+
+  // ── Top nav: hide sections that are not enabled ─────────────────────
+  _hideNavLinks(menu, rsvpOn, d);
+  _reveal();
+}
+
+function _hideNavLinks(menu, rsvpOn, d) {
+  menu = menu || {};
+  d = d || {};
+  // Map nav anchors to enable-conditions
+  var rules = [
+    { href:'#hero',             show:true                                 },
+    { href:'#our-story',        show:!!menu.story && !!d.story            },
+    { href:'#wedding',          show:!!menu.wedding                       },
+    { href:'#travel-section',   show:!!(menu.accommodations || menu.travel) },
+    { href:'#need-to-know',     show:!!(menu.things_to_do || menu.faqs)   },
+    { href:'#registry-section', show:!!menu.registry                      },
+    { href:'#rsvp',             show:!!rsvpOn && !!menu.rsvp              },
+  ];
+  document.querySelectorAll('.top-nav a').forEach(function(a) {
+    var hrefMatch = a.getAttribute('href');
+    var rule = rules.find(function(r) { return r.href === hrefMatch; });
+    if (rule) a.style.display = rule.show ? '' : 'none';
+  });
+}
+
+// ── Sample data ────────────────────────────────────────────────
+const SAMPLE_DATA = {
+  slug:'', couple_names:'Iris & Nathan', partner_1:'Iris', partner_2:'Nathan',
+  celebration_date:'2026-09-24', celebration_location:'Chicago, IL',
+  hero_image:'',
+  story:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+  weddings_info:'<strong>The Ceremony</strong><br>Saturday, September 24th, 2026<br>4:00–5:00PM<br>Fairmeadow Park<br>5656 Jackson Ave,<br>Chicago, IL 60650<br><br><strong>The Reception</strong><br>Saturday, September 24th, 2026<br>6:00–11:00PM<br>The Ivory Room<br>1234 Clark Street,<br>Chicago, IL 60650',
+  events_info:'<strong>Welcome Party</strong><br>Friday, September 23rd, 2026<br>6–9PM<br>Little Wine Bar<br>9853 S Drexel Ave<br>Chicago, IL 60628<br><br><strong>Sunday Brunch</strong><br>Sunday, September 25th, 2026<br>11:00AM–1:00PM<br>Clark\'s Cafe<br>1234 Clark Ave,<br>Chicago, IL 60650',
+  accommodation_info:'<strong>Windy City Inn</strong><br>7958 S May St<br>Chicago, IL 60620<br><br><br><strong>Lakeshore Plaza Hotel</strong><br>680 N Lake Shore Dr<br>Chicago, IL 60611<br><em>Request the Iris &amp; Nathan room block</em>',
+  travel_info:'<strong>Chicago O\'Hare International Airport</strong><br>(ORD)<br><br><br><strong>Chicago Midway International Airport</strong><br>(MDW)',
+  things_to_do:'',
+  faqs:'<strong>What should I wear to the wedding?</strong><br>The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.<br><br><strong>Will there be transportation?</strong><br>No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.<br><br><strong>Will the ceremony be indoors or outdoors?</strong><br>Here is a little more info about the setting so you can plan accordingly and arrive feeling prepared.',
+  registry_info:'',
+  events:[
+    { id:'2', name:'Wedding Ceremony & Reception', date:'2026-09-24', time:'4:00–11:00PM',  venue:'Fairmeadow Park / The Ivory Room', address:'Chicago, IL' },
+    { id:'1', name:'Welcome Party',                date:'2026-09-23', time:'6–9PM',         venue:"Little Wine Bar", address:'9853 S Drexel Ave, Chicago, IL 60628' },
+    { id:'3', name:'Sunday Brunch',                date:'2026-09-25', time:'11:00AM–1:00PM', venue:"Clark's Cafe", address:'1234 Clark Ave, Chicago, IL 60650' }
+  ],
+  gallery_images:[], rsvp_enabled:true, password_protected:false,
+  website_mode:'Full', custom_font:'',
+  rsvp_deadline:'2026-08-01',
+  customization:{ primary_color:'#513229', accent_color:'#d8ebf9', text_color:'' },
+  rsvp_config:{ entrees:['Chicken','Fish','Vegetarian','Vegan','Kids Meal'], allow_plus_one:true },
+  menu_config:{
+    home:true, story:true, wedding:true, other_events:true,
+    accommodations:true, things_to_do:false, faqs:true, travel:true,
+    gallery:false, registry:true, rsvp:true
+  }
+};
+
+// ── Entry point ──────────────────────────────────────────────────────────────
+
+function _reveal() {
+  document.body.classList.remove('hydrating');
+}
+
+if (_isPreview) {
+  _reveal();
+  let _got = false;
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
+      _got = true; hydrateTemplate(e.data.payload);
+    }
+  });
+  setTimeout(() => { if (!_got) hydrateTemplate(SAMPLE_DATA); }, 800);
+
+} else {
+  const _sessionKey  = 'weddingData_' + _liveSlug;
+  const _sessionData = sessionStorage.getItem(_sessionKey);
+
+  if (_sessionData) {
+    try {
+      const d = JSON.parse(_sessionData);
+      sessionStorage.removeItem(_sessionKey);
+      hydrateTemplate(d);
+      _reveal();
+      if (window.location.search.includes('slug=')) {
+        window.history.replaceState({}, d.couple_names || '', '/' + _liveSlug);
+      }
+    } catch {
+      sessionStorage.removeItem(_sessionKey);
+      _reveal();
+      _fetchAndHydrate();
+    }
+  } else {
+    document.body.innerHTML = `
+      <style>
+        @keyframes fadeFlow{
+          0%{opacity:0.3;transform:translateY(0)}
+          50%{opacity:1;transform:translateY(-2px)}
+          100%{opacity:0.3;transform:translateY(0)}
+        }
+        @keyframes lineSlide{
+          0%{left:-100%} 50%{left:0%} 100%{left:100%}
+        }
+      </style>
+      <div style="display:flex;align-items:center;justify-content:center;
+        min-height:100vh;flex-direction:column;gap:24px;background:#fffdf5">
+        <p style="font-family:Georgia,serif;color:#513229;
+          font-size:1.5rem;font-style:italic;letter-spacing:0.02em;margin:0;
+          animation:fadeFlow 2s ease-in-out infinite">
+          Your celebration awaits</p>
+        <div style="width:120px;height:1px;background:rgba(81,50,41,0.25);border-radius:999px;
+          position:relative;overflow:hidden">
+          <div style="position:absolute;left:-100%;top:0;width:100%;height:100%;
+            background:#513229;border-radius:999px;
+            animation:lineSlide 1.8s ease-in-out infinite"></div>
+        </div>
+      </div>`;
+    _reveal();
+    _fetchAndHydrate();
+  }
+
+  function _fetchAndHydrate() {
+    const _apiUrl = `${API}/wedding-site/${encodeURIComponent(_liveSlug)}`
+      + (_pwdParam ? `?password=${encodeURIComponent(_pwdParam)}` : '');
+    fetch(_apiUrl)
+      .then(r => { if (!r.ok) throw r.status; return r.json(); })
+      .then(d => {
+        if (d.password_required) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#fffdf5;color:#513229"><p style="font-size:1.1rem">🔒 Password protected.</p></div>';
+          return;
+        }
+        hydrateTemplate(d);
+      })
+      .catch(() => {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#fffdf5;color:#513229"><p style="font-size:1.1rem">🔍 Wedding site not found.</p></div>';
+      });
+  }
+}
+
+// ── Gallery lightbox ──────────────────────────────────────────────────────────
+var _galleryUrls = [];
+var _galleryIdx  = 0;
+
+function openLightbox(idx) {
+  _galleryIdx = idx;
+  var lb = document.getElementById('galleryLightbox');
+  var img = document.getElementById('galleryLbImg');
+  if (!lb || !img || !_galleryUrls.length) return;
+  img.src = _galleryUrls[idx];
+  document.getElementById('galleryLbCounter').textContent = (idx+1) + ' / ' + _galleryUrls.length;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  var lb = document.getElementById('galleryLightbox');
+  if (lb) lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function shiftLightbox(dir) {
+  if (!_galleryUrls.length) return;
+  _galleryIdx = (_galleryIdx + dir + _galleryUrls.length) % _galleryUrls.length;
+  var img = document.getElementById('galleryLbImg');
+  if (img) img.src = _galleryUrls[_galleryIdx];
+  document.getElementById('galleryLbCounter').textContent = (_galleryIdx+1) + ' / ' + _galleryUrls.length;
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft')  shiftLightbox(-1);
+  if (e.key === 'ArrowRight') shiftLightbox(1);
 });
-setTimeout(function(){if(!_got)hydrateTemplate({couple_names:'A & B'});},800);
+document.addEventListener('click', function(e) {
+  var lb = document.getElementById('galleryLightbox');
+  if (lb && lb.classList.contains('open') && e.target === lb) closeLightbox();
+});
+
+(function() {
+  var startX = null;
+  document.addEventListener('touchstart', function(e) {
+    var lb = document.getElementById('galleryLightbox');
+    if (lb && lb.classList.contains('open')) startX = e.touches[0].clientX;
+  });
+  document.addEventListener('touchend', function(e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) shiftLightbox(dx < 0 ? 1 : -1);
+    startX = null;
+  });
+})();
+
 </script>
 </body>
 </html>
