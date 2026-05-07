@@ -716,7 +716,12 @@ body.hydrating{visibility:hidden}
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;}
 }
 
-/* ── THUMBNAIL MODE ───────────────────────────────────────── */
+/* ── THUMBNAIL MODE ─────────────────────────────────────────────────────────
+   When loaded with ?thumbnail=1 inside the website-config iframe (rendered at
+   1100×3500 and CSS-scaled down). Modern Minimal doesn't use vh-based heroes
+   so the natural layout works fine — these tweaks just tighten things slightly
+   so the thumbnail looks neat. */
+body.thumbnail-mode{scroll-behavior:auto;}
 body.thumbnail-mode .hero{padding-top:0.5rem;padding-bottom:2rem;}
 body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 </style>

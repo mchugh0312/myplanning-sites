@@ -763,8 +763,19 @@ body.hydrating{visibility:hidden}
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;}
 }
 
-/* ── THUMBNAIL MODE ──────────────────────────────────────── */
-body.thumbnail-mode .hero{height:66.67vw!important;min-height:0!important;}
+/* ── THUMBNAIL MODE ──────────────────────────────────────────────────────────
+   When the page is loaded with ?thumbnail=1, the website-config block renders
+   it inside an iframe at 1100×3500 and CSS-scales the result down to fit a
+   thumbnail card. The full page renders normally — but because vh units are
+   based on the iframe's own viewport height (3500px), any vh-based hero would
+   blow up enormously. We cap the hero at a fixed pixel height so the
+   rendered-then-scaled result looks like a real desktop page in miniature. */
+body.thumbnail-mode .hero{
+  height:560px!important;
+  min-height:0!important;
+}
+/* Optional: speed up thumbnail rendering by skipping smooth-scroll behaviours */
+body.thumbnail-mode{scroll-behavior:auto;}
 </style>
 </head>
 <body class="hydrating">
