@@ -4,6 +4,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pressed Petals</title>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SOCIAL SHARE METADATA  (brand-fallback layer)
+
+     These tags control:
+       1. The thumbnail/icon shown IN the OS share sheet (e.g. iOS Share menu
+          before the user picks an app) — driven primarily by apple-touch-icon.
+       2. The rich preview card shown AFTER the link is sent to chat apps
+          (WhatsApp, iMessage, Facebook Messenger, Telegram, Slack, Discord) —
+          driven by the og:* tags below.
+
+     IMPORTANT: this template is hydrated client-side from sessionStorage / a
+     remote fetch (see hydrateTemplate() below). WhatsApp's, iMessage's, and
+     Facebook's crawlers do NOT execute JavaScript — they only read the raw
+     HTML returned by the server. That means OG tags injected by JS would
+     never reach them. So these tags MUST stay in the static HTML.
+
+     The values here are therefore the BRAND fallback — every shared link
+     shows the same myplanning.ai-branded image, title, and description. To
+     surface per-couple values (their hero photo, their names) in chat
+     previews, the deployment needs a server-side rewrite that intercepts
+     crawler user-agents and returns HTML with these tags rewritten — see
+     OG_TAGS_DEPLOY_GUIDE.md alongside this file for the Vercel setup.
+
+     Image specs:
+       og:image       — 1200×630 PNG/JPEG. Keep important content centred so
+                        iMessage's square crop and Facebook's landscape crop
+                        both look fine. Under 300KB to satisfy WhatsApp.
+       apple-touch-icon — 180×180 PNG, served from /apple-touch-icon.png.
+                        iOS share sheet sometimes shows this before the user
+                        picks an app.
+     ──────────────────────────────────────────────────────────────────────── -->
+
+<!-- Favicons / iOS icons — served from Vercel /public/ root -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://weddings.myplanning.ai/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://weddings.myplanning.ai/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://weddings.myplanning.ai/apple-touch-icon.png">
+<link rel="shortcut icon" href="https://weddings.myplanning.ai/favicon.ico">
+
+<!-- Open Graph (WhatsApp, iMessage, Messenger, LinkedIn, Telegram, Slack, Discord) -->
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="MyPlanning.ai Weddings">
+<meta property="og:title"       content="A Wedding Website by MyPlanning.ai">
+<meta property="og:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta property="og:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta property="og:url"         content="https://weddings.myplanning.ai/">
+
+<!-- Twitter / X — uses summary_large_image for the big-banner card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="A Wedding Website by MyPlanning.ai">
+<meta name="twitter:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta name="twitter:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta name="twitter:image:alt"   content="MyPlanning.ai — wedding websites">
+
+<!-- Generic description fallback (used by some legacy crawlers) -->
+<meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
+
+<!-- Theme colour for mobile browser chrome -->
+<meta name="theme-color" content="#8d8863">
+
+<!--
+  Per-couple OG enrichment:
+  When the page hydrates client-side (see hydrateTemplate below), we ALSO
+  rewrite these tags in the live DOM. This has zero effect on the WhatsApp /
+  iMessage crawler (it never runs JS), but it DOES help one legitimate case:
+  if a user "Shares" the page from inside their browser (Chrome/Safari →
+  Share button → some apps re-read the live DOM rather than fetching the
+  URL fresh). In that path, the tags below get the per-couple values — the
+  rest of the time they stay as the brand fallback. Best of both worlds with
+  no extra deployment work.
+-->
+
 <!--
   CITADEL SCRIPT FONT — self-host steps:
   1. Download from freefonts.co or freefontdownload.org
@@ -1336,6 +1411,43 @@ function hydrateTemplate(d) {
   // nav logo removed
   document.getElementById('footerNames').textContent = names;
   document.title = names;
+
+  // ── Per-couple social-share metadata (DOM rewrite) ───────────────────
+  // We update the OG/Twitter tags in the live DOM with the couple's actual
+  // values. As noted in the <head>, WhatsApp / iMessage / Facebook crawlers
+  // do NOT run JavaScript, so this rewrite does NOT affect THEIR previews —
+  // those continue to use the brand-fallback values baked into the static
+  // HTML. The rewrite IS useful for a smaller set of share paths that do
+  // read the live DOM (some browser-extension share tools, in-page screen
+  // readers, page-archival tools, the Share-API on a few platforms when
+  // sharing from an OPEN tab rather than a fresh URL crawl). It also keeps
+  // the page semantically accurate post-hydration.
+  try {
+    const setMeta = (selector, value) => {
+      const el = document.head.querySelector(selector);
+      if (el && value) el.setAttribute('content', value);
+    };
+    const heroForOg = d.hero_image || 'https://weddings.myplanning.ai/og-image.png';
+    const ogTitle   = `${names} — Wedding Website`;
+    const ogDesc    = d.celebration_date
+      ? `Join us as we celebrate on ${new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })}.`
+      : `Join ${names} for our wedding celebration.`;
+    const ogUrl     = d.slug
+      ? `https://weddings.myplanning.ai/${d.slug}`
+      : 'https://weddings.myplanning.ai/';
+
+    setMeta('meta[property="og:title"]',       ogTitle);
+    setMeta('meta[property="og:description"]', ogDesc);
+    setMeta('meta[property="og:image"]',       heroForOg);
+    setMeta('meta[property="og:url"]',         ogUrl);
+    setMeta('meta[name="twitter:title"]',       ogTitle);
+    setMeta('meta[name="twitter:description"]', ogDesc);
+    setMeta('meta[name="twitter:image"]',       heroForOg);
+    setMeta('meta[name="description"]',         ogDesc);
+  } catch (e) {
+    // Non-fatal — preview still works. Just log for diagnostics.
+    console.warn('[og-rewrite] failed:', e);
+  }
 
   // ── Hero image ────────────────────────────────────────────────────────
   if (d.hero_image) {

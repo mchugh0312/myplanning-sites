@@ -28,6 +28,23 @@
       ]
     },
     {
+      "source": "/(og-image|apple-touch-icon|favicon-32x32|favicon-16x16|favicon)\\.(png|ico)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
