@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sage & Still</title>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SOCIAL SHARE METADATA  (brand-fallback layer)
+     Crawlers (WhatsApp, iMessage, Facebook, Telegram, Slack, Discord) read
+     static HTML only — they don't run JS. The values below are the BRAND
+     fallback shown in every chat preview. Per-couple chat previews require
+     the SSR layer at /api/og.js — see PHASE2_DEPLOY_GUIDE.md.
+     ──────────────────────────────────────────────────────────────────────── -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://weddings.myplanning.ai/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://weddings.myplanning.ai/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://weddings.myplanning.ai/apple-touch-icon.png">
+<link rel="shortcut icon" href="https://weddings.myplanning.ai/favicon.ico">
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="MyPlanning.ai Weddings">
+<meta property="og:title"       content="A Wedding Website by MyPlanning.ai">
+<meta property="og:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta property="og:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta property="og:url"         content="https://weddings.myplanning.ai/">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="A Wedding Website by MyPlanning.ai">
+<meta name="twitter:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta name="twitter:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta name="twitter:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
+<meta name="theme-color" content="#4b5244">
 <!--
   SAGE & STILL — typography:
     - Aboreto (display headers, uppercase)
@@ -972,6 +1000,23 @@ body.thumbnail-mode .hero-photo-wrap{
 
 const API = 'https://wedding-recommender.onrender.com';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PER-TEMPLATE: Loading screen image
+// ─────────────────────────────────────────────────────────────────────────────
+// Image shown while wedding-site data is being fetched. Change this URL
+// per-template so the loading screen matches each template's design.
+//
+// Specs that work well here:
+//   - Roughly square (rendered at 72×72)
+//   - Single subject on a transparent or near-white background
+//   - PNG with transparency preferred so the page background shows through
+//
+// For Sage & Still we re-use the existing botanical/leaf decorative asset
+// already used as a section background — keeps the loading state visually
+// continuous with the rest of the page.
+// ─────────────────────────────────────────────────────────────────────────────
+const LOADING_IMAGE = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png';
+
 const _params    = new URLSearchParams(window.location.search);
 const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p => p);
@@ -1515,6 +1560,37 @@ function renderAccomCard(title, html) {
 function hydrateTemplate(d) {
   window._weddingSlug  = d.slug || '';
   const names   = d.couple_names || 'Maya & Jason';
+
+  // ── Per-couple social-share metadata (DOM rewrite) ───────────────────
+  // Crawlers don't run JS so this doesn't help WhatsApp / iMessage / FB
+  // previews — those use the brand-fallback static OG tags in <head>. This
+  // rewrite keeps the DOM semantically accurate after hydration and helps
+  // a smaller set of share paths that read live DOM (browser-extension
+  // share tools, page-archival tools, in-page TTS, the Share API on a few
+  // platforms). Per-couple chat previews come from /api/og.js.
+  try {
+    var setMeta = function(selector, value) {
+      var el = document.head.querySelector(selector);
+      if (el && value) el.setAttribute('content', value);
+    };
+    var heroForOg = d.hero_image || 'https://weddings.myplanning.ai/og-image.png';
+    var ogTitle   = (names || 'Our Wedding') + ' — Wedding Website';
+    var ogDesc    = d.celebration_date
+      ? 'Join us as we celebrate on ' + new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.'
+      : 'Join ' + (names || 'us') + ' for our wedding celebration.';
+    var ogUrl     = d.slug
+      ? 'https://weddings.myplanning.ai/' + d.slug
+      : 'https://weddings.myplanning.ai/';
+    setMeta('meta[property="og:title"]',       ogTitle);
+    setMeta('meta[property="og:description"]', ogDesc);
+    setMeta('meta[property="og:image"]',       heroForOg);
+    setMeta('meta[property="og:url"]',         ogUrl);
+    setMeta('meta[name="twitter:title"]',       ogTitle);
+    setMeta('meta[name="twitter:description"]', ogDesc);
+    setMeta('meta[name="twitter:image"]',       heroForOg);
+    setMeta('meta[name="description"]',         ogDesc);
+    if (names) document.title = names;
+  } catch (_e) {}
   const p1      = d.partner_1 || '';
   const p2      = d.partner_2 || '';
   const mode    = (d.website_mode || 'Full').toLowerCase();
@@ -1974,28 +2050,36 @@ if (_isPreview) {
       _fetchAndHydrate();
     }
   } else {
+    // Loading screen — uses LOADING_IMAGE constant defined at top of script.
+    // Template literal (backticks) for ${LOADING_IMAGE} interpolation.
     document.body.innerHTML = `
       <style>
-        @keyframes fadeFlow{
-          0%{opacity:0.3;transform:translateY(0)}
-          50%{opacity:1;transform:translateY(-2px)}
-          100%{opacity:0.3;transform:translateY(0)}
+        @keyframes ssBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.92; }
+          50%      { transform: scale(1.06); opacity: 1; }
         }
-        @keyframes lineSlide{
-          0%{left:-100%} 50%{left:0%} 100%{left:100%}
+        @keyframes ssLineSlide {
+          0%   { left: -100%; }
+          50%  { left: 0%; }
+          100% { left: 100%; }
         }
       </style>
       <div style="display:flex;align-items:center;justify-content:center;
-        min-height:100vh;flex-direction:column;gap:24px;background:#f5f3ee">
-        <p style="font-family:Georgia,serif;color:#696c62;
-          font-size:1.5rem;font-style:italic;letter-spacing:0.02em;margin:0;
-          animation:fadeFlow 2s ease-in-out infinite">
+        min-height:100vh;flex-direction:column;gap:24px;background:var(--offwhite, #f5f3ee);
+        background-image:radial-gradient(ellipse 60% 40% at 20% 80%, rgba(75,82,68,0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 40% 60% at 80% 20%, rgba(105,108,98,0.06) 0%, transparent 60%);">
+        <img src="${LOADING_IMAGE}" alt="" style="width:72px;height:72px;object-fit:contain;
+          animation:ssBreathe 2.4s ease-in-out infinite;
+          filter:drop-shadow(0 4px 12px rgba(75,82,68,0.18));">
+        <p style="font-family:var(--display, 'Aboreto', 'Cormorant Garamond', serif);
+          color:var(--text, #1f211d);
+          font-size:1.4rem;font-style:italic;letter-spacing:0.02em;margin:0;">
           Your celebration awaits</p>
-        <div style="width:120px;height:1px;background:#e0ddd4;border-radius:999px;
-          position:relative;overflow:hidden">
+        <div style="width:120px;height:1px;background:rgba(75,82,68,0.18);
+          border-radius:999px;position:relative;overflow:hidden;">
           <div style="position:absolute;left:-100%;top:0;width:100%;height:100%;
-            background:#696c62;border-radius:999px;
-            animation:lineSlide 1.8s ease-in-out infinite"></div>
+            background:var(--text, #1f211d);border-radius:999px;
+            animation:ssLineSlide 1.8s ease-in-out infinite;"></div>
         </div>
       </div>`;
     _reveal();

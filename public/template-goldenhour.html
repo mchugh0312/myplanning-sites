@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Golden Hour</title>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SOCIAL SHARE METADATA  (brand-fallback layer)
+     Crawlers (WhatsApp, iMessage, Facebook, Telegram, Slack, Discord) read
+     static HTML only — they don't run JS. The values below are the BRAND
+     fallback shown in every chat preview. Per-couple chat previews require
+     the SSR layer at /api/og.js — see PHASE2_DEPLOY_GUIDE.md.
+     ──────────────────────────────────────────────────────────────────────── -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://weddings.myplanning.ai/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://weddings.myplanning.ai/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://weddings.myplanning.ai/apple-touch-icon.png">
+<link rel="shortcut icon" href="https://weddings.myplanning.ai/favicon.ico">
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="MyPlanning.ai Weddings">
+<meta property="og:title"       content="A Wedding Website by MyPlanning.ai">
+<meta property="og:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta property="og:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta property="og:url"         content="https://weddings.myplanning.ai/">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="A Wedding Website by MyPlanning.ai">
+<meta name="twitter:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta name="twitter:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta name="twitter:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
+<meta name="theme-color" content="#32344b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
@@ -295,6 +323,22 @@ body.thumbnail-mode .hero-names-text{
 
 <script>
 const API = 'https://wedding-recommender.onrender.com';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PER-TEMPLATE: Loading screen image
+// ─────────────────────────────────────────────────────────────────────────────
+// Image shown while wedding-site data is being fetched. Change this URL
+// per-template so the loading screen matches each template's design.
+//
+// Specs that work well here:
+//   - Roughly square (rendered at 72×72)
+//   - Single subject on a transparent or near-white background
+//   - PNG with transparency preferred so the page background shows through
+//
+// For Golden Hour we re-use one of the existing hero photo assets — keeps
+// the loading state visually continuous with the rest of the page.
+// ─────────────────────────────────────────────────────────────────────────────
+const LOADING_IMAGE = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png';
 const _p = new URLSearchParams(window.location.search);
 const _slug = _p.get('slug')||'';
 const _path = window.location.pathname.split('/').filter(function(s){return s;})[0]||'';
@@ -318,6 +362,37 @@ function hydrateTemplate(d){
   window._weddingSlug=d.slug||'';
   var p1=d.partner_1||'',p2=d.partner_2||'';
   var names=d.couple_names||(p1&&p2?p1+' & '+p2:'A & B');
+
+  // ── Per-couple social-share metadata (DOM rewrite) ───────────────────
+  // Crawlers don't run JS so this doesn't help WhatsApp / iMessage / FB
+  // previews — those use the brand-fallback static OG tags in <head>. This
+  // rewrite keeps the DOM semantically accurate after hydration and helps
+  // a smaller set of share paths that read live DOM (browser-extension
+  // share tools, page-archival tools, in-page TTS, the Share API on a few
+  // platforms). Per-couple chat previews come from /api/og.js.
+  try {
+    var setMeta = function(selector, value) {
+      var el = document.head.querySelector(selector);
+      if (el && value) el.setAttribute('content', value);
+    };
+    var heroForOg = d.hero_image || 'https://weddings.myplanning.ai/og-image.png';
+    var ogTitle   = (names || 'Our Wedding') + ' — Wedding Website';
+    var ogDesc    = d.celebration_date
+      ? 'Join us as we celebrate on ' + new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.'
+      : 'Join ' + (names || 'us') + ' for our wedding celebration.';
+    var ogUrl     = d.slug
+      ? 'https://weddings.myplanning.ai/' + d.slug
+      : 'https://weddings.myplanning.ai/';
+    setMeta('meta[property="og:title"]',       ogTitle);
+    setMeta('meta[property="og:description"]', ogDesc);
+    setMeta('meta[property="og:image"]',       heroForOg);
+    setMeta('meta[property="og:url"]',         ogUrl);
+    setMeta('meta[name="twitter:title"]',       ogTitle);
+    setMeta('meta[name="twitter:description"]', ogDesc);
+    setMeta('meta[name="twitter:image"]',       heroForOg);
+    setMeta('meta[name="description"]',         ogDesc);
+    if (names) document.title = names;
+  } catch (_e) {}
   function el(id){return document.getElementById(id);}
   if(el('heroNames'))el('heroNames').textContent=names;
   // menu title stays as 'Menu'
@@ -932,7 +1007,41 @@ if(_isPreview){
     try{var _d=JSON.parse(_sd);sessionStorage.removeItem(_sk);hydrateTemplate(_d);_reveal();
       if(window.location.search.includes('slug='))window.history.replaceState({},_d.couple_names||'','/'+_liveSlug);
     }catch(ex){sessionStorage.removeItem(_sk);_reveal();_fetch();}
-  }else{_reveal();_fetch();}
+  }else{
+    // Loading screen — uses LOADING_IMAGE constant defined at top of script.
+    // Template literal (backticks) for ${LOADING_IMAGE} interpolation.
+    document.body.innerHTML = `
+      <style>
+        @keyframes ghBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.92; }
+          50%      { transform: scale(1.06); opacity: 1; }
+        }
+        @keyframes ghLineSlide {
+          0%   { left: -100%; }
+          50%  { left: 0%; }
+          100% { left: 100%; }
+        }
+      </style>
+      <div style="display:flex;align-items:center;justify-content:center;
+        min-height:100vh;flex-direction:column;gap:24px;background:var(--blue, #d7dde4);
+        background-image:radial-gradient(ellipse 60% 40% at 20% 80%, rgba(50,52,75,0.06) 0%, transparent 60%),
+          radial-gradient(ellipse 40% 60% at 80% 20%, rgba(50,52,75,0.04) 0%, transparent 60%);">
+        <img src="${LOADING_IMAGE}" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:50%;
+          animation:ghBreathe 2.4s ease-in-out infinite;
+          filter:drop-shadow(0 4px 12px rgba(50,52,75,0.18));">
+        <p style="font-family:'EB Garamond', Georgia, serif;
+          color:var(--dark, #32344b);
+          font-size:1.4rem;font-style:italic;letter-spacing:0.02em;margin:0;">
+          Your celebration awaits</p>
+        <div style="width:120px;height:1px;background:rgba(50,52,75,0.18);
+          border-radius:999px;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:-100%;top:0;width:100%;height:100%;
+            background:var(--dark, #32344b);border-radius:999px;
+            animation:ghLineSlide 1.8s ease-in-out infinite;"></div>
+        </div>
+      </div>`;
+    _reveal();_fetch();
+  }
   function _fetch(){
     fetch(API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):''))
       .then(function(r){if(!r.ok)throw r.status;return r.json();})

@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Heirloom Bloom</title>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SOCIAL SHARE METADATA  (brand-fallback layer)
+     Crawlers (WhatsApp, iMessage, Facebook, Telegram, Slack, Discord) read
+     static HTML only — they don't run JS. The values below are the BRAND
+     fallback shown in every chat preview. Per-couple chat previews require
+     the SSR layer at /api/og.js — see PHASE2_DEPLOY_GUIDE.md.
+     ──────────────────────────────────────────────────────────────────────── -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://weddings.myplanning.ai/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://weddings.myplanning.ai/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://weddings.myplanning.ai/apple-touch-icon.png">
+<link rel="shortcut icon" href="https://weddings.myplanning.ai/favicon.ico">
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="MyPlanning.ai Weddings">
+<meta property="og:title"       content="A Wedding Website by MyPlanning.ai">
+<meta property="og:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta property="og:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta property="og:url"         content="https://weddings.myplanning.ai/">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="A Wedding Website by MyPlanning.ai">
+<meta name="twitter:description" content="Beautifully simple wedding websites for couples and their guests. RSVP, share details, celebrate together.">
+<meta name="twitter:image"       content="https://weddings.myplanning.ai/og-image.png">
+<meta name="twitter:image:alt"   content="MyPlanning.ai — wedding websites">
+<meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
+<meta name="theme-color" content="#673d45">
 <style>
 @font-face{font-family:'Parfumerie Script';src:url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');}
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');}
@@ -620,6 +648,23 @@ const _DEFAULT_IMG= 'https://assets.softr-files.com/applications/98da9671-14f5-4
 const _BORDER_DECORATION = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2f612118-f8c4-4d95-b794-2aa331a3eb83.png';
 const _COUPLE_HANDS = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/a8600b0a-b2e6-424f-a8f1-9e784fda2949.png';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PER-TEMPLATE: Loading screen image
+// ─────────────────────────────────────────────────────────────────────────────
+// Image shown spinning while wedding-site data is being fetched. Change this
+// URL per-template so the loading screen visually matches each template.
+//
+// Specs that work well here:
+//   - Roughly square (rendered at 72×72)
+//   - Single subject on a transparent or near-white background
+//   - PNG with transparency preferred so the page background shows through
+//
+// For Heirloom Bloom we re-use the existing decorative flower asset that
+// already appears throughout the page — keeps the loading state visually
+// continuous with the site itself.
+// ─────────────────────────────────────────────────────────────────────────────
+const LOADING_IMAGE = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png';
+
 const _params    = new URLSearchParams(window.location.search);
 const _slugParam = _params.get('slug') || '';
 const _pathParts = window.location.pathname.split('/').filter(p=>p);
@@ -689,6 +734,37 @@ function hydrateTemplate(d) {
   var p1 = d.partner_1 || '';
   var p2 = d.partner_2 || '';
   var names = d.couple_names || (p1&&p2 ? p1+' & '+p2 : 'A & B');
+
+  // ── Per-couple social-share metadata (DOM rewrite) ───────────────────
+  // Crawlers don't run JS so this doesn't help WhatsApp / iMessage / FB
+  // previews — those use the brand-fallback static OG tags in <head>. This
+  // rewrite keeps the DOM semantically accurate after hydration and helps
+  // a smaller set of share paths that read live DOM (browser-extension
+  // share tools, page-archival tools, in-page TTS, the Share API on a few
+  // platforms). Per-couple chat previews come from /api/og.js.
+  try {
+    var setMeta = function(selector, value) {
+      var el = document.head.querySelector(selector);
+      if (el && value) el.setAttribute('content', value);
+    };
+    var heroForOg = d.hero_image || 'https://weddings.myplanning.ai/og-image.png';
+    var ogTitle   = (names || 'Our Wedding') + ' — Wedding Website';
+    var ogDesc    = d.celebration_date
+      ? 'Join us as we celebrate on ' + new Date(d.celebration_date).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.'
+      : 'Join ' + (names || 'us') + ' for our wedding celebration.';
+    var ogUrl     = d.slug
+      ? 'https://weddings.myplanning.ai/' + d.slug
+      : 'https://weddings.myplanning.ai/';
+    setMeta('meta[property="og:title"]',       ogTitle);
+    setMeta('meta[property="og:description"]', ogDesc);
+    setMeta('meta[property="og:image"]',       heroForOg);
+    setMeta('meta[property="og:url"]',         ogUrl);
+    setMeta('meta[name="twitter:title"]',       ogTitle);
+    setMeta('meta[name="twitter:description"]', ogDesc);
+    setMeta('meta[name="twitter:image"]',       heroForOg);
+    setMeta('meta[name="description"]',         ogDesc);
+    if (names) document.title = names;
+  } catch (_e) {}
 
   // Nav logo removed
 
@@ -1334,7 +1410,41 @@ if(_isPreview){
       if(window.location.search.includes('slug='))window.history.replaceState({},d.couple_names||'','/'+_liveSlug);
     }catch{sessionStorage.removeItem(_sk);_reveal();_fetch();}
   }else{
-    document.body.innerHTML='<style>@keyframes sp{100%{transform:rotate(360deg)}}</style><div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px;background:#f2ece7"><div style="width:36px;height:36px;border:2px solid #afab57;border-top-color:transparent;border-radius:50%;animation:sp 0.9s linear infinite"></div><p style="font-family:\'Lancelot\',serif;color:#673d45;font-size:1.1rem;letter-spacing:0.1em">Your celebration awaits</p></div>';
+    // Loading screen — uses LOADING_IMAGE constant defined at top of script.
+    // Template literal (backticks) for ${LOADING_IMAGE} interpolation.
+    // Two animations: hbBreathe gently scales the image; lineSlide is the
+    // moving accent on the divider line under it. Both keep the loading
+    // state feeling alive without spinning aggressively.
+    document.body.innerHTML = `
+      <style>
+        @keyframes hbBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.92; }
+          50%      { transform: scale(1.06); opacity: 1; }
+        }
+        @keyframes hbLineSlide {
+          0%   { left: -100%; }
+          50%  { left: 0%; }
+          100% { left: 100%; }
+        }
+      </style>
+      <div style="display:flex;align-items:center;justify-content:center;
+        min-height:100vh;flex-direction:column;gap:24px;background:var(--offwhite, #f2ece7);
+        background-image:radial-gradient(ellipse 60% 40% at 20% 80%, rgba(175,171,87,0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 40% 60% at 80% 20%, rgba(103,61,69,0.06) 0%, transparent 60%);">
+        <img src="${LOADING_IMAGE}" alt="" style="width:72px;height:72px;object-fit:contain;
+          animation:hbBreathe 2.4s ease-in-out infinite;
+          filter:drop-shadow(0 4px 12px rgba(103,61,69,0.18));">
+        <p style="font-family:var(--serif, 'Lancelot', Georgia, serif);
+          color:var(--berry, #673d45);
+          font-size:1.4rem;font-style:italic;letter-spacing:0.02em;margin:0;">
+          Your celebration awaits</p>
+        <div style="width:120px;height:1px;background:rgba(103,61,69,0.18);
+          border-radius:999px;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:-100%;top:0;width:100%;height:100%;
+            background:var(--berry, #673d45);border-radius:999px;
+            animation:hbLineSlide 1.8s ease-in-out infinite;"></div>
+        </div>
+      </div>`;
     _reveal();_fetch();
   }
   function _fetch(){
