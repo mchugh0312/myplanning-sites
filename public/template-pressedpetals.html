@@ -429,6 +429,54 @@ body.hydrating{visibility:hidden}
 .extra-guest-row{display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;}
 .rsvp-remove-btn{background:none;border:none;cursor:pointer;font-size:1rem;color:#ccc;padding:0.3rem;line-height:1;}
 .rsvp-remove-btn:hover{color:#999}
+
+/* ── Household section ─────────────────────────────────────────
+   Rendered when guest-lookup returns a guest with party members.
+   One row per OTHER member of the party; the person filling out
+   the form RSVPs for everyone in their household at once. */
+.rsvp-household{
+  border-top:1px dashed rgba(141,136,99,0.3);
+  margin-top:0.75rem;padding-top:0.75rem;
+  display:none;
+}
+.rsvp-household.visible{display:block;}
+.rsvp-household-label{
+  font-family:var(--serif);font-style:italic;
+  font-size:0.78rem;color:var(--olive);
+  text-align:left;letter-spacing:0.03em;
+  margin-bottom:0.5rem;line-height:1.5;
+}
+.rsvp-household-list{display:flex;flex-direction:column;gap:0.65rem;}
+.rsvp-household-row{
+  display:flex;flex-direction:column;gap:0.4rem;
+  padding:0.65rem 0.75rem;
+  background:rgba(141,136,99,0.04);
+  border:1px solid rgba(141,136,99,0.18);
+  border-radius:3px;
+  text-align:left;
+}
+.rsvp-household-name{
+  font-family:var(--serif);font-size:0.88rem;
+  color:var(--text);font-weight:500;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.rsvp-household-name-primary-tag{
+  font-family:var(--sans, 'Open Sans', sans-serif);
+  font-size:0.62rem;font-weight:400;font-style:italic;
+  color:var(--olive);background:rgba(141,136,99,0.12);
+  padding:1px 6px;border-radius:999px;letter-spacing:0.02em;
+}
+.rsvp-household-controls{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
+}
+.rsvp-household-controls.three-up{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.rsvp-household-controls .rsvp-select{font-size:0.78rem;}
+@media (max-width:560px){
+  .rsvp-household-controls,
+  .rsvp-household-controls.three-up{grid-template-columns:1fr;}
+}
 /* FIX 7: Add guest CTA matches screenshot — plain text link style */
 .rsvp-add-guest{
   display:block;width:100%;padding:0.65rem;
@@ -952,6 +1000,12 @@ function buildRsvpBlocks(events) {
         '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" placeholder="Message for the couple (optional)" data-field="notes"></textarea>' +
         '</div>' +
+        // Household section — populated dynamically by onGuestLookupSuccess
+        // when the lookup returns party members. Hidden until then.
+        '<div class="rsvp-household" id="household-' + ev.id + '">' +
+          '<div class="rsvp-household-label" id="household-label-' + ev.id + '"></div>' +
+          '<div class="rsvp-household-list" id="household-list-' + ev.id + '"></div>' +
+        '</div>' +
         '<div class="extra-guests-list" id="extra-guests-' + ev.id + '"></div>' +
         '<button class="rsvp-add-guest" onclick="addExtraGuest(this)" style="display:none">' +
           '+ Add Another Guest' +
@@ -1061,6 +1115,9 @@ function lookupGuest(block, name) {
           listEl.innerHTML = '';
           if (addBtn) addBtn.style.display = 'none';
         }
+        // Render the household section if this guest is in a party with
+        // other members. No-op for solo guests.
+        renderHousehold(block, json);
       } else if (json.ambiguous) {
         block.dataset.lookupState = 'ambiguous';
         block.dataset.guestId = '';
@@ -1071,6 +1128,7 @@ function lookupGuest(block, name) {
         // Plus-one is locked until a real match is picked
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
         showAmbiguousMatches(block, json.matches || []);
       } else {
         block.dataset.lookupState = 'unknown';
@@ -1083,6 +1141,7 @@ function lookupGuest(block, name) {
         // Hard-block: unknown guest cannot RSVP, cannot add plus-one
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
       }
       // Re-evaluate submit button visibility after every lookup result
       checkShowSubmit();
@@ -1099,8 +1158,110 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(194,51,49,0.08)';
         statusEl.style.color           = '#C23331';
       }
+      clearHousehold(block);
       checkShowSubmit();
     });
+}
+
+function clearHousehold(block) {
+  // Wipe the household section back to empty + hidden. Called on lookup
+  // failure / ambiguous / unknown so a stale household from a previous
+  // lookup doesn't linger when the user retypes their name.
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (section) section.classList.remove('visible');
+  if (label) label.textContent = '';
+  if (list) list.innerHTML = '';
+  block.dataset.householdMembers = '';
+}
+
+function renderHousehold(block, json) {
+  // Populate the household section from a guest-lookup response. If the
+  // response has no `household_members` array (legacy backend, or a solo
+  // guest with no party), this is a no-op and the section stays hidden.
+  //
+  // Each member becomes a small card with name + per-person attending /
+  // meal / entree dropdowns. The person filling out the form is asked to
+  // RSVP for the whole household at once — anyone in the party can do it,
+  // not just the primary contact (matches the planner-side behaviour).
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (!section || !label || !list) return;
+
+  var members = Array.isArray(json && json.household_members) ? json.household_members : [];
+  // Strip any entry that's actually the looked-up guest themselves
+  // (backend already excludes this, but be defensive).
+  members = members.filter(function(m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+
+  if (members.length === 0) {
+    // No other party members — keep the section hidden. Plus-one button (if
+    // allowed) is still the user's path for adding people we don't know.
+    clearHousehold(block);
+    return;
+  }
+
+  // Stash the members on the block so submitRSVP can read them and post a
+  // household_rsvps array. We serialise minimal fields only — name + id.
+  block.dataset.householdMembers = JSON.stringify(members.map(function(m) {
+    return { guest_id: m.guest_id, name: m.name };
+  }));
+
+  var partyName = (json.party_name || '').trim();
+  label.textContent = partyName
+    ? 'Your household — ' + partyName + ' (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')'
+    : 'Your household (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')';
+
+  // Entree options reused from the global config (same list the primary sees).
+  var entreeOpts = _rsvpEntreeOptions.map(function(o) {
+    return '<option value="' + o.value + '">' + o.label + '</option>';
+  }).join('');
+
+  list.innerHTML = '';
+  members.forEach(function(m, idx) {
+    var row = document.createElement('div');
+    row.className = 'rsvp-household-row';
+    row.dataset.guestId = m.guest_id;
+    row.dataset.memberIdx = String(idx);
+
+    var savedMeal = (m.meal_preference || '').trim();
+    var mealOpts = [
+      { v: '',                l: 'Meal type' },
+      { v: 'Vegetarian',      l: 'Vegetarian' },
+      { v: 'Non Vegetarian',  l: 'Non-Vegetarian' },
+      { v: 'Vegan',           l: 'Vegan' },
+      { v: 'Gluten Free',     l: 'Gluten-Free' },
+      { v: 'Kids Meal',       l: 'Kids Meal' },
+    ].map(function(o) {
+      var sel = (o.v === savedMeal) ? ' selected' : '';
+      return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
+    }).join('');
+
+    var primaryTag = m.is_primary
+      ? '<span class="rsvp-household-name-primary-tag">primary contact</span>'
+      : '';
+
+    row.innerHTML =
+      '<div class="rsvp-household-name">' + (m.name || '(household member)') + primaryTag + '</div>' +
+      '<div class="rsvp-household-controls three-up">' +
+        '<select class="rsvp-select" data-h-field="attending">' +
+          '<option value="">Will attend?</option>' +
+          '<option value="yes">Attending</option>' +
+          '<option value="no">Cannot make it</option>' +
+          '<option value="maybe">Not sure</option>' +
+        '</select>' +
+        '<select class="rsvp-select" data-h-field="meal">' + mealOpts + '</select>' +
+        '<select class="rsvp-select" data-h-field="entree">' +
+          '<option value="">Entree (optional)</option>' + entreeOpts +
+        '</select>' +
+      '</div>';
+    list.appendChild(row);
+  });
+
+  section.classList.add('visible');
 }
 
 function showAmbiguousMatches(block, matches) {
@@ -1183,6 +1344,7 @@ function lookupGuestById(block, guestId, displayName) {
           statusEl.style.background      = 'rgba(194,51,49,0.08)';
           statusEl.style.color           = '#C23331';
         }
+        clearHousehold(block);
         checkShowSubmit();
         return;
       }
@@ -1198,6 +1360,8 @@ function lookupGuestById(block, guestId, displayName) {
       }
       var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
       if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      // Render household section (party members) if any.
+      renderHousehold(block, json);
       checkShowSubmit();
     })
     .catch(function(err) {
@@ -1363,6 +1527,34 @@ async function submitRSVP() {
         }
       }
 
+      // Collect household RSVPs — each row in the household section maps to
+      // an existing Guest List record that we update by guest_id. Backend
+      // re-verifies that each guest_id belongs to this celebration AND
+      // shares the primary's Party Name; defense-in-depth (see /rsvp).
+      // Rows with no attending value selected are skipped so we don't
+      // overwrite a previously-saved RSVP with a blank.
+      var householdRsvps = [];
+      var hList = exp && exp.querySelector('.rsvp-household-list');
+      if (hList) {
+        var hRows = hList.querySelectorAll('.rsvp-household-row');
+        hRows.forEach(function(hr) {
+          var gid = hr.dataset.guestId || '';
+          if (!gid) return;
+          var hAttendingEl = hr.querySelector('[data-h-field="attending"]');
+          var hMealEl      = hr.querySelector('[data-h-field="meal"]');
+          var hEntreeEl    = hr.querySelector('[data-h-field="entree"]');
+          var hAttending = hAttendingEl ? (hAttendingEl.value || '').trim() : '';
+          // Skip unanswered rows — leaves their existing RSVP untouched.
+          if (!hAttending) return;
+          householdRsvps.push({
+            guest_id:        gid,
+            attending:       hAttending,
+            meal_preference: hMealEl  ? (hMealEl.value  || '') : '',
+            entree_choice:   hEntreeEl ? (hEntreeEl.value || '') : '',
+          });
+        });
+      }
+
       promises.push(fetch(API + '/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1381,6 +1573,9 @@ async function submitRSVP() {
           // per-guest allowance and silently drop unauthorized plus-ones.
           plus_one:        extraGuests.length > 0,
           extra_guests:    extraGuests,
+          // RSVPs for known household members (already on the guest list).
+          // Empty array is fine — solo guests just won't send any.
+          household_rsvps: householdRsvps,
         })
       }));
     });
@@ -1401,7 +1596,26 @@ async function submitRSVP() {
       console.error('RSVP API errors:', failedDetails);
       throw new Error(failedDetails.join(' | '));
     }
-    document.getElementById('rsvpSuccess').style.display = 'block';
+    // Tally how many people we actually RSVP'd for so the thank-you message
+    // can reflect it. Backend returns `total` per event (1 = primary only,
+    // higher if household members or plus-ones were submitted alongside).
+    var totalPeople = 0;
+    for (var rj = 0; rj < results.length; rj++) {
+      try {
+        var okBody = await results[rj].json();
+        if (okBody && typeof okBody.total === 'number') totalPeople += okBody.total;
+      } catch(_e) { /* non-fatal */ }
+    }
+    var successEl = document.getElementById('rsvpSuccess');
+    if (successEl && totalPeople > 1) {
+      var msgEl = successEl.querySelector('.rsvp-success-msg');
+      if (msgEl) {
+        msgEl.innerHTML = 'Thank you! We\'ve recorded RSVPs for <strong>' + totalPeople +
+          ' ' + (totalPeople === 1 ? 'person' : 'people') + '</strong>.<br>' +
+          'We can\'t wait to celebrate with you.';
+      }
+    }
+    if (successEl) successEl.style.display = 'block';
     btn.style.display = 'none';
   } catch(e) {
     console.error('RSVP error:', e);
