@@ -1110,6 +1110,16 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(75,82,68,0.08)';
         statusEl.style.color           = '#4B5244';
 
+        // Replace the typed partial ("ash") with the full matched name
+        // ("Ashley Smith") in the input — purely a UX nicety so the user
+        // sees they've been matched correctly. Only replace if the input
+        // STILL contains the original query (i.e. they haven't typed more
+        // in the meantime), so we never disrupt mid-typing.
+        var nameInput = block.querySelector('.rsvp-name-input');
+        if (nameInput && json.name && nameInput.value.trim() === name) {
+          nameInput.value = json.name;
+        }
+
         if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
         if (listEl && !json.plus_one_allowed) {
           listEl.innerHTML = '';
