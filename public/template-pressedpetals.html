@@ -2113,15 +2113,140 @@ if (_isPreview) {
       .then(r => { if (!r.ok) throw r.status; return r.json(); })
       .then(d => {
         if (d.password_required) {
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔒 Password protected.</p></div>';
+          _renderPlaceholderPage({
+            kind: 'password',
+            coupleNames: d.couple_names || '',
+          });
+          return;
+        }
+        // Backend now returns a rich `not_published` payload (couple names,
+        // date, status) instead of a bare 403. Use it to render a polished
+        // Coming Soon page rather than the old terse "undefined" placeholder.
+        if (d.not_published) {
+          _renderPlaceholderPage({
+            kind: 'coming-soon',
+            coupleNames: d.couple_names || '',
+            celebrationDate: d.celebration_date || '',
+          });
           return;
         }
         hydrateTemplate(d);
       })
       .catch(() => {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#f9f7f5"><p style="font-size:1.1rem">🔍 Wedding site not found.</p></div>';
+        _renderPlaceholderPage({ kind: 'not-found' });
       });
   }
+}
+
+// Renders a branded placeholder page for the three "we can't show the real
+// site right now" states: password-required, coming-soon (draft), and
+// not-found (no slug match in the DB). Uses Pressed Petals' palette and
+// type so the placeholder still feels like the couple's website rather
+// than a generic error page.
+function _renderPlaceholderPage(opts) {
+  const { kind, coupleNames, celebrationDate } = opts || {};
+
+  // Format the date for display when we have one. Stored as ISO yyyy-mm-dd
+  // in the DB — render as e.g. "April 5, 2026". Falls back gracefully if
+  // the string isn't parseable.
+  let dateLine = '';
+  if (celebrationDate) {
+    try {
+      const d = new Date(celebrationDate);
+      if (!isNaN(d.getTime())) {
+        dateLine = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      } else {
+        dateLine = celebrationDate;
+      }
+    } catch (e) { dateLine = celebrationDate; }
+  }
+
+  // Heading + body text per state. We DELIBERATELY avoid the word
+  // "undefined" anywhere — earlier the page interpolated raw template
+  // variables that came back nullish from the backend, producing the
+  // literal text "undefined". Now every line is built from cleanly
+  // defaulted strings, with empty values producing whitespace rather
+  // than the word.
+  let heading, body, badge;
+  if (kind === 'password') {
+    badge = '🔒';
+    heading = coupleNames ? `${coupleNames}` : 'A private celebration';
+    body = 'This wedding website is password-protected. Please use the link your hosts shared with you to access it.';
+  } else if (kind === 'coming-soon') {
+    badge = '✨';
+    heading = coupleNames ? `${coupleNames}` : 'Coming soon';
+    body = coupleNames
+      ? `${coupleNames} are putting the finishing touches on their wedding website. Please check back soon — we can&rsquo;t wait to share it with you.`
+      : 'The hosts are putting the finishing touches on their wedding website. Please check back soon.';
+  } else {
+    // 'not-found'
+    badge = '🔍';
+    heading = 'We couldn&rsquo;t find that website';
+    body = 'The link you followed may be incorrect, or the website may have moved. Please double-check the address with your hosts.';
+  }
+
+  document.body.innerHTML = `
+    <div style="
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      background: #f9f7f5;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: #4a4a3a;
+      text-align: center;
+    ">
+      <div style="max-width: 520px; width: 100%;">
+        <div style="
+          font-size: 32px;
+          margin-bottom: 18px;
+          opacity: 0.85;
+        ">${badge}</div>
+        <h1 style="
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 400;
+          font-style: italic;
+          font-size: 38px;
+          line-height: 1.2;
+          margin: 0 0 14px 0;
+          color: #4a4a3a;
+          letter-spacing: 0.01em;
+        ">${heading}</h1>
+        ${dateLine ? `
+          <p style="
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 16px;
+            font-style: italic;
+            color: #8d8863;
+            margin: 0 0 18px 0;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          ">${dateLine}</p>
+        ` : ''}
+        <p style="
+          font-family: 'Inter', system-ui, sans-serif;
+          font-size: 14px;
+          line-height: 1.7;
+          color: #6a6a5a;
+          margin: 0;
+          max-width: 420px;
+          margin-left: auto;
+          margin-right: auto;
+        ">${body}</p>
+        <div style="
+          margin-top: 36px;
+          padding-top: 24px;
+          border-top: 1px solid rgba(141, 136, 99, 0.2);
+          font-family: 'Inter', system-ui, sans-serif;
+          font-size: 11px;
+          color: #a8a895;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        ">myplanning.ai</div>
+      </div>
+    </div>
+  `;
 }
 // ── Gallery lightbox ──────────────────────────────────────────────────────────
 function openLightbox(idx) {
