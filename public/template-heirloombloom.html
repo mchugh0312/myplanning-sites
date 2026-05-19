@@ -445,6 +445,63 @@ img{max-width:100%;display:block;}
   display:none;margin-top:2rem;
   font-family:var(--script);font-size:2rem;color:var(--offwhite);
 }
+/* Wrapper for dynamic party-total text within the success message */
+.rsvp-success-msg{display:block;}
+
+/* ── Household section ─────────────────────────────────────────
+   Rendered when guest-lookup returns a guest with party members.
+   One row per OTHER member of the party; the person filling out
+   the form RSVPs for everyone in their household at once. Styled
+   to fit the gray RSVP-section background — translucent offwhite
+   cards with offwhite text, gold accent for the primary tag. */
+.rsvp-household{
+  border-top:1px solid rgba(242,236,231,0.25);
+  margin-top:1.2rem;padding-top:1.2rem;
+  display:none;
+}
+.rsvp-household.visible{display:block;}
+.rsvp-household-label{
+  font-family:var(--serif);font-style:italic;
+  font-size:0.85rem;color:rgba(242,236,231,0.85);
+  text-align:left;letter-spacing:0.02em;
+  margin-bottom:0.7rem;line-height:1.5;
+}
+.rsvp-household-list{display:flex;flex-direction:column;gap:0.55rem;}
+.rsvp-household-row{
+  display:flex;flex-direction:column;gap:0.5rem;
+  padding:0.75rem 0.85rem;
+  background:rgba(242,236,231,0.08);
+  border:1px solid rgba(242,236,231,0.2);
+  border-radius:10px;
+  text-align:left;
+}
+.rsvp-household-name{
+  font-family:var(--serif);font-weight:400;font-size:0.92rem;
+  color:var(--offwhite);
+  display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
+  letter-spacing:0.02em;
+}
+.rsvp-household-name-primary-tag{
+  font-family:var(--serif);
+  font-size:0.62rem;font-style:normal;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--berry);background:var(--gold);
+  padding:2px 8px;border-radius:999px;
+}
+.rsvp-household-controls{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
+}
+.rsvp-household-controls.three-up{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.rsvp-household-controls .rsvp-select{
+  font-size:0.72rem;
+  padding:0.45rem 0.2rem;
+}
+@media (max-width:560px){
+  .rsvp-household-controls,
+  .rsvp-household-controls.three-up{grid-template-columns:1fr;}
+}
 
 /* ── STORY — offwhite bg ─────────────────────────────────────── */
 .story-section{background:var(--gold);padding:4rem 2rem;}
@@ -634,7 +691,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
     <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">
       Send My Reply
     </button>
-    <div class="rsvp-success" id="rsvpSuccess">Thank you! Your RSVP has been received.</div>
+    <div class="rsvp-success" id="rsvpSuccess"><span class="rsvp-success-msg">Thank you! Your RSVP has been received.</span></div>
   </div>
 </section>
 
@@ -1027,6 +1084,12 @@ function buildRsvpBlocks(events) {
         '<div class="rsvp-field-row full"><select class="rsvp-select" data-field="entree"><option value="">Entree choice</option>'+entreeOpts+'</select></div>'+
         '<div class="rsvp-field-row full"><input class="rsvp-text-input" type="email" placeholder="Email address (required) *" data-field="email" required oninput="checkShowSubmit()"></div>'+
         '<div class="rsvp-field-row full"><textarea class="rsvp-textarea" rows="2" placeholder="Message or dietary notes..." data-field="notes"></textarea></div>'+
+        // Household section — populated dynamically by lookupGuest/lookupGuestById
+        // when the lookup returns party members. Hidden until then.
+        '<div class="rsvp-household" id="household-'+ev.id+'">'+
+          '<div class="rsvp-household-label" id="household-label-'+ev.id+'"></div>'+
+          '<div class="rsvp-household-list" id="household-list-'+ev.id+'"></div>'+
+        '</div>'+
         '<div class="rsvp-extra-list" id="extra-guests-'+ev.id+'"></div>'+
         '<button class="rsvp-add-guest" onclick="addExtraGuest(this)" style="display:none">+ Add Plus One</button>'+
       '</div>';
@@ -1131,6 +1194,8 @@ function lookupGuest(block, name) {
           listEl.innerHTML = '';
           if (addBtn) addBtn.style.display = 'none';
         }
+        // Render household section if this guest is in a party with others.
+        renderHousehold(block, json);
       } else if (json.ambiguous) {
         block.dataset.lookupState = 'ambiguous';
         block.dataset.guestId = '';
@@ -1140,6 +1205,7 @@ function lookupGuest(block, name) {
         statusEl.style.color           = '#B69400';
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
         showAmbiguousMatches(block, json.matches || []);
       } else {
         block.dataset.lookupState = 'unknown';
@@ -1151,6 +1217,7 @@ function lookupGuest(block, name) {
         statusEl.style.color           = '#C23331';
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
       }
       checkShowSubmit();
     })
@@ -1164,8 +1231,105 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(194,51,49,0.08)';
         statusEl.style.color           = '#C23331';
       }
+      clearHousehold(block);
       checkShowSubmit();
     });
+}
+
+function clearHousehold(block) {
+  // Wipe the household section back to empty + hidden. Called on lookup
+  // failure / ambiguous / unknown so a stale household from a previous
+  // lookup doesn't linger when the user retypes their name.
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (section) section.classList.remove('visible');
+  if (label) label.textContent = '';
+  if (list) list.innerHTML = '';
+  block.dataset.householdMembers = '';
+}
+
+function renderHousehold(block, json) {
+  // Populate the household section from a guest-lookup response. If the
+  // response has no `household_members` array (legacy backend, or a solo
+  // guest with no party), this is a no-op and the section stays hidden.
+  //
+  // Each member becomes a small card with name + per-person attending /
+  // meal / entree dropdowns. The person filling out the form is asked to
+  // RSVP for the whole household at once — anyone in the party can do it,
+  // not just the primary contact (matches the planner-side behaviour).
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (!section || !label || !list) return;
+
+  var members = Array.isArray(json && json.household_members) ? json.household_members : [];
+  members = members.filter(function(m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+
+  if (members.length === 0) {
+    clearHousehold(block);
+    return;
+  }
+
+  // Stash members on the block so submitRSVP can post a household_rsvps array.
+  block.dataset.householdMembers = JSON.stringify(members.map(function(m) {
+    return { guest_id: m.guest_id, name: m.name };
+  }));
+
+  var partyName = (json.party_name || '').trim();
+  label.textContent = partyName
+    ? 'Your household — ' + partyName + ' (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')'
+    : 'Your household (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')';
+
+  // Reuse the entree options from the global config (same list the primary sees).
+  var entreeOptsHtml = _rsvpEntreeOptions.map(function(o) {
+    return '<option value="' + o.value + '">' + o.label + '</option>';
+  }).join('');
+
+  list.innerHTML = '';
+  members.forEach(function(m, idx) {
+    var row = document.createElement('div');
+    row.className = 'rsvp-household-row';
+    row.dataset.guestId = m.guest_id;
+    row.dataset.memberIdx = String(idx);
+
+    var savedMeal = (m.meal_preference || '').trim();
+    var mealOpts = [
+      { v: '',                l: 'Meal preference' },
+      { v: 'Vegetarian',      l: 'Vegetarian' },
+      { v: 'Non Vegetarian',  l: 'Non-Vegetarian' },
+      { v: 'Vegan',           l: 'Vegan' },
+      { v: 'Gluten Free',     l: 'Gluten-Free' },
+      { v: 'Kids Meal',       l: 'Kids Meal' },
+    ].map(function(o) {
+      var sel = (o.v === savedMeal) ? ' selected' : '';
+      return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
+    }).join('');
+
+    var primaryTag = m.is_primary
+      ? '<span class="rsvp-household-name-primary-tag">primary contact</span>'
+      : '';
+
+    row.innerHTML =
+      '<div class="rsvp-household-name">' + (m.name || '(household member)') + primaryTag + '</div>' +
+      '<div class="rsvp-household-controls three-up">' +
+        '<select class="rsvp-select" data-h-field="attending">' +
+          '<option value="">Attending?</option>' +
+          '<option value="yes">Yes</option>' +
+          '<option value="no">Cannot make it</option>' +
+          '<option value="maybe">Not sure</option>' +
+        '</select>' +
+        '<select class="rsvp-select" data-h-field="meal">' + mealOpts + '</select>' +
+        '<select class="rsvp-select" data-h-field="entree">' +
+          '<option value="">Entree (optional)</option>' + entreeOptsHtml +
+        '</select>' +
+      '</div>';
+    list.appendChild(row);
+  });
+
+  section.classList.add('visible');
 }
 
 function showAmbiguousMatches(block, matches) {
@@ -1242,6 +1406,7 @@ function lookupGuestById(block, guestId, displayName) {
           statusEl.style.background      = 'rgba(194,51,49,0.08)';
           statusEl.style.color           = '#C23331';
         }
+        clearHousehold(block);
         checkShowSubmit();
         return;
       }
@@ -1257,6 +1422,7 @@ function lookupGuestById(block, guestId, displayName) {
       }
       var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
       if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      renderHousehold(block, json);
       checkShowSubmit();
     })
     .catch(function(err) {
@@ -1351,6 +1517,34 @@ async function submitRSVP() {
         }
       }
 
+      // Collect household RSVPs — each row in the household section maps to
+      // an existing Guest List record that we update by guest_id. Backend
+      // re-verifies that each guest_id belongs to this celebration AND
+      // shares the primary's Party Name; defense-in-depth (see /rsvp).
+      // Rows with no attending value selected are skipped so we don't
+      // overwrite a previously-saved RSVP with a blank.
+      var householdRsvps = [];
+      var hList = exp && exp.querySelector('.rsvp-household-list');
+      if (hList) {
+        var hRows = hList.querySelectorAll('.rsvp-household-row');
+        hRows.forEach(function(hr) {
+          var gid = hr.dataset.guestId || '';
+          if (!gid) return;
+          var hAttendingEl = hr.querySelector('[data-h-field="attending"]');
+          var hMealEl      = hr.querySelector('[data-h-field="meal"]');
+          var hEntreeEl    = hr.querySelector('[data-h-field="entree"]');
+          var hAttending = hAttendingEl ? (hAttendingEl.value || '').trim() : '';
+          // Skip unanswered rows — leaves their existing RSVP untouched.
+          if (!hAttending) return;
+          householdRsvps.push({
+            guest_id:        gid,
+            attending:       hAttending,
+            meal_preference: hMealEl  ? (hMealEl.value  || '') : '',
+            entree_choice:   hEntreeEl ? (hEntreeEl.value || '') : '',
+          });
+        });
+      }
+
       promises.push(fetch(API + '/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1367,6 +1561,9 @@ async function submitRSVP() {
           event_name:      label,
           plus_one:        extraGuests.length > 0,
           extra_guests:    extraGuests,
+          // RSVPs for known household members (already on the guest list).
+          // Empty array is fine — solo guests just won't send any.
+          household_rsvps: householdRsvps,
         })
       }));
     });
@@ -1381,7 +1578,25 @@ async function submitRSVP() {
     if (!anyOk) {
       throw new Error(failedDetail || 'RSVP submission failed.');
     }
-    document.getElementById('rsvpSuccess').style.display = 'block';
+    // Tally how many people we RSVP'd for. Backend returns `total` per event
+    // (1 = primary only, more if household members or plus-ones submitted).
+    var totalPeople = 0;
+    for (var rj = 0; rj < results.length; rj++) {
+      if (!results[rj].ok) continue;
+      try {
+        var okBody = await results[rj].json();
+        if (okBody && typeof okBody.total === 'number') totalPeople += okBody.total;
+      } catch (_e) { /* non-fatal */ }
+    }
+    var successEl = document.getElementById('rsvpSuccess');
+    if (successEl && totalPeople > 1) {
+      var msgEl = successEl.querySelector('.rsvp-success-msg');
+      if (msgEl) {
+        msgEl.innerHTML = 'Thank you! RSVPs received for ' + totalPeople +
+          ' ' + (totalPeople === 1 ? 'person' : 'people') + '.';
+      }
+    }
+    if (successEl) successEl.style.display = 'block';
     btn.style.display = 'none';
   } catch (err) {
     console.error('[RSVP submit]', err);
@@ -1461,9 +1676,141 @@ if(_isPreview){
   function _fetch(){
     fetch(API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):''))
       .then(function(r){if(!r.ok)throw r.status;return r.json();})
-      .then(function(d){if(d.password_required){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;color:#673d45;background:#f2ece7"><p>Password protected.</p></div>';return;}hydrateTemplate(d);})
-      .catch(function(){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Lancelot,serif;color:#673d45;background:#f2ece7"><p>Site not found.</p></div>';});
+      .then(function(d){
+        if(d.password_required){
+          _renderPlaceholderPage({
+            kind: 'password',
+            coupleNames: d.couple_names || '',
+          });
+          return;
+        }
+        // Backend returns a rich `not_published` payload (couple names,
+        // date, status) instead of a bare 403 when the site is in draft.
+        // Render a polished Coming Soon page rather than a generic error.
+        if(d.not_published){
+          _renderPlaceholderPage({
+            kind: 'coming-soon',
+            coupleNames: d.couple_names || '',
+            celebrationDate: d.celebration_date || '',
+          });
+          return;
+        }
+        hydrateTemplate(d);
+      })
+      .catch(function(){
+        _renderPlaceholderPage({ kind: 'not-found' });
+      });
   }
+}
+
+// Renders a branded placeholder page for the three "we can't show the real
+// site right now" states: password-required, coming-soon (draft), and
+// not-found. Uses Heirloom Bloom's palette (offwhite ground, berry text,
+// gold accent rule) and type (Sloop script display + Lancelot serif body)
+// so the placeholder still feels like the couple's website rather than a
+// generic error page.
+function _renderPlaceholderPage(opts){
+  var kind            = (opts || {}).kind;
+  var coupleNames     = (opts || {}).coupleNames || '';
+  var celebrationDate = (opts || {}).celebrationDate || '';
+
+  // Format the date for display when we have one. Stored as ISO yyyy-mm-dd
+  // in the DB — render as e.g. "April 5, 2026". Falls back gracefully if
+  // the string isn't parseable.
+  var dateLine = '';
+  if (celebrationDate){
+    try {
+      var dt = new Date(celebrationDate);
+      if (!isNaN(dt.getTime())){
+        dateLine = dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      } else {
+        dateLine = celebrationDate;
+      }
+    } catch(e){ dateLine = celebrationDate; }
+  }
+
+  // Heading + body per state. We DELIBERATELY avoid the word "undefined"
+  // anywhere — every line is built from cleanly defaulted strings.
+  var heading, body, badge;
+  if (kind === 'password'){
+    badge = '🔒';
+    heading = coupleNames ? coupleNames : 'A private celebration';
+    body = 'This wedding website is password-protected. Please use the link your hosts shared with you to access it.';
+  } else if (kind === 'coming-soon'){
+    badge = '✨';
+    heading = coupleNames ? coupleNames : 'Coming soon';
+    body = coupleNames
+      ? coupleNames + ' are putting the finishing touches on their wedding website. Please check back soon — we can&rsquo;t wait to share it with you.'
+      : 'The hosts are putting the finishing touches on their wedding website. Please check back soon.';
+  } else {
+    badge = '🔍';
+    heading = 'We couldn&rsquo;t find that website';
+    body = 'The link you followed may be incorrect, or the website may have moved. Please double-check the address with your hosts.';
+  }
+
+  document.body.innerHTML =
+    '<div style="' +
+      'min-height:100vh;' +
+      'display:flex;' +
+      'align-items:center;' +
+      'justify-content:center;' +
+      'padding:32px 20px;' +
+      'background:#f2ece7;' +
+      'font-family:\'Lancelot\',Georgia,serif;' +
+      'color:#4a3a3d;' +
+      'text-align:center;' +
+    '">' +
+      '<div style="max-width:520px;width:100%;">' +
+        '<div style="font-size:32px;margin-bottom:18px;opacity:0.65;">' + badge + '</div>' +
+        '<h1 style="' +
+          'font-family:\'Sloop Script Pro\',\'Parfumerie Script\',cursive;' +
+          'font-weight:400;' +
+          'font-size:clamp(2.6rem,7vw,4.4rem);' +
+          'line-height:1.05;' +
+          'margin:0 0 14px 0;' +
+          'color:#673d45;' +
+        '">' + heading + '</h1>' +
+        // Decorative gold rule under the heading, echoing the .section-rule-gold
+        // used throughout the site.
+        '<div style="' +
+          'width:60px;height:1px;' +
+          'background:#afab57;' +
+          'margin:0 auto 22px;' +
+          'opacity:0.7;' +
+        '"></div>' +
+        (dateLine ? (
+          '<p style="' +
+            'font-family:\'Lancelot\',Georgia,serif;' +
+            'font-size:0.74rem;' +
+            'font-weight:400;' +
+            'letter-spacing:0.22em;' +
+            'text-transform:uppercase;' +
+            'color:#696c62;' +
+            'margin:0 0 22px 0;' +
+          '">' + dateLine + '</p>'
+        ) : '') +
+        '<p style="' +
+          'font-family:\'Lancelot\',Georgia,serif;' +
+          'font-size:0.95rem;' +
+          'font-weight:400;' +
+          'line-height:1.75;' +
+          'color:#4a3a3d;' +
+          'margin:0 auto;' +
+          'max-width:440px;' +
+        '">' + body + '</p>' +
+        '<div style="' +
+          'margin-top:42px;' +
+          'padding-top:22px;' +
+          'border-top:1px solid rgba(74,58,61,0.18);' +
+          'font-family:\'Lancelot\',Georgia,serif;' +
+          'font-size:0.7rem;' +
+          'font-weight:400;' +
+          'letter-spacing:0.22em;' +
+          'text-transform:uppercase;' +
+          'color:rgba(74,58,61,0.5);' +
+        '">myplanning.ai</div>' +
+      '</div>' +
+    '</div>';
 }
 </script>
 </body>

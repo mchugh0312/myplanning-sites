@@ -1989,24 +1989,62 @@ function hydrateTemplate(d){
     }
   }
 
-  // Accommodations (compatibility — only shown if data has it)
+  // Accommodations + Travel — both flow into the SAME styled section
+  // (#travel-section, with the decorative stamp frame on the right).
+  //
+  // The plain #accommodations div is a legacy compatibility shell that
+  // existed before the styled travel layout had a hook for accommodation
+  // content. We keep its markup in the DOM so older planner data doesn't
+  // break, but it's permanently hidden — all visible "where to stay /
+  // how to get here" content renders inside #travel-section.
   const accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = (menu.accommodations && d.accommodation_info) ? '' : 'none';
-  if (menu.accommodations && d.accommodation_info){
-    document.getElementById('accomList').innerHTML = d.accommodation_info;
-  }
+  if (accomSection) accomSection.style.display = 'none';
 
-  // Travel
+  // Travel section is shown if EITHER feature is enabled on the planner.
+  // (The nav link already follows the same rule — see _renderMenu.)
+  const showTravelSection = (menu.travel && d.travel_info) || (menu.accommodations && d.accommodation_info);
   const travelSection = document.getElementById('travel-section');
-  if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
-  if (menu.travel && d.travel_info){
-    document.getElementById('travelContent').innerHTML = d.travel_info;
-    // Attempt to extract a URL for the Book Now button. If the travel_info contains
-    // a link, point the button at it; otherwise leave the button as-is (the user can
-    // wire it via custom_css/custom_html or it'll just be a non-functional design element).
+  if (travelSection) travelSection.style.display = showTravelSection ? '' : 'none';
+
+  if (showTravelSection){
+    var travelContentEl = document.getElementById('travelContent');
+    if (travelContentEl){
+      // Build the content by concatenating whichever fields are present.
+      // travel_info first (airport / hotel etc.), then accommodation_info
+      // as a styled sub-block underneath. If only one is present, it
+      // takes the full space and the section still looks complete.
+      var parts = [];
+      if (menu.travel && d.travel_info){
+        parts.push(d.travel_info);
+      }
+      if (menu.accommodations && d.accommodation_info){
+        // Wrap accommodation content so it picks up the same .travel-block
+        // typography (uppercase tracked-out label + small detail rows) and
+        // sits as a labelled sub-block beneath travel info.
+        parts.push(
+          '<div class="travel-block">' +
+            '<div class="travel-block-label">Accommodations</div>' +
+            '<div class="travel-block-detail">' + d.accommodation_info + '</div>' +
+          '</div>'
+        );
+      }
+      travelContentEl.innerHTML = parts.join('');
+    }
+    // Attempt to extract a URL for the Book Now button from either field —
+    // travel_info wins if both have a link. If neither has one, hide the
+    // button so we don't render a dead anchor.
     var btn = document.getElementById('travelBtn');
-    var linkMatch = d.travel_info.match(/<a[^>]+href=["']([^"']+)["']/i);
-    if (btn && linkMatch) btn.href = linkMatch[1];
+    if (btn){
+      var src = (menu.travel && d.travel_info ? d.travel_info : '')
+             || (menu.accommodations && d.accommodation_info ? d.accommodation_info : '');
+      var linkMatch = src.match(/<a[^>]+href=["']([^"']+)["']/i);
+      if (linkMatch){
+        btn.href = linkMatch[1];
+        btn.style.display = '';
+      } else {
+        btn.style.display = 'none';
+      }
+    }
   }
 
   // FAQs
