@@ -107,8 +107,26 @@ body.thumbnail-mode .hero-names-text{
 .hero-col-centre{position:relative;display:flex;align-items:center;justify-content:center;}
 .hero-section::before{content:'';position:absolute;top:0;bottom:0;left:calc(100% / 2.55);width:1px;background:rgba(255,255,255,0.35);z-index:1;}
 .hero-section::after{content:'';position:absolute;top:0;bottom:0;left:calc(100% - 100% / 2.55);width:1px;background:rgba(255,255,255,0.35);z-index:1;}
-.hero-names{position:absolute;bottom:25%;left:50%;transform:translateX(-50%);width:100%;text-align:center;pointer-events:none;z-index:2;}
-.hero-names-text{font-family:var(--script);font-size:clamp(1.8rem,4vw,3rem);color:var(--white);white-space:nowrap;text-shadow:0 1px 8px rgba(0,0,0,0.2);}
+.hero-names{
+  /* Positioned against .hero-section (not heroCol2), so width:100% spans
+     the full collage and the script names cross the seams as designed. */
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:100%;
+  text-align:center;
+  pointer-events:none;
+  z-index:2;
+  padding:0 1rem;
+}
+.hero-names-text{
+  font-family:var(--script);
+  font-size:clamp(2.2rem,5.5vw,4.2rem);
+  color:var(--white);
+  white-space:nowrap;
+  text-shadow:0 2px 16px rgba(0,0,0,0.35);
+  line-height:1;
+}
 
 /* ── OUR STORY ────────────────────────────────────────────────── */
 .story-section{background:var(--blue);padding:5rem 2rem;text-align:center;}
@@ -185,6 +203,74 @@ body.thumbnail-mode .hero-names-text{
 .rsvp-select:focus{border-color:var(--dark);color:var(--dark);}
 .rsvp-chevron{position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);font-size:0.6rem;color:rgba(50,52,75,0.4);pointer-events:none;}
 .rsvp-text-input{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;}
+.rsvp-text-input::placeholder{color:rgba(50,52,75,0.4);}
+/* Textareas for dietary + message — share the input look but allow vertical resize */
+.rsvp-textarea{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;resize:vertical;min-height:64px;}
+.rsvp-textarea::placeholder{color:rgba(50,52,75,0.4);}
+.rsvp-textarea:focus,.rsvp-text-input:focus{border-color:var(--dark);}
+/* Two-column row for paired selects (attending + meal) */
+.rsvp-field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;}
+.rsvp-field-row.full{grid-template-columns:1fr;}
+.rsvp-field-row .rsvp-select-wrap{margin-bottom:0;}
+@media(max-width:560px){
+  .rsvp-field-row{grid-template-columns:1fr;}
+}
+
+/* ── Household section ─────────────────────────────────────────
+   Rendered when guest-lookup returns a guest with party members.
+   One row per OTHER member of the party; the person filling out
+   the form RSVPs for everyone in their household at once. */
+.rsvp-household{
+  border-top:1px solid rgba(50,52,75,0.15);
+  margin-top:1rem;padding-top:1rem;
+  display:none;
+}
+.rsvp-household.visible{display:block;}
+.rsvp-household-label{
+  font-family:var(--serif);font-style:italic;
+  font-size:0.85rem;color:var(--dark);
+  text-align:left;letter-spacing:0.01em;
+  margin-bottom:0.6rem;line-height:1.5;
+}
+.rsvp-household-list{display:flex;flex-direction:column;gap:0.55rem;}
+.rsvp-household-row{
+  display:flex;flex-direction:column;gap:0.5rem;
+  padding:0.7rem 0.85rem;
+  background:var(--white);
+  border:1px solid rgba(50,52,75,0.15);
+  text-align:left;
+}
+.rsvp-household-name{
+  font-family:var(--serif);font-weight:600;font-size:0.92rem;
+  color:var(--dark);
+  display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
+}
+.rsvp-household-name-primary-tag{
+  font-family:var(--serif);font-style:italic;
+  font-size:0.65rem;font-weight:400;
+  letter-spacing:0.04em;
+  color:var(--dark);background:var(--blue);
+  padding:2px 8px;
+}
+.rsvp-household-controls{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
+}
+.rsvp-household-controls.three-up{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.rsvp-household-controls .rsvp-select-wrap{margin-bottom:0;}
+.rsvp-household-controls .rsvp-select{
+  font-size:0.78rem;
+  padding:0.55rem 1.8rem 0.55rem 0.7rem;
+}
+.rsvp-household-controls .rsvp-chevron{right:0.6rem;}
+@media (max-width:560px){
+  .rsvp-household-controls,
+  .rsvp-household-controls.three-up{grid-template-columns:1fr;}
+}
+/* Success message — keep the centred script for the headline but allow a
+   serif sub-line for the dynamic party-total text. */
+.rsvp-success-msg{display:block;}
 .rsvp-add-guest{display:inline-flex;align-items:center;gap:0.3rem;background:none;border:1px solid rgba(255,255,255,0.4);font-family:var(--serif);font-size:0.75rem;color:rgba(255,255,255,0.85);padding:0.4rem 0.9rem;cursor:pointer;margin-top:0.5rem;margin-bottom:1.5rem;transition:all 0.2s;}
 .rsvp-add-guest:hover{background:rgba(255,255,255,0.15);}
 .rsvp-extra-list{margin-bottom:0.5rem;}
@@ -207,6 +293,14 @@ body.thumbnail-mode .hero-names-text{
   .hero-section::before,.hero-section::after{display:none;}
   .hero-col{display:none;}
   .hero-col-centre{height:100vh;min-height:500px;}
+  /* On mobile only the centre photo is visible — scale the names down
+     and allow wrapping so a long couple name doesn't run off-screen. */
+  .hero-names{padding:0 1.5rem;}
+  .hero-names-text{
+    font-size:clamp(1.8rem,8vw,2.8rem);
+    white-space:normal;
+    line-height:1.15;
+  }
   .wedding-cards{grid-template-columns:1fr;gap:1rem;}
   .split-section{grid-template-columns:1fr;}
   .split-photo{height:280px;}
@@ -239,11 +333,15 @@ body.thumbnail-mode .hero-names-text{
 <section class="hero-section" id="home">
   <div class="hero-col" id="heroCol1" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2d42c296-b268-4811-870c-0fd04f5cd929.png');background-size:cover;background-position:center;"></div>
   <div class="hero-col hero-col-centre" id="heroCol2" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png');background-size:cover;background-position:center;">
-    <div class="hero-names">
-      <span class="hero-names-text" id="heroNames">A &amp; B</span>
-    </div>
   </div>
   <div class="hero-col" id="heroCol3" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/3617ec8d-4bb0-4eea-91ee-ae1ef7ab1002.png');background-size:cover;background-position:center;"></div>
+  <!-- Names overlay the full hero (spanning all three columns), positioned
+       absolutely against .hero-section. Sitting inside heroCol2 used to clip
+       the script type at the narrow centre column's edges; this lifts it out
+       so the names span the seams as in the original design. -->
+  <div class="hero-names">
+    <span class="hero-names-text" id="heroNames">A &amp; B</span>
+  </div>
 </section>
 
 <!-- OUR STORY -->
@@ -311,7 +409,7 @@ body.thumbnail-mode .hero-names-text{
   <div class="rsvp-wrap">
     <div id="rsvpBlocks"></div>
     <button class="rsvp-submit" id="rsvpSubmitBtn" onclick="submitRSVP()" style="display:none">Send My RSVP</button>
-    <div class="rsvp-success" id="rsvpSuccess">Thank you! Your RSVP has been received.</div>
+    <div class="rsvp-success" id="rsvpSuccess"><span class="rsvp-success-msg">Thank you! Your RSVP has been received.</span></div>
   </div>
 </section>
 
@@ -583,9 +681,6 @@ function hydrateTemplate(d){
 
 function buildRsvpBlocks(events){
   var container=document.getElementById('rsvpBlocks');container.innerHTML='';
-  var entreeOpts=_rsvpEntreeOptions.map(function(o){
-    return'<option value="'+o.value+'">'+o.label+'</option>';
-  }).join('');
   events.forEach(function(ev){
     var block=document.createElement('div');block.className='rsvp-event-block';block.dataset.eventId=ev.id;
     var label=document.createElement('div');label.className='rsvp-event-label';label.textContent=ev.label;
@@ -595,33 +690,74 @@ function buildRsvpBlocks(events){
     nameInput.placeholder='Your full name';nameInput.oninput=function(){onNameInput(nameInput);};
     block.appendChild(nameInput);
     var expanded=document.createElement('div');expanded.className='rsvp-expanded';expanded.id='expanded-'+ev.id;
-    // Attend
-    var aw=document.createElement('div');aw.className='rsvp-select-wrap';
-    var as=document.createElement('select');as.className='rsvp-select';as.dataset.field='attending';
-    ['','yes','no','maybe'].forEach(function(v,i){
-      var o=document.createElement('option');o.value=v;
-      o.textContent=['Do you plan to attend?','Attending','Cannot make it','Not sure yet'][i];
-      as.appendChild(o);
-    });
-    var ac=document.createElement('span');ac.className='rsvp-chevron';ac.textContent='▾';
-    aw.appendChild(as);aw.appendChild(ac);expanded.appendChild(aw);
-    // Entree
-    var ew=document.createElement('div');ew.className='rsvp-select-wrap';
-    var es=document.createElement('select');es.className='rsvp-select';es.dataset.field='entree';
-    var def=document.createElement('option');def.value='';def.textContent='Your entrée choice';es.appendChild(def);
-    _rsvpEntreeOptions.forEach(function(o){var op=document.createElement('option');op.value=o.value;op.textContent=o.label;es.appendChild(op);});
-    var ec=document.createElement('span');ec.className='rsvp-chevron';ec.textContent='▾';
-    ew.appendChild(es);ew.appendChild(ec);expanded.appendChild(ew);
-    // Email
-    var ei=document.createElement('input');ei.className='rsvp-text-input';ei.type='email';ei.placeholder='Email address (required) *';ei.dataset.field='email';ei.required=true;ei.addEventListener('input',function(){checkShowSubmit();});
+
+    // Helper: build a styled select with chevron in a wrap
+    function makeSelectWrap(field, defaultOpt, options){
+      var wrap=document.createElement('div');wrap.className='rsvp-select-wrap';
+      var sel=document.createElement('select');sel.className='rsvp-select';sel.dataset.field=field;
+      var def=document.createElement('option');def.value='';def.textContent=defaultOpt;sel.appendChild(def);
+      options.forEach(function(o){
+        var op=document.createElement('option');op.value=o.value;op.textContent=o.label;sel.appendChild(op);
+      });
+      var chev=document.createElement('span');chev.className='rsvp-chevron';chev.textContent='▾';
+      wrap.appendChild(sel);wrap.appendChild(chev);
+      return wrap;
+    }
+
+    // Row 1 — attending + meal (two-up)
+    var row1=document.createElement('div');row1.className='rsvp-field-row';
+    row1.appendChild(makeSelectWrap('attending','Do you plan to attend?',[
+      {value:'yes',label:'Attending'},
+      {value:'no',label:'Cannot make it'},
+      {value:'maybe',label:'Not sure yet'},
+    ]));
+    row1.appendChild(makeSelectWrap('meal','Meal type',[
+      {value:'Vegetarian',label:'Vegetarian'},
+      {value:'Non Vegetarian',label:'Non-Vegetarian'},
+      {value:'Vegan',label:'Vegan'},
+      {value:'Gluten Free',label:'Gluten-Free'},
+      {value:'Kids Meal',label:'Kids Meal'},
+    ]));
+    expanded.appendChild(row1);
+
+    // Row 2 — entree (full-width)
+    var row2=document.createElement('div');row2.className='rsvp-field-row full';
+    row2.appendChild(makeSelectWrap('entree','Your entrée choice',
+      _rsvpEntreeOptions.map(function(o){return {value:o.value,label:o.label};})
+    ));
+    expanded.appendChild(row2);
+
+    // Email (full)
+    var ei=document.createElement('input');ei.className='rsvp-text-input';ei.type='email';
+    ei.placeholder='Email address (required) *';ei.dataset.field='email';ei.required=true;
+    ei.addEventListener('input',function(){checkShowSubmit();});
     expanded.appendChild(ei);
-    // Extra guests
+
+    // Dietary textarea
+    var dietary=document.createElement('textarea');dietary.className='rsvp-textarea';
+    dietary.rows=2;dietary.placeholder='Allergies or dietary requirements?';dietary.dataset.field='dietary';
+    expanded.appendChild(dietary);
+
+    // Notes textarea
+    var notes=document.createElement('textarea');notes.className='rsvp-textarea';
+    notes.rows=2;notes.placeholder='Message for the couple (optional)';notes.dataset.field='notes';
+    expanded.appendChild(notes);
+
+    // Household section — populated by renderHousehold when the lookup
+    // returns a guest with other party members. Hidden until then.
+    var hh=document.createElement('div');hh.className='rsvp-household';hh.id='household-'+ev.id;
+    var hhLabel=document.createElement('div');hhLabel.className='rsvp-household-label';hhLabel.id='household-label-'+ev.id;
+    var hhList=document.createElement('div');hhList.className='rsvp-household-list';hhList.id='household-list-'+ev.id;
+    hh.appendChild(hhLabel);hh.appendChild(hhList);
+    expanded.appendChild(hh);
+
+    // Extra guests + add-guest button
     var extraList=document.createElement('div');extraList.className='rsvp-extra-list';extraList.id='extra-guests-'+ev.id;
     expanded.appendChild(extraList);
-    // Add guest btn — hidden by default, lookupGuest reveals it when allowed
     var addBtn=document.createElement('button');addBtn.className='rsvp-add-guest';addBtn.textContent='+ Add Invited Guest';addBtn.style.display='none';
     addBtn.onclick=function(){addExtraGuest(addBtn);};
     expanded.appendChild(addBtn);
+
     block.appendChild(expanded);
     container.appendChild(block);
   });
@@ -720,11 +856,19 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(75,82,68,0.08)';
         statusEl.style.color           = '#4B5244';
 
+        // Replace partial typed name with full matched name (UX nicety)
+        var nameInput = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
+        if (nameInput && json.name && nameInput.value.trim() === name) {
+          nameInput.value = json.name;
+        }
+
         if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
         if (listEl && !json.plus_one_allowed) {
           listEl.innerHTML = '';
           if (addBtn) addBtn.style.display = 'none';
         }
+        // Render household section if this guest is in a party with others.
+        renderHousehold(block, json);
       } else if (json.ambiguous) {
         block.dataset.lookupState = 'ambiguous';
         block.dataset.guestId = '';
@@ -734,6 +878,7 @@ function lookupGuest(block, name) {
         statusEl.style.color           = '#B69400';
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
         showAmbiguousMatches(block, json.matches || []);
       } else {
         block.dataset.lookupState = 'unknown';
@@ -745,6 +890,7 @@ function lookupGuest(block, name) {
         statusEl.style.color           = '#C23331';
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
       }
       checkShowSubmit();
     })
@@ -758,8 +904,118 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(194,51,49,0.08)';
         statusEl.style.color           = '#C23331';
       }
+      clearHousehold(block);
       checkShowSubmit();
     });
+}
+
+function clearHousehold(block) {
+  // Wipe the household section back to empty + hidden. Called on lookup
+  // failure / ambiguous / unknown so a stale household from a previous
+  // lookup doesn't linger when the user retypes their name.
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (section) section.classList.remove('visible');
+  if (label) label.textContent = '';
+  if (list) list.innerHTML = '';
+  block.dataset.householdMembers = '';
+}
+
+function renderHousehold(block, json) {
+  // Populate the household section from a guest-lookup response. If the
+  // response has no `household_members` array (legacy backend, or a solo
+  // guest with no party), this is a no-op and the section stays hidden.
+  //
+  // Each member becomes a small card with name + per-person attending /
+  // meal / entree dropdowns. The person filling out the form is asked to
+  // RSVP for the whole household at once — anyone in the party can do it,
+  // not just the primary contact (matches the planner-side behaviour).
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (!section || !label || !list) return;
+
+  var members = Array.isArray(json && json.household_members) ? json.household_members : [];
+  // Strip any entry that's actually the looked-up guest themselves
+  // (backend already excludes this, but be defensive).
+  members = members.filter(function(m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+
+  if (members.length === 0) {
+    clearHousehold(block);
+    return;
+  }
+
+  // Stash members on the block so submitRSVP can post a household_rsvps array.
+  block.dataset.householdMembers = JSON.stringify(members.map(function(m) {
+    return { guest_id: m.guest_id, name: m.name };
+  }));
+
+  var partyName = (json.party_name || '').trim();
+  label.textContent = partyName
+    ? 'Your household — ' + partyName + ' (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')'
+    : 'Your household (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')';
+
+  // Reuse the entree options from the global config (same list the primary sees).
+  var entreeOptsHtml = _rsvpEntreeOptions.map(function(o) {
+    return '<option value="' + o.value + '">' + o.label + '</option>';
+  }).join('');
+
+  list.innerHTML = '';
+  members.forEach(function(m, idx) {
+    var row = document.createElement('div');
+    row.className = 'rsvp-household-row';
+    row.dataset.guestId = m.guest_id;
+    row.dataset.memberIdx = String(idx);
+
+    var savedMeal = (m.meal_preference || '').trim();
+    var mealOpts = [
+      { v: '',                l: 'Meal type' },
+      { v: 'Vegetarian',      l: 'Vegetarian' },
+      { v: 'Non Vegetarian',  l: 'Non-Vegetarian' },
+      { v: 'Vegan',           l: 'Vegan' },
+      { v: 'Gluten Free',     l: 'Gluten-Free' },
+      { v: 'Kids Meal',       l: 'Kids Meal' },
+    ].map(function(o) {
+      var sel = (o.v === savedMeal) ? ' selected' : '';
+      return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
+    }).join('');
+
+    var primaryTag = m.is_primary
+      ? '<span class="rsvp-household-name-primary-tag">primary contact</span>'
+      : '';
+
+    // Each select is wrapped so the styled chevron sits on top — matches
+    // the look of the primary's selects.
+    row.innerHTML =
+      '<div class="rsvp-household-name">' + (m.name || '(household member)') + primaryTag + '</div>' +
+      '<div class="rsvp-household-controls three-up">' +
+        '<div class="rsvp-select-wrap">' +
+          '<select class="rsvp-select" data-h-field="attending">' +
+            '<option value="">Will attend?</option>' +
+            '<option value="yes">Attending</option>' +
+            '<option value="no">Cannot make it</option>' +
+            '<option value="maybe">Not sure</option>' +
+          '</select>' +
+          '<span class="rsvp-chevron">▾</span>' +
+        '</div>' +
+        '<div class="rsvp-select-wrap">' +
+          '<select class="rsvp-select" data-h-field="meal">' + mealOpts + '</select>' +
+          '<span class="rsvp-chevron">▾</span>' +
+        '</div>' +
+        '<div class="rsvp-select-wrap">' +
+          '<select class="rsvp-select" data-h-field="entree">' +
+            '<option value="">Entree (optional)</option>' + entreeOptsHtml +
+          '</select>' +
+          '<span class="rsvp-chevron">▾</span>' +
+        '</div>' +
+      '</div>';
+    list.appendChild(row);
+  });
+
+  section.classList.add('visible');
 }
 
 function showAmbiguousMatches(block, matches) {
@@ -836,6 +1092,7 @@ function lookupGuestById(block, guestId, displayName) {
           statusEl.style.background      = 'rgba(194,51,49,0.08)';
           statusEl.style.color           = '#C23331';
         }
+        clearHousehold(block);
         checkShowSubmit();
         return;
       }
@@ -851,6 +1108,7 @@ function lookupGuestById(block, guestId, displayName) {
       }
       var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
       if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      renderHousehold(block, json);
       checkShowSubmit();
     })
     .catch(function(err) {
@@ -940,6 +1198,34 @@ async function submitRSVP() {
         }
       }
 
+      // Collect household RSVPs — each row in the household section maps to
+      // an existing Guest List record that we update by guest_id. Backend
+      // re-verifies that each guest_id belongs to this celebration AND
+      // shares the primary's Party Name; defense-in-depth (see /rsvp).
+      // Rows with no attending value selected are skipped so we don't
+      // overwrite a previously-saved RSVP with a blank.
+      var householdRsvps = [];
+      var hList = exp && exp.querySelector('.rsvp-household-list');
+      if (hList) {
+        var hRows = hList.querySelectorAll('.rsvp-household-row');
+        hRows.forEach(function(hr) {
+          var gid = hr.dataset.guestId || '';
+          if (!gid) return;
+          var hAttendingEl = hr.querySelector('[data-h-field="attending"]');
+          var hMealEl      = hr.querySelector('[data-h-field="meal"]');
+          var hEntreeEl    = hr.querySelector('[data-h-field="entree"]');
+          var hAttending = hAttendingEl ? (hAttendingEl.value || '').trim() : '';
+          // Skip unanswered rows — leaves their existing RSVP untouched.
+          if (!hAttending) return;
+          householdRsvps.push({
+            guest_id:        gid,
+            attending:       hAttending,
+            meal_preference: hMealEl  ? (hMealEl.value  || '') : '',
+            entree_choice:   hEntreeEl ? (hEntreeEl.value || '') : '',
+          });
+        });
+      }
+
       promises.push(fetch(API + '/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -956,6 +1242,9 @@ async function submitRSVP() {
           event_name:      label,
           plus_one:        extraGuests.length > 0,
           extra_guests:    extraGuests,
+          // RSVPs for known household members (already on the guest list).
+          // Empty array is fine — solo guests just won't send any.
+          household_rsvps: householdRsvps,
         })
       }));
     });
@@ -970,7 +1259,26 @@ async function submitRSVP() {
     if (!anyOk) {
       throw new Error(failedDetail || 'RSVP submission failed.');
     }
-    document.getElementById('rsvpSuccess').style.display = 'block';
+    // Tally how many people we actually RSVP'd for so the thank-you message
+    // can reflect it. Backend returns `total` per event (1 = primary only,
+    // higher if household members or plus-ones were submitted alongside).
+    var totalPeople = 0;
+    for (var rj = 0; rj < results.length; rj++) {
+      if (!results[rj].ok) continue;
+      try {
+        var okBody = await results[rj].json();
+        if (okBody && typeof okBody.total === 'number') totalPeople += okBody.total;
+      } catch (_e) { /* non-fatal */ }
+    }
+    var successEl = document.getElementById('rsvpSuccess');
+    if (successEl && totalPeople > 1) {
+      var msgEl = successEl.querySelector('.rsvp-success-msg');
+      if (msgEl) {
+        msgEl.innerHTML = 'Thank you! We\'ve recorded RSVPs for ' + totalPeople +
+          ' ' + (totalPeople === 1 ? 'person' : 'people') + '.';
+      }
+    }
+    if (successEl) successEl.style.display = 'block';
     btn.style.display = 'none';
   } catch (err) {
     console.error('[RSVP submit]', err);
@@ -1045,9 +1353,136 @@ if(_isPreview){
   function _fetch(){
     fetch(API+'/wedding-site/'+encodeURIComponent(_liveSlug)+(_pwdParam?'?password='+encodeURIComponent(_pwdParam):''))
       .then(function(r){if(!r.ok)throw r.status;return r.json();})
-      .then(function(d){if(d.password_required){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:EB Garamond,serif;color:var(--dark);background:var(--blue);font-size:2rem"><p>Password Protected</p></div>';return;}hydrateTemplate(d);})
-      .catch(function(){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:EB Garamond,serif;color:var(--dark);background:var(--blue)"><p>Site not found.</p></div>';});
+      .then(function(d){
+        if(d.password_required){
+          _renderPlaceholderPage({
+            kind: 'password',
+            coupleNames: d.couple_names || '',
+          });
+          return;
+        }
+        // Backend returns a rich `not_published` payload (couple names,
+        // date, status) instead of a bare 403 when the site is in draft.
+        // Render a polished Coming Soon page rather than a generic error.
+        if(d.not_published){
+          _renderPlaceholderPage({
+            kind: 'coming-soon',
+            coupleNames: d.couple_names || '',
+            celebrationDate: d.celebration_date || '',
+          });
+          return;
+        }
+        hydrateTemplate(d);
+      })
+      .catch(function(){
+        _renderPlaceholderPage({ kind: 'not-found' });
+      });
   }
+}
+
+// Renders a branded placeholder page for the three "we can't show the real
+// site right now" states: password-required, coming-soon (draft), and
+// not-found. Uses Golden Hour's palette (muted blue ground, dark navy text)
+// and type (Holiday script display + EB Garamond serif body) so the
+// placeholder still feels like the couple's website rather than an error.
+function _renderPlaceholderPage(opts){
+  var kind            = (opts || {}).kind;
+  var coupleNames     = (opts || {}).coupleNames || '';
+  var celebrationDate = (opts || {}).celebrationDate || '';
+
+  // Format the date for display when we have one. Stored as ISO yyyy-mm-dd
+  // in the DB — render as e.g. "April 5, 2026". Falls back gracefully if
+  // the string isn't parseable.
+  var dateLine = '';
+  if (celebrationDate){
+    try {
+      var dt = new Date(celebrationDate);
+      if (!isNaN(dt.getTime())){
+        dateLine = dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      } else {
+        dateLine = celebrationDate;
+      }
+    } catch(e){ dateLine = celebrationDate; }
+  }
+
+  // Heading + body per state. We DELIBERATELY avoid the word "undefined"
+  // anywhere — every line is built from cleanly defaulted strings.
+  var heading, body, badge;
+  if (kind === 'password'){
+    badge = '🔒';
+    heading = coupleNames ? coupleNames : 'A private celebration';
+    body = 'This wedding website is password-protected. Please use the link your hosts shared with you to access it.';
+  } else if (kind === 'coming-soon'){
+    badge = '✨';
+    heading = coupleNames ? coupleNames : 'Coming soon';
+    body = coupleNames
+      ? coupleNames + ' are putting the finishing touches on their wedding website. Please check back soon — we can&rsquo;t wait to share it with you.'
+      : 'The hosts are putting the finishing touches on their wedding website. Please check back soon.';
+  } else {
+    badge = '🔍';
+    heading = 'We couldn&rsquo;t find that website';
+    body = 'The link you followed may be incorrect, or the website may have moved. Please double-check the address with your hosts.';
+  }
+
+  document.body.innerHTML =
+    '<div style="' +
+      'min-height:100vh;' +
+      'display:flex;' +
+      'align-items:center;' +
+      'justify-content:center;' +
+      'padding:32px 20px;' +
+      'background:#d7dde4;' +
+      'font-family:\'EB Garamond\',Georgia,serif;' +
+      'color:#32344b;' +
+      'text-align:center;' +
+    '">' +
+      '<div style="max-width:520px;width:100%;">' +
+        '<div style="font-size:32px;margin-bottom:20px;opacity:0.7;">' + badge + '</div>' +
+        '<h1 style="' +
+          'font-family:\'Holiday\',\'Parfumerie Script\',cursive;' +
+          'font-weight:400;' +
+          'font-size:clamp(2.4rem,6vw,3.6rem);' +
+          'line-height:1.1;' +
+          'margin:0 0 16px 0;' +
+          'color:#32344b;' +
+          'letter-spacing:0.01em;' +
+        '">' + heading + '</h1>' +
+        (dateLine ? (
+          '<p style="' +
+            'font-family:\'EB Garamond\',Georgia,serif;' +
+            'font-size:0.78rem;' +
+            'font-weight:500;' +
+            'font-style:italic;' +
+            'letter-spacing:0.18em;' +
+            'text-transform:uppercase;' +
+            'color:#32344b;' +
+            'opacity:0.65;' +
+            'margin:0 0 22px 0;' +
+          '">' + dateLine + '</p>'
+        ) : '') +
+        '<p style="' +
+          'font-family:\'EB Garamond\',Georgia,serif;' +
+          'font-size:1rem;' +
+          'font-weight:400;' +
+          'line-height:1.7;' +
+          'color:#32344b;' +
+          'opacity:0.85;' +
+          'margin:0 auto;' +
+          'max-width:440px;' +
+        '">' + body + '</p>' +
+        '<div style="' +
+          'margin-top:40px;' +
+          'padding-top:22px;' +
+          'border-top:1px solid rgba(50,52,75,0.18);' +
+          'font-family:\'EB Garamond\',Georgia,serif;' +
+          'font-size:0.7rem;' +
+          'font-weight:500;' +
+          'letter-spacing:0.18em;' +
+          'text-transform:uppercase;' +
+          'color:rgba(50,52,75,0.5);' +
+        '">myplanning.ai</div>' +
+      '</div>' +
+    '</div>';
 }
 </script>
 </body>
