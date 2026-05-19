@@ -233,13 +233,13 @@ body.hydrating{visibility:hidden}
   line-height:1.7;
 }
 
-/* ── TRAVEL INFO — two-column with stamp frame on right ──── */
+/* ── TRAVEL INFO — two-column with stamp frame on right ────
+   Plain cream background (no stripes) per design — the stripe
+   wallpaper is reserved for the event-schedule section. */
 .travel-section{
   position:relative;
   padding:4rem 2rem 4.5rem;
   background-color:var(--ivory);
-  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c37277ec-bb9b-4632-9fff-597f605f6057.svg');
-  background-repeat:repeat;
 }
 .travel-inner{
   max-width:880px;margin:0 auto;
@@ -247,8 +247,7 @@ body.hydrating{visibility:hidden}
   grid-template-columns:1fr 1fr;
   gap:3rem;
   align-items:center;
-  background:var(--ivory);
-  padding:2.5rem;
+  padding:2.5rem 0;
 }
 .travel-text{
   text-align:center;
@@ -846,15 +845,40 @@ body.hydrating{visibility:hidden}
   .nav-bar{padding:0.85rem 1rem;}
   .nav-links{gap:1.1rem;}
   .nav-links a{font-size:0.7rem;letter-spacing:0.14em;}
-  .schedule-grid{grid-template-columns:1fr !important;gap:2rem;}
-  .schedule-card{padding:2.2rem 1.5rem;--notch:14px;}
+  .schedule-grid{grid-template-columns:1fr !important;gap:2.2rem;}
+  .schedule-card{padding:2.5rem 1.5rem;--notch:14px;}
+  .schedule-title{margin-bottom:1.8rem;}
+  /* When events stack vertically on mobile, the gap alone doesn't visually
+     separate them — add a thin horizontal rule between each pair so the
+     three events read as distinct sections rather than one long block. */
+  .schedule-event{position:relative;padding-bottom:0.4rem;}
+  .schedule-event + .schedule-event{padding-top:1.8rem;}
+  .schedule-event + .schedule-event::before{
+    content:'';
+    position:absolute;top:0;left:50%;
+    width:40px;height:1px;
+    background:rgba(255,255,255,0.25);
+    transform:translateX(-50%);
+  }
+  /* Tighter line-height on mobile addresses so they don't sprawl */
+  .schedule-event-address{font-size:0.78rem;line-height:1.55;}
+  .schedule-event-date{margin-bottom:1rem;font-size:0.85rem;}
+  .schedule-event-venue{font-size:0.92rem;margin-bottom:0.3rem;}
   .event-schedule,.travel-section{padding:2.5rem 1rem 3rem;}
+  /* Travel: stack image above text rather than below — matches the design's
+     visual hierarchy (decorative photo as the eye-catcher, then the info).
+     Keep frame at a comfortable mobile size. */
   .travel-inner{
     grid-template-columns:1fr;
-    gap:2rem;
-    padding:1.5rem;
+    gap:1.8rem;
+    padding:0;
   }
-  .travel-image-frame{max-width:300px;margin:0 auto;}
+  .travel-image-wrap{order:-1;}
+  .travel-image-frame{max-width:280px;margin:0 auto;}
+  .travel-title{font-size:1.7rem;}
+  .travel-block{margin-bottom:1.2rem;}
+  .travel-block-label{font-size:0.82rem;margin-bottom:0.4rem;}
+  .travel-block-detail{font-size:0.88rem;line-height:1.6;}
   .faq-section,.registry-section,.rsvp-section{padding:3rem 1.2rem 3.5rem;}
   .rsvp-stamps-left,.rsvp-stamps-right{
     width:90px;opacity:0.45;
@@ -2009,30 +2033,63 @@ function hydrateTemplate(d){
   if (showTravelSection){
     var travelContentEl = document.getElementById('travelContent');
     if (travelContentEl){
-      // Build the content by concatenating whichever fields are present.
-      // travel_info first (airport / hotel etc.), then accommodation_info
-      // as a styled sub-block underneath. If only one is present, it
-      // takes the full space and the section still looks complete.
+      // Parse the rich-text content and rebuild it as proper .travel-block
+      // structures so each section picks up the design's typography
+      // (tracked-out uppercase labels + small light-weight detail text).
+      //
+      // The planner stores travel/accommodation content as rich-text where
+      // each "section header" is typically a <strong>…</strong> on its own
+      // line, followed by detail lines separated by <br>, with a blank
+      // line (<br><br>) between sections. We split on the double-break,
+      // then within each chunk pull out the first <strong> as the label
+      // and treat the rest as the detail.
+      function _renderRichTravel(rawHtml, fallbackLabel){
+        if (!rawHtml) return '';
+        // Strip wrapping <p> tags but keep their content flow.
+        var html = String(rawHtml).replace(/<\/?p[^>]*>/gi, '<br>');
+        // Split on a blank line (double <br>) — that's the section separator.
+        var sections = html.split(/<br\s*\/?>\s*<br\s*\/?>/i);
+        var out = [];
+        sections.forEach(function(section){
+          section = section.replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/gi, '').trim();
+          if (!section) return;
+          // Extract the first <strong>…</strong> as the label, if present.
+          var labelMatch = section.match(/^\s*<strong[^>]*>([\s\S]*?)<\/strong>/i);
+          var label = labelMatch
+            ? labelMatch[1].replace(/<[^>]+>/g, '').trim()
+            : '';
+          var detail = labelMatch
+            ? section.substring(labelMatch[0].length).replace(/^(<br\s*\/?>)+/i, '').trim()
+            : section.trim();
+          // If no label was found in the first section, fall back to the
+          // caller-supplied label (e.g. "Accommodations") so we never render
+          // a labelless block.
+          if (!label && out.length === 0 && fallbackLabel) label = fallbackLabel;
+          out.push(
+            '<div class="travel-block">' +
+              (label ? '<div class="travel-block-label">' + label + '</div>' : '') +
+              '<div class="travel-block-detail">' + detail + '</div>' +
+            '</div>'
+          );
+        });
+        return out.join('');
+      }
+
       var parts = [];
       if (menu.travel && d.travel_info){
-        parts.push(d.travel_info);
+        parts.push(_renderRichTravel(d.travel_info, 'Travel'));
       }
       if (menu.accommodations && d.accommodation_info){
-        // Wrap accommodation content so it picks up the same .travel-block
-        // typography (uppercase tracked-out label + small detail rows) and
-        // sits as a labelled sub-block beneath travel info.
-        parts.push(
-          '<div class="travel-block">' +
-            '<div class="travel-block-label">Accommodations</div>' +
-            '<div class="travel-block-detail">' + d.accommodation_info + '</div>' +
-          '</div>'
-        );
+        parts.push(_renderRichTravel(d.accommodation_info, 'Accommodations'));
       }
       travelContentEl.innerHTML = parts.join('');
     }
-    // Attempt to extract a URL for the Book Now button from either field —
-    // travel_info wins if both have a link. If neither has one, hide the
-    // button so we don't render a dead anchor.
+    // Wire the Book Now button. If the user pasted a link anywhere in
+    // travel_info or accommodation_info, the button points to that URL.
+    // If they didn't include a link, the button stays visible with its
+    // default '#' href — preserves the design language ("there's a button
+    // here") rather than leaving a visual gap. The button can be wired
+    // later via the planner's rich-text editor.
     var btn = document.getElementById('travelBtn');
     if (btn){
       var src = (menu.travel && d.travel_info ? d.travel_info : '')
@@ -2040,10 +2097,9 @@ function hydrateTemplate(d){
       var linkMatch = src.match(/<a[^>]+href=["']([^"']+)["']/i);
       if (linkMatch){
         btn.href = linkMatch[1];
-        btn.style.display = '';
-      } else {
-        btn.style.display = 'none';
       }
+      // Always visible — even without a link, the button is part of the layout.
+      btn.style.display = '';
     }
   }
 
