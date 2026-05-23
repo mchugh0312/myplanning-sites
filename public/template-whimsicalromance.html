@@ -590,6 +590,60 @@ body.hydrating{visibility:hidden}
 }
 .rsvp-name-input:focus{border-color:var(--burgundy);}
 .rsvp-name-input::placeholder{color:rgba(83,20,30,0.4);font-style:normal;}
+
+/* ── Household section ─────────────────────────────────────────
+   Rendered when guest-lookup returns a guest with party members.
+   One row per OTHER member of the party; the person filling out
+   the form RSVPs for everyone in their household at once. */
+.rsvp-household{
+  border-top:1px solid rgba(83,20,30,0.2);
+  margin-top:1.2rem;padding-top:1.2rem;
+  display:none;
+}
+.rsvp-household.visible{display:block;}
+.rsvp-household-label{
+  font-family:inherit;font-style:italic;
+  font-size:0.85rem;color:#53141e;
+  text-align:left;letter-spacing:0.01em;
+  margin-bottom:0.7rem;line-height:1.5;
+}
+.rsvp-household-list{display:flex;flex-direction:column;gap:0.55rem;}
+.rsvp-household-row{
+  display:flex;flex-direction:column;gap:0.5rem;
+  padding:0.75rem 0.85rem;
+  background:rgba(83,20,30,0.06);
+  border:1px solid rgba(83,20,30,0.2);
+  border-radius:10px;
+  text-align:left;
+}
+.rsvp-household-name{
+  font-family:inherit;font-weight:600;font-size:0.9rem;
+  color:#53141e;
+  display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
+}
+.rsvp-household-name-primary-tag{
+  font-family:inherit;
+  font-size:0.62rem;font-weight:500;font-style:normal;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:#fffdf5;background:#53141e;
+  padding:2px 8px;border-radius:999px;
+}
+.rsvp-household-controls{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
+}
+.rsvp-household-controls.three-up{
+  grid-template-columns:1fr 1fr 1fr;
+}
+.rsvp-household-controls .rsvp-select{
+  font-size:0.74rem;
+  padding:0.55rem 0.85rem;
+}
+@media (max-width:560px){
+  .rsvp-household-controls,
+  .rsvp-household-controls.three-up{grid-template-columns:1fr;}
+}
+.rsvp-success-msg{display:block;}
+
 .rsvp-expanded{
   display:none;
   margin-top:0.6rem;
@@ -994,7 +1048,7 @@ body.thumbnail-mode .hero-couple-name .name-2{font-size:clamp(1.8rem, 14vw, 3rem
       Submit RSVP
     </button>
     <div class="rsvp-success" id="rsvpSuccess">
-      Thank you! Your RSVP has been received.<br>We can't wait to celebrate with you.
+      <span class="rsvp-success-msg">Thank you! Your RSVP has been received.<br>We can't wait to celebrate with you.</span>
     </div>
   </div>
 </div>
@@ -1114,6 +1168,12 @@ function buildRsvpBlocks(events) {
         '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" placeholder="Message for the couple (optional)" data-field="notes"></textarea>' +
         '</div>' +
+        // Household section — populated by lookupGuest/lookupGuestById
+        // when the lookup returns party members. Hidden until then.
+        '<div class="rsvp-household" id="household-' + ev.id + '">' +
+          '<div class="rsvp-household-label" id="household-label-' + ev.id + '"></div>' +
+          '<div class="rsvp-household-list" id="household-list-' + ev.id + '"></div>' +
+        '</div>' +
         '<div class="extra-guests-list" id="extra-guests-' + ev.id + '"></div>' +
         '<button class="rsvp-add-guest" onclick="addExtraGuest(this)" style="display:none">' +
           '+ Add Another Guest' +
@@ -1223,6 +1283,8 @@ function lookupGuest(block, name) {
           listEl.innerHTML = '';
           if (addBtn) addBtn.style.display = 'none';
         }
+        // Render household section if this guest is in a party with others.
+        renderHousehold(block, json);
       } else if (json.ambiguous) {
         block.dataset.lookupState = 'ambiguous';
         block.dataset.guestId = '';
@@ -1233,6 +1295,7 @@ function lookupGuest(block, name) {
         // Plus-one is locked until a real match is picked
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
         showAmbiguousMatches(block, json.matches || []);
       } else {
         block.dataset.lookupState = 'unknown';
@@ -1245,6 +1308,7 @@ function lookupGuest(block, name) {
         // Hard-block: unknown guest cannot RSVP, cannot add plus-one
         if (addBtn) addBtn.style.display = 'none';
         if (listEl) listEl.innerHTML = '';
+        clearHousehold(block);
       }
       // Re-evaluate submit button visibility after every lookup result
       checkShowSubmit();
@@ -1261,8 +1325,105 @@ function lookupGuest(block, name) {
         statusEl.style.background      = 'rgba(194,51,49,0.08)';
         statusEl.style.color           = '#C23331';
       }
+      clearHousehold(block);
       checkShowSubmit();
     });
+}
+
+
+function clearHousehold(block) {
+  // Wipe the household section back to empty + hidden. Called on lookup
+  // failure / ambiguous / unknown so a stale household from a previous
+  // lookup doesn't linger when the user retypes their name.
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (section) section.classList.remove('visible');
+  if (label) label.textContent = '';
+  if (list) list.innerHTML = '';
+  block.dataset.householdMembers = '';
+}
+
+function renderHousehold(block, json) {
+  // Populate the household section from a guest-lookup response. If the
+  // response has no `household_members` array (legacy backend, or a solo
+  // guest with no party), this is a no-op and the section stays hidden.
+  //
+  // Each member becomes a small card with name + per-person attending /
+  // meal / entree dropdowns. The person filling out the form is asked to
+  // RSVP for the whole household at once — anyone in the party can do it,
+  // not just the primary contact (matches the planner-side behaviour).
+  var eventId = block.dataset.eventId;
+  var section = document.getElementById('household-' + eventId);
+  var label   = document.getElementById('household-label-' + eventId);
+  var list    = document.getElementById('household-list-' + eventId);
+  if (!section || !label || !list) return;
+
+  var members = Array.isArray(json && json.household_members) ? json.household_members : [];
+  members = members.filter(function(m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+
+  if (members.length === 0) {
+    clearHousehold(block);
+    return;
+  }
+
+  // Stash members on the block so submitRSVP can post a household_rsvps array.
+  block.dataset.householdMembers = JSON.stringify(members.map(function(m) {
+    return { guest_id: m.guest_id, name: m.name };
+  }));
+
+  var partyName = (json.party_name || '').trim();
+  label.textContent = partyName
+    ? 'Your household — ' + partyName + ' (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')'
+    : 'Your household (' + members.length + ' other ' + (members.length === 1 ? 'person' : 'people') + ')';
+
+  var entreeOptsHtml = _rsvpEntreeOptions.map(function(o) {
+    return '<option value="' + o.value + '">' + o.label + '</option>';
+  }).join('');
+
+  list.innerHTML = '';
+  members.forEach(function(m, idx) {
+    var row = document.createElement('div');
+    row.className = 'rsvp-household-row';
+    row.dataset.guestId = m.guest_id;
+    row.dataset.memberIdx = String(idx);
+
+    var savedMeal = (m.meal_preference || '').trim();
+    var mealOpts = [
+      { v: '',                l: 'Meal preference' },
+      { v: 'Vegetarian',      l: 'Vegetarian' },
+      { v: 'Non Vegetarian',  l: 'Non-Vegetarian' },
+      { v: 'Vegan',           l: 'Vegan' },
+      { v: 'Gluten Free',     l: 'Gluten-Free' },
+      { v: 'Kids Meal',       l: 'Kids Meal' },
+    ].map(function(o) {
+      var sel = (o.v === savedMeal) ? ' selected' : '';
+      return '<option value="' + o.v + '"' + sel + '>' + o.l + '</option>';
+    }).join('');
+
+    var primaryTag = m.is_primary
+      ? '<span class="rsvp-household-name-primary-tag">primary contact</span>'
+      : '';
+
+    row.innerHTML =
+      '<div class="rsvp-household-name">' + (m.name || '(household member)') + primaryTag + '</div>' +
+      '<div class="rsvp-household-controls three-up">' +
+        '<select class="rsvp-select" data-h-field="attending">' +
+          '<option value="">Attending?</option>' +
+          '<option value="yes">Yes</option>' +
+          '<option value="no">Cannot make it</option>' +
+          '<option value="maybe">Not sure</option>' +
+        '</select>' +
+        '<select class="rsvp-select" data-h-field="meal">' + mealOpts + '</select>' +
+        '<select class="rsvp-select" data-h-field="entree">' +
+          '<option value="">Entree (optional)</option>' + entreeOptsHtml +
+        '</select>' +
+      '</div>';
+    list.appendChild(row);
+  });
+
+  section.classList.add('visible');
 }
 
 function showAmbiguousMatches(block, matches) {
@@ -1345,6 +1506,7 @@ function lookupGuestById(block, guestId, displayName) {
           statusEl.style.background      = 'rgba(194,51,49,0.08)';
           statusEl.style.color           = '#C23331';
         }
+        clearHousehold(block);
         checkShowSubmit();
         return;
       }
@@ -1360,6 +1522,7 @@ function lookupGuestById(block, guestId, displayName) {
       }
       var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
       if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+      renderHousehold(block, json);
       checkShowSubmit();
     })
     .catch(function(err) {
@@ -1525,6 +1688,34 @@ async function submitRSVP() {
         }
       }
 
+      // Collect household RSVPs — each row in the household section maps to
+      // an existing Guest List record that we update by guest_id. Backend
+      // re-verifies that each guest_id belongs to this celebration AND
+      // shares the primary's Party Name; defense-in-depth (see /rsvp).
+      // Rows with no attending value selected are skipped so we don't
+      // overwrite a previously-saved RSVP with a blank.
+      var householdRsvps = [];
+      var hList = exp && exp.querySelector('.rsvp-household-list');
+      if (hList) {
+        var hRows = hList.querySelectorAll('.rsvp-household-row');
+        hRows.forEach(function(hr) {
+          var gid = hr.dataset.guestId || '';
+          if (!gid) return;
+          var hAttendingEl = hr.querySelector('[data-h-field="attending"]');
+          var hMealEl      = hr.querySelector('[data-h-field="meal"]');
+          var hEntreeEl    = hr.querySelector('[data-h-field="entree"]');
+          var hAttending = hAttendingEl ? (hAttendingEl.value || '').trim() : '';
+          // Skip unanswered rows — leaves their existing RSVP untouched.
+          if (!hAttending) return;
+          householdRsvps.push({
+            guest_id:        gid,
+            attending:       hAttending,
+            meal_preference: hMealEl  ? (hMealEl.value  || '') : '',
+            entree_choice:   hEntreeEl ? (hEntreeEl.value || '') : '',
+          });
+        });
+      }
+
       promises.push(fetch(API + '/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1543,6 +1734,9 @@ async function submitRSVP() {
           // per-guest allowance and silently drop unauthorized plus-ones.
           plus_one:        extraGuests.length > 0,
           extra_guests:    extraGuests,
+          // RSVPs for known household members (already on the guest list).
+          // Empty array is fine — solo guests just won't send any.
+          household_rsvps: householdRsvps,
         })
       }));
     });
@@ -1563,7 +1757,25 @@ async function submitRSVP() {
       console.error('RSVP API errors:', failedDetails);
       throw new Error(failedDetails.join(' | '));
     }
-    document.getElementById('rsvpSuccess').style.display = 'block';
+    // Tally how many people we RSVP'd for. Backend returns `total` per event
+    // (1 = primary only, more if household members or plus-ones submitted).
+    var totalPeople = 0;
+    for (var rj = 0; rj < results.length; rj++) {
+      if (!results[rj].ok) continue;
+      try {
+        var okBody = await results[rj].json();
+        if (okBody && typeof okBody.total === 'number') totalPeople += okBody.total;
+      } catch (_e) { /* non-fatal */ }
+    }
+    var successEl = document.getElementById('rsvpSuccess');
+    if (successEl && totalPeople > 1) {
+      var msgEl = successEl.querySelector('.rsvp-success-msg');
+      if (msgEl) {
+        msgEl.innerHTML = 'Thank you! RSVPs received for ' + totalPeople +
+          ' ' + (totalPeople === 1 ? 'person' : 'people') + '.';
+      }
+    }
+    if (successEl) successEl.style.display = 'block';
     btn.style.display = 'none';
   } catch(e) {
     console.error('RSVP error:', e);
@@ -2192,16 +2404,138 @@ if (_isPreview) {
       .then(r => { if (!r.ok) throw r.status; return r.json(); })
       .then(d => {
         if (d.password_required) {
-          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#e5989b;color:#53141e"><p style="font-size:1.1rem">🔒 Password protected.</p></div>';
+          _renderPlaceholderPage({
+            kind: 'password',
+            coupleNames: d.couple_names || '',
+          });
+          return;
+        }
+        // Backend returns a rich `not_published` payload (couple names,
+        // date, status) instead of a bare 403 when the site is in draft.
+        // Render a polished Coming Soon page rather than a generic error.
+        if (d.not_published) {
+          _renderPlaceholderPage({
+            kind: 'coming-soon',
+            coupleNames: d.couple_names || '',
+            celebrationDate: d.celebration_date || '',
+          });
           return;
         }
         hydrateTemplate(d);
       })
       .catch(() => {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:serif;flex-direction:column;gap:1rem;background:#e5989b;color:#53141e"><p style="font-size:1.1rem">🔍 Wedding site not found.</p></div>';
+        _renderPlaceholderPage({ kind: 'not-found' });
       });
   }
 }
+
+// Renders a branded placeholder page for the three "we can't show the real
+// site right now" states: password-required, coming-soon (draft), and
+// not-found. Uses the template's native palette + type so the placeholder
+// still feels like the couple's website rather than a generic error page.
+function _renderPlaceholderPage(opts) {
+  var kind            = (opts || {}).kind;
+  var coupleNames     = (opts || {}).coupleNames || '';
+  var celebrationDate = (opts || {}).celebrationDate || '';
+
+  // Format the date for display when we have one. Stored as ISO yyyy-mm-dd
+  // in the DB — render as e.g. "April 5, 2026". Falls back gracefully if
+  // the string isn't parseable.
+  var dateLine = '';
+  if (celebrationDate) {
+    try {
+      var dt = new Date(celebrationDate);
+      if (!isNaN(dt.getTime())) {
+        dateLine = dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      } else {
+        dateLine = celebrationDate;
+      }
+    } catch(e) { dateLine = celebrationDate; }
+  }
+
+  // Heading + body per state. We DELIBERATELY avoid the word "undefined"
+  // anywhere — every line is built from cleanly defaulted strings.
+  var heading, body, badge;
+  if (kind === 'password') {
+    badge = '🔒';
+    heading = coupleNames ? coupleNames : 'A private celebration';
+    body = 'This wedding website is password-protected. Please use the link your hosts shared with you to access it.';
+  } else if (kind === 'coming-soon') {
+    badge = '✨';
+    heading = coupleNames ? coupleNames : 'Coming soon';
+    body = coupleNames
+      ? coupleNames + ' are putting the finishing touches on their wedding website. Please check back soon — we can\u2019t wait to share it with you.'
+      : 'The hosts are putting the finishing touches on their wedding website. Please check back soon.';
+  } else {
+    badge = '🔍';
+    heading = 'We couldn\u2019t find that website';
+    body = 'The link you followed may be incorrect, or the website may have moved. Please double-check the address with your hosts.';
+  }
+
+  document.body.innerHTML =
+    '<div style="' +
+      'min-height:100vh;' +
+      'display:flex;' +
+      'align-items:center;' +
+      'justify-content:center;' +
+      'padding:32px 20px;' +
+      'background:#fffdf5;' +
+      'font-family:"DM Sans",system-ui,sans-serif;' +
+      'color:#53141e;' +
+      'text-align:center;' +
+    '">' +
+      '<div style="max-width:520px;width:100%;">' +
+        '<div style="font-size:32px;margin-bottom:18px;opacity:0.65;">' + badge + '</div>' +
+        '<h1 style="' +
+          'font-family:"Pinyon Script","Dancing Script",cursive;' +
+          'font-weight:400;' +
+          'font-size:clamp(3rem,7.5vw,4.6rem);' +
+          'line-height:1.1;' +
+          'margin:0 0 16px 0;' +
+          'color:#53141e;' +
+        '">' + heading + '</h1>' +
+        '<div style="' +
+          'width:60px;height:1px;' +
+          'background:#e4c567;' +
+          'margin:0 auto 22px;' +
+          'opacity:0.7;' +
+        '"></div>' +
+        (dateLine ? (
+          '<p style="' +
+            'font-family:"DM Sans",system-ui,sans-serif;' +
+            'font-size:0.74rem;' +
+            'font-weight:500;' +
+            'letter-spacing:0.22em;' +
+            'text-transform:uppercase;' +
+            'color:rgba(83,20,30,0.55);' +
+            'margin:0 0 22px 0;' +
+          '">' + dateLine + '</p>'
+        ) : '') +
+        '<p style="' +
+          'font-family:"DM Sans",system-ui,sans-serif;' +
+          'font-size:0.95rem;' +
+          'font-weight:400;' +
+          'line-height:1.75;' +
+          'color:#53141e;' +
+          'margin:0 auto;' +
+          'max-width:440px;' +
+        '">' + body + '</p>' +
+        '<div style="' +
+          'margin-top:42px;' +
+          'padding-top:22px;' +
+          'border-top:1px solid rgba(83,20,30,0.55);' +
+          'font-family:"DM Sans",system-ui,sans-serif;' +
+          'font-size:0.7rem;' +
+          'font-weight:500;' +
+          'letter-spacing:0.22em;' +
+          'text-transform:uppercase;' +
+          'color:rgba(83,20,30,0.55);' +
+        '">myplanning.ai</div>' +
+      '</div>' +
+    '</div>';
+}
+
+
 
 // ── Gallery lightbox ──────────────────────────────────────────────────────────
 var _galleryUrls = [];
