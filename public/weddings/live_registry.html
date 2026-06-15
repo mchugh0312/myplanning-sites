@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wedding Registry</title>
+  <meta name="description" content="Shop the registry" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --c-sage: #A9BDC4;
+      --c-cream: #F9F7F5;
+      --c-cream-2: #EDE8E3;
+      --c-olive: #4B5244;
+      --c-olive-soft: #D2E1C3;
+      --c-text: #121212;
+      --c-muted: #8C7D6E;
+      --c-warn-bg: #FFEEAE;
+      --c-warn-fg: #B69400;
+      --c-error-bg: #FFCDCC;
+      --c-error-fg: #C23331;
+      --c-success-bg: #D2E1C3;
+      --c-success-fg: #4B5244;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--c-sage);
+      color: var(--c-text);
+      line-height: 1.5;
+    }
+
+    .serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; }
+
+    /* Hero ─────────────────────────────────────────────── */
+    .hero {
+      background: var(--c-cream);
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--c-olive);
+      background: var(--c-olive-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(36px, 6vw, 56px);
+      line-height: 1.1;
+      margin: 0 0 12px;
+      color: var(--c-text);
+    }
+    .hero-date {
+      font-size: 14px;
+      color: var(--c-muted);
+      margin-bottom: 20px;
+    }
+    .hero-welcome {
+      font-style: italic;
+      max-width: 560px;
+      margin: 16px auto 0;
+      color: var(--c-olive);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    /* Filter bar ────────────────────────────────────────── */
+    .filter-bar {
+      background: var(--c-cream);
+      padding: 0 24px 24px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-chip {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #CBD5D8;
+      color: var(--c-text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-chip:hover { opacity: 0.85; }
+    .filter-chip.active {
+      background: var(--c-olive);
+      color: #fff;
+      border-color: var(--c-olive);
+    }
+
+    /* Main grid ─────────────────────────────────────────── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+    .gifts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .gift-card {
+      background: #fff;
+      border: 1px solid var(--c-text);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .gift-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
+    }
+    .gift-card.most-wanted {
+      border-color: var(--c-olive);
+      border-width: 2px;
+    }
+    .gift-card.fully-funded {
+      opacity: 0.65;
+    }
+    .gift-image {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: var(--c-cream);
+      overflow: hidden;
+    }
+    .gift-image img { width: 100%; height: 100%; object-fit: cover; }
+    .gift-image-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: #CBD5D8;
+      font-size: 36px;
+    }
+    .gift-badge {
+      position: absolute;
+      top: 8px; left: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-most-wanted { background: var(--c-olive); color: #fff; }
+    .badge-funded { background: var(--c-olive); color: #fff; left: auto; right: 8px; }
+
+    .gift-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .gift-title {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.3;
+      margin: 0 0 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .gift-price {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--c-text);
+      margin-bottom: 8px;
+    }
+    .gift-note {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--c-muted);
+      margin: 8px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .progress-row {
+      margin-top: auto;
+      padding-top: 8px;
+    }
+    .progress-track {
+      width: 100%; height: 6px;
+      background: var(--c-cream-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--c-sage);
+      transition: width 0.3s ease;
+    }
+    .progress-fill.complete { background: var(--c-olive); }
+    .progress-text {
+      font-size: 10px;
+      color: var(--c-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* External registry links ─────────────────────────── */
+    .external-section {
+      background: var(--c-cream);
+      padding: 40px 24px;
+      margin-top: 32px;
+      text-align: center;
+    }
+    .external-section h2 {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: 24px;
+      margin: 0 0 16px;
+    }
+    .external-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .external-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--c-text);
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--c-text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 0.15s ease;
+    }
+    .external-link:hover { opacity: 0.85; }
+
+    /* States ─────────────────────────────────────────── */
+    .state-screen {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--c-sage);
+    }
+    .state-card {
+      background: #fff;
+      border: 1px solid var(--c-text);
+      border-radius: 6px;
+      padding: 40px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+    .state-card h2 {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: 24px;
+      margin: 0 0 8px;
+    }
+    .state-card p { color: var(--c-muted); font-size: 14px; margin: 0 0 20px; }
+    .state-icon {
+      width: 56px; height: 56px;
+      border-radius: 999px;
+      background: var(--c-cream);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    /* Notice banner ─────────────────────────────────── */
+    .banner {
+      background: var(--c-success-bg);
+      color: var(--c-success-fg);
+      padding: 14px 24px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .banner.error { background: var(--c-error-bg); color: var(--c-error-fg); }
+    .banner-close {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 16px;
+      cursor: pointer;
+      margin-left: 12px;
+    }
+
+    /* Forms ─────────────────────────────────────────── */
+    .form-field { margin-bottom: 12px; text-align: left; }
+    .form-field label {
+      display: block;
+      font-family: 'Instrument Serif', serif;
+      font-size: 14px;
+      color: var(--c-text);
+      margin-bottom: 4px;
+    }
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--c-text);
+      border-radius: 4px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 13px;
+      background: #fff;
+      color: var(--c-text);
+    }
+    .form-field input:focus,
+    .form-field textarea:focus {
+      outline: 2px solid var(--c-olive);
+      outline-offset: -1px;
+    }
+    .form-field .field-hint {
+      font-size: 11px;
+      color: var(--c-muted);
+      margin-top: 4px;
+    }
+
+    /* Buttons ───────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: opacity 0.15s ease;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--c-olive); color: #fff; }
+    .btn-secondary { background: #fff; color: var(--c-text); border: 1px solid var(--c-text); }
+    .btn-block { width: 100%; padding: 12px 20px; font-size: 14px; }
+
+    /* Modal ─────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    @media (min-width: 640px) {
+      .modal-overlay { align-items: center; }
+    }
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--c-cream-2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: 20px;
+      margin: 0;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--c-muted);
+      padding: 4px 8px;
+    }
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--c-cream-2);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* Gift detail in modal ──────────────────────────── */
+    .modal-gift-snapshot {
+      display: flex;
+      gap: 14px;
+      padding: 12px;
+      background: var(--c-cream);
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    .modal-gift-image {
+      width: 80px; height: 80px;
+      border-radius: 4px;
+      background: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #CBD5D8;
+      font-size: 24px;
+    }
+    .modal-gift-image img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-gift-meta { flex: 1; min-width: 0; }
+    .modal-gift-meta h3 {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: 16px;
+      margin: 0 0 4px;
+    }
+    .modal-gift-meta .price {
+      font-family: 'Instrument Serif', serif;
+      font-size: 16px;
+      color: var(--c-text);
+    }
+    .modal-gift-meta .desc {
+      font-size: 12px;
+      color: var(--c-muted);
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--c-cream-2);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .payment-option:hover { border-color: var(--c-text); }
+    .payment-option.primary { border-color: var(--c-olive); background: #F9FAF7; }
+    .payment-option-icon {
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      background: var(--c-olive-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .payment-option-content { flex: 1; min-width: 0; }
+    .payment-option-title { font-weight: 600; font-size: 13px; }
+    .payment-option-sub { font-size: 11px; color: var(--c-muted); }
+
+    /* Footer ────────────────────────────────────────── */
+    .site-footer {
+      background: var(--c-cream);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--c-muted);
+    }
+    .site-footer a { color: var(--c-olive); text-decoration: none; font-weight: 600; }
+
+    .hidden { display: none !important; }
+    .loading-spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 999px;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Banner shown on Stripe success/cancel return -->
+  <div id="banner" class="banner hidden">
+    <span id="banner-text"></span>
+    <button class="banner-close" onclick="document.getElementById('banner').classList.add('hidden')">✕</button>
+  </div>
+
+  <!-- Single root that swaps between states -->
+  <main id="root">
+    <div class="state-screen">
+      <div class="state-card">
+        <div class="state-icon">⏳</div>
+        <h2 class="serif">Loading registry...</h2>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Gift detail / contribute -->
+  <div id="modal-gift" class="modal-overlay" onclick="if(event.target===this)closeGiftModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-gift-title">Gift</h3>
+        <button class="modal-close" onclick="closeGiftModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-gift-body">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mark purchased offline -->
+  <div id="modal-offline" class="modal-overlay" onclick="if(event.target===this)closeOfflineModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">I bought this elsewhere</h3>
+        <button class="modal-close" onclick="closeOfflineModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--c-muted);margin-top:0;">
+          Let the couple know you've bought this so they don't get duplicates, and so they can write you a thank-you note.
+        </p>
+        <div class="form-field">
+          <label>Your name *</label>
+          <input id="offline-name" type="text" placeholder="Alex Park" />
+        </div>
+        <div class="form-field">
+          <label>Email (optional)</label>
+          <input id="offline-email" type="email" placeholder="alex@example.com" />
+          <div class="field-hint">Helps the couple send you a thank-you.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeOfflineModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitOffline()" id="offline-submit">
+          I bought it
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Config ──────────────────────────────────────────────────────────────
+    const RENDER_API = "https://api.myplanning.ai";
+
+    // ─── State ──────────────────────────────────────────────────────────────
+    let state = {
+      registryId: null,
+      data: null,             // server response payload
+      filter: "all",
+      activeItem: null,
+      password: null,         // stored after verification
+    };
+
+    // ─── Init ────────────────────────────────────────────────────────────────
+    function init() {
+      const params = new URLSearchParams(location.search);
+      state.registryId = params.get("id");
+
+      if (!state.registryId) {
+        renderError("Missing registry ID. The URL should include ?id=<your-registry-id>.");
+        return;
+      }
+
+      // Recover stored password from sessionStorage (per-tab)
+      try {
+        const stored = sessionStorage.getItem(`reg-pw-${state.registryId}`);
+        if (stored) state.password = stored;
+      } catch {}
+
+      // Show success/cancel banner on return from Stripe Checkout
+      const contribStatus = params.get("contribution");
+      if (contribStatus === "success") {
+        showBanner("Thank you so much! Your contribution has been received. 💌", "success");
+        // Clean the URL
+        params.delete("contribution");
+        const newUrl = location.pathname + (params.toString() ? "?" + params.toString() : "");
+        history.replaceState({}, "", newUrl);
+      } else if (contribStatus === "cancel") {
+        showBanner("Checkout cancelled — nothing was charged. Come back any time.", "error");
+        params.delete("contribution");
+        const newUrl = location.pathname + (params.toString() ? "?" + params.toString() : "");
+        history.replaceState({}, "", newUrl);
+      }
+
+      loadRegistry();
+    }
+
+    async function loadRegistry() {
+      try {
+        const url = state.password
+          ? `${RENDER_API}/public/registry/${state.registryId}?password=${encodeURIComponent(state.password)}`
+          : `${RENDER_API}/public/registry/${state.registryId}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          if (res.status === 404) {
+            renderError("This registry doesn't exist or has been removed.");
+            return;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+
+        if (data.error === "not_published") {
+          renderError("This registry isn't public yet. Check back soon!");
+          return;
+        }
+        if (data.password_required) {
+          renderPasswordGate(data.title, data.password_invalid);
+          return;
+        }
+
+        state.data = data;
+        renderRegistry();
+      } catch (e) {
+        console.error(e);
+        renderError("Something went wrong loading this registry. Please try again later.");
+      }
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+    function escapeHtml(s) {
+      if (s == null) return "";
+      return String(s)
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;").replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function fmtCurrency(cents) {
+      const n = Number(cents) || 0;
+      return new Intl.NumberFormat("en-US", {
+        style: "currency", currency: "USD", maximumFractionDigits: 0
+      }).format(n / 100);
+    }
+    function fmtCurrencyExact(cents) {
+      const n = Number(cents) || 0;
+      return new Intl.NumberFormat("en-US", {
+        style: "currency", currency: "USD"
+      }).format(n / 100);
+    }
+
+    function fmtDate(s) {
+      if (!s) return "";
+      try {
+        return new Date(s).toLocaleDateString("en-US", {
+          month: "long", day: "numeric", year: "numeric", timeZone: "UTC"
+        });
+      } catch { return ""; }
+    }
+
+    function isCashFund(item) {
+      // We rely on the server-returned item_type label OR fund_category_id.
+      // Easier check: cash funds have a goal_amount_cents > 0 and price 0.
+      return (item.goal_amount_cents > 0 && (item.price_cents || 0) === 0)
+          || /cash[\s_-]?fund/i.test(item.item_type || "");
+    }
+
+    function showBanner(text, kind) {
+      const banner = document.getElementById("banner");
+      const txt = document.getElementById("banner-text");
+      banner.className = "banner" + (kind === "error" ? " error" : "");
+      txt.textContent = text;
+    }
+
+    // ─── Render: error ───────────────────────────────────────────────────────
+    function renderError(msg) {
+      document.getElementById("root").innerHTML = `
+        <div class="state-screen">
+          <div class="state-card">
+            <div class="state-icon">🪻</div>
+            <h2 class="serif">Hmm</h2>
+            <p>${escapeHtml(msg)}</p>
+          </div>
+        </div>`;
+    }
+
+    // ─── Render: password gate ───────────────────────────────────────────────
+    function renderPasswordGate(title, invalid) {
+      document.getElementById("root").innerHTML = `
+        <div class="state-screen">
+          <div class="state-card">
+            <div class="state-icon">🔒</div>
+            <h2 class="serif">${escapeHtml(title || "Private registry")}</h2>
+            <p>Enter the password the couple shared with you.</p>
+            ${invalid ? `<p style="color:var(--c-error-fg);font-weight:600;">That password didn't match. Try again.</p>` : ""}
+            <div class="form-field">
+              <input id="pw-input" type="password" placeholder="Password" autofocus
+                     onkeydown="if(event.key==='Enter')submitPassword()" />
+            </div>
+            <button class="btn btn-primary btn-block" onclick="submitPassword()">Unlock</button>
+          </div>
+        </div>`;
+    }
+
+    async function submitPassword() {
+      const pw = document.getElementById("pw-input").value.trim();
+      if (!pw) return;
+      state.password = pw;
+      try { sessionStorage.setItem(`reg-pw-${state.registryId}`, pw); } catch {}
+      await loadRegistry();
+    }
+
+    // ─── Render: registry ────────────────────────────────────────────────────
+    function renderRegistry() {
+      const { registry, couple, items, external_links } = state.data;
+
+      const visibleItems = items; // server already filtered hidden
+      const filtered = filterItems(visibleItems, state.filter);
+
+      const filterChips = [
+        { value: "all",          label: "All gifts",   count: visibleItems.length },
+        { value: "most_wanted",  label: "Most wanted", count: visibleItems.filter(i => i.is_most_wanted).length },
+        { value: "cash_funds",   label: "Cash funds",  count: visibleItems.filter(isCashFund).length },
+      ].filter(f => f.value === "all" || f.count > 0);
+
+      const externalLinksHtml = external_links.length === 0 ? "" : `
+        <section class="external-section">
+          <h2>Also shopping elsewhere</h2>
+          <p style="font-size:13px;color:var(--c-muted);margin:0 0 16px;">
+            We've also set up registries at these stores.
+          </p>
+          <div class="external-links">
+            ${external_links.map(link => `
+              <a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer" class="external-link">
+                ${escapeHtml(link.display_label || link.retailer_other_name || link.retailer || "Registry")} →
+              </a>
+            `).join("")}
+          </div>
+        </section>`;
+
+      document.getElementById("root").innerHTML = `
+        <header class="hero">
+          <div class="hero-eyebrow">Our wedding registry</div>
+          <h1>${escapeHtml(couple.name || registry.title)}</h1>
+          ${couple.date ? `<div class="hero-date">${escapeHtml(fmtDate(couple.date))}</div>` : ""}
+          ${registry.welcome_note
+            ? `<p class="hero-welcome">${escapeHtml(registry.welcome_note)}</p>`
+            : ""}
+        </header>
+
+        <div class="filter-bar">
+          ${filterChips.map(chip => `
+            <button class="filter-chip ${state.filter === chip.value ? "active" : ""}"
+                    onclick="setFilter('${chip.value}')">
+              ${escapeHtml(chip.label)} · ${chip.count}
+            </button>
+          `).join("")}
+        </div>
+
+        <div class="container">
+          ${filtered.length === 0
+            ? `<div style="text-align:center;padding:40px 20px;color:#fff;">
+                 <p style="font-family:'Instrument Serif',serif;font-size:22px;margin:0 0 8px;">No gifts in this view</p>
+                 <p style="opacity:0.8;font-size:14px;">Try another filter to see more.</p>
+               </div>`
+            : `<div class="gifts-grid">
+                 ${filtered.map(renderGiftCard).join("")}
+               </div>`}
+        </div>
+
+        ${externalLinksHtml}
+
+        <footer class="site-footer">
+          Powered by <a href="https://myplanning.ai" target="_blank" rel="noreferrer">MyPlanning</a>
+        </footer>
+      `;
+    }
+
+    function filterItems(items, filter) {
+      if (filter === "most_wanted") return items.filter(i => i.is_most_wanted);
+      if (filter === "cash_funds")  return items.filter(isCashFund);
+      return items;
+    }
+
+    function setFilter(f) {
+      state.filter = f;
+      renderRegistry();
+    }
+
+    function renderGiftCard(item) {
+      const cash = isCashFund(item);
+      // Cash funds may have a contributed amount once the rollup is exposed in
+      // the public payload. For V1 we don't display incoming totals to guests
+      // (privacy), but the gift still shows its goal.
+      const fullyFunded = false; // V1 doesn't display funded state to guests
+
+      return `
+        <div class="gift-card ${item.is_most_wanted ? "most-wanted" : ""} ${fullyFunded ? "fully-funded" : ""}"
+             onclick="openGift('${escapeHtml(item.id)}')">
+          <div class="gift-image">
+            ${item.image_url
+              ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+              : `<div class="gift-image-placeholder">${cash ? "💝" : "🎁"}</div>`}
+            ${item.is_most_wanted ? `<span class="gift-badge badge-most-wanted">Most wanted</span>` : ""}
+          </div>
+          <div class="gift-body">
+            <h3 class="gift-title">${escapeHtml(item.title)}</h3>
+            <div class="gift-price">
+              ${cash
+                ? `Goal: ${fmtCurrency(item.goal_amount_cents)}`
+                : fmtCurrency(item.price_cents)}
+            </div>
+            ${item.couple_note
+              ? `<div class="gift-note">"${escapeHtml(item.couple_note)}"</div>`
+              : ""}
+          </div>
+        </div>`;
+    }
+
+    // ─── Gift modal ──────────────────────────────────────────────────────────
+    function openGift(itemId) {
+      const item = state.data.items.find(i => i.id === itemId);
+      if (!item) return;
+      state.activeItem = item;
+      const cash = isCashFund(item);
+      const registry = state.data.registry;
+
+      document.getElementById("modal-gift-title").textContent = item.title;
+
+      // Snapshot
+      const snapshot = `
+        <div class="modal-gift-snapshot">
+          <div class="modal-gift-image">
+            ${item.image_url
+              ? `<img src="${escapeHtml(item.image_url)}" alt="" />`
+              : `<span>${cash ? "💝" : "🎁"}</span>`}
+          </div>
+          <div class="modal-gift-meta">
+            <h3>${escapeHtml(item.title)}</h3>
+            <div class="price">${cash ? "Goal: " : ""}${fmtCurrency(cash ? item.goal_amount_cents : item.price_cents)}</div>
+            ${item.couple_note
+              ? `<div class="desc" style="font-style:italic;">"${escapeHtml(item.couple_note)}"</div>`
+              : item.description ? `<div class="desc">${escapeHtml(item.description)}</div>` : ""}
+          </div>
+        </div>`;
+
+      // Contribution form
+      const minContrib  = item.min_contribution_cents || 2500;
+      const defaultAmt  = cash ? minContrib : item.price_cents;
+
+      const stripeAvailable = registry.has_stripe_connect && registry.stripe_active;
+      const handles = registry.payment_handles || {};
+      const anyHandle = handles.paypal || handles.venmo || handles.cashapp;
+
+      const handlesList = [
+        handles.paypal  ? { label: "PayPal",  value: handles.paypal,  icon: "🅿️" } : null,
+        handles.venmo   ? { label: "Venmo",   value: handles.venmo,   icon: "🅥"  } : null,
+        handles.cashapp ? { label: "Cash App", value: handles.cashapp, icon: "💵" } : null,
+      ].filter(Boolean);
+
+      const buyExternalBtn = (!cash && item.source_url) ? `
+        <button class="payment-option" onclick="buyExternal()">
+          <div class="payment-option-icon">🛒</div>
+          <div class="payment-option-content">
+            <div class="payment-option-title">Buy on retailer site</div>
+            <div class="payment-option-sub">Opens ${escapeHtml(item.source || "the store")} in a new tab. Mark as bought when you're done.</div>
+          </div>
+          <div style="color:var(--c-olive);font-size:18px;">→</div>
+        </button>` : "";
+
+      const stripeBtn = stripeAvailable ? `
+        <button class="payment-option primary" onclick="document.getElementById('contribute-form').classList.toggle('hidden')">
+          <div class="payment-option-icon">💳</div>
+          <div class="payment-option-content">
+            <div class="payment-option-title">${cash ? "Contribute" : "Buy now"} with card</div>
+            <div class="payment-option-sub">Secure checkout via Stripe. Goes directly to the couple.</div>
+          </div>
+          <div style="color:var(--c-olive);font-size:18px;">→</div>
+        </button>` : "";
+
+      const handlesBlock = handlesList.length > 0 ? `
+        <div style="margin-top:12px;padding:12px;background:var(--c-cream);border-radius:6px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--c-muted);margin-bottom:8px;">
+            Or send directly
+          </div>
+          ${handlesList.map(h => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;">
+              <span><span style="margin-right:6px;">${h.icon}</span><strong>${h.label}</strong></span>
+              <code style="font-family:monospace;background:#fff;padding:3px 8px;border-radius:4px;">${escapeHtml(h.value)}</code>
+            </div>`).join("")}
+          <div style="font-size:11px;color:var(--c-muted);margin-top:8px;">
+            Send the gift, then let the couple know by clicking "I bought this".
+          </div>
+        </div>` : "";
+
+      const offlineBtn = `
+        <button class="payment-option" onclick="openOfflineModal()">
+          <div class="payment-option-icon">✓</div>
+          <div class="payment-option-content">
+            <div class="payment-option-title">I already bought this</div>
+            <div class="payment-option-sub">Mark this gift as taken — perfect if you sent ${cash ? "money" : "it"} another way.</div>
+          </div>
+          <div style="color:var(--c-olive);font-size:18px;">→</div>
+        </button>`;
+
+      // Contribute form (hidden initially)
+      const contributeForm = `
+        <form id="contribute-form" class="hidden" onsubmit="event.preventDefault();submitContribution();"
+              style="margin-top:16px;padding:16px;background:var(--c-cream);border-radius:6px;">
+          <h4 class="serif" style="font-size:16px;margin:0 0 12px;">Your details</h4>
+          <div class="form-field">
+            <label>Your name *</label>
+            <input id="c-name" type="text" required placeholder="Alex Park" />
+          </div>
+          <div class="form-field">
+            <label>Email *</label>
+            <input id="c-email" type="email" required placeholder="alex@example.com" />
+            <div class="field-hint">For the receipt and a thank-you from the couple.</div>
+          </div>
+          ${cash ? `
+            <div class="form-field">
+              <label>Contribution amount *</label>
+              <input id="c-amount" type="number" min="${(minContrib/100).toFixed(0)}" step="1"
+                     value="${(defaultAmt/100).toFixed(0)}" required />
+              <div class="field-hint">Minimum ${fmtCurrency(minContrib)}.</div>
+            </div>` : `
+            <div class="form-field" style="display:flex;gap:8px;">
+              <div style="flex:1;">
+                <label>Quantity</label>
+                <input id="c-qty" type="number" min="1" value="1" max="${item.quantity_requested}" />
+              </div>
+              <div style="flex:2;">
+                <label>Total</label>
+                <input id="c-amount-display" type="text" readonly
+                       value="${fmtCurrencyExact(item.price_cents)}"
+                       style="background:#F0EBE6;color:var(--c-muted);" />
+              </div>
+            </div>`}
+          <div class="form-field">
+            <label>Note to the couple (optional)</label>
+            <textarea id="c-note" rows="2" placeholder="So happy for you both..."></textarea>
+          </div>
+          <div class="form-field">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Open Sans',sans-serif;font-size:13px;">
+              <input id="c-anon" type="checkbox" style="width:auto;" />
+              Give anonymously
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="contribute-submit">
+            ${cash ? "Contribute" : "Buy"} via Stripe →
+          </button>
+          <p style="font-size:11px;color:var(--c-muted);text-align:center;margin:10px 0 0;">
+            Payments processed securely by Stripe. We never store card details.
+          </p>
+        </form>`;
+
+      document.getElementById("modal-gift-body").innerHTML = `
+        ${snapshot}
+        <div class="payment-options">
+          ${stripeBtn}
+          ${buyExternalBtn}
+          ${offlineBtn}
+        </div>
+        ${handlesBlock}
+        ${contributeForm}
+        ${!stripeAvailable && !anyHandle && !item.source_url ? `
+          <div style="margin-top:14px;padding:12px;background:var(--c-warn-bg);color:var(--c-warn-fg);border-radius:6px;font-size:13px;">
+            The couple hasn't set up payments yet. Reach out to them directly to send a gift, then come back and mark this as bought.
+          </div>` : ""}
+
+        ${cash
+          ? `<p style="font-size:11px;color:var(--c-muted);margin-top:14px;">
+              Your contribution goes directly to the couple via Stripe. They'll write you a personal thank-you note.
+            </p>`
+          : ""}
+      `;
+
+      // For products, recompute total when quantity changes
+      const qtyInput = document.getElementById("c-qty");
+      if (qtyInput) {
+        qtyInput.addEventListener("input", () => {
+          const q = Math.max(1, parseInt(qtyInput.value) || 1);
+          const total = q * item.price_cents;
+          document.getElementById("c-amount-display").value = fmtCurrencyExact(total);
+        });
+      }
+
+      document.getElementById("modal-gift").classList.add("open");
+    }
+
+    function closeGiftModal() {
+      document.getElementById("modal-gift").classList.remove("open");
+      state.activeItem = null;
+    }
+
+    function buyExternal() {
+      if (!state.activeItem || !state.activeItem.source_url) return;
+      // Open retailer in new tab, then nudge guest to mark it
+      window.open(state.activeItem.source_url, "_blank", "noreferrer");
+      // Replace the modal body with a "did you buy it?" prompt
+      document.getElementById("modal-gift-body").innerHTML = `
+        <div style="text-align:center;padding:24px 12px;">
+          <div style="font-size:48px;margin-bottom:8px;">🛒</div>
+          <h3 class="serif" style="font-size:20px;margin:0 0 8px;">We sent you to the store</h3>
+          <p style="color:var(--c-muted);font-size:14px;margin:0 0 20px;">
+            Finish your purchase there, then come back and let us know.
+          </p>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openOfflineModal()">I bought it</button>
+            <button class="btn btn-secondary" onclick="closeGiftModal()">Maybe later</button>
+          </div>
+        </div>`;
+    }
+
+    async function submitContribution() {
+      const item = state.activeItem;
+      if (!item) return;
+      const cash = isCashFund(item);
+
+      const name  = document.getElementById("c-name").value.trim();
+      const email = document.getElementById("c-email").value.trim();
+      const note  = document.getElementById("c-note").value.trim();
+      const anon  = document.getElementById("c-anon").checked;
+
+      let amount_cents, quantity;
+      if (cash) {
+        const dollars = parseFloat(document.getElementById("c-amount").value) || 0;
+        amount_cents = Math.round(dollars * 100);
+        quantity = 1;
+        const min = item.min_contribution_cents || 2500;
+        if (amount_cents < min) {
+          alert(`Minimum contribution is ${fmtCurrency(min)}.`);
+          return;
+        }
+      } else {
+        quantity = Math.max(1, parseInt(document.getElementById("c-qty").value) || 1);
+        amount_cents = quantity * item.price_cents;
+      }
+
+      const btn = document.getElementById("contribute-submit");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loading-spinner"></span> Redirecting to Stripe...`;
+
+      try {
+        const successUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}&contribution=success`;
+        const cancelUrl  = `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}&contribution=cancel`;
+        const res = await fetch(`${RENDER_API}/public/registry/${state.registryId}/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            item_id:       item.id,
+            guest_name:    name,
+            guest_email:   email,
+            amount_cents,
+            quantity,
+            gift_note:     note || null,
+            is_anonymous:  anon,
+            success_url:   successUrl,
+            cancel_url:    cancelUrl,
+          }),
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          let msg = errText;
+          try { msg = JSON.parse(errText).detail || errText; } catch {}
+          throw new Error(msg);
+        }
+        const data = await res.json();
+        if (data.session_url) {
+          window.location.href = data.session_url;
+        } else {
+          throw new Error("Checkout session URL missing");
+        }
+      } catch (e) {
+        alert(`Couldn't start checkout: ${e.message}`);
+        btn.disabled = false;
+        btn.innerHTML = `${cash ? "Contribute" : "Buy"} via Stripe →`;
+      }
+    }
+
+    // ─── Offline mark modal ──────────────────────────────────────────────────
+    function openOfflineModal() {
+      if (!state.activeItem) return;
+      document.getElementById("modal-offline").classList.add("open");
+    }
+
+    function closeOfflineModal() {
+      document.getElementById("modal-offline").classList.remove("open");
+      document.getElementById("offline-name").value = "";
+      document.getElementById("offline-email").value = "";
+    }
+
+    async function submitOffline() {
+      const item = state.activeItem;
+      if (!item) return;
+      const name  = document.getElementById("offline-name").value.trim();
+      const email = document.getElementById("offline-email").value.trim();
+      if (!name) { alert("Please enter your name."); return; }
+
+      const btn = document.getElementById("offline-submit");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loading-spinner"></span> Saving...`;
+
+      try {
+        const res = await fetch(`${RENDER_API}/registry/items/mark-purchased-offline`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            registry_id: state.registryId,
+            item_id:     item.id,
+            guest_name:  name,
+            guest_email: email || null,
+            quantity:    1,
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        closeOfflineModal();
+        closeGiftModal();
+        showBanner(`Thanks ${name.split(/\s+/)[0]}! We've let the couple know.`, "success");
+      } catch (e) {
+        alert(`Couldn't save: ${e.message}`);
+        btn.disabled = false;
+        btn.innerHTML = "I bought it";
+      }
+    }
+
+    // ─── Boot ────────────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>
