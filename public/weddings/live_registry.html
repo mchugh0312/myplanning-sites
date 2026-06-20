@@ -591,6 +591,7 @@
     // ─── State ──────────────────────────────────────────────────────────────
     let state = {
       registryId: null,
+      slug: null,             // wedding-website slug, when loaded via /<slug>/registry
       data: null,             // server response payload
       filter: "all",
       activeItem: null,
@@ -600,16 +601,34 @@
     // ─── Init ────────────────────────────────────────────────────────────────
     function init() {
       const params = new URLSearchParams(location.search);
-      state.registryId = params.get("id");
 
+      // Two ways to identify the registry:
+      //   1. ?id=<registry_id>          — direct id (previews / legacy links)
+      //   2. /<wedding-slug>/registry   — clean guest URL (registry-as-a-tab on
+      //      the wedding site). The slug is the Celebration's Website Slug; the
+      //      backend resolves it via GET /public/registry/by-slug/<slug>.
+      //      ?slug=<slug> is also accepted as an explicit testing override.
+      state.registryId = params.get("id");
       if (!state.registryId) {
-        renderError("Missing registry ID. The URL should include ?id=<your-registry-id>.");
+        let slug = params.get("slug");
+        if (!slug) {
+          const segs = location.pathname.split("/").filter(Boolean);
+          const regIdx = segs.indexOf("registry");
+          slug = regIdx > 0 ? segs[regIdx - 1] : null;
+        }
+        state.slug = slug;
+      }
+
+      if (!state.registryId && !state.slug) {
+        renderError("Missing registry. The URL should be /<wedding-slug>/registry (or include ?id=<registry-id>).");
         return;
       }
 
-      // Recover stored password from sessionStorage (per-tab)
+      // Recover stored password from sessionStorage (per-tab). Keyed on whatever
+      // identifier we have — slug in slug-mode (we don't know the id until the
+      // payload loads), id otherwise.
       try {
-        const stored = sessionStorage.getItem(`reg-pw-${state.registryId}`);
+        const stored = sessionStorage.getItem(`reg-pw-${state.slug || state.registryId}`);
         if (stored) state.password = stored;
       } catch {}
 
@@ -633,9 +652,12 @@
 
     async function loadRegistry() {
       try {
-        const url = state.password
-          ? `${RENDER_API}/public/registry/${state.registryId}?password=${encodeURIComponent(state.password)}`
+        const base = state.slug
+          ? `${RENDER_API}/public/registry/by-slug/${encodeURIComponent(state.slug)}`
           : `${RENDER_API}/public/registry/${state.registryId}`;
+        const url = state.password
+          ? `${base}?password=${encodeURIComponent(state.password)}`
+          : base;
         const res = await fetch(url);
         if (!res.ok) {
           if (res.status === 404) {
@@ -656,6 +678,9 @@
         }
 
         state.data = data;
+        // In slug-mode we didn't know the registry id yet; capture it from the
+        // payload so checkout, offline-marking, and the password key all work.
+        if (data.registry && data.registry.id) state.registryId = data.registry.id;
         renderRegistry();
       } catch (e) {
         console.error(e);
@@ -742,7 +767,7 @@
       const pw = document.getElementById("pw-input").value.trim();
       if (!pw) return;
       state.password = pw;
-      try { sessionStorage.setItem(`reg-pw-${state.registryId}`, pw); } catch {}
+      try { sessionStorage.setItem(`reg-pw-${state.slug || state.registryId}`, pw); } catch {}
       await loadRegistry();
     }
 
@@ -1078,8 +1103,14 @@
       btn.innerHTML = `<span class="loading-spinner"></span> Redirecting to Stripe...`;
 
       try {
-        const successUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}&contribution=success`;
-        const cancelUrl  = `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}&contribution=cancel`;
+        // Return to this same page after Stripe. In slug-mode the slug lives in
+        // the path, so no ?id= is needed; in id-mode we must re-add ?id=.
+        const ret = state.slug
+          ? `${location.origin}${location.pathname}`
+          : `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}`;
+        const sep = ret.includes("?") ? "&" : "?";
+        const successUrl = `${ret}${sep}contribution=success`;
+        const cancelUrl  = `${ret}${sep}contribution=cancel`;
         const res = await fetch(`${RENDER_API}/public/registry/${state.registryId}/checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

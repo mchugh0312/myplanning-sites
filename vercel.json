@@ -12,6 +12,10 @@
       "destination": "/api/og?slug=:slug"
     },
     {
+      "source": "/:slug/registry",
+      "destination": "/weddings/live_registry.html"
+    },
+    {
       "source": "/:slug/:page",
       "destination": "/index.html"
     },
