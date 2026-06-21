@@ -592,6 +592,7 @@
     let state = {
       registryId: null,
       slug: null,             // wedding-website slug, when loaded via /<slug>/registry
+      preview: false,         // ?preview=1 — couple previewing their own registry
       data: null,             // server response payload
       filter: "all",
       activeItem: null,
@@ -619,10 +620,17 @@
         state.slug = slug;
       }
 
+      // Preview mode: the couple clicked "Preview as Guest" in their dashboard.
+      // Bypasses the published/visibility/password gates server-side so they can
+      // see exactly what guests will see, even before publishing.
+      state.preview = params.get("preview") === "1" || params.get("preview") === "true";
+
       if (!state.registryId && !state.slug) {
         renderError("Missing registry. The URL should be /<wedding-slug>/registry (or include ?id=<registry-id>).");
         return;
       }
+
+      if (state.preview) showPreviewRibbon();
 
       // Recover stored password from sessionStorage (per-tab). Keyed on whatever
       // identifier we have — slug in slug-mode (we don't know the id until the
@@ -650,14 +658,25 @@
       loadRegistry();
     }
 
+    function showPreviewRibbon() {
+      const bar = document.createElement("div");
+      bar.textContent = "Preview mode — this is exactly how guests will see your registry. No one else can see this.";
+      bar.style.cssText =
+        "position:sticky;top:0;z-index:9999;background:#4B5244;color:#FFFFFF;" +
+        "font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;" +
+        "text-align:center;padding:8px 16px;letter-spacing:.01em;";
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+
     async function loadRegistry() {
       try {
         const base = state.slug
           ? `${RENDER_API}/public/registry/by-slug/${encodeURIComponent(state.slug)}`
           : `${RENDER_API}/public/registry/${state.registryId}`;
-        const url = state.password
-          ? `${base}?password=${encodeURIComponent(state.password)}`
-          : base;
+        const qs = [];
+        if (state.password) qs.push(`password=${encodeURIComponent(state.password)}`);
+        if (state.preview)  qs.push("preview=1");
+        const url = qs.length ? `${base}?${qs.join("&")}` : base;
         const res = await fetch(url);
         if (!res.ok) {
           if (res.status === 404) {
