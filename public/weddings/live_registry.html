@@ -596,6 +596,7 @@
       data: null,             // server response payload
       filter: "all",
       activeItem: null,
+      activeExperience: null,
       password: null,         // stored after verification
     };
 
@@ -818,6 +819,9 @@
           </div>
         </section>`;
 
+      const experiences = state.data.experiences || [];
+      const experiencesHtml = renderExperiencesSection(experiences);
+
       document.getElementById("root").innerHTML = `
         <header class="hero">
           <div class="hero-eyebrow">Our wedding registry</div>
@@ -847,6 +851,8 @@
                  ${filtered.map(renderGiftCard).join("")}
                </div>`}
         </div>
+
+        ${experiencesHtml}
 
         ${externalLinksHtml}
 
@@ -1207,6 +1213,199 @@
         alert(`Couldn't save: ${e.message}`);
         btn.disabled = false;
         btn.innerHTML = "I bought it";
+      }
+    }
+
+    // ─── Honeymoon Experiences ───────────────────────────────────────────────
+    function renderExperiencesSection(experiences) {
+      if (!experiences || experiences.length === 0) return "";
+      return `
+        <section class="container" style="margin-top:8px;">
+          <div style="text-align:center;margin-bottom:18px;">
+            <div class="hero-eyebrow" style="color:#C9A36A;">Honeymoon Experiences</div>
+            <h2 class="serif" style="font-size:26px;margin:4px 0 0;color:#fff;">Give a moment from the trip</h2>
+            <p style="opacity:.85;font-size:13px;color:#fff;margin:6px auto 0;max-width:480px;">
+              Your gift funds a real experience — and becomes a memory they'll keep.
+            </p>
+          </div>
+          <div class="gifts-grid">
+            ${experiences.map(renderExperienceCard).join("")}
+          </div>
+        </section>`;
+    }
+
+    function renderExperienceCard(exp) {
+      const cost = exp.cost_cents || 0;
+      const received = exp.amount_received_cents || 0;
+      const pct = cost > 0 ? Math.min(100, Math.round(received / cost * 100)) : 0;
+      const funded = cost > 0 && received >= cost;
+      return `
+        <div class="gift-card ${funded ? "fully-funded" : ""}" onclick="openExperience('${escapeHtml(exp.id)}')">
+          <div class="gift-image">
+            ${exp.image_url
+              ? `<img src="${escapeHtml(exp.image_url)}" alt="${escapeHtml(exp.title)}" loading="lazy" />`
+              : `<div class="gift-image-placeholder">✨</div>`}
+            <span class="gift-badge" style="background:#4B5244;color:#fff;text-transform:uppercase;letter-spacing:.04em;">${escapeHtml(exp.category || "Experience")}</span>
+            ${funded ? `<span class="gift-badge badge-most-wanted" style="left:auto;right:10px;background:#4B5244;color:#fff;">Funded</span>` : ""}
+          </div>
+          <div class="gift-body">
+            <h3 class="gift-title">${escapeHtml(exp.title)}</h3>
+            ${exp.location ? `<div style="font-size:12px;color:var(--c-muted);margin-bottom:6px;">${escapeHtml(exp.location)}</div>` : ""}
+            <div style="height:7px;border-radius:999px;background:#EDE8E3;overflow:hidden;margin:8px 0 6px;">
+              <div style="width:${pct}%;height:100%;background:#4B5244;"></div>
+            </div>
+            <div style="font-size:12px;color:#4B5244;font-weight:600;">${fmtCurrency(received)} of ${fmtCurrency(cost)}${cost > 0 ? ` · ${pct}%` : ""}</div>
+          </div>
+        </div>`;
+    }
+
+    function openExperience(expId) {
+      const exp = (state.data.experiences || []).find(e => e.id === expId);
+      if (!exp) return;
+      state.activeExperience = exp;
+      state.activeItem = null;
+      const registry = state.data.registry;
+      const cost = exp.cost_cents || 0;
+      const received = exp.amount_received_cents || 0;
+      const remaining = Math.max(0, cost - received);
+      const pct = cost > 0 ? Math.min(100, Math.round(received / cost * 100)) : 0;
+      const funded = cost > 0 && received >= cost;
+      const stripeAvailable = registry.has_stripe_connect && registry.stripe_active;
+      const minContrib = exp.min_contribution_cents || 2500;
+
+      document.getElementById("modal-gift-title").textContent = exp.title;
+
+      const snapshot = `
+        <div class="modal-gift-snapshot">
+          <div class="modal-gift-image">
+            ${exp.image_url ? `<img src="${escapeHtml(exp.image_url)}" alt="" />` : `<span>✨</span>`}
+          </div>
+          <div class="modal-gift-meta">
+            <h3>${escapeHtml(exp.title)}</h3>
+            ${exp.location ? `<div class="desc">${escapeHtml(exp.location)}</div>` : ""}
+            <div style="height:7px;border-radius:999px;background:#EDE8E3;overflow:hidden;margin:10px 0 6px;">
+              <div style="width:${pct}%;height:100%;background:#4B5244;"></div>
+            </div>
+            <div style="font-size:12px;color:var(--c-olive);font-weight:600;">${fmtCurrency(received)} of ${fmtCurrency(cost)}${cost > 0 ? ` · ${pct}%` : ""}</div>
+          </div>
+        </div>`;
+
+      if (funded) {
+        document.getElementById("modal-gift-body").innerHTML = `
+          ${snapshot}
+          <div style="margin-top:16px;padding:18px;background:var(--c-cream);border-radius:6px;text-align:center;">
+            <div style="font-size:30px;">💚</div>
+            <h4 class="serif" style="margin:6px 0 4px;font-size:18px;">Fully funded</h4>
+            <p style="font-size:13px;color:var(--c-muted);margin:0;">This experience is fully funded — thank you! There are other moments to gift above.</p>
+          </div>`;
+        document.getElementById("modal-gift").classList.add("open");
+        return;
+      }
+
+      if (!stripeAvailable) {
+        document.getElementById("modal-gift-body").innerHTML = `
+          ${snapshot}
+          <div style="margin-top:14px;padding:12px;background:var(--c-warn-bg);color:var(--c-warn-fg);border-radius:6px;font-size:13px;">
+            The couple hasn't enabled card payments yet. Check back soon to fund this experience.
+          </div>`;
+        document.getElementById("modal-gift").classList.add("open");
+        return;
+      }
+
+      const partial = !!exp.allow_partial;
+      const defaultAmt = partial ? Math.min(Math.max(minContrib, 5000), remaining || cost) : cost;
+
+      const amountField = partial ? `
+        <div class="form-field">
+          <label>Contribution amount *</label>
+          <input id="exp-amount" type="number" min="${(minContrib / 100).toFixed(0)}" step="1" value="${(defaultAmt / 100).toFixed(0)}" required />
+          <div class="field-hint">Any amount from ${fmtCurrency(minContrib)} — ${fmtCurrency(remaining)} left to fully fund.</div>
+        </div>` : `
+        <div class="form-field">
+          <label>Amount</label>
+          <input id="exp-amount" type="text" readonly value="${fmtCurrencyExact(cost)}" style="background:#F0EBE6;color:var(--c-muted);" />
+          <div class="field-hint">This experience is gifted in full.</div>
+        </div>`;
+
+      document.getElementById("modal-gift-body").innerHTML = `
+        ${snapshot}
+        <form id="exp-contribute-form" onsubmit="event.preventDefault();submitExperienceContribution();"
+              style="margin-top:16px;padding:16px;background:var(--c-cream);border-radius:6px;">
+          <h4 class="serif" style="font-size:16px;margin:0 0 12px;">Your details</h4>
+          <div class="form-field"><label>Your name *</label><input id="exp-name" type="text" required placeholder="Alex Park" /></div>
+          <div class="form-field"><label>Email *</label><input id="exp-email" type="email" required placeholder="alex@example.com" /><div class="field-hint">For your receipt and the couple's thank-you.</div></div>
+          ${amountField}
+          <div class="form-field"><label>How should we credit you? (optional)</label><input id="exp-display" type="text" placeholder="e.g. Aunt Maria" /><div class="field-hint">Appears in their memory journal.</div></div>
+          <div class="form-field"><label>Note to the couple (optional)</label><textarea id="exp-note" rows="2" placeholder="Have the most wonderful time..."></textarea></div>
+          <div class="form-field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Open Sans',sans-serif;font-size:13px;"><input id="exp-journal" type="checkbox" checked style="width:auto;" /> Include my name in their memory journal</label></div>
+          <div class="form-field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Open Sans',sans-serif;font-size:13px;"><input id="exp-anon" type="checkbox" style="width:auto;" onchange="document.getElementById('exp-display').disabled=this.checked;" /> Give anonymously</label></div>
+          <button type="submit" class="btn btn-primary btn-block" id="exp-submit">Contribute via Stripe →</button>
+          <p style="font-size:11px;color:var(--c-muted);text-align:center;margin:10px 0 0;">Payments processed securely by Stripe. Goes directly to the couple.</p>
+        </form>`;
+
+      document.getElementById("modal-gift").classList.add("open");
+    }
+
+    async function submitExperienceContribution() {
+      const exp = state.activeExperience;
+      if (!exp) return;
+      const name    = document.getElementById("exp-name").value.trim();
+      const email   = document.getElementById("exp-email").value.trim();
+      const note    = document.getElementById("exp-note").value.trim();
+      const anon    = document.getElementById("exp-anon").checked;
+      const display = document.getElementById("exp-display").value.trim();
+      const journal = document.getElementById("exp-journal").checked;
+
+      const cost = exp.cost_cents || 0;
+      let amount_cents;
+      if (exp.allow_partial) {
+        const dollars = parseFloat(document.getElementById("exp-amount").value) || 0;
+        amount_cents = Math.round(dollars * 100);
+        const min = exp.min_contribution_cents || 2500;
+        if (amount_cents < min) { alert(`Minimum contribution is ${fmtCurrency(min)}.`); return; }
+      } else {
+        amount_cents = cost;
+      }
+      if (!name)  { alert("Please enter your name.");  return; }
+      if (!email) { alert("Please enter your email."); return; }
+
+      const btn = document.getElementById("exp-submit");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loading-spinner"></span> Redirecting to Stripe...`;
+
+      try {
+        const ret = state.slug
+          ? `${location.origin}${location.pathname}`
+          : `${location.origin}${location.pathname}?id=${encodeURIComponent(state.registryId)}`;
+        const sep = ret.includes("?") ? "&" : "?";
+        const res = await fetch(`${RENDER_API}/public/registry/${state.registryId}/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            experience_id:   exp.id,
+            guest_name:      name,
+            guest_email:     email,
+            amount_cents,
+            gift_note:       note || null,
+            display_name:    anon ? null : (display || null),
+            show_in_journal: journal,
+            is_anonymous:    anon,
+            success_url:     `${ret}${sep}contribution=success`,
+            cancel_url:      `${ret}${sep}contribution=cancel`,
+          }),
+        });
+        if (!res.ok) {
+          const t = await res.text(); let msg = t;
+          try { msg = JSON.parse(t).detail || t; } catch {}
+          throw new Error(msg);
+        }
+        const data = await res.json();
+        if (data.session_url) { window.location.href = data.session_url; }
+        else throw new Error("Checkout session URL missing");
+      } catch (e) {
+        alert(`Couldn't start checkout: ${e.message}`);
+        btn.disabled = false;
+        btn.innerHTML = "Contribute via Stripe →";
       }
     }
 
