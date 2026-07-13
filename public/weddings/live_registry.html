@@ -12,7 +12,7 @@
     --muted:#8C7D6E; --border:#CBD5D8; --line:#EDE8E3; --gold:#C9A36A; --white:#FFFFFF;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--sage);color:var(--ink);font-family:"Open Sans",sans-serif;-webkit-font-smoothing:antialiased}
+  html,body{background:var(--cream);color:var(--ink);font-family:"Open Sans",sans-serif;-webkit-font-smoothing:antialiased}
   .serif{font-family:"Instrument Serif",serif;font-weight:400}
   em{font-style:italic}
   a{color:inherit}
@@ -77,7 +77,7 @@
   .x{border:none;background:transparent;color:var(--ink);line-height:0;padding:6px;font-size:16px}
 
   /* ── Accordions ─────────────────────────────────────── */
-  .content{background:var(--sage);min-height:420px;padding-bottom:40px}
+  .content{background:var(--cream);min-height:420px;padding-bottom:40px}
   .acc{border-bottom:1px solid rgba(75,82,68,.16)}
   .acc-head{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:22px 8px;background:transparent;border:none}
   .acc-head .serif{font-size:24px;color:var(--ink)}
@@ -92,16 +92,16 @@
   @media(min-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
 
   /* ── Cards ──────────────────────────────────────────── */
-  .card{display:flex;flex-direction:column}
+  .card{display:flex;flex-direction:column;background:var(--white);border-radius:4px;padding:14px 12px 12px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
   .card-click{cursor:pointer}
-  .imgwrap{position:relative;aspect-ratio:1/1;background:var(--white);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .imgwrap{position:relative;aspect-ratio:1/1;background:var(--white);border:none;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center}
   .imgwrap img{width:100%;height:100%;object-fit:cover}
   .ph{color:var(--border)}
-  .badges{position:absolute;top:9px;left:9px;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
-  .badge{font-size:10px;font-weight:700;letter-spacing:.03em;color:#fff;border-radius:999px;padding:3px 9px}
-  .badge.want{background:rgba(201,163,106,.97)}
-  .badge.group{background:rgba(75,82,68,.92)}
-  .badge.exp{background:rgba(201,163,106,.97)}
+  .badges{position:static;display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:6px;min-height:15px}
+  .badge{font-family:"Instrument Serif",serif;font-size:11px;font-weight:400;letter-spacing:0;color:var(--ink);background:transparent;border-radius:0;padding:0}
+  .badge.want{background:transparent;color:var(--ink)}
+  .badge.group{background:transparent;color:var(--muted);font-family:"Open Sans";font-size:10px}
+  .badge.exp{background:transparent;color:var(--muted);font-family:"Open Sans";font-size:10px}
   .card .body{text-align:center;margin-top:9px}
   .card .src{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
   .card .ttl{font-size:13px;color:var(--ink);line-height:1.3;margin-bottom:3px;min-height:34px}
@@ -111,7 +111,7 @@
   .progress > i{display:block;height:100%;background:var(--gold);border-radius:999px}
   .cta-row{display:flex;gap:7px;margin-top:11px}
   .cta{flex:1;border:none;border-radius:999px;padding:9px 0;font-size:12.5px;font-weight:600;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:5px}
-  .cta.solid{background:var(--olive);color:#fff}
+  .cta.solid{background:var(--sage);color:#fff}
   .cta.solid:hover{opacity:.92}
   .cta.out{background:transparent;border:1px solid var(--olive);color:var(--olive)}
   .cta.out:hover{background:rgba(75,82,68,.06)}
@@ -159,9 +159,9 @@
   .gate-card{background:var(--cream);border-radius:14px;padding:34px 28px;max-width:380px;width:100%;text-align:center}
   .gate-card h2{font-size:26px;margin-bottom:6px}
   .gate-card p{font-size:13px;color:var(--muted);margin-bottom:18px}
-  .footer{text-align:center;padding:46px 20px;color:rgba(75,82,68,.8);font-size:12px;background:var(--sage)}
+  .footer{text-align:center;padding:46px 20px;color:var(--muted);font-size:12px;background:var(--cream);border-top:1px solid var(--line)}
   .footer .serif{font-size:18px;color:var(--olive)}
-  .center-load{min-height:70vh;display:flex;align-items:center;justify-content:center;background:var(--sage)}
+  .center-load{min-height:70vh;display:flex;align-items:center;justify-content:center;background:var(--cream)}
   .center-load .spinner{width:30px;height:30px;border-color:rgba(255,255,255,.4);border-top-color:#fff}
 
   /* Outside / external registry links */
@@ -260,11 +260,11 @@
 /* ── Split hero: photo left, teal panel right (mirrors the dashboard) ── */
 .rhero{display:grid;grid-template-columns:1fr;}
 @media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
-.rhero-img{position:relative;background:#E5E0D9;aspect-ratio:8/3;overflow:hidden;}
+.rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
 .rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .rhero-panel{position:relative;background:#A9BDC4;color:#fff;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;padding:18px 28px 22px;min-width:0;}
-.rh-title{font-size:clamp(20px,2.4vw,26px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
+  align-items:center;justify-content:center;text-align:center;padding:26px 30px 32px;min-width:0;}
+.rh-title{font-size:clamp(22px,2.8vw,30px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
 .rh-title em,.rh-title i{font-style:italic;}
 .rh-note{font-size:12px;line-height:1.65;margin:9px 0 0;max-width:320px;color:rgba(255,255,255,.94);}
 .rh-note em,.rh-note i{font-family:"Instrument Serif",serif;font-style:italic;font-size:1.08em;}
@@ -309,6 +309,20 @@
   color:var(--ink);cursor:pointer;padding:2px 4px;max-width:170px;}
 .qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
 @media(max-width:640px){ .fsel select{max-width:120px;} .qf-count{margin-left:0;width:100%;} }
+
+.card .brand{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.card .body{text-align:center;padding-top:10px;}
+.card .ttl{min-height:0;}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+.ipurch{margin-top:2px;}
+
+/* Purchase form card — sage panel with white fields (per the design) */
+.modal-card.sage{background:#A9BDC4;}
+.modal-card.sage .m-title{color:#fff;}
+.modal-card.sage .m-x{color:#fff;}
+.modal-card.sage .m-form label{color:#fff;}
+.modal-card.sage .m-form input,.modal-card.sage .m-form textarea{border-color:#fff;}
+.modal-card.sage .m-img{background:#fff;border-radius:3px;padding:6px;}
 </style>
 </head>
 <body>
@@ -523,18 +537,11 @@ function render(){
   const total = matched.length;
   const activeCount = state.filters.cats.size + state.filters.price.size;
 
-  const groupsHtml = GROUPS.map(g=>{
-    const list = sortList(matched.filter(t=>t.kind===g.kind));
-    if(!list.length) return "";
-    const open = state.open.has(g.key);
-    return '<section class="acc '+(open?"open":"")+'" id="acc-'+g.key+'">'
-      + '<button class="acc-head" onclick="toggleAcc(\''+g.key+'\')">'
-      +   '<span class="serif">'+g.label+'</span><span class="n">'+list.length+'</span>'
-      +   '<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'
-      + '</button>'
-      + '<div class="acc-body"><div class="acc-inner"><div class="grid">'+list.map(renderCard).join("")+'</div></div></div>'
-      + '</section>';
-  }).join("");
+  // One flat grid — gifts, cash funds and experiences together, in the couple's
+  // order (matches the design; no category accordions).
+  const groupsHtml = matched.length
+    ? '<div class="grid">'+sortList(matched).map(renderCard).join("")+'</div>'
+    : '<div class="empty">Nothing on the registry yet.</div>';
 
   el("app").innerHTML =
       '<header class="rhero">'
@@ -622,11 +629,17 @@ function renderCard(t){
     ? '<img src="'+esc(t.image)+'" alt="'+esc(t.title)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'+phSvg.replace('class="ph"','class="ph" style="display:none"')
     : phSvg;
 
+  // Top label, exactly as the design reads it.
   let badges="";
-  if(t.mostWanted) badges+='<span class="badge want">Most wanted</span>';
-  if(t.kind==="experience") badges+='<span class="badge exp">Experience</span>';
-  else if(t.kind==="fund") badges+='<span class="badge group">Cash fund</span>';
-  else if(t.group) badges+='<span class="badge group">Group gift</span>';
+  if(t.mostWanted) badges+='<span class="badge want">Couple Preferred</span>';
+  if(t.kind==="experience")   badges+='<span class="badge exp">Experience</span>';
+  else if(t.kind==="fund")    badges+='<span class="badge group">Cash Fund</span>';
+  else {
+    const req=(t.raw&&t.raw.quantity_requested)||1, ful=(t.raw&&t.raw.quantity_fulfilled)||0;
+    const rem=Math.max(0,req-ful);
+    if(ful>=req && req>0) badges+='<span class="badge group">Purchased</span>';
+    else if(req>1)        badges+='<span class="badge want">'+rem+' of '+req+' Needed</span>';
+  }
 
   let sub="", prog="";
   if(t.kind==="experience"){
@@ -638,7 +651,7 @@ function renderCard(t){
     const showGoal = t.raw && t.raw.show_goal && t.amount > 0;
     sub = showGoal ? ("Goal "+fmt(t.amount)) : "Any amount welcome";
   }
-  else { const q=t.raw.quantity_requested||1; sub = q>1?(q+" requested"):"&nbsp;"; }
+  else { sub = ""; }
 
   // CTAs by kind
   let cta="";
@@ -691,12 +704,19 @@ function renderCard(t){
   const note = t.raw && t.raw.couple_note
     ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)+'</div>' : '';
 
+  const brandLine = (t.raw && t.raw.source) ? '<div class="brand">'+esc(t.raw.source)+'</div>' : '';
+
   return '<div class="card'+(canDrag?' draggable':'')+'"'+dragAttrs+'>'
     + heart
+    + '<div class="badges">'+badges+'</div>'
     + handle
     + '<div class="card-click" onclick="'+openFn+'(\''+t.id+'\')">'
-    +   '<div class="imgwrap">'+img+'<div class="badges">'+badges+'</div></div>'
-    +   '<div class="body"><div class="ttl">'+esc(t.title)+'</div>'+(hidesAmount(t)?'':'<div class="price">'+fmt(t.amount)+'</div>')+'<div class="sub">'+sub+'</div>'+note+'</div>'
+    +   '<div class="imgwrap">'+img+'</div>'
+    +   '<div class="body">'+brandLine
+    +     '<div class="ttl">'+esc(t.title)+'</div>'
+    +     (hidesAmount(t)?'':'<div class="price">'+fmt(t.amount)+'</div>')
+    +     note
+    +   '</div>'
     +   prog
     + '</div>'
     + cta
@@ -905,11 +925,11 @@ function copyShip(txt){
 }
 
 /* Generic modal shell used by the flow above. */
-function showFlow(inner){
+function showFlow(inner, variant){
   let n = el("flow-modal");
   if(!n){ n = document.createElement("div"); n.id="flow-modal"; document.body.appendChild(n); }
   n.className = "modal-wrap show";
-  n.innerHTML = '<div class="modal-card" onclick="event.stopPropagation()">'
+  n.innerHTML = '<div class="modal-card'+(variant?" "+variant:"")+'" onclick="event.stopPropagation()">'
     + '<button class="m-x" onclick="closeFlow()" aria-label="Close">'
     + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>'
     + '</button>' + inner + '</div>';
@@ -1017,7 +1037,8 @@ function openOffline(id){
     +   '<label>A Note For The Couple</label>'
     +   '<textarea id="g-note" rows="3" placeholder="Congratulations!"></textarea>'
     +   '<button class="m-cta dark" id="off-submit" onclick="submitOffline(\''+t.id+'\')">Back to Registry</button>'
-    + '</div>'
+    + '</div>',
+    "sage"
   );
 }
 
