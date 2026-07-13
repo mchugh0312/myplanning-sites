@@ -200,6 +200,76 @@
           transition:opacity .2s ease,transform .2s ease;}
 .pv-toast.show{opacity:1;transform:translate(-50%,0);}
 .pv-toast.bad{background:#C23331;}
+
+/* ── Editable hero (preview) ─────────────────────────────── */
+.hero .hero-note{font-size:13px;line-height:1.65;color:rgba(255,255,255,.92);max-width:340px;margin:10px 0 0;}
+.hero .couple-sig{margin-top:14px;font-size:15px;font-style:italic;color:rgba(255,255,255,.95);}
+.hero.editable .ed{outline:1px dashed rgba(255,255,255,.5);outline-offset:4px;border-radius:3px;cursor:text;}
+.hero.editable .ed:hover,.hero.editable .ed:focus{outline-color:#C9A36A;background:rgba(0,0,0,.12);}
+.cover-edit{position:absolute;top:14px;left:14px;z-index:4;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.94);color:#4B5244;border-radius:999px;padding:7px 13px;font-size:12px;
+  font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.cover-edit input{display:none;}
+
+/* ── Card: heart, centre drag handle, couple note ─────────── */
+.card{position:relative;}
+.heart{position:absolute;top:9px;right:9px;z-index:3;width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.14);}
+.heart.tap{cursor:pointer;}
+.heart.tap:hover{transform:scale(1.08);}
+.cnote{margin-top:8px;font-size:11.5px;line-height:1.5;color:#4B5244;font-style:italic;
+  background:#F4F1EC;border-radius:6px;padding:7px 9px;text-align:left;}
+.cnote .q{font-family:"Instrument Serif",serif;font-size:15px;margin-right:2px;}
+.cta-row.col{flex-direction:column;gap:7px;align-items:stretch;}
+.ipurch{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#8C7D6E;cursor:pointer;}
+.ipurch input{accent-color:#4B5244;cursor:pointer;}
+
+.card.draggable{cursor:grab;}
+.card.draggable:active{cursor:grabbing;}
+.card.dragging{opacity:.45;transform:scale(.97);}
+.card.drop-target{outline:2px dashed #C9A36A;outline-offset:3px;}
+.drag-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
+  width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);color:#4B5244;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.22);
+  pointer-events:none;}
+
+/* ── Flow modals (How it works / Did you purchase / Form) ── */
+.modal-wrap{position:fixed;inset:0;z-index:150;background:rgba(18,18,18,.5);display:none;
+  align-items:center;justify-content:center;padding:16px;}
+.modal-wrap.show{display:flex;}
+.modal-card{position:relative;width:100%;max-width:380px;background:#F9F7F5;border-radius:6px;
+  padding:26px 22px 0;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.m-x{position:absolute;top:12px;right:12px;background:transparent;border:none;cursor:pointer;color:#8C7D6E;}
+.m-title{text-align:center;font-size:22px;font-weight:400;margin:0 0 14px;}
+.m-body{text-align:center;font-size:12.5px;line-height:1.75;color:#4B5244;margin:0 0 12px;}
+.m-img{display:block;width:96px;height:96px;object-fit:contain;margin:6px auto 10px;}
+.m-prod{text-align:center;margin-bottom:14px;}
+.m-brand{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#8C7D6E;}
+.m-name{font-size:13px;color:#121212;margin-top:2px;}
+.m-price{font-family:"Instrument Serif",serif;font-size:15px;margin-top:2px;}
+.m-actions{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
+.m-actions.col{flex-direction:column;align-items:center;}
+.m-cta{border-radius:999px;font-size:12px;font-weight:600;height:34px;padding:0 22px;cursor:pointer;
+  border:none;display:inline-flex;align-items:center;justify-content:center;min-width:190px;}
+.m-cta.solid{background:#A9BDC4;color:#fff;}
+.m-cta.ghost{background:#fff;color:#4B5244;border:1px solid #EDE8E3;}
+.m-cta.dark{background:#4B5244;color:#fff;width:100%;margin-top:6px;}
+.m-cta:hover{opacity:.92;}
+.m-form{padding-bottom:22px;}
+.m-form label{display:block;font-size:10.5px;color:#4B5244;margin:10px 0 4px;}
+.m-form input,.m-form textarea{width:100%;border:1px solid #EDE8E3;border-radius:3px;background:#fff;
+  padding:8px 10px;font-size:12.5px;font-family:inherit;color:#121212;outline:none;}
+.m-form input:focus,.m-form textarea:focus{border-color:#A9BDC4;}
+.frow{display:flex;gap:10px;}
+.frow>div{flex:1;}
+
+/* Shipping-address callout */
+.ship{background:#A9BDC4;color:#fff;text-align:center;padding:14px 16px;margin:0 -22px;}
+.ship-head{font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ship-copy{background:transparent;border:none;color:#fff;cursor:pointer;opacity:.85;}
+.ship-copy:hover{opacity:1;}
+.ship-line{font-size:11.5px;margin-top:4px;opacity:.95;}
 </style>
 </head>
 <body>
@@ -250,7 +320,7 @@ const SORT_OPTIONS = [
 ];
 
 const state = {
-  registryId:null, slug:null, preview:false, password:null, reorder:false,
+  registryId:null, slug:null, preview:false, password:null, reorder:false, howItem:null, pendingAsk:null,
   data:null, things:[],
   filters:{ search:"", cats:new Set(), price:new Set(), sort:"featured" },
   open:new Set(),            // collapsed by default — nothing open
@@ -378,9 +448,27 @@ function render(){
   }).join("");
 
   el("app").innerHTML =
-      '<header class="hero"><img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
+      '<header class="hero'+(state.preview?' editable':'')+'">'
+    +   '<img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
+    +   (state.preview
+          ? '<label class="cover-edit" title="Change the cover photo">'
+            + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+            + '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>'
+            + '<circle cx="12" cy="13" r="4"/></svg> Change cover'
+            + '<input type="file" accept="image/*" onchange="uploadCover(event)">'
+            + '</label>'
+          : '')
     +   '<div class="hero-scrim"></div>'
-    +   '<div class="hero-text"><div><h1 class="serif">'+esc(name)+'</h1>'+(dateStr?'<div class="date">'+esc(dateStr)+'</div>':"")+'</div></div>'
+    +   '<div class="hero-text"><div>'
+    +     '<h1 class="serif'+(state.preview?' ed':'')+'"'
+    +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)" title="Click to edit"':'')
+    +       '>'+esc(r.title || name)+'</h1>'
+    +     '<p class="hero-note'+(state.preview?' ed':'')+'"'
+    +       (state.preview?' contenteditable="true" data-field="welcome_note" onblur="savePresentation(this)" title="Click to edit"':'')
+    +       '>'+esc(r.welcome_note || (state.preview?"Add a welcome note for your guests…":""))+'</p>'
+    +     (dateStr?'<div class="date">'+esc(dateStr)+'</div>':"")
+    +     (couple.name?'<div class="couple-sig serif">'+esc(couple.name)+'</div>':"")
+    +   '</div></div>'
     + '</header>'
 
     + '<div class="head"><div class="eyebrow">The Registry</div>'
@@ -477,9 +565,12 @@ function renderCard(t){
   // CTAs by kind
   let cta="";
   if(t.kind==="gift"){
-    const buy = t.raw.source_url ? '<a class="cta out" target="_blank" rel="noopener" href="'+esc(t.raw.source_url)+'" onclick="event.stopPropagation()">Buy</a>' : "";
-    cta = '<div class="cta-row">'+buy
-        + '<button class="cta solid" onclick="event.stopPropagation();openOffline(\''+t.id+'\')">Mark purchased</button></div>';
+    cta = '<div class="cta-row col">'
+        + '<button class="cta solid" onclick="event.stopPropagation();openHow(\''+t.id+'\')">Purchase &rarr;</button>'
+        + '<label class="ipurch" onclick="event.stopPropagation()">'
+        +   '<input type="checkbox" onchange="openOffline(\''+t.id+'\')"> I Purchased This Item'
+        + '</label>'
+        + '</div>';
   } else if(t.kind==="fund"){
     cta = '<div class="cta-row"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button></div>';
   } else {
@@ -490,29 +581,62 @@ function renderCard(t){
 
   // Preview mode: the couple can drag gifts/funds to reorder them. Experiences
   // live in a separate table that bulk-sort doesn't cover, so they stay fixed.
-  const canDrag = state.preview && state.reorder && t.kind!=="experience";
+  const canDrag = state.preview && t.kind!=="experience";
   const dragAttrs = canDrag
     ? ' draggable="true" data-id="'+t.id+'" data-kind="'+t.kind+'"'
       + ' ondragstart="dragStart(event)" ondragover="dragOver(event)"'
       + ' ondrop="dragDrop(event)" ondragend="dragEnd(event)"'
     : '';
+  // Preview: a grab handle sits in the CENTRE of the image (no separate
+  // "rearrange" mode — the couple just drags).
   const handle = canDrag
     ? '<div class="drag-handle" title="Drag to reorder">'
-      + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
-      + '<circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/>'
-      + '<circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/>'
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>'
       + '</svg></div>'
     : '';
 
+  // Most-wanted heart (top-right). In preview it's a toggle; for guests it's
+  // just an indicator of what the couple wants most.
+  const heartFill = t.mostWanted ? '#4B5244' : 'none';
+  const heartCls  = 'heart' + (t.mostWanted ? ' on' : '') + (state.preview && t.kind!=="experience" ? ' tap' : '');
+  const heartClick = (state.preview && t.kind!=="experience")
+    ? ' onclick="event.stopPropagation();toggleWanted(\''+t.id+'\')"' : '';
+  const heart = (t.kind!=="experience")
+    ? '<div class="'+heartCls+'"'+heartClick+' title="'+(t.mostWanted?'Most wanted':'Mark as most wanted')+'">'
+      + '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+heartFill+'" stroke="#4B5244" stroke-width="1.8">'
+      + '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>'
+      + '</svg></div>'
+    : '';
+
+  // The couple's note, wherever they've written one.
+  const note = t.raw && t.raw.couple_note
+    ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)+'</div>' : '';
+
   return '<div class="card'+(canDrag?' draggable':'')+'"'+dragAttrs+'>'
+    + heart
     + handle
-    + '<div class="card-click" onclick="'+(canDrag?'':openFn+'(\''+t.id+'\')')+'">'
+    + '<div class="card-click" onclick="'+openFn+'(\''+t.id+'\')">'
     +   '<div class="imgwrap">'+img+'<div class="badges">'+badges+'</div></div>'
-    +   '<div class="body"><div class="ttl">'+esc(t.title)+'</div><div class="price">'+fmt(t.amount)+'</div><div class="sub">'+sub+'</div></div>'
+    +   '<div class="body"><div class="ttl">'+esc(t.title)+'</div><div class="price">'+fmt(t.amount)+'</div><div class="sub">'+sub+'</div>'+note+'</div>'
     +   prog
     + '</div>'
-    + (canDrag ? '' : cta)
+    + cta
     + '</div>';
+}
+
+/* Toggle "most wanted" straight from the preview (field exists on the item). */
+function toggleWanted(id){
+  const t = state.things.find(x=>x.id===id);
+  if(!t) return;
+  const before = t.mostWanted;
+  t.mostWanted = !before;      // optimistic
+  render();
+  fetch(RENDER_API+"/registry/items/"+encodeURIComponent(id), {
+    method:"PATCH", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ is_most_wanted: t.mostWanted })
+  }).then(r=>{ if(!r.ok) throw new Error("save failed"); toastPreview(t.mostWanted?"Marked most wanted":"Removed from most wanted"); })
+   .catch(()=>{ t.mostWanted = before; render(); toastPreview("Couldn't save that", true); });
 }
 
 /* ─── Preview: drag to reorder ───────────────────────────────
@@ -586,24 +710,132 @@ function reorder(srcId, targetId){
 }
 
 function previewBarHtml(){
-  const on = state.reorder;
   return '<div class="pvbar"><div class="wrap">'
     + '<span class="pv-tag">Preview</span>'
-    + '<span class="pv-msg">'+(on
-        ? 'Drag gifts to set the order guests see.'
-        : 'This is how guests see your registry.')+'</span>'
-    + '<button class="pv-btn'+(on?' on':'')+'" onclick="toggleReorder()">'
-    +   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
-    +     '<path d="M7 4v16M7 4 4 7M7 4l3 3M17 20V4m0 16 3-3m-3 3-3-3"/></svg>'
-    +   (on ? 'Done' : 'Rearrange')
-    + '</button>'
+    + '<span class="pv-msg">Drag the handle on any gift to reorder · tap the heart to mark most-wanted · click the cover or text to edit.</span>'
     + '</div></div>';
 }
 
-function toggleReorder(){
-  state.reorder = !state.reorder;
-  if(state.reorder) state.filters.sort = "custom";
-  render();
+
+/* Inline edits from preview: headline, welcome note, cover photo. */
+function savePresentation(node){
+  const field = node.getAttribute("data-field");
+  const value = (node.innerText||"").trim();
+  const body = {}; body[field] = value;
+  fetch(RENDER_API+"/registry/"+encodeURIComponent(state.registryId)+"/presentation", {
+    method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+  }).then(r=>{ if(!r.ok) throw new Error("x");
+    if(state.data && state.data.registry) state.data.registry[field] = value;
+    toastPreview("Saved");
+  }).catch(()=>toastPreview("Couldn't save that", true));
+}
+
+function uploadCover(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  toastPreview("Uploading cover…");
+  const fd = new FormData(); fd.append("file", file);
+  fetch(RENDER_API+"/registry/upload", { method:"POST", body: fd })
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(d=>{
+      if(!d.url) return Promise.reject();
+      return fetch(RENDER_API+"/registry/"+encodeURIComponent(state.registryId)+"/presentation", {
+        method:"PATCH", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ cover_image_url: d.url })
+      }).then(r=>{ if(!r.ok) return Promise.reject();
+        state.data.registry.hero_image_url = d.url; render(); toastPreview("Cover updated"); });
+    })
+    .catch(()=>toastPreview("Couldn't upload that photo", true));
+}
+
+/* ─── Guest purchase journey ──────────────────────────────
+   1. "How This Works"  → explains buy-then-come-back-and-mark.
+   2. "Did You Purchase This?" → after they return from the retailer.
+   3. Purchase form → name + note for the couple, so the gift is logged. */
+function openHow(id){
+  const t = id ? state.things.find(x=>x.id===id) : null;
+  state.howItem = t ? t.id : null;
+  const ship = shipBlockHtml();
+  const buy = (t && t.raw && t.raw.source_url)
+    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(t.raw.source_url)+'" onclick="afterBuyClicked()">Head to Amazon &rarr;</a>'
+    : '<button class="m-cta solid" onclick="closeFlow()">Got it</button>';
+  showFlow(
+      '<h3 class="serif m-title">How This Works</h3>'
+    + '<p class="m-body">Follow the link below to<br>the retailer to purchase the item.</p>'
+    + '<p class="m-body">Then, return to this page and mark<br><b>&ldquo;I Purchased This Item&rdquo;</b> so '+esc(coupleLabel())+'<br>don\'t receive the same gift twice.</p>'
+    + '<div class="m-actions">'+buy+'</div>'
+    + ship
+  );
+}
+
+/* When they head off to buy, queue the "did you purchase?" prompt for return. */
+function afterBuyClicked(){
+  if(state.howItem) state.pendingAsk = state.howItem;
+  setTimeout(()=>{ closeFlow(); if(state.pendingAsk) openDidPurchase(state.pendingAsk); }, 400);
+}
+
+function openDidPurchase(id){
+  const t = state.things.find(x=>x.id===id);
+  if(!t) return;
+  state.pendingAsk = null;
+  const img = t.image ? '<img class="m-img" src="'+esc(t.image)+'" alt="">' : '';
+  showFlow(
+      '<h3 class="serif m-title">Did You Purchase This?</h3>'
+    + img
+    + '<div class="m-prod"><div class="m-brand">'+esc(t.raw && t.raw.source ? t.raw.source : "")+'</div>'
+    +   '<div class="m-name">'+esc(t.title)+'</div>'
+    +   '<div class="m-price">'+fmt(t.amount)+'</div></div>'
+    + '<div class="m-actions col">'
+    +   '<button class="m-cta solid" onclick="openOffline(\''+t.id+'\')">Yes, Mark As Purchased</button>'
+    +   '<button class="m-cta ghost" onclick="closeFlow()">No, Continue Shopping</button>'
+    + '</div>'
+    + shipBlockHtml()
+  );
+}
+
+function coupleLabel(){
+  const c = (state.data && state.data.couple) || {};
+  return c.name || "the couple";
+}
+
+/* Shipping-address callout the guest can copy. */
+function shipBlockHtml(){
+  const r = (state.data && state.data.registry) || {};
+  const a = r.shipping_address || {};
+  const line1 = a.street || a.line1 || "";
+  const line2 = [a.city, a.state, a.zip].filter(Boolean).join(", ");
+  if(!line1 && !line2) return "";
+  const full = coupleLabel()+"'s Shipping Address\n"+line1+"\n"+line2;
+  return '<div class="ship">'
+    + '<div class="ship-head">'+esc(coupleLabel())+'&rsquo;s Shipping Address'
+    +   '<button class="ship-copy" title="Copy address" onclick="copyShip('+JSON.stringify(full).replace(/"/g,"&quot;")+')">'
+    +     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    +     '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+    +   '</button>'
+    + '</div>'
+    + '<div class="ship-line">'+esc(line1)+'</div>'
+    + '<div class="ship-line">'+esc(line2)+'</div>'
+    + '</div>';
+}
+function copyShip(txt){
+  try{ navigator.clipboard.writeText(txt); toastPreview("Address copied"); }
+  catch(_){ toastPreview("Couldn't copy", true); }
+}
+
+/* Generic modal shell used by the flow above. */
+function showFlow(inner){
+  let n = el("flow-modal");
+  if(!n){ n = document.createElement("div"); n.id="flow-modal"; document.body.appendChild(n); }
+  n.className = "modal-wrap show";
+  n.innerHTML = '<div class="modal-card" onclick="event.stopPropagation()">'
+    + '<button class="m-x" onclick="closeFlow()" aria-label="Close">'
+    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+    + '</button>' + inner + '</div>';
+  n.onclick = closeFlow;
+}
+function closeFlow(){
+  const n = el("flow-modal");
+  if(n){ n.className = "modal-wrap"; n.innerHTML = ""; }
 }
 
 function toastPreview(msg, bad){
@@ -689,32 +921,38 @@ function openDetail(id){
 
 /* ─── Mark purchased offline ────────────────────────── */
 function openOffline(id){
-  const it=(state.data.items||[]).find(x=>x.id===id); if(!it) return;
-  state.activeItem=it;
-  el("off-modal").innerHTML =
-      '<div class="m-pad"><h3 class="serif" style="font-size:22px">Mark as purchased</h3>'
-    + '<p class="m-desc" style="margin-top:4px">Let the couple know you have <strong>'+esc(it.title)+'</strong> so it comes off the list.</p>'
-    + '<div class="field"><label>Your name</label><input type="text" id="off-name"></div>'
-    + '<div class="field"><label>Email <span style="color:var(--muted);font-style:normal">(optional)</span></label><input type="email" id="off-email"></div>'
-    + '<button class="mbtn primary" id="off-submit" onclick="submitOffline()">I bought it</button>'
-    + '<button class="mbtn ghost" onclick="closeModal(\'off\')">Cancel</button></div>';
-  openModal("off");
+  const t = state.things.find(x=>x.id===id);
+  if(!t) return;
+  const img = t.image ? '<img class="m-img" src="'+esc(t.image)+'" alt="">' : '';
+  showFlow(
+      '<h3 class="serif m-title">'+esc(t.title)+'</h3>'
+    + img
+    + '<div class="m-form">'
+    +   '<div class="frow">'
+    +     '<div><label>First Name</label><input id="g-first" type="text"></div>'
+    +     '<div><label>Last Name</label><input id="g-last" type="text"></div>'
+    +   '</div>'
+    +   '<label>A Note For The Couple</label>'
+    +   '<textarea id="g-note" rows="3" placeholder="Congratulations!"></textarea>'
+    +   '<button class="m-cta dark" id="off-submit" onclick="submitOffline(\''+t.id+'\')">Back to Registry</button>'
+    + '</div>'
+  );
 }
-async function submitOffline(){
-  const it=state.activeItem; if(!it) return;
-  const name=(el("off-name")?el("off-name").value:"").trim();
-  const email=(el("off-email")?el("off-email").value:"").trim();
-  if(!name){ alert("Please enter your name."); return; }
+
+function submitOffline(id){
+  const first=(el("g-first").value||"").trim();
+  const last =(el("g-last").value||"").trim();
+  const note =(el("g-note").value||"").trim();
+  const name =[first,last].filter(Boolean).join(" ");
+  if(!name){ toastPreview("Please add your name", true); return; }
   const btn=el("off-submit"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…';
-  try{
-    const res=await fetch(RENDER_API+"/registry/items/mark-purchased-offline",{
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ registry_id:state.registryId, item_id:it.id, guest_name:name, guest_email:email||null, quantity:1 }),
-    });
-    if(!res.ok) throw new Error(await errText(res));
-    closeModal("off");
-    showBanner("Thanks "+name.split(/\s+/)[0]+"! We've let the couple know.","success");
-  }catch(e){ alert("Couldn't save: "+e.message); btn.disabled=false; btn.innerHTML="I bought it"; }
+  fetch(RENDER_API+"/registry/items/mark-purchased-offline",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ registry_id: state.registryId, item_id: id,
+                           guest_name: name, quantity: 1, note: note })
+  }).then(r=>{ if(!r.ok) throw new Error("save failed"); return r.json(); })
+   .then(()=>{ closeFlow(); toastPreview("Thank you — the couple has been told!"); load(); })
+   .catch(()=>{ btn.disabled=false; btn.innerHTML="Back to Registry"; toastPreview("Couldn't save that", true); });
 }
 
 /* ─── Cash fund / group gift contribute ─────────────── */
