@@ -173,6 +173,33 @@
   .ext-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-1px)}
   .ext-label{font-size:18px;color:var(--ink)}
   .ext-go{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--olive);white-space:nowrap}
+
+/* ── Preview mode: rearrange ─────────────────────────────── */
+.pvbar{background:#4B5244;color:#fff;}
+.pvbar .wrap{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1100px;margin:0 auto;}
+.pv-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+        background:rgba(255,255,255,.18);padding:3px 8px;border-radius:999px;flex-shrink:0;}
+.pv-msg{font-size:12.5px;opacity:.92;flex:1;min-width:0;}
+.pv-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#4B5244;border:none;
+        border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;}
+.pv-btn.on{background:#C9A36A;color:#fff;}
+.pv-btn:hover{opacity:.92;}
+@media(max-width:640px){ .pv-msg{display:none;} }
+
+.card.draggable{cursor:grab;position:relative;}
+.card.draggable:active{cursor:grabbing;}
+.card.draggable .card-click{cursor:grab;}
+.card.dragging{opacity:.45;transform:scale(.97);}
+.card.drop-target{outline:2px dashed #C9A36A;outline-offset:3px;}
+.drag-handle{position:absolute;top:8px;left:8px;z-index:3;width:26px;height:26px;border-radius:50%;
+             background:rgba(255,255,255,.95);color:#4B5244;display:flex;align-items:center;
+             justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+
+.pv-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
+          background:#121212;color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;z-index:200;
+          transition:opacity .2s ease,transform .2s ease;}
+.pv-toast.show{opacity:1;transform:translate(-50%,0);}
+.pv-toast.bad{background:#C23331;}
 </style>
 </head>
 <body>
@@ -223,7 +250,7 @@ const SORT_OPTIONS = [
 ];
 
 const state = {
-  registryId:null, slug:null, preview:false, password:null,
+  registryId:null, slug:null, preview:false, password:null, reorder:false,
   data:null, things:[],
   filters:{ search:"", cats:new Set(), price:new Set(), sort:"featured" },
   open:new Set(),            // collapsed by default — nothing open
@@ -316,6 +343,9 @@ function passesFilters(t){
 function sortList(list){
   const s=state.filters.sort;
   const a=[...list];
+  // "custom" = exactly the order the couple dragged into (no most-wanted bump),
+  // so what they arrange in preview is what guests see.
+  if(s==="custom") { a.sort((x,y)=>x.sort-y.sort); return a; }
   if(s==="price_asc")  a.sort((x,y)=>x.amount-y.amount);
   else if(s==="price_desc") a.sort((x,y)=>y.amount-x.amount);
   else if(s==="name_asc")   a.sort((x,y)=>x.title.localeCompare(y.title));
@@ -356,6 +386,7 @@ function render(){
     + '<div class="head"><div class="eyebrow">The Registry</div>'
     +   '<p>'+(r.welcome_note?esc(r.welcome_note):"Thank you for celebrating with us. Browse below and choose something you'd love to give.")+'</p></div>'
 
+    + (state.preview?previewBarHtml():"")
     + '<div class="bar"><div class="wrap"><div class="bar-row">'
     +   '<button class="allbtn" onclick="openDrawer()">'
     +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5244" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>'
@@ -456,14 +487,136 @@ function renderCard(t){
   }
 
   const openFn = t.kind==="experience" ? "openExp" : (t.kind==="fund" ? "openFund" : "openDetail");
-  return '<div class="card">'
-    + '<div class="card-click" onclick="'+openFn+'(\''+t.id+'\')">'
+
+  // Preview mode: the couple can drag gifts/funds to reorder them. Experiences
+  // live in a separate table that bulk-sort doesn't cover, so they stay fixed.
+  const canDrag = state.preview && state.reorder && t.kind!=="experience";
+  const dragAttrs = canDrag
+    ? ' draggable="true" data-id="'+t.id+'" data-kind="'+t.kind+'"'
+      + ' ondragstart="dragStart(event)" ondragover="dragOver(event)"'
+      + ' ondrop="dragDrop(event)" ondragend="dragEnd(event)"'
+    : '';
+  const handle = canDrag
+    ? '<div class="drag-handle" title="Drag to reorder">'
+      + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+      + '<circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/>'
+      + '<circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/>'
+      + '</svg></div>'
+    : '';
+
+  return '<div class="card'+(canDrag?' draggable':'')+'"'+dragAttrs+'>'
+    + handle
+    + '<div class="card-click" onclick="'+(canDrag?'':openFn+'(\''+t.id+'\')')+'">'
     +   '<div class="imgwrap">'+img+'<div class="badges">'+badges+'</div></div>'
     +   '<div class="body"><div class="ttl">'+esc(t.title)+'</div><div class="price">'+fmt(t.amount)+'</div><div class="sub">'+sub+'</div></div>'
     +   prog
     + '</div>'
-    + cta
+    + (canDrag ? '' : cta)
     + '</div>';
+}
+
+/* ─── Preview: drag to reorder ───────────────────────────────
+   Only available when the couple opens their own registry with ?preview=1.
+   Order is persisted with POST /registry/items/bulk-sort (gifts + cash funds;
+   both are registry items). Optimistic: the grid re-renders immediately and we
+   reconcile — or roll back — once the write returns. */
+let dragSrcId = null;
+
+function dragStart(e){
+  const card = e.currentTarget;
+  dragSrcId = card.getAttribute("data-id");
+  card.classList.add("dragging");
+  try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragSrcId); } catch(_){}
+}
+function dragOver(e){
+  e.preventDefault();
+  try { e.dataTransfer.dropEffect = "move"; } catch(_){}
+  const card = e.currentTarget;
+  if(card.getAttribute("data-id") !== dragSrcId) card.classList.add("drop-target");
+}
+function dragEnd(e){
+  e.currentTarget.classList.remove("dragging");
+  document.querySelectorAll(".drop-target").forEach(n=>n.classList.remove("drop-target"));
+}
+function dragDrop(e){
+  e.preventDefault();
+  const target = e.currentTarget;
+  document.querySelectorAll(".drop-target").forEach(n=>n.classList.remove("drop-target"));
+  const targetId = target.getAttribute("data-id");
+  if(!dragSrcId || !targetId || dragSrcId===targetId) return;
+  reorder(dragSrcId, targetId);
+}
+
+function reorder(srcId, targetId){
+  const src = state.things.find(t=>t.id===srcId);
+  const tgt = state.things.find(t=>t.id===targetId);
+  if(!src || !tgt || src.kind==="experience" || tgt.kind==="experience") return;
+
+  // Work within the dragged item's own group, in the order currently shown.
+  const group = sortList(state.things.filter(t=>t.kind===src.kind && passesFilters(t)));
+  const from = group.findIndex(t=>t.id===srcId);
+  const to   = group.findIndex(t=>t.id===targetId);
+  if(from<0 || to<0) return;
+
+  const before = group.map(t=>({id:t.id, sort:t.sort}));   // for rollback
+  group.splice(to, 0, group.splice(from,1)[0]);            // move
+  group.forEach((t,i)=>{ t.sort = i; });                   // renumber 0..n-1
+
+  // A manual order only makes sense under "custom" sort — switch to it so the
+  // new order is what's actually displayed.
+  state.filters.sort = "custom";
+  render();
+
+  const payload = group.map((t,i)=>({ id: t.id, sort_order: i }));
+  fetch(RENDER_API+"/registry/items/bulk-sort", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ items: payload })
+  }).then(r=>{
+    if(!r.ok) throw new Error("save failed");
+    return r.json();
+  }).then(res=>{
+    const failed = (res.results||[]).filter(x=>!x.ok).length;
+    if(failed) throw new Error("some items didn't save");
+    toastPreview("Order saved");
+  }).catch(()=>{
+    before.forEach(b=>{ const t=state.things.find(x=>x.id===b.id); if(t) t.sort=b.sort; });
+    render();
+    toastPreview("Couldn't save the new order", true);
+  });
+}
+
+function previewBarHtml(){
+  const on = state.reorder;
+  return '<div class="pvbar"><div class="wrap">'
+    + '<span class="pv-tag">Preview</span>'
+    + '<span class="pv-msg">'+(on
+        ? 'Drag gifts to set the order guests see.'
+        : 'This is how guests see your registry.')+'</span>'
+    + '<button class="pv-btn'+(on?' on':'')+'" onclick="toggleReorder()">'
+    +   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    +     '<path d="M7 4v16M7 4 4 7M7 4l3 3M17 20V4m0 16 3-3m-3 3-3-3"/></svg>'
+    +   (on ? 'Done' : 'Rearrange')
+    + '</button>'
+    + '</div></div>';
+}
+
+function toggleReorder(){
+  state.reorder = !state.reorder;
+  if(state.reorder) state.filters.sort = "custom";
+  render();
+}
+
+function toastPreview(msg, bad){
+  let n = el("pv-toast");
+  if(!n){
+    n = document.createElement("div");
+    n.id = "pv-toast";
+    document.body.appendChild(n);
+  }
+  n.textContent = msg;
+  n.className = "pv-toast" + (bad ? " bad" : "") + " show";
+  clearTimeout(n._t);
+  n._t = setTimeout(()=>{ n.className = "pv-toast" + (bad?" bad":""); }, 2200);
 }
 
 /* ─── Filters / drawer / sort ───────────────────────── */
