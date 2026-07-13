@@ -244,9 +244,10 @@
 .m-cta:hover{opacity:.92;}
 .m-form{padding-bottom:22px;}
 .m-form label{display:block;font-size:10.5px;color:#4B5244;margin:10px 0 4px;}
-.m-form input,.m-form textarea{width:100%;border:1px solid #EDE8E3;border-radius:3px;background:#fff;
+.m-form input,.m-form textarea,.m-form select{width:100%;border:1px solid #EDE8E3;border-radius:3px;background:#fff;
   padding:8px 10px;font-size:12.5px;font-family:inherit;color:#121212;outline:none;}
-.m-form input:focus,.m-form textarea:focus{border-color:#A9BDC4;}
+.m-form input:focus,.m-form textarea:focus,.m-form select:focus{border-color:#A9BDC4;}
+.modal-card.sage .m-form select{border-color:#fff;}
 .frow{display:flex;gap:10px;}
 .frow>div{flex:1;}
 
@@ -315,6 +316,7 @@
 .card .ttl{min-height:0;}
 .empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
 .ipurch{margin-top:2px;}
+.ipurch.done{color:var(--olive);font-weight:600;justify-content:center;}
 
 /* Purchase form card — sage panel with white fields (per the design) */
 .modal-card.sage{background:#A9BDC4;}
@@ -397,6 +399,7 @@ const isFund = it=> it.item_type_id===CASH_FUND_TYPE || (Number(it.price_cents)=
   const c = params.get("contribution");
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
   else if (c==="cancel"){ showBanner("No worries — your checkout was cancelled.","info"); cleanParam("contribution"); }
+  loadShipMethods();   // carrier list for the tracking forms
   load();
 })();
 function cleanParam(k){ const u=new URL(location.href); u.searchParams.delete(k); history.replaceState({},"",u); }
@@ -656,11 +659,16 @@ function renderCard(t){
   // CTAs by kind
   let cta="";
   if(t.kind==="gift"){
+    const bought = isPurchased(t);
     cta = '<div class="cta-row col">'
-        + '<button class="cta solid" onclick="event.stopPropagation();openHow(\''+t.id+'\')">Purchase &rarr;</button>'
-        + '<label class="ipurch" onclick="event.stopPropagation()">'
-        +   '<input type="checkbox" onchange="openOffline(\''+t.id+'\')"> I Purchased This Item'
-        + '</label>'
+        + (bought
+            ? '<button class="cta solid" onclick="event.stopPropagation();openAddTracking(\''+t.id+'\')">Add tracking &rarr;</button>'
+            : '<button class="cta solid" onclick="event.stopPropagation();openHow(\''+t.id+'\')">Purchase &rarr;</button>')
+        + (bought
+            ? '<span class="ipurch done">✓ Purchased — thank you!</span>'
+            : '<label class="ipurch" onclick="event.stopPropagation()">'
+              + '<input type="checkbox" onchange="openOffline(\''+t.id+'\')"> I Purchased This Item'
+              + '</label>')
         + '</div>';
   } else if(t.kind==="fund"){
     cta = '<div class="cta-row"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button></div>';
@@ -1022,6 +1030,67 @@ function openDetail(id){
 }
 
 /* ─── Mark purchased offline ────────────────────────── */
+/* Carriers come from the backend so we never offer an option the Shipping
+   Method select doesn't actually have. */
+let SHIP_METHODS = [];
+function loadShipMethods(){
+  fetch(RENDER_API+"/registry/shipping-methods")
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ if(d && Array.isArray(d.methods)) SHIP_METHODS = d.methods; })
+    .catch(function(){});
+}
+function shipOptionsHtml(){
+  return SHIP_METHODS.map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join("");
+}
+
+/* A guest who marked a gift purchased before the retailer shipped can come
+   back any time and add the tracking. We find their contribution by the name
+   they used. */
+function openAddTracking(id){
+  const t = state.things.find(function(x){ return x.id===id; });
+  if(!t) return;
+  const img = t.image ? '<img class="m-img" src="'+esc(t.image)+'" alt="">' : '';
+  showFlow(
+      '<h3 class="serif m-title">Add Tracking</h3>'
+    + img
+    + '<p class="m-body">Already bought this? Add the tracking so '+esc(coupleLabel())+'<br>can follow it on its way.</p>'
+    + '<div class="m-form">'
+    +   '<label>The name you used</label>'
+    +   '<input id="tk-name" type="text" placeholder="e.g. Elizabeth Johnson">'
+    +   '<label>Shipping Method</label>'
+    +   '<select id="tk-ship">'+shipOptionsHtml()+'</select>'
+    +   '<label>Tracking Number</label>'
+    +   '<input id="tk-num" type="text">'
+    +   '<button class="m-cta dark" id="tk-submit" onclick="submitTracking(\''+t.id+'\')">Save tracking</button>'
+    + '</div>',
+    "sage"
+  );
+}
+
+function submitTracking(id){
+  const name=(el("tk-name").value||"").trim();
+  const num =(el("tk-num").value||"").trim();
+  const ship=(el("tk-ship")||{}).value||"";
+  if(!name){ toastPreview("Add the name you used", true); return; }
+  if(!num){  toastPreview("Add a tracking number", true); return; }
+  const btn=el("tk-submit"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…';
+  fetch(RENDER_API+"/registry/tracking/update",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ registry_id: state.registryId, item_id: id,
+                           guest_name: name, tracking_number: num, shipping_method: ship })
+  }).then(function(r){
+      if(r.ok) return r.json();
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        throw new Error(j.detail || "Couldn't save that");
+      });
+    })
+   .then(function(){ closeFlow(); toastPreview("Thank you — tracking saved!"); })
+   .catch(function(e){
+      btn.disabled=false; btn.innerHTML="Save tracking";
+      toastPreview(e.message || "Couldn't save that", true);
+    });
+}
+
 function openOffline(id){
   const t = state.things.find(x=>x.id===id);
   if(!t) return;
@@ -1034,6 +1103,10 @@ function openOffline(id){
     +     '<div><label>First Name</label><input id="g-first" type="text"></div>'
     +     '<div><label>Last Name</label><input id="g-last" type="text"></div>'
     +   '</div>'
+    +   '<label>Shipping Method</label>'
+    +   '<select id="g-ship">'+shipOptionsHtml()+'</select>'
+    +   '<label>Tracking Number</label>'
+    +   '<input id="g-track" type="text" placeholder="Don\'t have it yet? Leave blank — you can add it later">'
     +   '<label>A Note For The Couple</label>'
     +   '<textarea id="g-note" rows="3" placeholder="Congratulations!"></textarea>'
     +   '<button class="m-cta dark" id="off-submit" onclick="submitOffline(\''+t.id+'\')">Back to Registry</button>'
@@ -1052,7 +1125,9 @@ function submitOffline(id){
   fetch(RENDER_API+"/registry/items/mark-purchased-offline",{
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ registry_id: state.registryId, item_id: id,
-                           guest_name: name, quantity: 1, note: note })
+                           guest_name: name, quantity: 1, note: note,
+                           shipping_method: (el("g-ship")||{}).value || "",
+                           tracking_number: ((el("g-track")||{}).value || "").trim() })
   }).then(r=>{ if(!r.ok) throw new Error("save failed"); return r.json(); })
    .then(()=>{ closeFlow(); toastPreview("Thank you — the couple has been told!"); load(); })
    .catch(()=>{ btn.disabled=false; btn.innerHTML="Back to Registry"; toastPreview("Couldn't save that", true); });
