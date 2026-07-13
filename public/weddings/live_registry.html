@@ -175,25 +175,15 @@
   .ext-go{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--olive);white-space:nowrap}
 
 /* ── Preview mode: rearrange ─────────────────────────────── */
-.pvbar{background:#4B5244;color:#fff;}
-.pvbar .wrap{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1100px;margin:0 auto;}
 .pv-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
         background:rgba(255,255,255,.18);padding:3px 8px;border-radius:999px;flex-shrink:0;}
-.pv-msg{font-size:12.5px;opacity:.92;flex:1;min-width:0;}
-.pv-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#4B5244;border:none;
         border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;}
-.pv-btn.on{background:#C9A36A;color:#fff;}
-.pv-btn:hover{opacity:.92;}
-@media(max-width:640px){ .pv-msg{display:none;} }
 
 .card.draggable{cursor:grab;position:relative;}
 .card.draggable:active{cursor:grabbing;}
 .card.draggable .card-click{cursor:grab;}
 .card.dragging{opacity:.45;transform:scale(.97);}
 .card.drop-target{outline:2px dashed #C9A36A;outline-offset:3px;}
-.drag-handle{position:absolute;top:8px;left:8px;z-index:3;width:26px;height:26px;border-radius:50%;
-             background:rgba(255,255,255,.95);color:#4B5244;display:flex;align-items:center;
-             justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.18);}
 
 .pv-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
           background:#121212;color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;z-index:200;
@@ -229,10 +219,6 @@
 .card.draggable:active{cursor:grabbing;}
 .card.dragging{opacity:.45;transform:scale(.97);}
 .card.drop-target{outline:2px dashed #C9A36A;outline-offset:3px;}
-.drag-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
-  width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.94);color:#4B5244;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.22);
-  pointer-events:none;}
 
 /* ── Flow modals (How it works / Did you purchase / Form) ── */
 .modal-wrap{position:fixed;inset:0;z-index:150;background:rgba(18,18,18,.5);display:none;
@@ -270,6 +256,47 @@
 .ship-copy{background:transparent;border:none;color:#fff;cursor:pointer;opacity:.85;}
 .ship-copy:hover{opacity:1;}
 .ship-line{font-size:11.5px;margin-top:4px;opacity:.95;}
+
+/* ── Split hero: photo left, teal panel right (mirrors the dashboard) ── */
+.rhero{display:grid;grid-template-columns:1fr;}
+@media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
+.rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
+.rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.rhero-panel{position:relative;background:#A9BDC4;color:#fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:30px 32px 38px;min-width:0;}
+.rh-title{font-size:clamp(24px,3vw,32px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
+.rh-title em,.rh-title i{font-style:italic;}
+.rh-note{font-size:12.5px;line-height:1.8;margin:14px 0 0;max-width:330px;color:rgba(255,255,255,.94);}
+.rh-note em,.rh-note i{font-family:"Instrument Serif",serif;font-style:italic;font-size:1.08em;}
+.rh-note p{margin:0 0 .55em;} .rh-note p:last-child{margin-bottom:0;}
+.rh-sig{margin-top:16px;font-size:15px;font-style:italic;color:#fff;}
+.rh-date{margin-top:6px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.85);}
+.rh-note.ed:empty:before{content:attr(data-ph);opacity:.6;}
+.rhero .ed{outline:1px dashed rgba(255,255,255,.45);outline-offset:5px;border-radius:3px;cursor:text;}
+.rhero .ed:hover,.rhero .ed:focus{outline-color:#fff;}
+.rh-edit{position:absolute;bottom:14px;right:14px;z-index:5;width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.95);color:#4B5244;border:none;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.rh-edit:hover{background:#fff;}
+.rh-edit input{display:none;}
+
+/* ── Quick filters ── */
+.qf{background:#F9F7F5;border-bottom:1px solid var(--border);}
+.qf .wrap{max-width:1100px;margin:0 auto;padding:14px 16px 12px;}
+.qf-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:7px;}
+.qf-row:last-child{margin-bottom:0;}
+.chip{border:1px solid var(--border);background:#fff;color:var(--ink);border-radius:999px;
+  padding:6px 13px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:"Open Sans";}
+.chip:hover{border-color:#A9BDC4;}
+.chip.on{background:#4B5244;border-color:#4B5244;color:#fff;font-weight:600;}
+.chip.clear{border-style:dashed;color:var(--muted);}
+.qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
+
+/* ── Drag handle: dead centre of the card ── */
+.drag-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
+  width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.95);color:#4B5244;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.25);
+  pointer-events:none;}
 </style>
 </head>
 <body>
@@ -322,7 +349,7 @@ const SORT_OPTIONS = [
 const state = {
   registryId:null, slug:null, preview:false, password:null, reorder:false, howItem:null, pendingAsk:null,
   data:null, things:[],
-  filters:{ search:"", cats:new Set(), price:new Set(), sort:"featured" },
+  filters:{ search:"", cats:new Set(), price:new Set(), status:"all", sort:"featured" },
   open:new Set(),            // collapsed by default — nothing open
   sortOpen:false,
   activeItem:null, activeExp:null,
@@ -399,6 +426,50 @@ function categoriesAvailable(){
   return Array.from(s).sort();
 }
 
+/* ─── Quick filters ──────────────────────────────────────────
+   Chips instead of a search box + filter drawer: category · price · status. */
+function quickFiltersHtml(count){
+  const f = state.filters;
+  const cats = [...new Set(state.things.map(t=>t.fcat).filter(Boolean))].sort();
+  const chip = (on, label, onclick) =>
+    '<button class="chip'+(on?" on":"")+'" onclick="'+onclick+'">'+esc(label)+'</button>';
+
+  let row1 = chip(f.cats.size===0, "All gifts", "clearCats()");
+  cats.forEach(c=>{ row1 += chip(f.cats.has(c), c, "toggleCat('"+String(c).replace(/'/g,"\\'")+"')"); });
+
+  let row2 = "";
+  PRICE_BUCKETS.forEach(b=>{ row2 += chip(f.price.has(b.id), b.label, "togglePrice('"+b.id+"')"); });
+
+  let row3 = chip(f.status==="all",       "All",          "setStatus('all')")
+           + chip(f.status==="pending",   "Still needed", "setStatus('pending')")
+           + chip(f.status==="purchased", "Purchased",    "setStatus('purchased')");
+
+  const active = f.cats.size + f.price.size + (f.status!=="all"?1:0);
+
+  return '<div class="qf"><div class="wrap">'
+    + '<div class="qf-row">'+row1+'</div>'
+    + '<div class="qf-row">'+row2+'</div>'
+    + '<div class="qf-row">'+row3
+    +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear all</button>' : '')
+    +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
+    + '</div>'
+    + '</div></div>';
+}
+function toggleCat(c){ const s=state.filters.cats; s.has(c)?s.delete(c):s.add(c); render(); }
+function clearCats(){ state.filters.cats.clear(); render(); }
+function togglePrice(id){ const s=state.filters.price; s.has(id)?s.delete(id):s.add(id); render(); }
+function setStatus(s){ state.filters.status=s; render(); }
+function clearAllFilters(){
+  state.filters.cats.clear(); state.filters.price.clear();
+  state.filters.status="all"; state.filters.search=""; render();
+}
+function isPurchased(t){
+  if(t.kind!=="gift") return false;
+  const req = (t.raw && t.raw.quantity_requested) || 1;
+  const ful = (t.raw && t.raw.quantity_fulfilled) || 0;
+  return req > 0 && ful >= req;
+}
+
 function passesFilters(t){
   const f=state.filters, q=f.search.trim().toLowerCase();
   if(f.cats.size && !f.cats.has(t.fcat)) return false;
@@ -407,6 +478,9 @@ function passesFilters(t){
     if(!ok) return false;
   }
   if(q && !((t.title+" "+(t.location||"")+" "+(t.fcat||"")).toLowerCase().includes(q))) return false;
+  const st = state.filters.status || "all";
+  if(st==="purchased" && !isPurchased(t)) return false;
+  if(st==="pending"   &&  isPurchased(t)) return false;
   return true;
 }
 
@@ -448,52 +522,32 @@ function render(){
   }).join("");
 
   el("app").innerHTML =
-      '<header class="hero'+(state.preview?' editable':'')+'">'
-    +   '<img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
-    +   (state.preview
-          ? '<label class="cover-edit" title="Change the cover photo">'
-            + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
-            + '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>'
-            + '<circle cx="12" cy="13" r="4"/></svg> Change cover'
-            + '<input type="file" accept="image/*" onchange="uploadCover(event)">'
-            + '</label>'
-          : '')
-    +   '<div class="hero-scrim"></div>'
-    +   '<div class="hero-text"><div>'
-    +     '<h1 class="serif'+(state.preview?' ed':'')+'"'
-    +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)" title="Click to edit"':'')
-    +       '>'+esc(r.title || name)+'</h1>'
-    +     '<p class="hero-note'+(state.preview?' ed':'')+'"'
-    +       (state.preview?' contenteditable="true" data-field="welcome_note" onblur="savePresentation(this)" title="Click to edit"':'')
-    +       '>'+esc(r.welcome_note || (state.preview?"Add a welcome note for your guests…":""))+'</p>'
-    +     (dateStr?'<div class="date">'+esc(dateStr)+'</div>':"")
-    +     (couple.name?'<div class="couple-sig serif">'+esc(couple.name)+'</div>':"")
-    +   '</div></div>'
+      '<header class="rhero">'
+    +   '<div class="rhero-img">'
+    +     '<img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
+    +     (state.preview
+            ? '<label class="rh-edit" title="Change cover photo">'
+              + pencilSvg()
+              + '<input type="file" accept="image/*" onchange="uploadCover(event)">'
+              + '</label>'
+            : '')
+    +   '</div>'
+    +   '<div class="rhero-panel">'
+    +     '<h1 class="serif rh-title'+(state.preview?' ed':'')+'"'
+    +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)"':'')
+    +       '>'+(r.title || esc(name))+'</h1>'
+    +     '<div class="rh-note'+(state.preview?' ed':'')+'"'
+    +       (state.preview?' contenteditable="true" data-field="welcome_note" onblur="savePresentation(this)" data-ph="Add a welcome note for your guests…"':'')
+    +       '>'+(r.welcome_note || '')+'</div>'
+    +     (couple.name?'<div class="rh-sig serif">'+esc(couple.name)+'</div>':'')
+    +     (dateStr?'<div class="rh-date">'+esc(dateStr)+'</div>':'')
+    +     (state.preview?'<button class="rh-edit panel" title="Edit text" onclick="focusTitle()">'+pencilSvg()+'</button>':'')
+    +   '</div>'
     + '</header>'
 
-    + '<div class="head"><div class="eyebrow">The Registry</div>'
     +   '<p>'+(r.welcome_note?esc(r.welcome_note):"Thank you for celebrating with us. Browse below and choose something you'd love to give.")+'</p></div>'
 
-    + (state.preview?previewBarHtml():"")
-    + '<div class="bar"><div class="wrap"><div class="bar-row">'
-    +   '<button class="allbtn" onclick="openDrawer()">'
-    +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5244" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>'
-    +     'All Filters'+(activeCount?'<span class="count">'+activeCount+'</span>':"")
-    +   '</button>'
-    +   '<div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
-    +     '<input id="search" type="text" placeholder="Search the registry…" value="'+esc(state.filters.search)+'" oninput="onSearch(this.value)">'
-    +     (state.filters.search?'<button class="clr" onclick="onSearch(\'\')" aria-label="Clear">✕</button>':"")
-    +   '</div>'
-    +   '<span class="count-txt">'+total+' '+(total===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
-    +   '<div style="position:relative;flex:none">'
-    +     '<button class="sortbtn" onclick="toggleSort(event)" title="Sort">'
-    +       '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polyline points="3,7 6,4 9,7" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="6" y1="5" x2="6" y2="14" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/><polyline points="9,11 12,14 15,11" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="4" x2="12" y2="13" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/></svg>'
-    +     '</button>'
-    +     (state.sortOpen?renderSortMenu():"")
-    +   '</div>'
-    + '</div>'
-    + renderPills()
-    + '</div></div>'
+    + quickFiltersHtml(matched.length)
 
     + '<div class="content"><div class="wrap">'
     +   (groupsHtml || '<div class="empty"><div class="ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><h3 class="serif" style="font-size:22px;color:#fff;margin-bottom:6px">No gifts match your filters</h3><p style="color:rgba(255,255,255,.85);font-size:13px;margin-bottom:16px">Try broadening your search or clearing some filters.</p>'+(activeCount||state.filters.search?'<button class="btn btn-primary" style="width:auto;padding:9px 22px" onclick="clearFilters()">Clear filters</button>':"")+'</div>')
@@ -609,13 +663,13 @@ function renderCard(t){
 
   // Most-wanted heart (top-right). In preview it's a toggle; for guests it's
   // just an indicator of what the couple wants most.
-  const heartFill = t.mostWanted ? '#4B5244' : 'none';
+  const heartFill = t.mostWanted ? '#A9BDC4' : 'none';
   const heartCls  = 'heart' + (t.mostWanted ? ' on' : '') + (state.preview && t.kind!=="experience" ? ' tap' : '');
   const heartClick = (state.preview && t.kind!=="experience")
     ? ' onclick="event.stopPropagation();toggleWanted(\''+t.id+'\')"' : '';
   const heart = (t.kind!=="experience")
     ? '<div class="'+heartCls+'"'+heartClick+' title="'+(t.mostWanted?'Most wanted':'Mark as most wanted')+'">'
-      + '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+heartFill+'" stroke="#4B5244" stroke-width="1.8">'
+      + '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+heartFill+'" stroke="#A9BDC4" stroke-width="1.8">'
       + '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>'
       + '</svg></div>'
     : '';
@@ -720,18 +774,22 @@ function reorder(srcId, targetId){
   });
 }
 
-function previewBarHtml(){
-  return '<div class="pvbar"><div class="wrap">'
-    + '<span class="pv-tag">Preview</span>'
-    + '<span class="pv-msg">Drag the handle on any gift to reorder · tap the heart to mark most-wanted · click the cover or text to edit.</span>'
-    + '</div></div>';
-}
 
 
 /* Inline edits from preview: headline, welcome note, cover photo. */
+function pencilSvg(){
+  return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+       + 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+       + '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+}
+function focusTitle(){
+  const n = document.querySelector(".rh-title.ed");
+  if(n){ n.focus(); document.execCommand && document.execCommand("selectAll", false, null); }
+}
+
 function savePresentation(node){
   const field = node.getAttribute("data-field");
-  const value = (node.innerText||"").trim();
+  // The dashboard writes rich text (bold/italic) into these fields, so keep HTML.\n  const value = (node.innerHTML||"").trim();
   const body = {}; body[field] = value;
   fetch(RENDER_API+"/registry/"+encodeURIComponent(state.registryId)+"/presentation", {
     method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
