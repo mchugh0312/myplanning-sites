@@ -260,20 +260,20 @@
 /* ── Split hero: photo left, teal panel right (mirrors the dashboard) ── */
 .rhero{display:grid;grid-template-columns:1fr;}
 @media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
-.rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
+.rhero-img{position:relative;background:#E5E0D9;aspect-ratio:8/3;overflow:hidden;}
 .rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .rhero-panel{position:relative;background:#A9BDC4;color:#fff;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;padding:30px 32px 38px;min-width:0;}
-.rh-title{font-size:clamp(24px,3vw,32px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
+  align-items:center;justify-content:center;text-align:center;padding:18px 28px 22px;min-width:0;}
+.rh-title{font-size:clamp(20px,2.4vw,26px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
 .rh-title em,.rh-title i{font-style:italic;}
-.rh-note{font-size:12.5px;line-height:1.8;margin:14px 0 0;max-width:330px;color:rgba(255,255,255,.94);}
+.rh-note{font-size:12px;line-height:1.65;margin:9px 0 0;max-width:320px;color:rgba(255,255,255,.94);}
 .rh-note em,.rh-note i{font-family:"Instrument Serif",serif;font-style:italic;font-size:1.08em;}
 .rh-note p{margin:0 0 .55em;} .rh-note p:last-child{margin-bottom:0;}
-.rh-sig{margin-top:16px;font-size:15px;font-style:italic;color:#fff;}
-.rh-date{margin-top:6px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.85);}
+.rh-sig{margin-top:9px;font-size:13.5px;font-style:italic;color:#fff;}
+.rh-date{margin-top:4px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.85);}
 .rh-note.ed:empty:before{content:attr(data-ph);opacity:.6;}
-.rhero .ed{outline:1px dashed rgba(255,255,255,.45);outline-offset:5px;border-radius:3px;cursor:text;}
-.rhero .ed:hover,.rhero .ed:focus{outline-color:#fff;}
+.rhero .ed{cursor:text;border-radius:3px;}
+.rhero .ed:focus{outline:1px solid rgba(255,255,255,.7);outline-offset:4px;}
 .rh-edit{position:absolute;bottom:14px;right:14px;z-index:5;width:34px;height:34px;border-radius:50%;
   background:rgba(255,255,255,.95);color:#4B5244;border:none;display:flex;align-items:center;
   justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);}
@@ -297,6 +297,18 @@
   width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.95);color:#4B5244;
   display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.25);
   pointer-events:none;}
+
+/* ── Filter / sort row: dropdowns on a single line ── */
+.qf{background:#F9F7F5;border-bottom:1px solid var(--border);}
+.qf .wrap{max-width:1100px;margin:0 auto;padding:12px 16px;}
+.qf-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.fsel{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);
+  border-radius:999px;padding:5px 6px 5px 12px;}
+.fsel-lbl{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.fsel select{border:none;outline:none;background:transparent;font-family:"Open Sans";font-size:12.5px;
+  color:var(--ink);cursor:pointer;padding:2px 4px;max-width:170px;}
+.qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
+@media(max-width:640px){ .fsel select{max-width:120px;} .qf-count{margin-left:0;width:100%;} }
 </style>
 </head>
 <body>
@@ -340,6 +352,7 @@ const PRICE_BUCKETS = [
   {id:"over500", label:"$500+",      test:c=>c>=50000},
 ];
 const SORT_OPTIONS = [
+  {value:"custom",     label:"Couple's order"},
   {value:"featured",   label:"Featured"},
   {value:"price_asc",  label:"Price (Low to High)"},
   {value:"price_desc", label:"Price (High to Low)"},
@@ -431,33 +444,35 @@ function categoriesAvailable(){
 function quickFiltersHtml(count){
   const f = state.filters;
   const cats = [...new Set(state.things.map(t=>t.fcat).filter(Boolean))].sort();
-  const chip = (on, label, onclick) =>
-    '<button class="chip'+(on?" on":"")+'" onclick="'+onclick+'">'+esc(label)+'</button>';
 
-  let row1 = chip(f.cats.size===0, "All gifts", "clearCats()");
-  cats.forEach(c=>{ row1 += chip(f.cats.has(c), c, "toggleCat('"+String(c).replace(/'/g,"\\'")+"')"); });
+  const sel = (id, label, value, opts, onchange) =>
+      '<label class="fsel">'
+    +   '<span class="fsel-lbl">'+label+'</span>'
+    +   '<select id="'+id+'" onchange="'+onchange+'">'
+    +     opts.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(value)?' selected':'')+'>'+esc(o[1])+'</option>').join("")
+    +   '</select>'
+    + '</label>';
 
-  let row2 = "";
-  PRICE_BUCKETS.forEach(b=>{ row2 += chip(f.price.has(b.id), b.label, "togglePrice('"+b.id+"')"); });
-
-  let row3 = chip(f.status==="all",       "All",          "setStatus('all')")
-           + chip(f.status==="pending",   "Still needed", "setStatus('pending')")
-           + chip(f.status==="purchased", "Purchased",    "setStatus('purchased')");
+  const catOpts   = [["", "All categories"]].concat(cats.map(c=>[c, c]));
+  const priceOpts = [["", "Any price"]].concat(PRICE_BUCKETS.map(b=>[b.id, b.label]));
+  const statOpts  = [["all","All gifts"],["pending","Still needed"],["purchased","Purchased"]];
+  const sortOpts  = SORT_OPTIONS.map(o=>[o.value, o.label]);
 
   const active = f.cats.size + f.price.size + (f.status!=="all"?1:0);
 
-  return '<div class="qf"><div class="wrap">'
-    + '<div class="qf-row">'+row1+'</div>'
-    + '<div class="qf-row">'+row2+'</div>'
-    + '<div class="qf-row">'+row3
-    +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear all</button>' : '')
-    +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
-    + '</div>'
-    + '</div></div>';
+  return '<div class="qf"><div class="wrap"><div class="qf-line">'
+    + sel("f-cat",   "Category", [...f.cats][0]  || "", catOpts,   "pickCat(this.value)")
+    + sel("f-price", "Price",    [...f.price][0] || "", priceOpts, "pickPrice(this.value)")
+    + sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
+    + sel("f-sort",  "Sort",     f.sort, sortOpts, "setSort(this.value)")
+    + (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
+    + '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
+    + '</div></div></div>';
 }
-function toggleCat(c){ const s=state.filters.cats; s.has(c)?s.delete(c):s.add(c); render(); }
-function clearCats(){ state.filters.cats.clear(); render(); }
-function togglePrice(id){ const s=state.filters.price; s.has(id)?s.delete(id):s.add(id); render(); }
+
+/* Single-select helpers (the dropdowns replace multi-select chips). */
+function pickCat(v){ state.filters.cats.clear(); if(v) state.filters.cats.add(v); render(); }
+function pickPrice(v){ state.filters.price.clear(); if(v) state.filters.price.add(v); render(); }
 function setStatus(s){ state.filters.status=s; render(); }
 function clearAllFilters(){
   state.filters.cats.clear(); state.filters.price.clear();
@@ -544,8 +559,6 @@ function render(){
     +     (state.preview?'<button class="rh-edit panel" title="Edit text" onclick="focusTitle()">'+pencilSvg()+'</button>':'')
     +   '</div>'
     + '</header>'
-
-    +   '<p>'+(r.welcome_note?esc(r.welcome_note):"Thank you for celebrating with us. Browse below and choose something you'd love to give.")+'</p></div>'
 
     + quickFiltersHtml(matched.length)
 
@@ -951,7 +964,7 @@ function removePill(k){
   rerender();
 }
 function toggleSort(e){ e.stopPropagation(); state.sortOpen=!state.sortOpen; rerender(); }
-function setSort(v){ state.filters.sort=v; state.sortOpen=false; rerender(); }
+function setSort(v){ state.filters.sort=v; state.sortOpen=false; render(); }
 document.addEventListener("click",()=>{ if(state.sortOpen){ state.sortOpen=false; rerender(); }});
 
 // Toggle one accordion WITHOUT a full re-render, so the CSS transition animates.
