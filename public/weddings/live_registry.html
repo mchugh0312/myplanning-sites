@@ -190,6 +190,9 @@
 .card.draggable .card-click{cursor:grab;}
 .card.dragging{opacity:.45;transform:scale(.97);}
 .card.drop-target{outline:2px dashed #C9A36A;outline-offset:3px;}
+.card.drop-before::before,.card.drop-after::after{content:"";position:absolute;top:6px;bottom:6px;width:3px;background:#C9A36A;border-radius:2px;z-index:6;pointer-events:none;}
+.card.drop-before::before{left:-10px;}
+.card.drop-after::after{right:-10px;}
 
 .pv-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
           background:#121212;color:#fff;font-size:13px;padding:10px 18px;border-radius:999px;z-index:200;
@@ -406,16 +409,16 @@ const PRICE_BUCKETS = [
 ];
 const SORT_OPTIONS = [
   {value:"custom",     label:"Couple's order"},
-  {value:"featured",   label:"Featured"},
   {value:"price_asc",  label:"Price (Low to High)"},
   {value:"price_desc", label:"Price (High to Low)"},
   {value:"name_asc",   label:"Name (A to Z)"},
+  {value:"name_desc",  label:"Name (Z to A)"},
 ];
 
 const state = {
   registryId:null, slug:null, preview:false, password:null, reorder:false, howItem:null, pendingAsk:null,
   data:null, things:[],
-  filters:{ search:"", cats:new Set(), price:new Set(), status:"all", sort:"featured" },
+  filters:{ search:"", cats:new Set(), price:new Set(), status:"all", sort:"custom" },
   open:new Set(),            // collapsed by default — nothing open
   sortOpen:false,
   activeItem:null, activeExp:null,
@@ -682,7 +685,8 @@ function sortList(list){
   if(s==="price_asc")  a.sort((x,y)=>x.amount-y.amount);
   else if(s==="price_desc") a.sort((x,y)=>y.amount-x.amount);
   else if(s==="name_asc")   a.sort((x,y)=>x.title.localeCompare(y.title));
-  else a.sort((x,y)=>((y.mostWanted?1:0)-(x.mostWanted?1:0)) || (x.sort-y.sort));
+  else if(s==="name_desc")  a.sort((x,y)=>y.title.localeCompare(x.title));
+  else a.sort((x,y)=>x.sort-y.sort);   // custom / couple's order
   return a;
 }
 
@@ -835,7 +839,7 @@ function renderCard(t){
 
   // Preview mode: the couple can drag gifts/funds to reorder them. Experiences
   // live in a separate table that bulk-sort doesn't cover, so they stay fixed.
-  const canDrag = state.preview && t.kind!=="experience";
+  const canDrag = state.preview;   // all cards reorderable
   const dragAttrs = canDrag
     ? ' draggable="true" data-id="'+t.id+'" data-kind="'+t.kind+'"'
       + ' ondragstart="dragStart(event)" ondragover="dragOver(event)"'
@@ -915,55 +919,83 @@ function dragStart(e){
   card.classList.add("dragging");
   try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragSrcId); } catch(_){}
 }
+function dropSide(e, card){
+  // Which half of the target is the cursor over? Left/top → insert before,
+  // right/bottom → insert after. Uses horizontal midpoint (grid flows in rows).
+  const r = card.getBoundingClientRect();
+  return (e.clientX - r.left) > r.width/2 ? "after" : "before";
+}
 function dragOver(e){
   e.preventDefault();
   try { e.dataTransfer.dropEffect = "move"; } catch(_){}
   const card = e.currentTarget;
-  if(card.getAttribute("data-id") !== dragSrcId) card.classList.add("drop-target");
+  if(card.getAttribute("data-id") === dragSrcId) return;
+  document.querySelectorAll(".drop-before,.drop-after").forEach(n=>n.classList.remove("drop-before","drop-after"));
+  card.classList.add(dropSide(e, card)==="after" ? "drop-after" : "drop-before");
 }
 function dragEnd(e){
   e.currentTarget.classList.remove("dragging");
-  document.querySelectorAll(".drop-target").forEach(n=>n.classList.remove("drop-target"));
+  document.querySelectorAll(".drop-target,.drop-before,.drop-after").forEach(n=>n.classList.remove("drop-target","drop-before","drop-after"));
 }
 function dragDrop(e){
   e.preventDefault();
   const target = e.currentTarget;
-  document.querySelectorAll(".drop-target").forEach(n=>n.classList.remove("drop-target"));
+  const side = dropSide(e, target);
+  document.querySelectorAll(".drop-target,.drop-before,.drop-after").forEach(n=>n.classList.remove("drop-target","drop-before","drop-after"));
   const targetId = target.getAttribute("data-id");
   if(!dragSrcId || !targetId || dragSrcId===targetId) return;
-  reorder(dragSrcId, targetId);
+  reorder(dragSrcId, targetId, side);
 }
 
-function reorder(srcId, targetId){
+function reorder(srcId, targetId, side){
   const src = state.things.find(t=>t.id===srcId);
   const tgt = state.things.find(t=>t.id===targetId);
-  if(!src || !tgt || src.kind==="experience" || tgt.kind==="experience") return;
+  if(!src || !tgt || srcId===targetId) return;
 
-  // Work within the dragged item's own group, in the order currently shown.
-  const group = sortList(state.things.filter(t=>t.kind===src.kind && passesFilters(t)));
-  const from = group.findIndex(t=>t.id===srcId);
-  const to   = group.findIndex(t=>t.id===targetId);
+  // Reorder across the ENTIRE visible list (gifts, funds and experiences mixed),
+  // exactly as shown. Every card gets a single global position so a card can be
+  // dropped smoothly between any two others regardless of kind.
+  const list = sortList(state.things.filter(passesFilters));
+  const from = list.findIndex(t=>t.id===srcId);
+  const to   = list.findIndex(t=>t.id===targetId);
   if(from<0 || to<0) return;
 
-  const before = group.map(t=>({id:t.id, sort:t.sort}));   // for rollback
-  group.splice(to, 0, group.splice(from,1)[0]);            // move
-  group.forEach((t,i)=>{ t.sort = i; });                   // renumber 0..n-1
+  const before = list.map(t=>({id:t.id, sort:t.sort}));   // for rollback
+  const moved = list.splice(from,1)[0];                   // pull the dragged card
+  // Recompute the target index after removal, then insert before/after it.
+  let insert = list.findIndex(t=>t.id===targetId);
+  if(side==="after") insert += 1;
+  if(insert<0) insert = list.length;
+  list.splice(insert, 0, moved);                          // drop at the chosen spot
+  list.forEach((t,i)=>{ t.sort = i; });                   // one global 0..n-1 order
 
   // A manual order only makes sense under "custom" sort — switch to it so the
   // new order is what's actually displayed.
   state.filters.sort = "custom";
   render();
 
-  const payload = group.map((t,i)=>({ id: t.id, sort_order: i }));
-  fetch(RENDER_API+"/registry/items/bulk-sort", {
+  // Persist per table: gifts + cash funds are registry items (one endpoint);
+  // experiences live in their own table (their own endpoint). Each keeps its
+  // GLOBAL sort index, so both tables agree on one combined order.
+  const itemPayload = list.filter(t=>t.kind!=="experience").map(t=>({ id:t.id, sort_order:t.sort }));
+  const expPayload  = list.filter(t=>t.kind==="experience").map(t=>({ id:t.id, sort_order:t.sort }));
+
+  const calls = [];
+  if(itemPayload.length) calls.push(fetch(RENDER_API+"/registry/items/bulk-sort", {
     method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ items: payload })
-  }).then(r=>{
-    if(!r.ok) throw new Error("save failed");
-    return r.json();
-  }).then(res=>{
-    const failed = (res.results||[]).filter(x=>!x.ok).length;
-    if(failed) throw new Error("some items didn't save");
+    body: JSON.stringify({ items: itemPayload })
+  }));
+  if(expPayload.length) calls.push(fetch(RENDER_API+"/registry/experiences/bulk-sort", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ items: expPayload })
+  }));
+
+  Promise.all(calls).then(async resps=>{
+    for(const r of resps){
+      if(!r.ok) throw new Error("save failed");
+      const j = await r.json();
+      if((j.results||[]).some(x=>!x.ok)) throw new Error("some items didn't save");
+    }
     toastPreview("Order saved");
   }).catch(()=>{
     before.forEach(b=>{ const t=state.things.find(x=>x.id===b.id); if(t) t.sort=b.sort; });
