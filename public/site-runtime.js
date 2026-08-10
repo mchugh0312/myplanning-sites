@@ -913,8 +913,10 @@
       '.mp-std-names{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
       '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:6px 0 0;' +
         'color:' + inkColor + ';text-shadow:' + shadow + '}' +
-      '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;margin:0;opacity:0.92}' +
-      '.mp-std-under{text-align:center;margin-top:14px;position:relative;z-index:8;pointer-events:none}' +
+      '.mp-std-loc{opacity:0.85;margin-top:4px}' +
+      '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;opacity:0.92;' +
+        'margin:16px 0 0}' +
+      '.mp-std-bottom .mp-std-meta:first-child{margin-top:0}' +
       '@media(max-width:640px){' +
         '.mp-std-top{top:5%}.mp-std-bottom{bottom:5%}' +
         '.mp-std-eyebrow{font-size:0.7rem;letter-spacing:0.26em}' +
@@ -934,45 +936,17 @@
       (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '');
     hero.appendChild(top);
 
-    // ── Middle: date then location, directly under the couple's names ────
-    var metaHtml =
-      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
-      (location ? '<p class="mp-std-meta" style="opacity:0.85">' + esc(location) + '</p>' : '');
-
-    if (metaHtml) {
-      if (namesEl && namesEl.parentNode) {
-        // Sit it immediately after the names element. Absolutely-positioned
-        // name blocks (Coastal Chic) need the meta positioned with them rather
-        // than in normal flow, or it lands at the top of the hero.
-        var namesAbs = false;
-        try { namesAbs = getComputedStyle(namesEl).position === 'absolute'; } catch (e) {}
-        var meta = document.createElement('div');
-        meta.className = 'mp-std-under';
-        meta.innerHTML = metaHtml;
-        if (namesAbs) {
-          meta.style.position = 'absolute';
-          meta.style.left = '50%';
-          meta.style.transform = 'translateX(-50%)';
-          meta.style.width = 'min(92%,680px)';
-          // Just below the names block.
-          try {
-            var nRect = namesEl.getBoundingClientRect();
-            var hRect = hero.getBoundingClientRect();
-            meta.style.top = Math.round(nRect.bottom - hRect.top + 10) + 'px';
-          } catch (e) { meta.style.bottom = '8%'; }
-          hero.appendChild(meta);
-        } else {
-          namesEl.parentNode.insertBefore(meta, namesEl.nextSibling);
-        }
-      } else {
-        top.insertAdjacentHTML('beforeend', '<div class="mp-std-under">' + metaHtml + '</div>');
-      }
-    }
-
-    // ── Bottom: formal invitation to follow ──────────────────────────────
+    // ── Bottom: date, location, then the invitation line ─────────────────
+    // Kept as ONE stack rather than positioned against the hero's name element.
+    // Measuring off the names worked in theory and collided in practice: on
+    // Coastal Chic the names sit at bottom:14%, so the measured block landed on
+    // top of the invitation line and the two printed over each other.
     var bottom = document.createElement('div');
     bottom.className = 'mp-std-bottom';
-    bottom.innerHTML = '<p class="mp-std-note">Formal invitation to follow</p>';
+    bottom.innerHTML =
+      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
+      (location ? '<p class="mp-std-meta mp-std-loc">' + esc(location) + '</p>' : '') +
+      '<p class="mp-std-note">Formal invitation to follow</p>';
     hero.appendChild(bottom);
 
     try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}

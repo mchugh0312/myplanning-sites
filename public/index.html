@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#f9f7f5;font-family:'Instrument Serif',serif}
+body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
 
 .loading-screen{
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;flex-direction:column;
-  background:#f9f7f5;position:relative;overflow:hidden;
+  background:var(--load-bg,#f9f7f5);position:relative;overflow:hidden;
 }
 
 /* Subtle petal scatter background */
@@ -66,25 +66,25 @@ body{background:#f9f7f5;font-family:'Instrument Serif',serif}
 
 .loading-title{
   font-family:'Instrument Serif',serif;
-  font-size:1.5rem;color:#8d8863;
+  font-size:1.5rem;color:var(--load-ink,#8d8863);
   font-weight:400;letter-spacing:0.02em;
   font-style:italic;
 }
 .loading-sub{
   font-family:'Instrument Serif',serif;
-  font-size:0.82rem;color:#b5ad9a;
+  font-size:0.82rem;color:var(--load-ink,#b5ad9a);opacity:0.7;
   letter-spacing:0.1em;margin-top:-16px;
 }
 
 /* Thin olive progress line */
 .loading-line{
-  width:120px;height:1px;background:#e8e4dc;
+  width:120px;height:1px;background:var(--load-rule,#e8e4dc);
   position:relative;overflow:hidden;
   border-radius:999px;
 }
 .loading-line::after{
   content:'';position:absolute;left:-100%;top:0;
-  width:100%;height:100%;background:#8d8863;
+  width:100%;height:100%;background:var(--load-accent,#8d8863);
   animation:lineSlide 1.8s ease-in-out infinite;
   border-radius:999px;
 }
@@ -119,6 +119,58 @@ body{background:#f9f7f5;font-family:'Instrument Serif',serif}
 <script>
 const API = 'https://wedding-recommender.onrender.com';
 
+// ── Template themes ─────────────────────────────────────────────────────────
+// Each template's own loading motif and palette, mirroring TEMPLATES in
+// site-runtime.js. Used to theme the loading screen so a couple never sees
+// another template's design element while their site loads.
+const TEMPLATE_THEME = {
+  pressedpetals: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png', bg: '#f9f7f5', ink: '#040505', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)' },
+  heirloombloom: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png', bg: '#f2ece7', ink: '#4a3a3d', accent: '#673d45', rule: 'rgba(103,61,69,0.28)' },
+  blacktietimeless: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png', bg: '#f4f2ed', ink: '#1c2120', accent: '#1c2120', rule: 'rgba(28,33,32,0.24)' },
+  goldenhour: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png', bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
+  sageandstill: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png', bg: '#f5f3ee', ink: '#1f211d', accent: '#696c62', rule: 'rgba(105,108,98,0.28)' },
+  modernminimal: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg', bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
+  whimsicalromance: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png', bg: '#fffdf5', ink: '#53141e', accent: '#e5989b', rule: 'rgba(83,20,30,0.24)' },
+  coastalchic: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b5e87fe-b224-4bc4-9489-3488fd7e5964.svg', bg: '#fefaf1', ink: '#1b2a41', accent: '#5f7689', rule: 'rgba(27,42,65,0.22)' },
+  vintagelovestory: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg', bg: '#f4efe6', ink: '#1a1a1a', accent: '#6b5844', rule: 'rgba(26,26,26,0.2)' },
+  regalboho: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png', bg: '#f1e4c9', ink: '#53141e', accent: '#53141e', rule: 'rgba(83,20,30,0.24)' },
+};
+
+// Brand-neutral default. On a first visit we don't know the template until the
+// API answers, so we show the MyPlanning.ai mark rather than borrowing one
+// template's motif — the flower is Pressed Petals' and looked wrong on the
+// other nine.
+const BRAND_THEME = {
+  img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png',
+  bg: '#f9f7f5', ink: '#8d8863', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)'
+};
+
+// After the first load we know which template this slug uses, so the next visit
+// (and the redirect back from the template) can theme the loader immediately.
+function rememberTemplate(slug, tid) {
+  try { localStorage.setItem('tmpl_' + slug, tid); } catch (e) {}
+}
+function recallTheme(slug) {
+  try {
+    const tid = localStorage.getItem('tmpl_' + slug);
+    if (tid && TEMPLATE_THEME[tid]) return TEMPLATE_THEME[tid];
+  } catch (e) {}
+  return BRAND_THEME;
+}
+
+// Paint the loading screen in the remembered template's colours and motif.
+function applyLoadingTheme(theme) {
+  try {
+    const root = document.documentElement.style;
+    root.setProperty('--load-bg', theme.bg);
+    root.setProperty('--load-ink', theme.ink);
+    root.setProperty('--load-accent', theme.accent);
+    root.setProperty('--load-rule', theme.rule);
+    document.querySelectorAll('.loading-screen img').forEach(img => { img.src = theme.img; });
+  } catch (e) {}
+}
+
+
 // Map template label (as returned by the backend, lowercased) → template file.
 // Add new templates here as you build them.
 const TEMPLATE_MAP = {
@@ -148,17 +200,28 @@ const DEFAULT_TEMPLATE = '/template-pressedpetals.html';
 const path = window.location.pathname.split('/').filter(p => p);
 const slug = path[0] || '';
 
+// Theme the loader before anything else renders.
+applyLoadingTheme(slug ? recallTheme(slug) : BRAND_THEME);
+
 function templateFor(data) {
   const label = (data && data.template ? String(data.template) : '').toLowerCase();
   return TEMPLATE_MAP[label] || DEFAULT_TEMPLATE;
+}
+
+// '/template-coastalchic.html' -> 'coastalchic'
+function templateIdFromFile(file) {
+  const m = /template-([a-z]+)\.html/.exec(file || '');
+  return m ? m[1] : '';
 }
 
 // Hand the payload to the template through sessionStorage so the template
 // doesn't have to re-fetch, then redirect. The template KEEPS this key (it used
 // to delete it), so a refresh on a password-protected site doesn't dead-end.
 function handOff(data) {
+  const file = templateFor(data);
+  rememberTemplate(slug, templateIdFromFile(file));
   try { sessionStorage.setItem('weddingData_' + slug, JSON.stringify(data)); } catch (e) {}
-  window.location.replace(templateFor(data) + '?slug=' + encodeURIComponent(slug));
+  window.location.replace(file + '?slug=' + encodeURIComponent(slug));
 }
 
 function escapeHtml(s) {
