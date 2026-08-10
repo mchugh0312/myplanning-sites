@@ -1257,13 +1257,23 @@ function hydrateTemplate(d){
   // ── Travel ──
   const travelSection = document.getElementById('travel-section');
   if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
+  var travelBtn = document.getElementById('travelBtn');
   if (menu.travel && d.travel_info){
     document.getElementById('travelContent').innerHTML = d.travel_info;
-    // Hide Book Now if no link in travel info — keep visible by default for design parity.
-    // If travel_info contains a hotel URL/link, you can wire up #travelBtn here.
-  } else {
-    var btn = document.getElementById('travelBtn');
-    if (btn) btn.style.display = 'none';
+    // Dedicated fields (Travel URL / Accomodation URL) first; a link pasted
+    // into the copy is the fallback. No link means no button, rather than a
+    // button pointing at '#'.
+    var _src = d.travel_info + ' ' + (d.accommodation_info || '');
+    var _a = _src.match(/<a[^>]+href=["']([^"']+)["']/i);
+    var _bare = _src.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+    var _bookUrl = d.travel_url || d.accommodation_url ||
+      (_a ? _a[1] : (_bare ? _bare[0].replace(/[.,;)]+$/,'') : ''));
+    if (travelBtn){
+      if (_bookUrl){ travelBtn.href = _bookUrl; travelBtn.style.display = ''; }
+      else { travelBtn.style.display = 'none'; }
+    }
+  } else if (travelBtn){
+    travelBtn.style.display = 'none';
   }
 
   // ── FAQs ──
@@ -1340,8 +1350,11 @@ function hydrateTemplate(d){
         infoEl.href = linkMatch[1];
         infoEl.textContent = 'View more on ' + linkMatch[2];
       } else {
-        // Show plain text below grid
-        ctaWrap.innerHTML = '<div style="font-family:var(--body);font-size:0.92rem;line-height:1.7;color:var(--black);max-width:520px;margin:0 auto;">' + d.registry_info + '</div>';
+        // No external link: keep the button (the runtime points it at
+        // /{slug}/registry) and show the couple's text above it.
+        infoEl.textContent = 'View Our Registry';
+        ctaWrap.insertAdjacentHTML('afterbegin',
+          '<div style="font-family:var(--body);font-size:0.92rem;line-height:1.7;color:var(--black);max-width:520px;margin:0 auto 1rem;">' + d.registry_info + '</div>');
       }
     }
   }

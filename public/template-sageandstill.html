@@ -108,7 +108,7 @@ body.hydrating{visibility:hidden}
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
 .menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
 .menu-drawer{
-  width:340px;background:var(--dark-green);
+  width:min(42%,420px);background:var(--sage);
   transform:translateX(100%);
   transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
   display:flex;flex-direction:column;justify-content:flex-start;
@@ -122,30 +122,30 @@ body.hydrating{visibility:hidden}
 .menu-close{
   position:absolute;top:1.4rem;right:1.6rem;
   background:none;border:none;font-size:1.6rem;
-  cursor:pointer;color:#ffffff;opacity:0.7;line-height:1;
+  cursor:pointer;color:var(--dark-green);opacity:0.7;line-height:1;
   font-family:var(--body);font-weight:300;
 }
 .menu-close:hover{opacity:1}
 .menu-title{
   font-family:var(--display);
-  font-size:1.7rem;letter-spacing:0.18em;
-  color:#ffffff;margin-bottom:1.8rem;
+  font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:0.18em;
+  color:var(--offwhite);margin-bottom:1.8rem;
   font-weight:400;text-transform:uppercase;
 }
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
   font-family:var(--sub);
-  font-size:0.98rem;
-  color:rgba(255,255,255,0.92);
+  font-size:1.02rem;
+  color:var(--dark-green);
   text-decoration:none;
   letter-spacing:0.02em;display:block;
-  padding:0.55rem 0;
-  transition:color 0.2s, padding-left 0.25s;
+  padding:0.55rem 0;width:fit-content;
+  border-bottom:1px solid transparent;
+  transition:border-color 0.2s;
 }
 .menu-links li a:hover,
 .menu-links li a.active{
-  color:#ffffff;
-  padding-left:0.4rem;
+  border-bottom-color:var(--dark-green);
 }
 
 /* ── NAV ──────────────────────────────────────────────────── */
@@ -181,7 +181,9 @@ body.hydrating{visibility:hidden}
 .hero-couple-name{
   font-family:var(--display);
   font-size:clamp(3.4rem, 14vw, 9rem);
-  color:var(--text);
+  /* Light sage, per the design — the names read as a soft wash behind the
+     photo rather than as solid black type. */
+  color:var(--sage);
   font-weight:400;
   line-height:0.95;
   letter-spacing:0.005em;
@@ -214,17 +216,17 @@ body.hydrating{visibility:hidden}
 
 /* ── THE WEEKEND (green-gray bg, single column) ───────────── */
 .weekend{
-  background:var(--green-gray);
+  background:var(--sage);
   padding:5rem 2rem;
   text-align:center;
-  color:#ffffff;
+  color:var(--offwhite);
 }
 .weekend-inner{max-width:680px;margin:0 auto;}
 .weekend-title{
   font-family:var(--display);
   font-size:clamp(1.6rem, 3.4vw, 2.1rem);
   letter-spacing:0.22em;
-  color:#ffffff;
+  color:var(--dark-green);
   font-weight:400;
   text-transform:uppercase;
   margin-bottom:3rem;
@@ -236,7 +238,7 @@ body.hydrating{visibility:hidden}
 .weekend-event-name{
   font-family:var(--sub);
   font-size:1.15rem;
-  color:rgba(255,255,255,0.85);
+  color:var(--dark-green);
   margin-bottom:0.85rem;
   letter-spacing:0.01em;
   font-style:italic;
@@ -244,7 +246,7 @@ body.hydrating{visibility:hidden}
 .weekend-event-detail{
   font-family:var(--body);
   font-size:0.82rem;
-  color:rgba(255,255,255,0.92);
+  color:var(--offwhite);
   line-height:1.85;
   letter-spacing:0.02em;
   font-weight:400;
@@ -258,7 +260,8 @@ body.hydrating{visibility:hidden}
   font-family:var(--sub);
   font-style:italic;
   font-size:0.95rem;
-  color:rgba(255,255,255,0.88);
+  color:var(--offwhite);
+  font-weight:600;
 }
 .weekend-event-dress{
   display:block;
@@ -427,7 +430,7 @@ body.hydrating{visibility:hidden}
 
 /* ── ACCOMMODATIONS (two-card row) ────────────────────────── */
 .accommodations{
-  background:var(--offwhite);
+  background:var(--sage);
   padding:4rem 2rem 5rem;
 }
 .accom-inner{
@@ -438,7 +441,7 @@ body.hydrating{visibility:hidden}
   gap:1.5rem;
 }
 .accom-card{
-  background:#ebe7dd;
+  background:var(--offwhite);
   padding:2rem 1.5rem;
   text-align:center;
   display:flex;
@@ -879,7 +882,7 @@ body.thumbnail-mode .hero-photo-wrap{
     </h1>
     <div class="hero-photo-wrap">
       <img id="heroImg"
-        src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png"
+        src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8ab81a3c-e279-4e9d-8c54-1dbc50ca5345.png"
         alt="Couple photo">
     </div>
   </div>
@@ -1113,7 +1116,22 @@ function fmtDate(d) {
 // Convention: <strong>Hotel Name</strong> ... <em>note</em>
 // First <strong>...</strong> = name (italicised in the card)
 // First <em>...</em> = meta text (italic in card)
-function renderAccomCard(title, html) {
+// Booking links come from the Accomodation URL / Travel URL fields; a link
+// pasted into the section copy still works as a fallback, and with neither the
+// button is hidden rather than left as a dead href="#".
+function _mpBookUrl(html, fieldUrl) {
+  if (fieldUrl) return fieldUrl;
+  if (!html) return '';
+  var a = html.match(/<a[^>]+href=["']([^"']+)["']/i);
+  if (a && /^https?:/i.test(a[1])) return a[1];
+  var bare = html.replace(/<[^>]+>/g, ' ').match(/https?:\/\/[^\s<>"']+/i);
+  if (bare) return bare[0].replace(/[.,;)]+$/, '');
+  var www = html.replace(/<[^>]+>/g, ' ').match(/\bwww\.[^\s<>"']+/i);
+  if (www) return 'https://' + www[0].replace(/[.,;)]+$/, '');
+  return '';
+}
+
+function renderAccomCard(title, html, fieldUrl) {
   var card = document.createElement('div');
   card.className = 'accom-card';
 
@@ -1131,9 +1149,7 @@ function renderAccomCard(title, html) {
   rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
   var place = rest.replace(/<[^>]+>/g, '').trim();
 
-  // Try to extract URL from any <a href="..."> inside the original blob
-  var urlMatch = html.match(/href=["']([^"']+)["']/i);
-  var bookUrl = urlMatch ? urlMatch[1] : '#';
+  var bookUrl = _mpBookUrl(html, fieldUrl);
 
   var nameHtml = name || (place ? place : title);
   card.innerHTML =
@@ -1142,7 +1158,7 @@ function renderAccomCard(title, html) {
     '<div class="accom-card-name">' + nameHtml + '</div>' +
     (place && name ? '<div class="accom-card-place">' + place + '</div>' : '') +
     (meta ? '<div class="accom-card-meta"><em>' + meta + '</em></div>' : '') +
-    '<a class="accom-card-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>';
+    (bookUrl ? '<a class="accom-card-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '');
   return card;
 }
 
@@ -1392,11 +1408,11 @@ function hydrateTemplate(d) {
         accomInner.style.gridTemplateColumns = '1fr 1fr';
 
         if (hotelHtml) {
-          var hotelCard = renderAccomCard('Hotel', hotelHtml);
+          var hotelCard = renderAccomCard('Hotel', hotelHtml, d.accommodation_url);
           accomInner.appendChild(hotelCard);
         }
         if (flightHtml) {
-          var flightCard = renderAccomCard('Flights', flightHtml);
+          var flightCard = renderAccomCard('Flights', flightHtml, d.travel_url);
           accomInner.appendChild(flightCard);
         } else if (hotelHtml) {
           // Only one card — let it span and centre

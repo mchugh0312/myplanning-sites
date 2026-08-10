@@ -120,7 +120,7 @@
       heroId: 'hero',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','travel-section','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
       fonts: { display: "'Poppins',sans-serif", body: "'Poppins',sans-serif" }
@@ -142,7 +142,7 @@
       heroId: 'hero',
       stdHideIds: ['our-story','event-schedule','travel-section','accommodations','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b5e87fe-b224-4bc4-9489-3488fd7e5964.svg',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/35c7f1a4-8d18-414b-ae05-0d7246886b52.png',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fefaf1', ink: '#1b2a41', accent: '#5f7689', rule: 'rgba(27,42,65,0.22)' },
       fonts: { display: "'La Belle Aurore',cursive", body: "'Lexend Deca',sans-serif" }

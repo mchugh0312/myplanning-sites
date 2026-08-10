@@ -1397,11 +1397,14 @@ function hydrateTemplate(d){
       var src = (menu.travel && d.travel_info ? d.travel_info : '')
              || (menu.accommodations && d.accommodation_info ? d.accommodation_info : '');
       var linkMatch = src.match(/<a[^>]+href=["']([^"']+)["']/i);
-      if (linkMatch){
-        btn.href = linkMatch[1];
-      }
-      // Always visible — even without a link, the button is part of the layout.
-      btn.style.display = '';
+      var bareMatch = src.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+      // Dedicated fields (Travel URL / Accomodation URL) win; a link pasted
+      // into the copy is the fallback.
+      var bookUrl = d.travel_url || d.accommodation_url ||
+        (linkMatch ? linkMatch[1] : (bareMatch ? bareMatch[0].replace(/[.,;)]+$/,'') : ''));
+      if (bookUrl) btn.href = bookUrl;
+      // A button that goes nowhere is worse than no button.
+      btn.style.display = bookUrl ? '' : 'none';
     }
   }
 
@@ -1481,7 +1484,10 @@ function hydrateTemplate(d){
         infoEl.innerHTML = withoutLink || infoEl.innerHTML;
       } else {
         infoEl.innerHTML = d.registry_info;
-        if (btnEl) btnEl.style.display = 'none';
+        // Keep the button: with no external link the runtime points it at the
+        // couple's own registry page at /{slug}/registry. Hiding it here left
+        // guests with a registry section they couldn't open.
+        if (btnEl) btnEl.textContent = 'View Our Registry';
       }
     }
   }
