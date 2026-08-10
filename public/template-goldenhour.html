@@ -33,15 +33,14 @@
 <meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
 <meta name="theme-color" content="#32344b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=La+Belle+Aurore&family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Holiday';src:url('/fonts/HOLIDAYScript.woff2') format('woff2'),url('/fonts/HOLIDAYScript.woff') format('woff');font-weight:normal;font-style:normal;}
-
 :root{
   --blue:    #d7dde4;
   --dark:    #32344b;
   --white:   #ffffff;
-  --script:  'Holiday','Parfumerie Script',cursive;
+  /* Typeface per the design: La Belle Aurore for display, Garamond for text. */
+  --script:  'La Belle Aurore',cursive;
   --serif:   'EB Garamond','Garamond',Georgia,serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -89,8 +88,11 @@ body.thumbnail-mode .hero-names-text{
   opacity:0;transition:opacity 0.35s ease;}
 .menu-overlay.open{opacity:1;pointer-events:auto;}
 /* Left half carries the couple's photo, desaturated, as in the design. */
+/* Recedes behind the panel — dimmed and very slightly soft, but the photo
+   keeps its colour. It was desaturated to greyscale, which was wrong. */
 .menu-photo{flex:1;background-size:cover;background-position:center;
-  filter:grayscale(1) brightness(0.82);cursor:pointer;}
+  filter:brightness(0.78) saturate(0.95);cursor:pointer;
+  transform:scale(1.02);transition:filter 0.4s ease,transform 0.4s ease;}
 .menu-drawer{width:min(52%,620px);background:var(--blue);
   transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
   display:flex;flex-direction:column;justify-content:flex-start;
@@ -136,7 +138,9 @@ body.thumbnail-mode .hero-names-text{
 }
 .hero-names-text{
   font-family:var(--script);
-  font-size:clamp(2.2rem,5.5vw,4.2rem);
+  /* La Belle Aurore sits smaller on the line than the previous face, so the
+     display sizes step up to keep the design's presence. */
+  font-size:clamp(2.6rem,6.4vw,5rem);
   color:var(--white);
   white-space:nowrap;
   text-shadow:0 2px 16px rgba(0,0,0,0.35);
@@ -173,18 +177,22 @@ body.thumbnail-mode .hero-names-text{
 .event-dress{display:block;margin-top:1.2rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
 /* ── ACCOMMODATION & TRAVEL ───────────────────────────────────── */
-.split-section{display:grid;grid-template-columns:1fr 1fr;min-height:320px;}
-.split-content{background:var(--white);padding:3.5rem 3rem;display:flex;
-  flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+/* Height is capped so Accommodations + Travel together fill about one screen
+   (2 x 46vh + the page's own rhythm), rather than each taking a screen. */
+.split-section{display:grid;grid-template-columns:1fr 1fr;
+  height:clamp(280px,46vh,440px);}
+.split-content{background:var(--white);padding:2rem 2.5rem;display:flex;
+  flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  overflow:hidden;}
 .split-photo{overflow:hidden;}
 .split-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-.split-label{font-family:var(--script);font-size:2rem;color:var(--dark);margin-bottom:0.7rem;}
-.split-rule{width:64px;height:1px;background:rgba(50,52,75,0.35);margin:0 auto 1.2rem;}
-.split-name{font-family:var(--serif);font-size:0.92rem;color:var(--dark);line-height:1.7;margin-bottom:0.5rem;font-weight:600;}
-.split-note{font-family:var(--serif);font-size:0.8rem;color:var(--dark);line-height:1.7;font-style:italic;margin-bottom:1.5rem;}
+.split-label{font-family:var(--script);font-size:clamp(1.5rem,2.4vw,1.9rem);color:var(--dark);margin-bottom:0.5rem;line-height:1;}
+.split-rule{width:64px;height:1px;background:rgba(50,52,75,0.35);margin:0 auto 0.9rem;}
+.split-name{font-family:var(--serif);font-size:0.88rem;color:var(--dark);line-height:1.55;margin-bottom:0.4rem;font-weight:600;}
+.split-note{font-family:var(--serif);font-size:0.78rem;color:var(--dark);line-height:1.6;font-style:italic;margin-bottom:1.1rem;}
 .split-btn{display:inline-block;border:1px solid var(--dark);color:var(--white);
-  font-family:var(--serif);font-size:0.72rem;letter-spacing:0.08em;
-  padding:0.6rem 1.8rem;cursor:pointer;background:var(--dark);
+  font-family:var(--serif);font-size:0.7rem;letter-spacing:0.08em;
+  padding:0.5rem 1.6rem;cursor:pointer;background:var(--dark);
   text-decoration:none;transition:opacity 0.2s;width:fit-content;}
 .split-btn:hover{opacity:0.85;}
 
@@ -208,7 +216,10 @@ body.thumbnail-mode .hero-names-text{
 
 /* ── REGISTRY ─────────────────────────────────────────────────── */
 .registry-section{background:var(--white);padding:4rem 2rem;text-align:center;border-top:1px solid rgba(50,52,75,0.1);}
-.registry-title{font-family:var(--script);font-size:clamp(1.8rem,4vw,2.8rem);color:var(--dark);}
+.registry-title{font-family:var(--script);font-size:clamp(1.8rem,4vw,2.8rem);color:var(--dark);
+  display:inline-block;text-decoration:none;border-bottom:1px solid transparent;
+  padding-bottom:2px;transition:border-color 0.2s;}
+a.registry-title:hover{border-bottom-color:var(--dark);}
 .registry-body{font-family:var(--serif);font-size:0.82rem;color:rgba(50,52,75,0.65);line-height:1.9;margin-top:0.8rem;}
 
 /* ── RSVP ─────────────────────────────────────────────────────── */
@@ -341,8 +352,8 @@ body.thumbnail-mode .hero-names-text{
     line-height:1.15;
   }
   .wedding-cards{grid-template-columns:1fr;gap:1rem;}
-  .split-section{grid-template-columns:1fr;}
-  .split-photo{height:280px;}
+  .split-section{grid-template-columns:1fr;height:auto;}
+  .split-photo{height:240px;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   /* Thumbnail mode: CSS background handles display */
   body.thumbnail-mode .hero-section{height:66.67vw!important;min-height:0!important;display:block!important;}
@@ -422,7 +433,7 @@ body.thumbnail-mode .hero-names-text{
   <div class="ntk-title">Need to Knows</div>
   <div class="ntk-inner" id="ntkList"></div>
   <img class="ntk-decoration"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ef0e1666-e3e4-45a8-bc40-1c03ae4df913.png"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png"
     alt="" id="ntkDecoration">
 </section>
 
@@ -437,7 +448,7 @@ body.thumbnail-mode .hero-names-text{
 
 <!-- REGISTRY -->
 <section class="registry-section" id="registry" style="display:none">
-  <div class="registry-title">See Our Registry</div>
+  <a class="registry-title registry-cta" id="registryCta" href="#">See Our Registry</a>
   <div class="registry-body" id="registryBody"></div>
 </section>
 

@@ -98,7 +98,7 @@
       heroId: 'home',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--blue', ink: '--dark' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
       fonts: { display: "'Holiday','Parfumerie Script',cursive", body: "'EB Garamond',Georgia,serif" }
@@ -911,12 +911,12 @@
       '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.34em;text-transform:uppercase;margin:0;' +
         'font-weight:500}' +
       '.mp-std-names{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
-      '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:6px 0 0;' +
+      '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:10px 0 0;' +
         'color:' + inkColor + ';text-shadow:' + shadow + '}' +
       '.mp-std-loc{opacity:0.85;margin-top:4px}' +
       '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;opacity:0.92;' +
         'margin:16px 0 0}' +
-      '.mp-std-bottom .mp-std-meta:first-child{margin-top:0}' +
+      '.mp-std-top .mp-std-eyebrow + .mp-std-meta{margin-top:12px}' +
       '@media(max-width:640px){' +
         '.mp-std-top{top:5%}.mp-std-bottom{bottom:5%}' +
         '.mp-std-eyebrow{font-size:0.7rem;letter-spacing:0.26em}' +
@@ -933,20 +933,15 @@
     var top = document.createElement('div');
     top.className = 'mp-std-top';
     top.innerHTML = '<p class="mp-std-eyebrow">Save the Date</p>' +
+      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
+      (location ? '<p class="mp-std-meta mp-std-loc">' + esc(location) + '</p>' : '') +
       (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '');
     hero.appendChild(top);
 
-    // ── Bottom: date, location, then the invitation line ─────────────────
-    // Kept as ONE stack rather than positioned against the hero's name element.
-    // Measuring off the names worked in theory and collided in practice: on
-    // Coastal Chic the names sit at bottom:14%, so the measured block landed on
-    // top of the invitation line and the two printed over each other.
+    // ── Bottom: the invitation line only ─────────────────────────────────
     var bottom = document.createElement('div');
     bottom.className = 'mp-std-bottom';
-    bottom.innerHTML =
-      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
-      (location ? '<p class="mp-std-meta mp-std-loc">' + esc(location) + '</p>' : '') +
-      '<p class="mp-std-note">Formal invitation to follow</p>';
+    bottom.innerHTML = '<p class="mp-std-note">Formal invitation to follow</p>';
     hero.appendChild(bottom);
 
     try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}
@@ -1057,7 +1052,10 @@
   ].join(',');
 
   function wireRegistryLinks(d) {
-    var slug = window._weddingSlug || _liveSlug || '';
+    // The editor preview receives a real slug in its payload, but navigating
+    // the preview iframe to the live registry isn't what a couple expects from
+    // a click in the editor — keep the button inert there.
+    var slug = _isPreview ? '' : (window._weddingSlug || _liveSlug || '');
     var url = slug ? '/' + encodeURIComponent(slug) + '/registry' : '';
 
     var nodes = [];
@@ -1073,6 +1071,23 @@
         Array.prototype.slice.call(section.querySelectorAll('a[href="#"], a:not([href])'))
           .forEach(function (a) { if (nodes.indexOf(a) === -1) nodes.push(a); });
       } catch (e) {}
+    }
+
+    // Five templates ship a registry section with no clickable element at all
+    // (Black Tie Timeless, Heirloom Bloom, Pressed Petals, Sage & Still, and
+    // Golden Hour before this pass). Give those a text link rather than leaving
+    // guests with a registry section they can't open. It inherits the section's
+    // own type and colour, so it reads as part of the template.
+    if (!nodes.length && section && url) {
+      var fallback = document.createElement('a');
+      fallback.className = 'mp-registry-fallback';
+      fallback.textContent = 'View Our Registry';
+      fallback.style.cssText = 'display:inline-block;margin-top:1.1rem;font:inherit;' +
+        'font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;' +
+        'color:inherit;text-decoration:none;border-bottom:1px solid currentColor;' +
+        'padding-bottom:3px;opacity:0.85;cursor:pointer';
+      section.appendChild(fallback);
+      nodes.push(fallback);
     }
 
     nodes.forEach(function (a) {
@@ -1223,61 +1238,6 @@
     document.body.appendChild(scrim);
     document.body.appendChild(panel);
     document.body.appendChild(btn);
-  }
-
-  /* ==========================================================================
-     REGISTRY LINKS
-     ==========================================================================
-     The couple's registry lives at /{slug}/registry, which vercel.json rewrites
-     to the live registry page. That page reads the slug straight back out of
-     the path, so the link has to keep this exact shape.
-
-     Templates ship their registry buttons as href="#" placeholders and only
-     replace them if the couple happens to have typed a URL into their registry
-     text. An unreplaced href="#" with target="_blank" opens a second copy of
-     the wedding site — which is what guests were getting instead of the
-     registry.
-  ========================================================================== */
-  var REGISTRY_LINK_SELECTORS = [
-    '#registryCta', '#registryBtn', '.registry-cta', '.registry-btn',
-    '.registry-buy-btn', '.registry-link'
-  ].join(',');
-
-  function wireRegistryLinks(d) {
-    var slug = window._weddingSlug || _liveSlug || '';
-    var url = slug ? '/' + encodeURIComponent(slug) + '/registry' : '';
-
-    var nodes = [];
-    try { nodes = Array.prototype.slice.call(document.querySelectorAll(REGISTRY_LINK_SELECTORS)); }
-    catch (e) { return; }
-
-    // Also catch dead placeholder links sitting inside the registry section.
-    var section = document.getElementById('registry-section') ||
-                  document.getElementById('registry') ||
-                  document.getElementById('registry-wrap');
-    if (section) {
-      try {
-        Array.prototype.slice.call(section.querySelectorAll('a[href="#"], a:not([href])'))
-          .forEach(function (a) { if (nodes.indexOf(a) === -1) nodes.push(a); });
-      } catch (e) {}
-    }
-
-    nodes.forEach(function (a) {
-      if (!url) {
-        // Editor preview — there's no slug to build a real link from, so make
-        // the button inert rather than let it open a copy of the page.
-        a.setAttribute('href', '#');
-        a.removeAttribute('target');
-        a.style.cursor = 'default';
-        a.onclick = function (e) { e.preventDefault(); };
-        return;
-      }
-      a.setAttribute('href', url);
-      // Same site, so same tab. target="_blank" here was part of why a stray
-      // href="#" opened the wedding site again in a new tab.
-      a.removeAttribute('target');
-      a.removeAttribute('rel');
-    });
   }
 
   /* ==========================================================================
@@ -1480,6 +1440,46 @@
     document.body.style.visibility = 'visible';
   }
 
+  /* ==========================================================================
+     COUPLE NAMES
+     ==========================================================================
+     Sites should show the couple, never the celebration record's name. The
+     backend falls back to the Celebration Name when a partner field is blank,
+     which is how "Wedding - Monika & Manish" ended up as the hero title. When
+     that happens, strip the record-keeping wrapper off the front so what's
+     left is just the names.
+  ========================================================================== */
+  var NAME_PREFIXES = [
+    /^the\s+wedding\s+of\s+/i,
+    /^wedding\s+of\s+/i,
+    /^wedding\s*[-–—:]\s*/i,
+    /^celebration\s+of\s+/i,
+    /^celebration\s*[-–—:]\s*/i,
+    /^the\s+marriage\s+of\s+/i
+  ];
+  var NAME_SUFFIXES = [
+    /\s*[-–—:]\s*wedding$/i,
+    /['’]s\s+wedding$/i,
+    /\s+wedding$/i
+  ];
+
+  function cleanCoupleName(raw) {
+    var out = String(raw || '').trim();
+    if (!out) return '';
+    NAME_PREFIXES.forEach(function (re) { out = out.replace(re, ''); });
+    NAME_SUFFIXES.forEach(function (re) { out = out.replace(re, ''); });
+    return out.trim();
+  }
+
+  function coupleNames(d) {
+    var p1 = (d && d.partner_1 || '').trim();
+    var p2 = (d && d.partner_2 || '').trim();
+    if (p1 && p2) return p1 + ' & ' + p2;
+    if (p1) return p1;
+    if (p2) return p2;
+    return cleanCoupleName(d && d.couple_names);
+  }
+
   function isSaveTheDate(d) {
     return String(d && d.website_mode || 'Full').toLowerCase().indexOf('save') !== -1;
   }
@@ -1488,10 +1488,14 @@
     if (!d) return;
 
     // 1. Gate screens first — these never fall through to the template.
-    if (d.password_required) { renderPasswordScreen(d.couple_names || ''); return; }
-    if (d.not_published)     { renderComingSoon(d.couple_names || '', d.celebration_date || ''); return; }
+    if (d.password_required) { renderPasswordScreen(coupleNames(d)); return; }
+    if (d.not_published)     { renderComingSoon(coupleNames(d), d.celebration_date || ''); return; }
 
     window._weddingSlug = d.slug || _liveSlug || '';
+
+    // Every template and the save-the-date screen read d.couple_names, so
+    // normalise it here rather than in ten places.
+    d.couple_names = coupleNames(d);
 
     // 2. RSVP entree options must be set before the template builds its blocks.
     if (d.rsvp_config && Array.isArray(d.rsvp_config.entrees) && d.rsvp_config.entrees.length) {
@@ -1651,7 +1655,8 @@
     renderComingSoon: renderComingSoon,
     renderPasswordScreen: renderPasswordScreen,
     renderNotFound: renderNotFound,
-    fmtDate: fmtDate
+    fmtDate: fmtDate,
+    coupleNames: coupleNames
   };
 
   if (document.readyState === 'loading') {
