@@ -28,15 +28,17 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
   display:flex;flex-direction:column;align-items:center;gap:28px;
 }
 
-/* Flower spinner — uses the actual flower image, spins gently */
+/* Motif — the template's own mark. It sits still: no rotation. It breathes
+   very slightly and catches a light sweep, the same treatment as the star in
+   the wordmark. */
 .flower-spinner{
   position:relative;width:72px;height:72px;
 }
 .flower-spinner img{
   width:100%;height:100%;object-fit:contain;
-  animation:petalSpin 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+  animation:motifBreathe 3.6s ease-in-out infinite;
   transform-origin:center;
-  filter:drop-shadow(0 4px 12px rgba(141,136,99,0.25));
+  filter:drop-shadow(0 4px 12px rgba(141,136,99,0.18));
 }
 
 /* Brand mode — the MyPlanning.ai wordmark. No rotation: a spinning wordmark
@@ -52,7 +54,7 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
 }
 .loading-screen.brand-mode .petal{display:none;}
 .loading-screen.petals-off .petal{display:none;}
-.loading-screen.brand-mode .brand-shine{
+.brand-shine{
   position:absolute;inset:0;
   pointer-events:none;
   background:linear-gradient(105deg,
@@ -63,25 +65,23 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
   background-size:260% 100%;
   background-position:190% 0;
   mix-blend-mode:overlay;
-  animation:brandShine 1.5s ease-out 0.35s 1 forwards;
+  animation:brandShine 4.2s ease-out 0.5s infinite;
 }
 @keyframes brandShine{
   0%   {background-position:190% 0;opacity:0}
-  15%  {opacity:1}
-  85%  {opacity:1}
+  6%   {opacity:0.85}
+  26%  {opacity:0.85}
+  34%  {background-position:-90% 0;opacity:0}
   100% {background-position:-90% 0;opacity:0}
 }
 @media(prefers-reduced-motion:reduce){
-  .loading-screen.brand-mode .brand-shine{animation:none;display:none}
-  .flower-spinner img{animation:none}
+  .brand-shine{animation:none;display:none}
+  .flower-spinner img{animation:none;opacity:1;transform:none}
   .petal{display:none}
 }
-@keyframes petalSpin{
-  0%   {transform:rotate(0deg)   scale(1)}
-  25%  {transform:rotate(90deg)  scale(1.06)}
-  50%  {transform:rotate(180deg) scale(1)}
-  75%  {transform:rotate(270deg) scale(1.06)}
-  100% {transform:rotate(360deg) scale(1)}
+@keyframes motifBreathe{
+  0%,100% {opacity:0.88;transform:scale(1)}
+  50%     {opacity:1;   transform:scale(1.025)}
 }
 
 /* Floating petals */
@@ -166,7 +166,7 @@ const TEMPLATE_THEME = {
   pressedpetals: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png', bg: '#f9f7f5', ink: '#040505', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)' },
   heirloombloom: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png', bg: '#f2ece7', ink: '#4a3a3d', accent: '#673d45', rule: 'rgba(103,61,69,0.28)' },
   blacktietimeless: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png', bg: '#f4f2ed', ink: '#1c2120', accent: '#1c2120', rule: 'rgba(28,33,32,0.24)' },
-  goldenhour: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png', bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
+  goldenhour: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/015b4006-b2b0-4cdc-85fb-6c86758de1f9.png', bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
   sageandstill: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png', bg: '#f5f3ee', ink: '#1f211d', accent: '#696c62', rule: 'rgba(105,108,98,0.28)' },
   modernminimal: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg', bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
   whimsicalromance: { img: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png', bg: '#fffdf5', ink: '#53141e', accent: '#e5989b', rule: 'rgba(83,20,30,0.24)' },

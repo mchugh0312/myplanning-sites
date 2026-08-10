@@ -98,7 +98,7 @@
       heroId: 'home',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--blue', ink: '--dark' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/015b4006-b2b0-4cdc-85fb-6c86758de1f9.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
       fonts: { display: "'Holiday','Parfumerie Script',cursive", body: "'EB Garamond',Georgia,serif" }
@@ -1553,12 +1553,17 @@
     var p = CFG.palette;
     document.body.innerHTML =
       '<style>@keyframes mpPulse{0%,100%{opacity:0.35}50%{opacity:1}}' +
-      '@keyframes mpSlide{0%{left:-100%}50%{left:0}100%{left:100%}}</style>' +
+      // Motif breathes; it never rotates.
+      '@keyframes mpBreathe{0%,100%{opacity:0.88;transform:scale(1)}' +
+        '50%{opacity:1;transform:scale(1.025)}}' +
+      '@keyframes mpSlide{0%{left:-100%}50%{left:0}100%{left:100%}}' +
+      '@media(prefers-reduced-motion:reduce){.mp-motif{animation:none!important}}</style>' +
       '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;' +
         'justify-content:center;gap:24px;background:' + p.bg + ';color:' + p.ink + '">' +
         (CFG.loadingImage
-          ? '<img src="' + CFG.loadingImage + '" alt="" style="width:72px;height:72px;object-fit:contain;' +
-            'animation:mpPulse 2.4s ease-in-out infinite">'
+          ? '<img class="mp-motif" src="' + CFG.loadingImage + '" alt="" ' +
+            'style="width:72px;height:72px;object-fit:contain;' +
+            'animation:mpBreathe 3.6s ease-in-out infinite">'
           : '') +
         '<p style="font-family:' + CFG.fonts.display + ';font-size:1.6rem;margin:0;' +
           'animation:mpPulse 2.2s ease-in-out infinite">Your celebration awaits</p>' +
