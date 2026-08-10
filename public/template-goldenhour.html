@@ -157,21 +157,21 @@ body.thumbnail-mode .hero-names-text{
 .wedding-section{background:var(--blue);padding:4rem 2rem 2.5rem;}
 .wedding-invite{font-family:var(--serif);font-size:1rem;color:var(--white);text-align:center;line-height:1.7;max-width:560px;margin:0 auto 3rem;}
 .wedding-invite em,.wedding-invite i{font-family:var(--script);font-size:1.4em;font-style:normal;}
-.wedding-cards{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:680px;margin:0 auto;}
-/* Borderless, divided by a single hairline — the bordered boxes were mine, the
-   design uses one vertical rule. */
-.wedding-card{padding:0.5rem 2rem 2rem;text-align:center;}
+/* One framed block containing both cards, divided by a single vertical rule —
+   border on all four sides as in the design. */
+.wedding-cards{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:680px;
+  margin:0 auto;border:1px solid rgba(255,255,255,0.45);}
+.wedding-card{padding:2rem 1.75rem;text-align:center;}
 .wedding-card + .wedding-card{border-left:1px solid rgba(255,255,255,0.45);}
 .wedding-card-name{font-family:var(--script);font-size:clamp(1.5rem,3.5vw,2.2rem);color:var(--white);margin-bottom:1.2rem;line-height:1.2;}
 .wedding-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);line-height:2;}
 .wedding-card-dress{display:block;margin-top:1rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
 /* ── OTHER EVENTS ─────────────────────────────────────────────── */
-.events-section{background:var(--blue);padding:0 2rem 4rem;}
-.events-section::before{content:'';display:block;width:min(680px,100%);height:1px;
-  background:rgba(255,255,255,0.45);margin:0 auto 3rem;}
-.events-inner{max-width:520px;margin:0 auto;}
-.event-box{padding:0 1rem 2rem;text-align:center;margin-bottom:1rem;}
+.events-section{background:var(--blue);padding:2.5rem 2rem 4rem;}
+.events-inner{max-width:680px;margin:0 auto;}
+.event-box{padding:2rem 1.75rem;text-align:center;margin-bottom:1.5rem;
+  border:1px solid rgba(255,255,255,0.45);}
 .event-name{font-family:var(--script);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--white);margin-bottom:1.4rem;line-height:1.2;}
 .event-detail{font-family:var(--serif);font-size:0.83rem;color:rgba(255,255,255,0.88);line-height:2;}
 .event-dress{display:block;margin-top:1.2rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
@@ -340,8 +340,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   /* Menu drawer takes the full width on a phone; the photo panel is desktop-only. */
   .menu-photo{display:none;}
   .menu-drawer{width:100%;padding:4.5rem 2rem 2.5rem;}
-  .wedding-card + .wedding-card{border-left:none;border-top:1px solid rgba(255,255,255,0.45);
-    padding-top:2rem;margin-top:0.5rem;}
+  .wedding-card + .wedding-card{border-left:none;border-top:1px solid rgba(255,255,255,0.45);}
   .split-content{padding:2.75rem 1.75rem;}
   /* On mobile only the centre photo is visible — scale the names down
      and allow wrapping so a long couple name doesn't run off-screen. */
@@ -485,6 +484,34 @@ var _rsvpEntreeOptions=[
   {value:'Vegetarian',label:'Vegetarian'},{value:'Vegan',label:'Vegan'},
   {value:'Kids Meal',label:'Kids Meal'}
 ];
+
+// Pulls a booking URL out of a section's content. Couples can paste a link into
+// the Accommodations / Travel text in the editor (either as a real link or as
+// bare text) and it becomes the Book Now button. Without one the button is
+// hidden rather than left as a dead href="#".
+function _extractUrl(html){
+  if(!html) return '';
+  var a = html.match(/<a[^>]+href=["']([^"']+)["']/i);
+  if(a && /^https?:/i.test(a[1])) return a[1];
+  var bare = html.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+  if(bare) return bare[0].replace(/[.,;)]+$/,'');
+  var www = html.replace(/<[^>]+>/g,' ').match(/\bwww\.[^\s<>"']+/i);
+  if(www) return 'https://' + www[0].replace(/[.,;)]+$/,'');
+  return '';
+}
+
+// Strips the URL back out of the display text so it isn't printed twice.
+function _stripUrl(text,url){
+  if(!text) return '';
+  var out = text.replace(/<a[^>]*>.*?<\/a>/gi,' ')
+                .replace(/https?:\/\/[^\s<>"']+/gi,' ')
+                .replace(/\bwww\.[^\s<>"']+/gi,' ');
+  return out.replace(/\s{2,}/g,' ').replace(/^[\s.,;-]+|[\s.,;-]+$/g,'').trim();
+}
+
+function _ctaHtml(url,label){
+  return url ? '<a class="split-btn" href="'+url+'" target="_blank" rel="noopener">'+label+'</a>' : '';
+}
 
 function hydrateTemplate(d){
   window._weddingSlug=d.slug||'';
@@ -663,7 +690,10 @@ function hydrateTemplate(d){
       var nm=d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
       var acName=nm?nm[1]:'Hotel';
       var rest=nm?d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():d.accommodation_info;
-      var lines=rest.split(/<br\s*\/?>/i).map(function(s){return s.replace(/<[^>]+>/g,'').trim();}).filter(Boolean);
+      var acUrl=_extractUrl(d.accommodation_info);
+      var lines=rest.split(/<br\s*\/?>/i).map(function(s){
+        return _stripUrl(s.replace(/<[^>]+>/g,'').trim(),acUrl);
+      }).filter(Boolean);
       var venueName=lines.slice(0,2).join('<br>');
       var note=lines.slice(2).join(' ');
       acContent.innerHTML=
@@ -671,7 +701,7 @@ function hydrateTemplate(d){
         '<div class="split-rule"></div>'+
         '<div class="split-name">'+venueName+'</div>'+
         (note?'<div class="split-note">'+note+'</div>':'')+
-        '<a class="split-btn" href="#" target="_blank">Book Now</a>';
+        _ctaHtml(acUrl,'Book Now');
     }
   }
 
@@ -680,7 +710,8 @@ function hydrateTemplate(d){
   if(menu.travel&&d.travel_info){
     var trContent=el('travelContent');
     if(trContent){
-      var tText=d.travel_info.replace(/<[^>]+>/g,'').trim();
+      var trUrl=_extractUrl(d.travel_info);
+      var tText=_stripUrl(d.travel_info.replace(/<[^>]+>/g,'').trim(),trUrl);
       var airportMatch=tText.match(/([A-Z][^.,(]+(?:airport|Airport)[^.,)]*)/);
       var tName=airportMatch?airportMatch[0].trim():'Airport';
       var tNote=tText.replace(tName,'').replace(/^[.,\s]+/,'').trim();
@@ -689,7 +720,7 @@ function hydrateTemplate(d){
         '<div class="split-rule"></div>'+
         '<div class="split-name">'+tName+'</div>'+
         (tNote?'<div class="split-note">'+tNote+'</div>':'')+
-        '<a class="split-btn" href="#" target="_blank">Book Now</a>';
+        _ctaHtml(trUrl,'Book Now');
     }
   }
 
@@ -761,8 +792,8 @@ const SAMPLE_DATA={
   story:'Two hearts that found each other in the quiet spaces between moments.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, April Fourth, 2026<br>6 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April Fourth, 2026<br>7 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em>',
   events_info:'<strong>Welcome Cocktails</strong><br>Friday, April Third, 2026<br>7 O\'Clock in the Evening<br>Ultimate Skybox at DiamondView Tower<br>350 Tenth Ave,<br>San Diego, CA 92101<br><em>Evening Casual</em>',
-  accommodation_info:'<strong>Hotel</strong><br>Hyatt Regency La Jolla at Aventine<br>Request the Elizabeth & Joseph room block',
-  travel_info:'San Diego National Airport. Approximately 30 minutes from the venue.',
+  accommodation_info:'<strong>Hotel</strong><br>Hyatt Regency La Jolla at Aventine<br>Request the Elizabeth & Joseph room block<br>https://www.hyatt.com',
+  travel_info:'San Diego National Airport. Approximately 30 minutes from the venue. https://www.san.org',
   faqs:'<strong>What should I wear to the wedding?</strong><br>The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.<br><br><strong>Will there be transportation?</strong><br>No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.<br><br><strong>Will the ceremony be indoors or outdoors?</strong><br>Here is a little more about the setting so you can plan accordingly and arrive feeling prepared.',
   registry_info:'',events:[],
   rsvp_config:{entrees:['Beef','Salmon','Vegetarian','Vegan'],allow_plus_one:true,deadline:'February 15<sup>th</sup>, 2026'},

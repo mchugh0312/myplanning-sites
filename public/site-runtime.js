@@ -1553,17 +1553,14 @@
     var p = CFG.palette;
     document.body.innerHTML =
       '<style>@keyframes mpPulse{0%,100%{opacity:0.35}50%{opacity:1}}' +
-      // Motif breathes; it never rotates.
-      '@keyframes mpBreathe{0%,100%{opacity:0.88;transform:scale(1)}' +
-        '50%{opacity:1;transform:scale(1.025)}}' +
+      // The motif is static — no rotation, no pulse.
       '@keyframes mpSlide{0%{left:-100%}50%{left:0}100%{left:100%}}' +
       '@media(prefers-reduced-motion:reduce){.mp-motif{animation:none!important}}</style>' +
       '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;' +
         'justify-content:center;gap:24px;background:' + p.bg + ';color:' + p.ink + '">' +
         (CFG.loadingImage
           ? '<img class="mp-motif" src="' + CFG.loadingImage + '" alt="" ' +
-            'style="width:72px;height:72px;object-fit:contain;' +
-            'animation:mpBreathe 3.6s ease-in-out infinite">'
+            'style="width:72px;height:72px;object-fit:contain">'
           : '') +
         '<p style="font-family:' + CFG.fonts.display + ';font-size:1.6rem;margin:0;' +
           'animation:mpPulse 2.2s ease-in-out infinite">Your celebration awaits</p>' +

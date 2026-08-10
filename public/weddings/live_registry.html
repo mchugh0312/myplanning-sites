@@ -267,6 +267,35 @@
 .ship-line{font-size:11.5px;margin-top:4px;opacity:.95;}
 
 /* ── Split hero: photo left, teal panel right (mirrors the dashboard) ── */
+
+/* ── MyPlanning.ai footer ───────────────────────────────
+   Same footer as the wedding sites, so the registry doesn't feel like a
+   different product when a guest clicks through. Colours follow the skin
+   (--cream / --ink), defaulting to the brand palette. */
+.mp-brand-footer{background:var(--cream);width:100%;margin:0;padding:0;
+  font-family:"Instrument Serif",Georgia,serif;color:var(--ink);box-sizing:border-box}
+.mp-brand-footer *{box-sizing:border-box}
+.mp-bf-rule{height:8px;width:100%;
+  background-image:repeating-linear-gradient(90deg,transparent,transparent 4px,
+    var(--line) 4px,var(--line) 5px,transparent 5px,transparent 8px);
+  background-size:12px 100%}
+.mp-bf-rule.bottom{height:4px}
+.mp-bf-inner{max-width:1100px;margin:0 auto;padding:28px 20px 24px;text-align:center}
+.mp-bf-logo{display:inline-block;margin:0 auto 20px}
+.mp-bf-logo img{height:44px;width:auto;object-fit:contain;display:block;border:0}
+.mp-bf-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:10px 34px;margin:0 0 16px;padding:0;list-style:none}
+.mp-bf-links a{font-family:"Instrument Serif",Georgia,serif;font-size:1.014rem;
+  line-height:1.3;color:var(--ink);text-decoration:none;white-space:nowrap}
+.mp-bf-links a:hover{text-decoration:underline}
+.mp-bf-copy{font-family:"Open Sans",system-ui,-apple-system,sans-serif;font-size:11px;
+  line-height:1.6;color:var(--ink);opacity:0.8;margin:0}
+@media(max-width:640px){
+  .mp-bf-inner{padding:24px 16px 20px}
+  .mp-bf-logo img{height:38px}
+  .mp-bf-links{gap:8px 20px;margin-bottom:14px}
+  .mp-bf-links a{font-size:0.94rem}
+}
 .rhero{display:grid;grid-template-columns:1fr;}
 @media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
 .rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
@@ -481,6 +510,40 @@ function initSkin(){
     .catch(() => {});
 }
 
+
+/* ─── MyPlanning.ai footer ──────────────────────────────────────────
+   The same footer the wedding sites carry, so the registry doesn't feel like a
+   different product when a guest clicks through. Links are absolute: this page
+   is served from weddings.myplanning.ai, where a relative "/about-us" would be
+   caught by the /:slug rewrite in vercel.json. */
+const BRAND_BASE = "https://www.myplanning.ai";
+const BRAND_LOGO = "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png";
+const BRAND_LINKS = [
+  { label:"About Us",                href:"/about-us" },
+  { label:"Get In Touch",            href:"/get-in-touch" },
+  { label:"Terms of Use",            href:"/terms-of-use" },
+  { label:"Privacy & Cookie Policy", href:"/privacy-policy" },
+  { label:"Your Privacy Choices",    href:"/privacy-choices" },
+];
+
+function renderBrandFooter(){
+  if (document.querySelector(".mp-brand-footer")) return;
+  const links = BRAND_LINKS.map(l =>
+    '<li><a href="' + BRAND_BASE + l.href + '">' + esc(l.label) + "</a></li>").join("");
+  const f = document.createElement("footer");
+  f.className = "mp-brand-footer";
+  f.innerHTML =
+    '<div class="mp-bf-rule"></div>' +
+    '<div class="mp-bf-inner">' +
+      '<a class="mp-bf-logo" href="' + BRAND_BASE + '/"><img src="' + BRAND_LOGO + '" alt="MyPlanning.ai"></a>' +
+      '<ul class="mp-bf-links">' + links + "</ul>" +
+      '<p class="mp-bf-copy">Copyright \u00a9 ' + new Date().getFullYear() +
+        " MyPlanning.ai, Inc. All rights reserved. Patent Pending.</p>" +
+    "</div>" +
+    '<div class="mp-bf-rule bottom"></div>';
+  document.body.appendChild(f);
+}
+
 /* ─── Boot ─────────────────────────────────────────── */
 (function init(){
   const params = new URLSearchParams(location.search);
@@ -492,6 +555,7 @@ function initSkin(){
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
   else if (c==="cancel"){ showBanner("No worries — your checkout was cancelled.","info"); cleanParam("contribution"); }
   initSkin();          // colours + type from the couple's template
+  renderBrandFooter(); // same footer as the wedding sites
   loadShipMethods();   // carrier list for the tracking forms
   load();
 })();

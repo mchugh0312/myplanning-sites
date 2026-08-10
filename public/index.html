@@ -36,7 +36,6 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
 }
 .flower-spinner img{
   width:100%;height:100%;object-fit:contain;
-  animation:motifBreathe 3.6s ease-in-out infinite;
   transform-origin:center;
   filter:drop-shadow(0 4px 12px rgba(141,136,99,0.18));
 }
@@ -54,7 +53,7 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
 }
 .loading-screen.brand-mode .petal{display:none;}
 .loading-screen.petals-off .petal{display:none;}
-.brand-shine{
+.loading-screen.brand-mode .brand-shine{
   position:absolute;inset:0;
   pointer-events:none;
   background:linear-gradient(105deg,
@@ -65,30 +64,23 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
   background-size:260% 100%;
   background-position:190% 0;
   mix-blend-mode:overlay;
-  animation:brandShine 4.2s ease-out 0.5s infinite;
+  animation:brandShine 1.5s ease-out 0.35s 1 forwards;
 }
 @keyframes brandShine{
   0%   {background-position:190% 0;opacity:0}
-  6%   {opacity:0.85}
-  26%  {opacity:0.85}
-  34%  {background-position:-90% 0;opacity:0}
+  15%  {opacity:0.9}
+  85%  {opacity:0.9}
   100% {background-position:-90% 0;opacity:0}
 }
 @media(prefers-reduced-motion:reduce){
-  .brand-shine{animation:none;display:none}
-  .flower-spinner img{animation:none;opacity:1;transform:none}
+  .loading-screen.brand-mode .brand-shine{animation:none;display:none}
   .petal{display:none}
-}
-@keyframes motifBreathe{
-  0%,100% {opacity:0.88;transform:scale(1)}
-  50%     {opacity:1;   transform:scale(1.025)}
 }
 
 /* Floating petals */
 .petal{
   position:absolute;width:16px;height:16px;
-  animation:floatPetal 4s ease-in-out infinite;
-  opacity:0;
+  opacity:0.35;
 }
 .petal img{width:100%;height:100%;object-fit:contain;opacity:0.35;}
 .petal:nth-child(1){top:-30px;left:-40px;animation-delay:0s;animation-duration:3.8s;}
