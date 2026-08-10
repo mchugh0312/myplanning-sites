@@ -86,7 +86,7 @@
   3. Put CITADELScript.woff2 in your Vercel /public/fonts/ folder
   4. The @font-face below is already uncommented — it will load automatically
 -->
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Pinyon+Script&display=swap" rel="stylesheet">
 <style>
 @font-face {
   font-family: 'Citadel Script';
@@ -100,7 +100,8 @@
   --black:#040505;
   --text:#040505;
   --white:#ffffff;
-  --script:'Citadel Script','Dancing Script',cursive;
+  /* Pinyon Script per the design (was Citadel Script). */
+  --script:'Pinyon Script','Citadel Script',cursive;
   --serif:'Instrument Serif',serif;
 }
 html{scroll-behavior:smooth}
@@ -775,7 +776,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
         3777 La Jolla Village Drive, La Jolla, CA 92037
       </div>
       <!-- FIX 5: pill CTA -->
-      <a class="accom-btn" href="#" target="_blank">Book Now</a>
+      <a class="accom-btn" id="accomBtn" href="#" target="_blank">Book Now</a>
     </div>
   </div>
 </div>
@@ -943,6 +944,21 @@ var _rsvpEntreeOptions = [
 
 
 // ── Hydration ─────────────────────────────────────────────────
+// Booking links: the Accomodation URL / Travel URL fields win, a link pasted
+// into the section copy is the fallback, and with neither the button is hidden
+// rather than pointing at '#'.
+function _mpBookUrl(html, fieldUrl){
+  if (fieldUrl) return fieldUrl;
+  if (!html) return '';
+  var a = html.match(/<a[^>]+href=["']([^"']+)["']/i);
+  if (a && /^https?:/i.test(a[1])) return a[1];
+  var bare = html.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+  if (bare) return bare[0].replace(/[.,;)]+$/,'');
+  var www = html.replace(/<[^>]+>/g,' ').match(/\bwww\.[^\s<>"']+/i);
+  if (www) return 'https://' + www[0].replace(/[.,;)]+$/,'');
+  return '';
+}
+
 function hydrateTemplate(d) {
   window._weddingSlug  = d.slug || '';
   const names   = d.couple_names || 'Sarah & Aiden';
@@ -1125,7 +1141,12 @@ function hydrateTemplate(d) {
   if (menu.accommodations) {
     const accomList = document.getElementById('accomList');
     if (accomList && d.accommodation_info) {
-      accomList.innerHTML = `<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.88);line-height:1.9;">${d.accommodation_info}</div>`;
+      // Replacing the whole list dropped the Book Now button, so it's rebuilt
+      // here with a real link (Accomodation URL field, or one pasted into the
+      // copy) and omitted when there's nothing to point at.
+      var _bookUrl = _mpBookUrl(d.accommodation_info, d.accommodation_url);
+      accomList.innerHTML = `<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.88);line-height:1.9;">${d.accommodation_info}</div>`
+        + (_bookUrl ? `<a class="accom-btn" href="${_bookUrl}" target="_blank" rel="noopener">Book Now</a>` : '');
     }
   }
 

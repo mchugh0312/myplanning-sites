@@ -32,6 +32,8 @@
 <meta name="twitter:image:alt"   content="MyPlanning.ai — wedding websites">
 <meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
 <meta name="theme-color" content="#673d45">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Luxurious+Script&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'Parfumerie Script';src:url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');}
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');}
@@ -44,7 +46,8 @@
   --gray:    #696c62;
   --text:    #4a3a3d;
   --white:   #ffffff;
-  --script:  'Sloop Script Pro','Parfumerie Script',cursive;
+  /* Luxurious Script per the design (was Sloop Script Pro). */
+  --script:  'Luxurious Script','Sloop Script Pro',cursive;
   --serif:   'Lancelot',Georgia,serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -133,42 +136,32 @@ img{max-width:100%;display:block;}
    L over the right figure (same baseline), & smaller and sitting low
    between them. Each letter is absolutely positioned within the wrap so
    they consistently align with the two people across viewports. */
+/* Initials sit as a descending diagonal across the middle of the photo —
+   T upper-left of centre, the script ampersand between, L lower-right — rather
+   than one letter over each figure. They overlap the couple deliberately. */
 .hero-initials-wrap{
   position:absolute;
-  /* Spans the middle-lower band of the hero so the letters drop over the figures */
-  left:0;right:0;
-  top:30%;
-  height:55%;
+  inset:0;
   z-index:2;pointer-events:none;
 }
 .hero-initial-left,
 .hero-initial-right{
   position:absolute;
-  top:0;
-  font-family:'Lancelot',serif;
-  font-size:clamp(8rem,22vw,15rem);
-  color:#afab57;
-  line-height:1;
+  font-family:'Lancelot',Georgia,serif;
+  font-size:clamp(6rem,19vw,14rem);
+  color:var(--gold);
+  line-height:0.86;
+  transform:translate(-50%,-50%);
 }
-.hero-initial-left{
-  /* Centred over the left figure */
-  left:27%;
-  transform:translateX(-50%);
-}
-.hero-initial-right{
-  /* Centred over the right figure */
-  left:73%;
-  transform:translateX(-50%);
-}
+.hero-initial-left{  left:40%; top:36%; }
+.hero-initial-right{ left:60%; top:68%; }
 .hero-initial-amp{
   position:absolute;
-  /* Sits low between the two letters, near their baseline */
-  bottom:8%;
-  left:50%;
-  transform:translateX(-50%);
-  font-family:'Parfumerie Script',cursive;
-  font-size:clamp(3rem,7vw,5rem);
-  color:#afab57;
+  left:50%; top:54%;
+  transform:translate(-50%,-50%);
+  font-family:var(--script);
+  font-size:clamp(3.4rem,9vw,7rem);
+  color:var(--gold);
   line-height:1;
 }
 
@@ -519,11 +512,13 @@ img{max-width:100%;display:block;}
 @media(max-width:640px){
   .wedding-grid{grid-template-columns:1fr;gap:1rem;}
   .wedding-flower-sep{width:80px;margin:0 auto;}
-  .hero-initial-left,.hero-initial-right{font-size:clamp(5rem,22vw,9rem);}
+  .hero-initial-left,.hero-initial-right{font-size:clamp(4.5rem,24vw,9rem);}
   .hero-initial-amp{font-size:clamp(2rem,7vw,3.5rem);}
   /* On mobile the figures are tighter together — pull the letters in slightly */
-  .hero-initial-left{left:30%;}
-  .hero-initial-right{left:70%;}
+  /* Keep the diagonal on mobile, just tighter. */
+  .hero-initial-left{left:38%;top:34%;}
+  .hero-initial-amp{left:50%;top:52%;}
+  .hero-initial-right{left:62%;top:70%;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   .rsvp-field-row{grid-template-columns:1fr;}
 }
@@ -767,6 +762,21 @@ document.addEventListener('click',function(e){var lb=document.getElementById('ga
 // ── RSVP entree options ────────────────────────────────────────────────────
 
 // ── HYDRATE ────────────────────────────────────────────────────────────────
+// Booking links: the Accomodation URL / Travel URL fields win, a link pasted
+// into the section copy is the fallback, and with neither the button is hidden
+// rather than pointing at '#'.
+function _mpBookUrl(html, fieldUrl){
+  if (fieldUrl) return fieldUrl;
+  if (!html) return '';
+  var a = html.match(/<a[^>]+href=["']([^"']+)["']/i);
+  if (a && /^https?:/i.test(a[1])) return a[1];
+  var bare = html.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+  if (bare) return bare[0].replace(/[.,;)]+$/,'');
+  var www = html.replace(/<[^>]+>/g,' ').match(/\bwww\.[^\s<>"']+/i);
+  if (www) return 'https://' + www[0].replace(/[.,;)]+$/,'');
+  return '';
+}
+
 function hydrateTemplate(d) {
   window._weddingSlug = d.slug || '';
   var p1 = d.partner_1 || '';
@@ -966,7 +976,10 @@ function hydrateTemplate(d) {
         '<div class="accom-title">'+acName+'</div>'+
         '<div class="accom-rule"></div>'+
         (rest?'<div class="accom-detail">'+rest+'</div>':'')+
-        '<a class="accom-btn" href="#" target="_blank">Book Now</a>';
+        (function(){
+          var u=_mpBookUrl(d.accommodation_info, d.accommodation_url);
+          return u?'<a class="accom-btn" href="'+u+'" target="_blank" rel="noopener">Book Now</a>':'';
+        })();
     }
   }
 
