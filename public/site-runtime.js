@@ -61,6 +61,7 @@
   var TEMPLATES = {
     pressedpetals: {
       label: 'Pressed Petals',
+      footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f9f7f5', ink: '#040505', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)' },
@@ -68,6 +69,7 @@
     },
     heirloombloom: {
       label: 'Heirloom Bloom',
+      footerVars: { bg: '--gold', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f2ece7', ink: '#4a3a3d', accent: '#673d45', rule: 'rgba(103,61,69,0.28)' },
@@ -75,6 +77,7 @@
     },
     blacktietimeless: {
       label: 'Black Tie Timeless',
+      footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f4f2ed', ink: '#1c2120', accent: '#1c2120', rule: 'rgba(28,33,32,0.24)' },
@@ -82,6 +85,7 @@
     },
     goldenhour: {
       label: 'Golden Hour',
+      footerVars: { bg: '--blue', ink: '--dark' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
@@ -89,6 +93,7 @@
     },
     sageandstill: {
       label: 'Sage & Still',
+      footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f5f3ee', ink: '#1f211d', accent: '#696c62', rule: 'rgba(105,108,98,0.28)' },
@@ -96,6 +101,7 @@
     },
     modernminimal: {
       label: 'Modern Minimal',
+      footerVars: { bg: '--ivory', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
@@ -103,6 +109,7 @@
     },
     whimsicalromance: {
       label: 'Whimsical Romance',
+      footerVars: { bg: '--rose', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png',
       scriptVar: '--script', displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#53141e', accent: '#e5989b', rule: 'rgba(83,20,30,0.24)' },
@@ -110,6 +117,7 @@
     },
     coastalchic: {
       label: 'Coastal Chic',
+      footerVars: { bg: '--ivory', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b5e87fe-b224-4bc4-9489-3488fd7e5964.svg',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fefaf1', ink: '#1b2a41', accent: '#5f7689', rule: 'rgba(27,42,65,0.22)' },
@@ -117,6 +125,7 @@
     },
     vintagelovestory: {
       label: 'Vintage Love Story',
+      footerVars: { bg: '--blue', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg',
       scriptVar: null, displayVar: '--display', bodyVar: '--sans',
       palette: { bg: '#f4efe6', ink: '#1a1a1a', accent: '#6b5844', rule: 'rgba(26,26,26,0.2)' },
@@ -124,6 +133,7 @@
     },
     regalboho: {
       label: 'Regal Boho',
+      footerVars: { bg: '--beige', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f1e4c9', ink: '#53141e', accent: '#53141e', rule: 'rgba(83,20,30,0.24)' },
@@ -777,8 +787,9 @@
     document.body.className = '';
     document.body.innerHTML =
       '<style>' +
-      '.mp-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;' +
-        'padding:40px 20px;background:' + p.bg + ';color:' + p.ink + ';text-align:center;box-sizing:border-box}' +
+      '.mp-screen{min-height:calc(100vh - 210px);display:flex;align-items:center;justify-content:center;' +
+        'padding:56px 20px;background:' + p.bg + ';color:' + p.ink + ';text-align:center;box-sizing:border-box}' +
+      'body{margin:0;background:' + p.bg + '}' +
       '.mp-screen *{box-sizing:border-box}' +
       '.mp-inner{max-width:560px;width:100%}' +
       '.mp-display{font-family:' + CFG.fonts.display + ';font-weight:400;line-height:1.1;margin:0;' +
@@ -804,6 +815,13 @@
   // building the rest of the site in the editor; nothing else is reachable
   // until they switch the mode off.
   function renderSaveTheDate(d) {
+    var cz = d.customization || {};
+    // The announcement screen is built from scratch rather than the template's
+    // own markup, so honour the couple's colour overrides here directly.
+    if (cz.accent_color) CFG.palette.bg = cz.accent_color;
+    if (cz.text_color) CFG.palette.ink = cz.text_color;
+    else if (cz.primary_color) CFG.palette.ink = cz.primary_color;
+
     var names = d.couple_names || [d.partner_1, d.partner_2].filter(Boolean).join(' & ') || 'Our Wedding';
     var dateLine = fmtDate(d.celebration_date);
     var location = (d.celebration_location || '').trim();
@@ -818,9 +836,11 @@
       (dateLine ? '<p class="mp-date">' + esc(dateLine) + '</p>' : '') +
       (location ? '<p class="mp-date" style="letter-spacing:0.12em;opacity:0.7;margin-top:8px">' + esc(location) + '</p>' : '') +
       '<div class="mp-rule"></div>' +
-      '<p class="mp-body">Formal invitation to follow.</p>' +
-      '<div class="mp-foot">myplanning.ai</div>'
+      '<p class="mp-body">Formal invitation to follow.</p>'
     );
+    // The gate screens keep the small wordmark; Save the Date is a page a guest
+    // actually landed on, so it carries the real footer instead.
+    renderBrandFooter({ bg: CFG.palette.bg, ink: CFG.palette.ink });
   }
 
   // ── Password gate (with a working input — the old screen had none) ───────
@@ -910,6 +930,197 @@
   }
 
   /* ==========================================================================
+     BRAND FOOTER
+     ==========================================================================
+     The MyPlanning.ai footer that sits below every couple's own footer. Lives
+     here rather than in the ten templates so the links only have to be updated
+     in one place when legal pages change.
+
+     Links MUST be absolute. Wedding sites are served from weddings.myplanning.ai,
+     where a relative "/about-us" would be caught by the /:slug rewrite in
+     vercel.json and render the "page not found" screen.
+  ========================================================================== */
+  var BRAND_BASE = 'https://www.myplanning.ai';
+  var BRAND_LOGO = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png';
+
+  // Labels and paths mirror the main-site footer block. "Your Privacy Choices"
+  // is required by CCPA/CPRA and the Privacy and Cookie policies refer to it by
+  // name, so the wording is fixed — don't shorten it.
+  var BRAND_LINKS = [
+    { label: 'About Us',                 href: '/about-us' },
+    { label: 'Get In Touch',             href: '/get-in-touch' },
+    { label: 'Terms of Use',             href: '/terms-of-use' },
+    { label: 'Privacy & Cookie Policy',  href: '/privacy-policy' },
+    { label: 'Your Privacy Choices',     href: '/privacy-choices' }
+  ];
+
+  // ── Colour maths ─────────────────────────────────────────────────────────
+  // The footer takes its colours from the live page, so it tracks both the
+  // template default AND anything the couple overrode in the editor (the
+  // template writes those overrides onto the same CSS vars we read here).
+  // Type stays brand — Instrument Serif + Open Sans — on every template.
+
+  function parseColor(str) {
+    if (!str) return null;
+    str = String(str).trim();
+    var m = str.match(/^#([0-9a-f]{3})$/i);
+    if (m) {
+      return {
+        r: parseInt(m[1][0] + m[1][0], 16),
+        g: parseInt(m[1][1] + m[1][1], 16),
+        b: parseInt(m[1][2] + m[1][2], 16)
+      };
+    }
+    m = str.match(/^#([0-9a-f]{6})([0-9a-f]{2})?$/i);
+    if (m) {
+      return {
+        r: parseInt(m[1].slice(0, 2), 16),
+        g: parseInt(m[1].slice(2, 4), 16),
+        b: parseInt(m[1].slice(4, 6), 16)
+      };
+    }
+    m = str.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i);
+    if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+    return null;
+  }
+
+  function relLuminance(c) {
+    var f = function (v) {
+      v = v / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  }
+
+  function contrastRatio(a, b) {
+    var la = relLuminance(a), lb = relLuminance(b);
+    var hi = Math.max(la, lb), lo = Math.min(la, lb);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  function rgba(c, alpha) {
+    return 'rgba(' + Math.round(c.r) + ',' + Math.round(c.g) + ',' + Math.round(c.b) + ',' + alpha + ')';
+  }
+
+  function cssVar(name, fallback) {
+    if (!name) return fallback;
+    try {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+      v = (v || '').trim();
+      return v || fallback;
+    } catch (e) { return fallback; }
+  }
+
+  // Resolve the footer's ground + ink. `override` lets the Save the Date screen
+  // pass colours directly, since no template stylesheet is applied there.
+  function resolveFooterColors(override) {
+    var vars = CFG.footerVars || {};
+    var bgRaw = (override && override.bg) || cssVar(vars.bg, CFG.palette.bg);
+    var inkRaw = (override && override.ink) || cssVar(vars.ink, CFG.palette.ink);
+
+    var bg = parseColor(bgRaw) || parseColor(CFG.palette.bg) || { r: 249, g: 247, b: 245 };
+    var ink = parseColor(inkRaw) || parseColor(CFG.palette.ink) || { r: 18, g: 18, b: 18 };
+
+    // A couple can set any hex they like. If their text colour doesn't stand up
+    // against the footer ground, fall back to whichever of black/white actually
+    // reads better — not a luminance threshold, which picks white on mid-tone
+    // grounds like Heirloom Bloom's gold where black is the more legible choice.
+    if (contrastRatio(ink, bg) < 4.5) {
+      var black = { r: 18, g: 18, b: 18 };
+      var white = { r: 255, g: 255, b: 255 };
+      ink = contrastRatio(black, bg) >= contrastRatio(white, bg) ? black : white;
+    }
+
+    return {
+      bg: 'rgb(' + Math.round(bg.r) + ',' + Math.round(bg.g) + ',' + Math.round(bg.b) + ')',
+      ink: 'rgb(' + Math.round(ink.r) + ',' + Math.round(ink.g) + ',' + Math.round(ink.b) + ')',
+      rule: rgba(ink, 0.22),
+      // The wordmark is dark artwork on transparency. Invert it only when the
+      // resolved INK is light — tying it to the ink rather than the ground
+      // keeps the logo and the link text the same colour on mid-tone grounds.
+      logoFilter: relLuminance(ink) > 0.6 ? 'brightness(0) invert(1)' : 'none'
+    };
+  }
+
+  var BRAND_FOOTER_CSS =
+    '.mp-brand-footer{background:var(--mp-bf-bg,#F9F7F5);width:100%;margin:0;padding:0;' +
+      'font-family:"Instrument Serif",Georgia,serif;color:var(--mp-bf-ink,#121212);' +
+      '-webkit-font-smoothing:antialiased;box-sizing:border-box}' +
+    '.mp-brand-footer *{box-sizing:border-box}' +
+    // Dotted rules top and bottom, matching the main site footer.
+    '.mp-brand-footer .mp-bf-rule{height:8px;width:100%;' +
+      'background-image:repeating-linear-gradient(90deg,transparent,transparent 4px,' +
+      'var(--mp-bf-rule,#e8e6e3) 4px,var(--mp-bf-rule,#e8e6e3) 5px,transparent 5px,transparent 8px);' +
+      'background-size:12px 100%}' +
+    '.mp-brand-footer .mp-bf-rule.bottom{height:4px}' +
+    '.mp-brand-footer .mp-bf-inner{max-width:1100px;margin:0 auto;padding:28px 20px 24px;text-align:center}' +
+    '.mp-brand-footer .mp-bf-logo{display:inline-block;margin:0 auto 20px}' +
+    '.mp-brand-footer .mp-bf-logo img{height:44px;width:auto;object-fit:contain;display:block;border:0;' +
+      'filter:var(--mp-bf-logo-filter,none)}' +
+    '.mp-brand-footer .mp-bf-links{display:flex;flex-wrap:wrap;justify-content:center;' +
+      'align-items:center;gap:10px 34px;margin:0 0 16px;padding:0;list-style:none}' +
+    '.mp-brand-footer .mp-bf-links a{font-family:"Instrument Serif",Georgia,serif;' +
+      'font-size:1.014rem;line-height:1.3;color:var(--mp-bf-ink,#121212);text-decoration:none;white-space:nowrap}' +
+    '.mp-brand-footer .mp-bf-links a:hover{text-decoration:underline}' +
+    '.mp-brand-footer .mp-bf-copy{font-family:"Open Sans",system-ui,-apple-system,sans-serif;' +
+      'font-size:11px;line-height:1.6;color:var(--mp-bf-ink,#121212);opacity:0.8;margin:0}' +
+    '@media(max-width:640px){' +
+      '.mp-brand-footer .mp-bf-inner{padding:24px 16px 20px}' +
+      '.mp-brand-footer .mp-bf-logo img{height:38px}' +
+      '.mp-brand-footer .mp-bf-links{gap:8px 20px;margin-bottom:14px}' +
+      '.mp-brand-footer .mp-bf-links a{font-size:0.94rem}' +
+    '}' +
+    // Never show the brand footer in the editor's carousel thumbnails.
+    'body.thumbnail-mode .mp-brand-footer{display:none!important}';
+
+  function ensureBrandFonts() {
+    if (document.getElementById('mp-brand-fonts')) return;
+    var link = document.createElement('link');
+    link.id = 'mp-brand-fonts';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1' +
+                '&family=Open+Sans:wght@400;600&display=swap';
+    document.head.appendChild(link);
+  }
+
+  function brandFooterHtml() {
+    var links = BRAND_LINKS.map(function (l) {
+      return '<li><a href="' + BRAND_BASE + l.href + '">' + esc(l.label) + '</a></li>';
+    }).join('');
+    return '' +
+      '<div class="mp-bf-rule"></div>' +
+      '<div class="mp-bf-inner">' +
+        '<a class="mp-bf-logo" href="' + BRAND_BASE + '/">' +
+          '<img src="' + BRAND_LOGO + '" alt="MyPlanning.ai">' +
+        '</a>' +
+        '<ul class="mp-bf-links">' + links + '</ul>' +
+        '<p class="mp-bf-copy">Copyright \u00a9 ' + new Date().getFullYear() +
+          ' MyPlanning.ai, Inc. All rights reserved. Patent Pending.</p>' +
+      '</div>' +
+      '<div class="mp-bf-rule bottom"></div>';
+  }
+
+  function renderBrandFooter(override) {
+    if (document.querySelector('.mp-brand-footer')) return;
+    ensureBrandFonts();
+    if (!document.getElementById('mp-brand-footer-css')) {
+      var style = document.createElement('style');
+      style.id = 'mp-brand-footer-css';
+      style.textContent = BRAND_FOOTER_CSS;
+      document.head.appendChild(style);
+    }
+    var footer = document.createElement('footer');
+    footer.className = 'mp-brand-footer';
+    var c = resolveFooterColors(override);
+    footer.style.setProperty('--mp-bf-bg', c.bg);
+    footer.style.setProperty('--mp-bf-ink', c.ink);
+    footer.style.setProperty('--mp-bf-rule', c.rule);
+    footer.style.setProperty('--mp-bf-logo-filter', c.logoFilter);
+    footer.innerHTML = brandFooterHtml();
+    document.body.appendChild(footer);
+  }
+
+  /* ==========================================================================
      HYDRATION
      ========================================================================== */
   function reveal() {
@@ -962,6 +1173,9 @@
       var text = deadline ? fmtDate(deadline) : (d.celebration_date ? fmtDate(d.celebration_date) : '');
       deadlineEl.textContent = text ? 'by ' + text : '';
     }
+
+    // 6. MyPlanning.ai footer, below the couple's own footer.
+    renderBrandFooter();
 
     reveal();
   }
@@ -1069,6 +1283,7 @@
     config: CFG,
     hydrate: hydrate,
     renderSaveTheDate: renderSaveTheDate,
+    renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
     renderPasswordScreen: renderPasswordScreen,
     renderNotFound: renderNotFound,
