@@ -1148,8 +1148,12 @@
         .map(function (e) { return { value: e, label: e }; });
     }
 
-    // 3. Save the Date replaces the whole page.
-    if (isSaveTheDate(d)) { renderSaveTheDate(d); return; }
+    // 3. Save the Date replaces the whole page — but ONLY for real visitors.
+    //    In the editor (live preview iframe and the carousel thumbnails) the
+    //    couple must keep seeing their full site: the mode controls what guests
+    //    get, not what the couple can build and preview. Rendering the
+    //    announcement screen here made every template look like a blank card.
+    if (!_isPreview && isSaveTheDate(d)) { renderSaveTheDate(d); return; }
 
     // 4. Custom CSS + font, then hand off to the template's own layout code.
     if (d.custom_css) {
