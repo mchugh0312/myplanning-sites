@@ -61,6 +61,7 @@
   var TEMPLATES = {
     pressedpetals: {
       label: 'Pressed Petals',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
@@ -71,6 +72,7 @@
     },
     heirloombloom: {
       label: 'Heirloom Bloom',
+      heroNamesId: 'heroInitialsWrap',
       heroId: 'hero',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--gold', ink: '--text' },
@@ -81,6 +83,7 @@
     },
     blacktietimeless: {
       label: 'Black Tie Timeless',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'home',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
@@ -91,6 +94,7 @@
     },
     goldenhour: {
       label: 'Golden Hour',
+      heroNamesId: 'heroNames',
       heroId: 'home',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--blue', ink: '--dark' },
@@ -101,6 +105,7 @@
     },
     sageandstill: {
       label: 'Sage & Still',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','weekend','registry-section','need-to-know','accommodations','travel-section','gallery','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
@@ -111,6 +116,7 @@
     },
     modernminimal: {
       label: 'Modern Minimal',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','travel-section','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
@@ -121,6 +127,7 @@
     },
     whimsicalromance: {
       label: 'Whimsical Romance',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','itinerary','accommodations','need-to-know','registry-section','travel-section','gallery','rsvp'],
       footerVars: { bg: '--rose', ink: '--text' },
@@ -131,6 +138,7 @@
     },
     coastalchic: {
       label: 'Coastal Chic',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','event-schedule','travel-section','accommodations','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
@@ -141,6 +149,7 @@
     },
     vintagelovestory: {
       label: 'Vintage Love Story',
+      heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['wedding','our-story','events','travel-section','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--blue', ink: '--text' },
@@ -151,6 +160,7 @@
     },
     regalboho: {
       label: 'Regal Boho',
+      heroNamesId: null,
       heroId: 'hero',
       stdHideIds: ['our-story','event-details','travel-section','travel-standalone','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--beige', ink: '--text' },
@@ -850,71 +860,120 @@
       if (el) el.style.display = 'none';
     });
 
-    // 2. Remove navigation. With every target hidden, menu links would be dead
-    //    ends, so the menu itself goes rather than the links inside it.
+    // 2. Remove navigation, including the shared mobile drawer. With every
+    //    target hidden, menu links would be dead ends.
     try {
-      document.querySelectorAll(STD_NAV_SELECTORS).forEach(function (el) {
-        el.style.display = 'none';
-      });
+      document.querySelectorAll(STD_NAV_SELECTORS + ',.mp-mnav-btn,.mp-mnav-panel,.mp-mnav-scrim')
+        .forEach(function (el) { el.style.display = 'none'; });
     } catch (e) {}
 
-    // 3. Banner into the hero.
     var hero = document.getElementById(CFG.heroId) ||
                document.querySelector('.hero, .hero-section');
-    if (!hero) return;
-
-    if (document.querySelector('.mp-std-banner')) return;
+    if (!hero || document.querySelector('.mp-std-top')) return;
 
     var dateLine = fmtDate(d.celebration_date);
     var location = (d.celebration_location || '').trim();
-
-    // Don't print anything the hero already shows. Vintage Love Story has a
-    // dedicated hero date; most templates print the couple's names in the hero,
-    // but Heirloom Bloom shows only initials and Regal Boho keeps its names in
-    // the story section — so those two need the banner to supply the names.
-    var heroHasDate = !!hero.querySelector('#heroDate, .hero-date');
     var names = d.couple_names || [d.partner_1, d.partner_2].filter(Boolean).join(' & ') || '';
-    var heroText = (hero.textContent || '').replace(/\s+/g, ' ');
+
+    var namesEl = CFG.heroNamesId ? document.getElementById(CFG.heroNamesId) : null;
+    var heroHasDate = !!hero.querySelector('#heroDate, .hero-date');
     var firstName = (d.partner_1 || names.split('&')[0] || '').trim();
-    var heroHasNames = !!firstName && heroText.indexOf(firstName) !== -1;
+    var heroHasNames = !!firstName && (hero.textContent || '').indexOf(firstName) !== -1;
+
+    // ── Colour ───────────────────────────────────────────────────────────
+    // Inherit the colour of the hero's own name text. That element is designed
+    // to be legible against whatever the hero is — a photo, a colour block, a
+    // gradient — so borrowing its colour is more reliable than guessing.
+    // Coastal Chic is the case in point: its page ink is dark navy, which
+    // vanished against the darkened photo, while its hero names are white.
+    var inkColor = '';
+    try {
+      if (namesEl) inkColor = getComputedStyle(namesEl).color;
+      if (!inkColor) inkColor = getComputedStyle(hero).color;
+    } catch (e) {}
+    if (!inkColor) inkColor = CFG.palette.ink;
+
+    // A photo hero needs a shadow behind the type regardless of colour.
+    var heroHasImage = false;
+    try {
+      heroHasImage = !!hero.querySelector('img') ||
+        (getComputedStyle(hero).backgroundImage || 'none') !== 'none';
+    } catch (e) {}
+    var shadow = heroHasImage ? '0 2px 18px rgba(0,0,0,0.55)' : 'none';
 
     var style = document.createElement('style');
     style.textContent =
-      '.mp-std-banner{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);' +
-        'width:min(90%,640px);text-align:center;z-index:6;pointer-events:none;color:inherit}' +
-      '.mp-std-banner .mp-std-eyebrow{font-size:0.74rem;letter-spacing:0.28em;text-transform:uppercase;' +
-        'margin:0 0 10px;opacity:0.9}' +
-      '.mp-std-banner .mp-std-names{font-size:clamp(1.9rem,5.5vw,3rem);line-height:1.1;margin:0 0 12px;' +
-        'font-weight:400}' +
-      '.mp-std-banner .mp-std-meta{font-size:0.82rem;letter-spacing:0.18em;text-transform:uppercase;' +
-        'margin:0 0 6px;opacity:0.95}' +
-      '.mp-std-banner .mp-std-note{font-size:0.8rem;letter-spacing:0.06em;font-style:italic;' +
-        'margin:14px 0 0;opacity:0.85}' +
-      '.mp-std-banner .mp-std-rule{width:64px;height:1px;background:currentColor;opacity:0.35;' +
-        'margin:14px auto 0}' +
-      '@media(max-width:640px){.mp-std-banner{bottom:4%;width:92%}' +
-        '.mp-std-banner .mp-std-eyebrow{font-size:0.66rem;letter-spacing:0.22em}' +
-        '.mp-std-banner .mp-std-meta{font-size:0.74rem;letter-spacing:0.14em}}';
+      '.mp-std-top,.mp-std-bottom{position:absolute;left:50%;transform:translateX(-50%);' +
+        'width:min(92%,680px);text-align:center;z-index:8;pointer-events:none;' +
+        'color:' + inkColor + ';text-shadow:' + shadow + '}' +
+      '.mp-std-top{top:7%}' +
+      '.mp-std-bottom{bottom:6%}' +
+      '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.34em;text-transform:uppercase;margin:0;' +
+        'font-weight:500}' +
+      '.mp-std-names{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
+      '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:6px 0 0;' +
+        'color:' + inkColor + ';text-shadow:' + shadow + '}' +
+      '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;margin:0;opacity:0.92}' +
+      '.mp-std-under{text-align:center;margin-top:14px;position:relative;z-index:8;pointer-events:none}' +
+      '@media(max-width:640px){' +
+        '.mp-std-top{top:5%}.mp-std-bottom{bottom:5%}' +
+        '.mp-std-eyebrow{font-size:0.7rem;letter-spacing:0.26em}' +
+        '.mp-std-meta{font-size:0.76rem;letter-spacing:0.15em}' +
+        '.mp-std-note{font-size:0.78rem}}';
     document.head.appendChild(style);
 
-    // The hero needs a positioning context for the absolutely-placed banner.
-    // Only set it when the hero is static, so we don't disturb templates that
-    // already position it.
     try {
       var pos = getComputedStyle(hero).position;
       if (!pos || pos === 'static') hero.style.position = 'relative';
     } catch (e) { hero.style.position = 'relative'; }
 
-    var banner = document.createElement('div');
-    banner.className = 'mp-std-banner';
-    banner.innerHTML =
-      '<p class="mp-std-eyebrow">Save the Date</p>' +
-      (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '') +
+    // ── Top: the announcement itself ─────────────────────────────────────
+    var top = document.createElement('div');
+    top.className = 'mp-std-top';
+    top.innerHTML = '<p class="mp-std-eyebrow">Save the Date</p>' +
+      (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '');
+    hero.appendChild(top);
+
+    // ── Middle: date then location, directly under the couple's names ────
+    var metaHtml =
       (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
-      (location ? '<p class="mp-std-meta" style="opacity:0.8">' + esc(location) + '</p>' : '') +
-      '<div class="mp-std-rule"></div>' +
-      '<p class="mp-std-note">Formal invitation to follow</p>';
-    hero.appendChild(banner);
+      (location ? '<p class="mp-std-meta" style="opacity:0.85">' + esc(location) + '</p>' : '');
+
+    if (metaHtml) {
+      if (namesEl && namesEl.parentNode) {
+        // Sit it immediately after the names element. Absolutely-positioned
+        // name blocks (Coastal Chic) need the meta positioned with them rather
+        // than in normal flow, or it lands at the top of the hero.
+        var namesAbs = false;
+        try { namesAbs = getComputedStyle(namesEl).position === 'absolute'; } catch (e) {}
+        var meta = document.createElement('div');
+        meta.className = 'mp-std-under';
+        meta.innerHTML = metaHtml;
+        if (namesAbs) {
+          meta.style.position = 'absolute';
+          meta.style.left = '50%';
+          meta.style.transform = 'translateX(-50%)';
+          meta.style.width = 'min(92%,680px)';
+          // Just below the names block.
+          try {
+            var nRect = namesEl.getBoundingClientRect();
+            var hRect = hero.getBoundingClientRect();
+            meta.style.top = Math.round(nRect.bottom - hRect.top + 10) + 'px';
+          } catch (e) { meta.style.bottom = '8%'; }
+          hero.appendChild(meta);
+        } else {
+          namesEl.parentNode.insertBefore(meta, namesEl.nextSibling);
+        }
+      } else {
+        top.insertAdjacentHTML('beforeend', '<div class="mp-std-under">' + metaHtml + '</div>');
+      }
+    }
+
+    // ── Bottom: formal invitation to follow ──────────────────────────────
+    var bottom = document.createElement('div');
+    bottom.className = 'mp-std-bottom';
+    bottom.innerHTML = '<p class="mp-std-note">Formal invitation to follow</p>';
+    hero.appendChild(bottom);
 
     try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}
   }
@@ -1061,6 +1120,193 @@
   }
 
   /* ==========================================================================
+     MOBILE NAVIGATION
+     ==========================================================================
+     Desktop keeps each template's own navigation exactly as designed. Below
+     768px every template switches to the same right-hand hamburger and drawer.
+
+     The templates handled small screens very differently: Coastal Chic's navy
+     bar wrapped its links onto three rows and ate most of the hero, while
+     others had a hamburger in a different position, or none at all. This gives
+     one consistent mobile pattern without touching ten stylesheets.
+
+     Show/hide is done in CSS, not by measuring the viewport in JS, so rotating
+     a phone or resizing switches cleanly.
+  ========================================================================== */
+  var NAV_LINK_SOURCES = [
+    '#menuLinks a', '#navLinks a', '.nav-links a', '.site-nav a',
+    '.hero-nav a', '.top-nav a', '#menuOverlay a', '#siteNav a',
+    '#topNav a', '#heroNav a', '.nav-bar a'
+  ].join(',');
+
+  var NAV_CONTAINERS = [
+    '.nav-bar', '.nav-links', '.site-nav', '#siteNav', '.hero-nav', '#heroNav',
+    '.top-nav', '#topNav', '.nav-hamburger', '.nav-toggle', '[onclick*="openMenu"]'
+  ].join(',');
+
+  function buildMobileNav() {
+    if (document.querySelector('.mp-mnav-btn')) return;
+
+    // Collect the links the template rendered, before anything is hidden.
+    var links = [];
+    var seen = {};
+    try {
+      Array.prototype.slice.call(document.querySelectorAll(NAV_LINK_SOURCES)).forEach(function (a) {
+        var href = a.getAttribute('href') || '';
+        var label = (a.textContent || '').trim();
+        if (!label || !href || href.charAt(0) !== '#') return;
+        var key = href + '|' + label.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = 1;
+        links.push({ href: href, label: label });
+      });
+    } catch (e) { return; }
+    if (!links.length) return;
+
+    var p = CFG.palette;
+
+    var style = document.createElement('style');
+    style.id = 'mp-mnav-css';
+    style.textContent =
+      // Hidden above the breakpoint — desktop navigation is untouched.
+      '.mp-mnav-btn,.mp-mnav-panel,.mp-mnav-scrim{display:none}' +
+      '@media(max-width:768px){' +
+        '.mp-nav-desktop-only{display:none!important}' +
+        '.mp-mnav-btn{display:flex;position:fixed;top:14px;right:14px;z-index:9999;' +
+          'width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;' +
+          'align-items:center;justify-content:center;flex-direction:column;gap:5px;' +
+          // Neutral translucent chip reads on both photo and flat-colour heroes.
+          'background:rgba(0,0,0,0.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);' +
+          'padding:0;-webkit-tap-highlight-color:transparent}' +
+        '.mp-mnav-btn span{display:block;width:19px;height:1.5px;background:#fff;border-radius:2px;' +
+          'transition:transform .28s ease,opacity .2s ease}' +
+        '.mp-mnav-scrim{display:block;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,0.45);' +
+          'opacity:0;pointer-events:none;transition:opacity .28s ease}' +
+        '.mp-mnav-scrim.open{opacity:1;pointer-events:auto}' +
+        '.mp-mnav-panel{display:block;position:fixed;top:0;right:0;bottom:0;z-index:9998;' +
+          'width:min(78vw,300px);background:' + p.bg + ';color:' + p.ink + ';' +
+          'transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);' +
+          'padding:76px 26px 30px;overflow-y:auto;box-shadow:-12px 0 34px rgba(0,0,0,0.18)}' +
+        '.mp-mnav-panel.open{transform:translateX(0)}' +
+        '.mp-mnav-panel a{display:block;padding:15px 0;text-decoration:none;color:' + p.ink + ';' +
+          'font-size:0.94rem;letter-spacing:0.13em;text-transform:uppercase;' +
+          'border-bottom:1px solid ' + p.rule + '}' +
+        '.mp-mnav-panel a:last-child{border-bottom:none}' +
+        'body.mp-mnav-open{overflow:hidden}' +
+      '}';
+    document.head.appendChild(style);
+
+    // Tag the template's own navigation so CSS can drop it on small screens.
+    try {
+      Array.prototype.slice.call(document.querySelectorAll(NAV_CONTAINERS)).forEach(function (el) {
+        el.classList.add('mp-nav-desktop-only');
+      });
+    } catch (e) {}
+
+    var scrim = document.createElement('div');
+    scrim.className = 'mp-mnav-scrim';
+
+    var panel = document.createElement('nav');
+    panel.className = 'mp-mnav-panel';
+    panel.setAttribute('aria-label', 'Menu');
+    panel.innerHTML = links.map(function (l) {
+      return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>';
+    }).join('');
+
+    var btn = document.createElement('button');
+    btn.className = 'mp-mnav-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Open menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span></span><span></span><span></span>';
+
+    var open = false;
+    function setOpen(next) {
+      open = next;
+      panel.classList.toggle('open', open);
+      scrim.classList.toggle('open', open);
+      document.body.classList.toggle('mp-mnav-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      var bars = btn.querySelectorAll('span');
+      if (bars.length === 3) {
+        bars[0].style.transform = open ? 'translateY(6.5px) rotate(45deg)' : '';
+        bars[1].style.opacity = open ? '0' : '1';
+        bars[2].style.transform = open ? 'translateY(-6.5px) rotate(-45deg)' : '';
+      }
+    }
+
+    btn.addEventListener('click', function () { setOpen(!open); });
+    scrim.addEventListener('click', function () { setOpen(false); });
+    // Tapping a link should close the drawer and let the anchor scroll.
+    panel.addEventListener('click', function (e) {
+      if (e.target && e.target.tagName === 'A') setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && open) setOpen(false);
+    });
+
+    document.body.appendChild(scrim);
+    document.body.appendChild(panel);
+    document.body.appendChild(btn);
+  }
+
+  /* ==========================================================================
+     REGISTRY LINKS
+     ==========================================================================
+     The couple's registry lives at /{slug}/registry, which vercel.json rewrites
+     to the live registry page. That page reads the slug straight back out of
+     the path, so the link has to keep this exact shape.
+
+     Templates ship their registry buttons as href="#" placeholders and only
+     replace them if the couple happens to have typed a URL into their registry
+     text. An unreplaced href="#" with target="_blank" opens a second copy of
+     the wedding site — which is what guests were getting instead of the
+     registry.
+  ========================================================================== */
+  var REGISTRY_LINK_SELECTORS = [
+    '#registryCta', '#registryBtn', '.registry-cta', '.registry-btn',
+    '.registry-buy-btn', '.registry-link'
+  ].join(',');
+
+  function wireRegistryLinks(d) {
+    var slug = window._weddingSlug || _liveSlug || '';
+    var url = slug ? '/' + encodeURIComponent(slug) + '/registry' : '';
+
+    var nodes = [];
+    try { nodes = Array.prototype.slice.call(document.querySelectorAll(REGISTRY_LINK_SELECTORS)); }
+    catch (e) { return; }
+
+    // Also catch dead placeholder links sitting inside the registry section.
+    var section = document.getElementById('registry-section') ||
+                  document.getElementById('registry') ||
+                  document.getElementById('registry-wrap');
+    if (section) {
+      try {
+        Array.prototype.slice.call(section.querySelectorAll('a[href="#"], a:not([href])'))
+          .forEach(function (a) { if (nodes.indexOf(a) === -1) nodes.push(a); });
+      } catch (e) {}
+    }
+
+    nodes.forEach(function (a) {
+      if (!url) {
+        // Editor preview — there's no slug to build a real link from, so make
+        // the button inert rather than let it open a copy of the page.
+        a.setAttribute('href', '#');
+        a.removeAttribute('target');
+        a.style.cursor = 'default';
+        a.onclick = function (e) { e.preventDefault(); };
+        return;
+      }
+      a.setAttribute('href', url);
+      // Same site, so same tab. target="_blank" here was part of why a stray
+      // href="#" opened the wedding site again in a new tab.
+      a.removeAttribute('target');
+      a.removeAttribute('rel');
+    });
+  }
+
+  /* ==========================================================================
      BRAND FOOTER
      ==========================================================================
      The MyPlanning.ai footer that sits below every couple's own footer. Lives
@@ -1071,6 +1317,7 @@
      where a relative "/about-us" would be caught by the /:slug rewrite in
      vercel.json and render the "page not found" screen.
   ========================================================================== */
+  // Confirmed: the marketing site lives on the www subdomain.
   var BRAND_BASE = 'https://www.myplanning.ai';
   var BRAND_LOGO = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png';
 
@@ -1302,14 +1549,19 @@
       deadlineEl.textContent = text ? 'by ' + text : '';
     }
 
-    // 5. Save the Date trims the fully-rendered page down to its hero. It runs
+    // 5. Mobile navigation. Built from the links the template just rendered,
+    //    so it has to run after hydrateTemplate. Skipped for save-the-date,
+    //    where there's nowhere to navigate to.
+    if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
+
+    // 6. Save the Date trims the fully-rendered page down to its hero. It runs
     //    AFTER hydrateTemplate so the announcement uses the template's real
     //    hero — photo, type and colours — rather than a generic card. It is
     //    skipped in the editor (no slug): the mode governs what guests see, not
     //    what the couple can build and preview.
     if (!_isPreview && isSaveTheDate(d)) applySaveTheDate(d);
 
-    // 6. Registry links, then the MyPlanning.ai footer.
+    // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
     renderBrandFooter();
 
@@ -1420,6 +1672,7 @@
     hydrate: hydrate,
     applySaveTheDate: applySaveTheDate,
     wireRegistryLinks: wireRegistryLinks,
+    buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
     renderPasswordScreen: renderPasswordScreen,

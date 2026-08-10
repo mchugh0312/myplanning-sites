@@ -837,10 +837,17 @@ body.hydrating{visibility:hidden}
 
 /* ── MOBILE ──────────────────────────────────────────────── */
 @media(max-width:768px){
-  .hero{height:62vh;min-height:380px;}
+  .hero{height:68vh;min-height:420px;}
   .hero-couple-name{
-    font-size:clamp(2.4rem,12vw,3.5rem);
-    bottom:18%;
+    font-size:clamp(2rem,10vw,3.2rem);
+    bottom:16%;
+    /* Long names must wrap on mobile. With nowrap they overflowed the
+       overflow:hidden hero and were clipped away entirely. */
+    white-space:normal;
+    width:88%;
+    text-align:center;
+    line-height:1.08;
+    word-break:break-word;
   }
   .nav-bar{padding:0.85rem 1rem;}
   .nav-links{gap:1.1rem;}
