@@ -61,6 +61,8 @@
   var TEMPLATES = {
     pressedpetals: {
       label: 'Pressed Petals',
+      heroId: 'hero',
+      stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -69,6 +71,8 @@
     },
     heirloombloom: {
       label: 'Heirloom Bloom',
+      heroId: 'hero',
+      stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--gold', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -77,6 +81,8 @@
     },
     blacktietimeless: {
       label: 'Black Tie Timeless',
+      heroId: 'home',
+      stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -85,6 +91,8 @@
     },
     goldenhour: {
       label: 'Golden Hour',
+      heroId: 'home',
+      stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--blue', ink: '--dark' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -93,6 +101,8 @@
     },
     sageandstill: {
       label: 'Sage & Still',
+      heroId: 'hero',
+      stdHideIds: ['our-story','weekend','registry-section','need-to-know','accommodations','travel-section','gallery','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
@@ -101,6 +111,8 @@
     },
     modernminimal: {
       label: 'Modern Minimal',
+      heroId: 'hero',
+      stdHideIds: ['our-story','events-primary','other-events','accommodations','travel-section','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
@@ -109,6 +121,8 @@
     },
     whimsicalromance: {
       label: 'Whimsical Romance',
+      heroId: 'hero',
+      stdHideIds: ['our-story','itinerary','accommodations','need-to-know','registry-section','travel-section','gallery','rsvp'],
       footerVars: { bg: '--rose', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png',
       scriptVar: '--script', displayVar: '--display', bodyVar: '--body',
@@ -117,6 +131,8 @@
     },
     coastalchic: {
       label: 'Coastal Chic',
+      heroId: 'hero',
+      stdHideIds: ['our-story','event-schedule','travel-section','accommodations','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b5e87fe-b224-4bc4-9489-3488fd7e5964.svg',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
@@ -125,6 +141,8 @@
     },
     vintagelovestory: {
       label: 'Vintage Love Story',
+      heroId: 'hero',
+      stdHideIds: ['wedding','our-story','events','travel-section','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--blue', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg',
       scriptVar: null, displayVar: '--display', bodyVar: '--sans',
@@ -133,6 +151,8 @@
     },
     regalboho: {
       label: 'Regal Boho',
+      heroId: 'hero',
+      stdHideIds: ['our-story','event-details','travel-section','travel-standalone','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--beige', ink: '--text' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
@@ -811,36 +831,92 @@
   }
 
   // ── Save the Date ────────────────────────────────────────────────────────
-  // Option (a): anyone who opens the link sees ONLY this. The couple can keep
-  // building the rest of the site in the editor; nothing else is reachable
-  // until they switch the mode off.
-  function renderSaveTheDate(d) {
-    var cz = d.customization || {};
-    // The announcement screen is built from scratch rather than the template's
-    // own markup, so honour the couple's colour overrides here directly.
-    if (cz.accent_color) CFG.palette.bg = cz.accent_color;
-    if (cz.text_color) CFG.palette.ink = cz.text_color;
-    else if (cz.primary_color) CFG.palette.ink = cz.primary_color;
+  // Save the Date is the template's own hero page with everything below it
+  // hidden, plus a banner line. It is NOT a separate generic screen: the couple
+  // picked a template and the announcement should look like it, using the same
+  // hero photo (including the template's built-in one when they haven't
+  // uploaded their own), the same type and the same colours.
+  var STD_NAV_SELECTORS = [
+    '[onclick*="openMenu"]', '.nav-hamburger', '.nav-toggle',
+    '#siteNav', '#heroNav', '#topNav', '#menuOverlay', '#menuDrawer',
+    '#navLinks', '#menuLinks'
+  ].join(',');
 
-    var names = d.couple_names || [d.partner_1, d.partner_2].filter(Boolean).join(' & ') || 'Our Wedding';
+  function applySaveTheDate(d) {
+    // 1. Hide every section below the hero. RSVP, registry, travel and the rest
+    //    stay configured in the editor — they're simply not served to guests.
+    (CFG.stdHideIds || []).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // 2. Remove navigation. With every target hidden, menu links would be dead
+    //    ends, so the menu itself goes rather than the links inside it.
+    try {
+      document.querySelectorAll(STD_NAV_SELECTORS).forEach(function (el) {
+        el.style.display = 'none';
+      });
+    } catch (e) {}
+
+    // 3. Banner into the hero.
+    var hero = document.getElementById(CFG.heroId) ||
+               document.querySelector('.hero, .hero-section');
+    if (!hero) return;
+
+    if (document.querySelector('.mp-std-banner')) return;
+
     var dateLine = fmtDate(d.celebration_date);
     var location = (d.celebration_location || '').trim();
-    var hero = d.hero_image || '';
 
-    try { document.title = names + ' \u2014 Save the Date'; } catch (e) {}
+    // Don't print anything the hero already shows. Vintage Love Story has a
+    // dedicated hero date; most templates print the couple's names in the hero,
+    // but Heirloom Bloom shows only initials and Regal Boho keeps its names in
+    // the story section — so those two need the banner to supply the names.
+    var heroHasDate = !!hero.querySelector('#heroDate, .hero-date');
+    var names = d.couple_names || [d.partner_1, d.partner_2].filter(Boolean).join(' & ') || '';
+    var heroText = (hero.textContent || '').replace(/\s+/g, ' ');
+    var firstName = (d.partner_1 || names.split('&')[0] || '').trim();
+    var heroHasNames = !!firstName && heroText.indexOf(firstName) !== -1;
 
-    screenShell(
-      (hero ? '<img class="mp-hero" src="' + esc(hero) + '" alt="">' : '') +
-      '<p class="mp-eyebrow">Save the Date</p>' +
-      '<h1 class="mp-display">' + esc(names) + '</h1>' +
-      (dateLine ? '<p class="mp-date">' + esc(dateLine) + '</p>' : '') +
-      (location ? '<p class="mp-date" style="letter-spacing:0.12em;opacity:0.7;margin-top:8px">' + esc(location) + '</p>' : '') +
-      '<div class="mp-rule"></div>' +
-      '<p class="mp-body">Formal invitation to follow.</p>'
-    );
-    // The gate screens keep the small wordmark; Save the Date is a page a guest
-    // actually landed on, so it carries the real footer instead.
-    renderBrandFooter({ bg: CFG.palette.bg, ink: CFG.palette.ink });
+    var style = document.createElement('style');
+    style.textContent =
+      '.mp-std-banner{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);' +
+        'width:min(90%,640px);text-align:center;z-index:6;pointer-events:none;color:inherit}' +
+      '.mp-std-banner .mp-std-eyebrow{font-size:0.74rem;letter-spacing:0.28em;text-transform:uppercase;' +
+        'margin:0 0 10px;opacity:0.9}' +
+      '.mp-std-banner .mp-std-names{font-size:clamp(1.9rem,5.5vw,3rem);line-height:1.1;margin:0 0 12px;' +
+        'font-weight:400}' +
+      '.mp-std-banner .mp-std-meta{font-size:0.82rem;letter-spacing:0.18em;text-transform:uppercase;' +
+        'margin:0 0 6px;opacity:0.95}' +
+      '.mp-std-banner .mp-std-note{font-size:0.8rem;letter-spacing:0.06em;font-style:italic;' +
+        'margin:14px 0 0;opacity:0.85}' +
+      '.mp-std-banner .mp-std-rule{width:64px;height:1px;background:currentColor;opacity:0.35;' +
+        'margin:14px auto 0}' +
+      '@media(max-width:640px){.mp-std-banner{bottom:4%;width:92%}' +
+        '.mp-std-banner .mp-std-eyebrow{font-size:0.66rem;letter-spacing:0.22em}' +
+        '.mp-std-banner .mp-std-meta{font-size:0.74rem;letter-spacing:0.14em}}';
+    document.head.appendChild(style);
+
+    // The hero needs a positioning context for the absolutely-placed banner.
+    // Only set it when the hero is static, so we don't disturb templates that
+    // already position it.
+    try {
+      var pos = getComputedStyle(hero).position;
+      if (!pos || pos === 'static') hero.style.position = 'relative';
+    } catch (e) { hero.style.position = 'relative'; }
+
+    var banner = document.createElement('div');
+    banner.className = 'mp-std-banner';
+    banner.innerHTML =
+      '<p class="mp-std-eyebrow">Save the Date</p>' +
+      (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '') +
+      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
+      (location ? '<p class="mp-std-meta" style="opacity:0.8">' + esc(location) + '</p>' : '') +
+      '<div class="mp-std-rule"></div>' +
+      '<p class="mp-std-note">Formal invitation to follow</p>';
+    hero.appendChild(banner);
+
+    try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}
   }
 
   // ── Password gate (with a working input — the old screen had none) ───────
@@ -927,6 +1003,61 @@
       'Please double-check the address with your hosts.</p>' +
       '<div class="mp-foot">myplanning.ai</div>'
     );
+  }
+
+  /* ==========================================================================
+     REGISTRY LINKS
+     ==========================================================================
+     The couple's registry lives at /{slug}/registry, which vercel.json rewrites
+     to the live registry page. That page reads the slug straight back out of
+     the path, so the link has to keep this exact shape.
+
+     Templates ship their registry buttons as href="#" placeholders and only
+     replace them if the couple happens to have typed a URL into their registry
+     text. An unreplaced href="#" with target="_blank" opens a second copy of
+     the wedding site — which is what guests were getting instead of the
+     registry.
+  ========================================================================== */
+  var REGISTRY_LINK_SELECTORS = [
+    '#registryCta', '#registryBtn', '.registry-cta', '.registry-btn',
+    '.registry-buy-btn', '.registry-link'
+  ].join(',');
+
+  function wireRegistryLinks(d) {
+    var slug = window._weddingSlug || _liveSlug || '';
+    var url = slug ? '/' + encodeURIComponent(slug) + '/registry' : '';
+
+    var nodes = [];
+    try { nodes = Array.prototype.slice.call(document.querySelectorAll(REGISTRY_LINK_SELECTORS)); }
+    catch (e) { return; }
+
+    // Also catch dead placeholder links sitting inside the registry section.
+    var section = document.getElementById('registry-section') ||
+                  document.getElementById('registry') ||
+                  document.getElementById('registry-wrap');
+    if (section) {
+      try {
+        Array.prototype.slice.call(section.querySelectorAll('a[href="#"], a:not([href])'))
+          .forEach(function (a) { if (nodes.indexOf(a) === -1) nodes.push(a); });
+      } catch (e) {}
+    }
+
+    nodes.forEach(function (a) {
+      if (!url) {
+        // Editor preview — there's no slug to build a real link from, so make
+        // the button inert rather than let it open a copy of the page.
+        a.setAttribute('href', '#');
+        a.removeAttribute('target');
+        a.style.cursor = 'default';
+        a.onclick = function (e) { e.preventDefault(); };
+        return;
+      }
+      a.setAttribute('href', url);
+      // Same site, so same tab. target="_blank" here was part of why a stray
+      // href="#" opened the wedding site again in a new tab.
+      a.removeAttribute('target');
+      a.removeAttribute('rel');
+    });
   }
 
   /* ==========================================================================
@@ -1148,14 +1279,7 @@
         .map(function (e) { return { value: e, label: e }; });
     }
 
-    // 3. Save the Date replaces the whole page — but ONLY for real visitors.
-    //    In the editor (live preview iframe and the carousel thumbnails) the
-    //    couple must keep seeing their full site: the mode controls what guests
-    //    get, not what the couple can build and preview. Rendering the
-    //    announcement screen here made every template look like a blank card.
-    if (!_isPreview && isSaveTheDate(d)) { renderSaveTheDate(d); return; }
-
-    // 4. Custom CSS + font, then hand off to the template's own layout code.
+    // 3. Custom CSS + font, then hand off to the template's own layout code.
     if (d.custom_css) {
       var style = document.createElement('style');
       style.textContent = d.custom_css;
@@ -1178,7 +1302,15 @@
       deadlineEl.textContent = text ? 'by ' + text : '';
     }
 
-    // 6. MyPlanning.ai footer, below the couple's own footer.
+    // 5. Save the Date trims the fully-rendered page down to its hero. It runs
+    //    AFTER hydrateTemplate so the announcement uses the template's real
+    //    hero — photo, type and colours — rather than a generic card. It is
+    //    skipped in the editor (no slug): the mode governs what guests see, not
+    //    what the couple can build and preview.
+    if (!_isPreview && isSaveTheDate(d)) applySaveTheDate(d);
+
+    // 6. Registry links, then the MyPlanning.ai footer.
+    wireRegistryLinks(d);
     renderBrandFooter();
 
     reveal();
@@ -1286,7 +1418,8 @@
   window.MP = {
     config: CFG,
     hydrate: hydrate,
-    renderSaveTheDate: renderSaveTheDate,
+    applySaveTheDate: applySaveTheDate,
+    wireRegistryLinks: wireRegistryLinks,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
     renderPasswordScreen: renderPasswordScreen,
