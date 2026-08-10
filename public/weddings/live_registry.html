@@ -14,6 +14,14 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--cream);color:var(--ink);font-family:"Open Sans",sans-serif;-webkit-font-smoothing:antialiased}
   .serif{font-family:"Instrument Serif",serif;font-weight:400}
+  /* Skinned type — set by applySkin() when the couple's template is known. */
+  body.skinned{font-family:var(--skin-body,"Open Sans",sans-serif)}
+  body.skinned .serif,
+  body.skinned .rh-title,
+  body.skinned .acc-head .serif,
+  body.skinned .hero-text .date{font-family:var(--skin-display,"Instrument Serif",serif)}
+  body.skinned .rh-note em,body.skinned .rh-note i{font-family:var(--skin-display,"Instrument Serif",serif)}
+  body.skinned .search input{font-family:var(--skin-body,"Open Sans",sans-serif)}
   em{font-style:italic}
   a{color:inherit}
   img{display:block;max-width:100%}
@@ -263,7 +271,7 @@
 @media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
 .rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
 .rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.rhero-panel{position:relative;background:#A9BDC4;color:#fff;display:flex;flex-direction:column;
+.rhero-panel{position:relative;background:var(--olive);color:#fff;display:flex;flex-direction:column;
   align-items:center;justify-content:center;text-align:center;padding:26px 30px 32px;min-width:0;}
 .rh-title{font-size:clamp(22px,2.8vw,30px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
 .rh-title em,.rh-title i{font-style:italic;}
@@ -389,6 +397,90 @@ const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt
 const el  = id=>document.getElementById(id);
 const isFund = it=> it.item_type_id===CASH_FUND_TYPE || (Number(it.price_cents)===0 && Number(it.goal_amount_cents)>0);
 
+
+/* ─── Template theming ──────────────────────────────────────────────
+   The registry opens from the couple's wedding site at /{slug}/registry, so
+   it should look like the site the guest just left rather than the fixed
+   sage/olive palette. Colours and type come from whichever template the
+   couple picked.
+
+   Templates that use local @font-face files (Citadel Script, Parfumerie,
+   Holiday, Sloop) map to the closest Google face — those font files aren't
+   served to this page. */
+const TEMPLATE_SKIN = {
+  pressedpetals: { bg:"#f9f7f5", ink:"#040505", accent:"#8d8863", panel:"#8d8863", display:"'Dancing Script',cursive", body:"'Instrument Serif',serif", gfont:"Dancing+Script:wght@400;600" },
+  heirloombloom: { bg:"#f2ece7", ink:"#4a3a3d", accent:"#673d45", panel:"#673d45", display:"'Pinyon Script',cursive", body:"'Lora',Georgia,serif", gfont:"Pinyon+Script&family=Lora:wght@400;600" },
+  blacktietimeless: { bg:"#f4f2ed", ink:"#1c2120", accent:"#1c2120", panel:"#1c2120", display:"'Parisienne',cursive", body:"'EB Garamond',Georgia,serif", gfont:"Parisienne&family=EB+Garamond:wght@400;600" },
+  goldenhour: { bg:"#d7dde4", ink:"#32344b", accent:"#32344b", panel:"#32344b", display:"'Parisienne',cursive", body:"'EB Garamond',Georgia,serif", gfont:"Parisienne&family=EB+Garamond:wght@400;600" },
+  sageandstill: { bg:"#f5f3ee", ink:"#1f211d", accent:"#696c62", panel:"#696c62", display:"'Aboreto',serif", body:"'DM Sans',system-ui,sans-serif", gfont:"Aboreto&family=DM+Sans:wght@400;600" },
+  modernminimal: { bg:"#fffdf5", ink:"#000000", accent:"#004aad", panel:"#004aad", display:"'Poppins',sans-serif", body:"'Poppins',sans-serif", gfont:"Poppins:wght@300;400;600" },
+  whimsicalromance: { bg:"#fffdf5", ink:"#53141e", accent:"#e5989b", panel:"#e5989b", display:"'Pinyon Script',cursive", body:"'DM Sans',system-ui,sans-serif", gfont:"Pinyon+Script&family=DM+Sans:wght@400;600" },
+  coastalchic: { bg:"#fefaf1", ink:"#1b2a41", accent:"#5f7689", panel:"#5f7689", display:"'La Belle Aurore',cursive", body:"'Lexend Deca',sans-serif", gfont:"La+Belle+Aurore&family=Lexend+Deca:wght@400;600" },
+  vintagelovestory: { bg:"#f4efe6", ink:"#1a1a1a", accent:"#6b5844", panel:"#6b5844", display:"'Instrument Serif',Georgia,serif", body:"'Inter',system-ui,sans-serif", gfont:"Instrument+Serif&family=Inter:wght@400;600" },
+  regalboho: { bg:"#f1e4c9", ink:"#53141e", accent:"#53141e", panel:"#53141e", display:"'Sorts Mill Goudy',Georgia,serif", body:"'Noto Serif',Georgia,serif", gfont:"Sorts+Mill+Goudy&family=Noto+Serif:wght@400;600" },
+};
+
+/* The wedding site stashes its payload in sessionStorage under the same
+   origin, so on a click-through we can theme instantly with no extra request.
+   A guest opening the registry link directly falls back to a fetch. */
+function readStashedSite(slug){
+  try {
+    const raw = sessionStorage.getItem("weddingData_" + slug);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function skinFor(data){
+  if (!data) return null;
+  const label = String(data.template || "").toLowerCase().replace(/[^a-z]/g, "");
+  const byId = TEMPLATE_SKIN[label];
+  if (byId) return { skin: byId, customization: data.customization || {} };
+  const alias = {
+    sagestill:"sageandstill", sageandstill:"sageandstill",
+    pressedpetals:"pressedpetals", heirloombloom:"heirloombloom",
+    blacktietimeless:"blacktietimeless", goldenhour:"goldenhour",
+    modernminimal:"modernminimal", whimsicalromance:"whimsicalromance",
+    coastalchic:"coastalchic", vintagelovestory:"vintagelovestory",
+    regalboho:"regalboho",
+  }[label];
+  return alias ? { skin: TEMPLATE_SKIN[alias], customization: data.customization || {} } : null;
+}
+
+function applySkin(found){
+  if (!found || !found.skin) return;
+  const s = found.skin, cz = found.customization || {};
+  const bg     = cz.accent_color  || s.bg;
+  const accent = cz.primary_color || s.accent;
+  const ink    = cz.text_color    || s.ink;
+
+  if (s.gfont && !document.getElementById("skin-font")) {
+    const l = document.createElement("link");
+    l.id = "skin-font"; l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?family=" + s.gfont + "&display=swap";
+    document.head.appendChild(l);
+  }
+
+  const r = document.documentElement.style;
+  r.setProperty("--cream", bg);
+  r.setProperty("--olive", accent);
+  r.setProperty("--ink", ink);
+  r.setProperty("--skin-display", s.display);
+  r.setProperty("--skin-body", s.body);
+  document.body.classList.add("skinned");
+}
+
+/* Theme as early as possible, then confirm against the API for guests who
+   opened the registry link cold. */
+function initSkin(){
+  if (!state.slug) return;
+  const stashed = readStashedSite(state.slug);
+  if (stashed) { applySkin(skinFor(stashed)); return; }
+  fetch(RENDER_API + "/wedding-site/" + encodeURIComponent(state.slug))
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d && !d.password_required) applySkin(skinFor(d)); })
+    .catch(() => {});
+}
+
 /* ─── Boot ─────────────────────────────────────────── */
 (function init(){
   const params = new URLSearchParams(location.search);
@@ -399,6 +491,7 @@ const isFund = it=> it.item_type_id===CASH_FUND_TYPE || (Number(it.price_cents)=
   const c = params.get("contribution");
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
   else if (c==="cancel"){ showBanner("No worries — your checkout was cancelled.","info"); cleanParam("contribution"); }
+  initSkin();          // colours + type from the couple's template
   loadShipMethods();   // carrier list for the tracking forms
   load();
 })();
