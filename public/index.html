@@ -119,16 +119,13 @@ body{background:#f9f7f5;font-family:'Instrument Serif',serif}
 <script>
 const API = 'https://wedding-recommender.onrender.com';
 
-// Map template label → template file path on Vercel
-// Add new templates here as you build them
+// Map template label (as returned by the backend, lowercased) → template file.
+// Add new templates here as you build them.
 const TEMPLATE_MAP = {
-  // The 4 fully-built templates
   'pressed petals':      '/template-pressedpetals.html',
   'heirloom bloom':      '/template-heirloombloom.html',
   'black tie timeless':  '/template-blacktietimeless.html',
   'golden hour':         '/template-goldenhour.html',
-
-  // The 6 placeholder templates (now visible & selectable)
   'sage & still':        '/template-sageandstill.html',
   'sage and still':      '/template-sageandstill.html',
   'modern minimal':      '/template-modernminimal.html',
@@ -149,18 +146,57 @@ const DEFAULT_TEMPLATE = '/template-pressedpetals.html';
 
 // Parse slug from path: weddings.myplanning.ai/sarah-and-john
 const path = window.location.pathname.split('/').filter(p => p);
-const slug  = path[0] || '';
+const slug = path[0] || '';
 
-function showScreen(icon, title, sub) {
+function templateFor(data) {
+  const label = (data && data.template ? String(data.template) : '').toLowerCase();
+  return TEMPLATE_MAP[label] || DEFAULT_TEMPLATE;
+}
+
+// Hand the payload to the template through sessionStorage so the template
+// doesn't have to re-fetch, then redirect. The template KEEPS this key (it used
+// to delete it), so a refresh on a password-protected site doesn't dead-end.
+function handOff(data) {
+  try { sessionStorage.setItem('weddingData_' + slug, JSON.stringify(data)); } catch (e) {}
+  window.location.replace(templateFor(data) + '?slug=' + encodeURIComponent(slug));
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(String(iso).length === 10 ? iso + 'T00:00:00Z' : iso);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  } catch (e) { return String(iso); }
+}
+
+// Generic branded screen. Takes real arguments in a fixed order — the previous
+// version was called with two arguments in one place and three in another,
+// which put body copy into the icon slot.
+function showScreen(opts) {
+  const o = opts || {};
   document.getElementById('loadingScreen').outerHTML = `
-    <div class="loading" style="flex-direction:column;gap:0.75rem;text-align:center;padding:2rem">
-      <div style="font-size:2.5rem">${icon}</div>
-      <div style="font-size:1.1rem;color:#040505">${title}</div>
-      <div style="font-size:0.85rem;color:#8d8863">${sub}</div>
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+      flex-direction:column;gap:14px;text-align:center;padding:2.5rem 1.5rem;
+      background:#f9f7f5;font-family:'Instrument Serif',serif;
+      background-image:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(169,189,196,0.12) 0%,transparent 60%),
+        radial-gradient(ellipse 40% 60% at 80% 20%,rgba(141,136,99,0.08) 0%,transparent 60%)">
+      ${o.icon ? `<div style="font-size:2.2rem;opacity:0.75">${escapeHtml(o.icon)}</div>` : ''}
+      <div style="font-size:1.9rem;color:#8d8863;font-style:italic;line-height:1.2">${escapeHtml(o.title || '')}</div>
+      ${o.date ? `<div style="font-size:0.78rem;color:#b5ad9a;letter-spacing:0.18em;text-transform:uppercase">${escapeHtml(o.date)}</div>` : ''}
+      <div style="font-size:0.9rem;color:#8d8863;opacity:0.85;max-width:420px;line-height:1.6">${escapeHtml(o.sub || '')}</div>
+      <div style="margin-top:2rem;padding-top:1.1rem;border-top:1px solid rgba(141,136,99,0.25);
+        font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(141,136,99,0.65)">myplanning.ai</div>
     </div>`;
 }
 
-function showPasswordScreen(templateUrl) {
+function showPasswordScreen() {
   document.getElementById('loadingScreen').outerHTML = `
     <div id="pwScreen" style="
       display:flex;align-items:center;justify-content:center;
@@ -168,22 +204,21 @@ function showPasswordScreen(templateUrl) {
       background:#f9f7f5;font-family:'Instrument Serif',serif;padding:2rem;
       background-image:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(169,189,196,0.12) 0%,transparent 60%),
         radial-gradient(ellipse 40% 60% at 80% 20%,rgba(141,136,99,0.08) 0%,transparent 60%)">
-      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d739d2eb-f460-4984-89fb-35511ea20510.png" style="width:56px;height:56px;object-fit:contain;opacity:0.55">
+      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d739d2eb-f460-4984-89fb-35511ea20510.png"
+        style="width:56px;height:56px;object-fit:contain;opacity:0.55" alt="">
       <div style="text-align:center">
         <p style="font-size:1.8rem;color:#8d8863;font-style:italic;margin-bottom:6px">A private celebration</p>
         <p style="font-size:0.85rem;color:#b5ad9a;letter-spacing:0.06em">Enter the password to continue</p>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:300px">
-        <input id="pwInput" type="password" placeholder="Password"
+        <input id="pwInput" type="password" placeholder="Password" autocomplete="current-password"
           style="width:100%;padding:12px 20px;border:1px solid #d4cfc4;border-radius:999px;
             font-size:0.95rem;font-family:'Instrument Serif',serif;font-style:italic;
-            outline:none;text-align:center;background:#fff;color:#040505;
-            letter-spacing:0.05em">
+            outline:none;text-align:center;background:#fff;color:#040505;letter-spacing:0.05em">
         <button id="pwBtn"
           style="width:100%;padding:12px 20px;background:#8d8863;color:#fff;
             border:none;border-radius:999px;font-size:0.85rem;
-            font-family:'Instrument Serif',serif;letter-spacing:0.1em;
-            cursor:pointer">
+            font-family:'Instrument Serif',serif;letter-spacing:0.1em;cursor:pointer">
           Enter
         </button>
         <div id="pwError" style="color:#c0392b;font-size:0.82rem;
@@ -193,67 +228,85 @@ function showPasswordScreen(templateUrl) {
       </div>
     </div>`;
   document.getElementById('pwInput').focus();
+
   const tryPwd = async () => {
     const pwd = document.getElementById('pwInput').value.trim();
     const btn = document.getElementById('pwBtn');
     const err = document.getElementById('pwError');
     if (!pwd) return;
     btn.disabled = true; btn.textContent = 'Checking...'; err.style.display = 'none';
-    const url = `${API}/wedding-site/${encodeURIComponent(slug)}?password=${encodeURIComponent(pwd)}`;
     try {
-      const res  = await fetch(url);
+      const res  = await fetch(`${API}/wedding-site/${encodeURIComponent(slug)}?password=${encodeURIComponent(pwd)}`);
       const data = await res.json();
       if (data.password_required) {
         err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
         return;
       }
-      // Password correct — store data and redirect
-      const tmpl = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
-      sessionStorage.setItem('weddingData_' + slug, JSON.stringify(data));
-      window.location.replace(tmpl + '?slug=' + encodeURIComponent(slug));
+      // A correct password unlocks a draft site too (that's how couples preview
+      // their own work), so re-check publish state before handing off.
+      if (data.not_published) {
+        showScreen({
+          icon: '✨',
+          title: data.couple_names || 'Coming soon',
+          date: fmtDate(data.celebration_date),
+          sub: (data.couple_names ? data.couple_names + ' are' : 'The hosts are') +
+               ' putting the finishing touches on their wedding website. Please check back soon.'
+        });
+        return;
+      }
+      handOff(data);
     } catch {
       err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Enter';
     }
   };
-  document.getElementById('pwInput').onkeypress = e => { if (e.key === 'Enter') tryPwd(); };
+  document.getElementById('pwInput').onkeydown = e => { if (e.key === 'Enter') tryPwd(); };
   document.getElementById('pwBtn').onclick = tryPwd;
 }
 
 async function main() {
   if (!slug) {
-    showScreen('🎊', 'Welcome to MyPlanning.ai', 'Enter a celebration URL to get started.');
+    showScreen({ icon: '🎊', title: 'Welcome to MyPlanning.ai', sub: 'Enter a celebration URL to get started.' });
     return;
   }
 
   try {
     const res = await fetch(`${API}/wedding-site/${encodeURIComponent(slug)}`);
 
-    if (res.status === 404) { showScreen('🔍', 'Page not found', 'Check the URL and try again.'); return; }
-    if (res.status === 403) {
-      // 403 means Draft or Unpublished — show themed coming soon
-      showScreen('Coming Soon', 'This celebration is not yet published.');
+    if (res.status === 404) {
+      showScreen({ icon: '🔍', title: 'Page not found', sub: 'Check the URL and try again.' });
       return;
     }
-    if (!res.ok)            { showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.'); return; }
+    if (!res.ok) {
+      showScreen({ icon: '⚠️', title: 'Something went wrong', sub: 'Please refresh and try again.' });
+      return;
+    }
 
     const data = await res.json();
 
-    if (data.password_required) {
-      // Show password screen; on success it will redirect
-      const tmpl = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
-      showPasswordScreen(tmpl);
+    if (data.password_required) { showPasswordScreen(); return; }
+
+    // Draft / Unpublished. The backend returns 200 with `not_published: true`
+    // (plus names and date) rather than a 403, so this branch has to test the
+    // flag. Previously it only checked for a 403 status that the backend no
+    // longer sends, so draft sites fell through and rendered an empty template.
+    if (data.not_published) {
+      showScreen({
+        icon: '✨',
+        title: data.couple_names || 'Coming soon',
+        date: fmtDate(data.celebration_date),
+        sub: (data.couple_names ? data.couple_names + ' are' : 'The hosts are') +
+             ' putting the finishing touches on their wedding website. Please check back soon.'
+      });
       return;
     }
 
-    // Store the real data in sessionStorage so the template can read it
-    // without needing a query param. Then redirect to template.
-    // The template checks sessionStorage first, before falling back to SAMPLE_DATA.
-    const templateFile = TEMPLATE_MAP[data.template?.toLowerCase()] || DEFAULT_TEMPLATE;
-    sessionStorage.setItem('weddingData_' + slug, JSON.stringify(data));
-    window.location.replace(templateFile + '?slug=' + encodeURIComponent(slug));
+    // Published — including Save the Date mode. The template's runtime detects
+    // website_mode and renders the announcement screen instead of the full site,
+    // so routing is identical for both modes.
+    handOff(data);
 
   } catch {
-    showScreen('⚠️', 'Something went wrong', 'Please refresh and try again.');
+    showScreen({ icon: '⚠️', title: 'Something went wrong', sub: 'Please refresh and try again.' });
   }
 }
 
