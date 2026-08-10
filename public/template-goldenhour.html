@@ -201,8 +201,8 @@ body.thumbnail-mode .hero-names-text{
 .ntk-title{font-family:var(--script);font-size:clamp(2rem,5vw,3rem);color:var(--white);margin-bottom:3rem;}
 .ntk-inner{max-width:520px;margin:0 auto;}
 .ntk-item{margin-bottom:2.5rem;}
-.ntk-question{font-family:var(--serif);font-size:0.95rem;font-weight:600;color:var(--white);margin-bottom:0.8rem;}
-.ntk-answer{font-family:var(--serif);font-size:0.8rem;font-style:italic;color:rgba(255,255,255,0.85);line-height:2;max-width:440px;margin:0 auto;}
+.ntk-question{font-family:var(--serif);font-size:1.02rem;font-weight:400;color:var(--white);margin-bottom:0.7rem;line-height:1.4;}
+.ntk-answer{font-family:var(--serif);font-size:0.82rem;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.9;max-width:440px;margin:0 auto;}
 .ntk-decoration{width:100px;margin:2.5rem auto 0;opacity:0.55;filter:brightness(10);}
 
 /* ── GALLERY ──────────────────────────────────────────────────── */
@@ -631,14 +631,21 @@ function hydrateTemplate(d){
     var invite=el('weddingInvite');
     if(invite){
       var n1=p1||'They',n2=p2||(p1?'':'They');
-      var inviteHtml=(p1&&p2?p1+' and '+p2:'They')+
-        ' <i>lovingly invite</i> you to <i>celebrate</i> their wedding.';
+      // A couple can write their own opening line by leading their Wedding
+      // content with an <em>…</em> paragraph; otherwise it's built from the
+      // partner names.
+      var customInvite=(d.weddings_info||'').match(/^\s*<em>([\s\S]*?)<\/em>\s*(?:<br\s*\/?>\s*){0,2}/i);
+      var inviteHtml=customInvite
+        ? customInvite[1]
+        : (p1&&p2?p1+' and '+p2:'They')+
+          ' <i>lovingly invite</i> you to <i>celebrate</i> their wedding.';
       invite.innerHTML=inviteHtml;
     }
     var wCards=el('weddingCards');
     if(wCards&&d.weddings_info){
       wCards.innerHTML='';
-      var wParts=d.weddings_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
+      var wSource=d.weddings_info.replace(/^\s*<em>[\s\S]*?<\/em>\s*(?:<br\s*\/?>\s*){0,2}/i,'');
+      var wParts=wSource.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
       function makeWCard(html){
         var nm=html.match(/^<strong>([^<]+)<\/strong>/i);
@@ -690,7 +697,9 @@ function hydrateTemplate(d){
       var nm=d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
       var acName=nm?nm[1]:'Hotel';
       var rest=nm?d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():d.accommodation_info;
-      var acUrl=_extractUrl(d.accommodation_info);
+      // Dedicated field first (Accomodation URL / MXzO9); a link pasted into
+      // the copy still works for couples who did it that way.
+      var acUrl=d.accommodation_url||_extractUrl(d.accommodation_info);
       var lines=rest.split(/<br\s*\/?>/i).map(function(s){
         return _stripUrl(s.replace(/<[^>]+>/g,'').trim(),acUrl);
       }).filter(Boolean);
@@ -710,7 +719,7 @@ function hydrateTemplate(d){
   if(menu.travel&&d.travel_info){
     var trContent=el('travelContent');
     if(trContent){
-      var trUrl=_extractUrl(d.travel_info);
+      var trUrl=d.travel_url||_extractUrl(d.travel_info);
       var tText=_stripUrl(d.travel_info.replace(/<[^>]+>/g,'').trim(),trUrl);
       var airportMatch=tText.match(/([A-Z][^.,(]+(?:airport|Airport)[^.,)]*)/);
       var tName=airportMatch?airportMatch[0].trim():'Airport';
@@ -790,10 +799,12 @@ const SAMPLE_DATA={
   slug:'',couple_names:'Alice & Conrad',partner_1:'Alice',partner_2:'Conrad',
   celebration_date:'2026-04-04',hero_image:'',gallery_images:[],
   story:'Two hearts that found each other in the quiet spaces between moments.',
-  weddings_info:'<strong>The Ceremony</strong><br>Saturday, April Fourth, 2026<br>6 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April Fourth, 2026<br>7 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em>',
+  weddings_info:'<em>Alice Dalton and Conrad Brown <i>lovingly invite</i> you to <i>celebrate</i> their wedding.</em><br><br><strong>The Ceremony</strong><br>Saturday, April Fourth, 2026<br>6 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April Fourth, 2026<br>7 O\'Clock in the Evening<br>Estancia La Jolla Hotel & Spa<br>9700 N Torrey Pines Rd,<br>La Jolla, CA 92037<br><em>Cocktail Attire</em>',
   events_info:'<strong>Welcome Cocktails</strong><br>Friday, April Third, 2026<br>7 O\'Clock in the Evening<br>Ultimate Skybox at DiamondView Tower<br>350 Tenth Ave,<br>San Diego, CA 92101<br><em>Evening Casual</em>',
-  accommodation_info:'<strong>Hotel</strong><br>Hyatt Regency La Jolla at Aventine<br>Request the Elizabeth & Joseph room block<br>https://www.hyatt.com',
-  travel_info:'San Diego National Airport. Approximately 30 minutes from the venue. https://www.san.org',
+  accommodation_info:'<strong>Hotel</strong><br>Hyatt Regency La Jolla at Aventine<br>Request the Elizabeth & Joseph room block',
+  accommodation_url:'https://www.hyatt.com',
+  travel_info:'San Diego National Airport. Approximately 30 minutes from the venue.',
+  travel_url:'https://www.san.org',
   faqs:'<strong>What should I wear to the wedding?</strong><br>The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.<br><br><strong>Will there be transportation?</strong><br>No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.<br><br><strong>Will the ceremony be indoors or outdoors?</strong><br>Here is a little more about the setting so you can plan accordingly and arrive feeling prepared.',
   registry_info:'',events:[],
   rsvp_config:{entrees:['Beef','Salmon','Vegetarian','Vegan'],allow_plus_one:true,deadline:'February 15<sup>th</sup>, 2026'},
