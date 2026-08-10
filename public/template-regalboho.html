@@ -35,12 +35,13 @@
 <!--
   REGAL BOHO — typography:
     - Noto Serif (body text — paragraphs, RSVP labels, addresses)
-    - Sorts Mill Goudy (Italic) — display script-feel italic for names + section
-      titles. Used as a substitute for Libre Baskerville Italic which isn't in
-      the local font folder. It's a similar classical italic serif and reads
-      identically to the eye in the contexts used here.
+    - Libre Baskerville Italic — display italic for names + section titles,
+      loaded from Google since it isn't in the local font folder. Sorts Mill
+      Goudy remains the fallback.
   Fonts are self-hosted as .woff2 from /public/fonts/
 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 @font-face{
   font-family:'Noto Serif';
@@ -92,7 +93,8 @@
   --black:#000000;
   --text:#53141e;        /* burgundy as default text colour */
   --muted:#7a4029;
-  --display:'Sorts Mill Goudy', 'Libre Baskerville', Georgia, serif;
+  /* Libre Baskerville italic is the heading face in the design. */
+  --display:'Libre Baskerville', 'Sorts Mill Goudy', Georgia, serif;
   --body:'Noto Serif', Georgia, serif;
 }
 html{scroll-behavior:smooth}
@@ -1325,7 +1327,9 @@ function hydrateTravelInfo(d, menu) {
 
   // Hotels: parsed from accommodation_info
   var hotelItems = [];
-  var bookUrl = '#';
+  // Accomodation URL / Travel URL field first; a link pasted into the copy is
+  // the fallback. No link means no button (it used to point at '#').
+  var bookUrl = d.accommodation_url || d.travel_url || '';
   if (d.accommodation_info && menu.accommodations) {
     var blob = d.accommodation_info;
     var blocks = blob.replace(/(<br\s*\/?>\s*){3,}/gi, '||SPLIT||').split('||SPLIT||');
@@ -1339,7 +1343,7 @@ function hydrateTravelInfo(d, menu) {
       var note = emMatch ? emMatch[1].trim() : '';
       rest = emMatch ? rest.replace(emMatch[0], '').trim() : rest;
       var urlMatch = blk.match(/href=["']([^"']+)["']/i);
-      if (urlMatch) bookUrl = urlMatch[1];
+      if (urlMatch && !bookUrl) bookUrl = urlMatch[1];   // field wins over a pasted link
       rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '').replace(/<a [^>]*>([^<]*)<\/a>/g, '$1');
       hotelItems.push({ name: name, address: rest, note: note });
     });
@@ -1401,7 +1405,7 @@ function hydrateTravelInfo(d, menu) {
       '<div class="travel-col-divider"></div>' +
       hotelItemsHtml +
       (firstNote ? '<div class="travel-note">' + firstNote + '</div>' : '') +
-      '<a class="travel-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' +
+      (bookUrl ? '<a class="travel-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '') +
     '</div>';
   }
 

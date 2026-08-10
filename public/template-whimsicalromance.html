@@ -60,6 +60,19 @@
   src:url('/fonts/DMSANSRegular.woff2') format('woff2');
   font-weight:400;font-style:normal;font-display:swap;
 }
+/* Avenir is the body face in the design. Filenames follow the same convention
+   as the others in /fonts; if they differ, the src simply fails and the stack
+   falls through to DM Sans, so nothing breaks. */
+@font-face{
+  font-family:'Avenir';
+  src:url('/fonts/AVENIRRegular.woff2') format('woff2');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'Avenir';
+  src:url('/fonts/AVENIRBold.woff2') format('woff2');
+  font-weight:700;font-style:normal;font-display:swap;
+}
 @font-face{
   font-family:'DM Sans';
   src:url('/fonts/DMSANSItalic.woff2') format('woff2');
@@ -96,7 +109,7 @@
   --text:#53141e;        /* burgundy as default text */
   --display:'Corben', Georgia, serif;
   --script:'Pinyon Script', 'Dancing Script', cursive;
-  --body:'DM Sans', system-ui, -apple-system, sans-serif;
+  --body:'Avenir Next','Avenir','DM Sans',system-ui,-apple-system,sans-serif;
 }
 html{scroll-behavior:smooth}
 body{
@@ -1228,18 +1241,34 @@ function renderAccomContent(html) {
   var address = rest;
 
   var urlMatch = html.match(/href=["']([^"']+)["']/i);
-  var bookUrl = urlMatch ? urlMatch[1] : '#';
+  var bookUrl = _mpBookUrl(html, (window.MP_DATA && window.MP_DATA.accommodation_url) || '');
 
   content.innerHTML =
     '<h2 class="accom-title">Hotel Details</h2>' +
     (name ? '<div class="accom-name">' + name + '</div>' : '') +
     (address ? '<div class="accom-address">' + address + '</div>' : '') +
     (meta ? '<div class="accom-meta">' + meta + '</div>' : '') +
-    '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>';
+    (bookUrl ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '');
 }
 
 // ── Hydration ─────────────────────────────────────────────────
+// Booking links: the Accomodation URL / Travel URL fields win, a link pasted
+// into the section copy is the fallback, and with neither the button is hidden
+// rather than left pointing at '#'.
+function _mpBookUrl(html, fieldUrl){
+  if (fieldUrl) return fieldUrl;
+  if (!html) return '';
+  var a = html.match(/<a[^>]+href=["']([^"']+)["']/i);
+  if (a && /^https?:/i.test(a[1])) return a[1];
+  var bare = html.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+  if (bare) return bare[0].replace(/[.,;)]+$/,'');
+  var www = html.replace(/<[^>]+>/g,' ').match(/\bwww\.[^\s<>"']+/i);
+  if (www) return 'https://' + www[0].replace(/[.,;)]+$/,'');
+  return '';
+}
+
 function hydrateTemplate(d) {
+  window.MP_DATA = d;   // so helpers above can read the URL fields
   window._weddingSlug  = d.slug || '';
   const names   = d.couple_names || 'Sherrie & Robert';
 

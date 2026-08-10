@@ -164,7 +164,7 @@
       heroId: 'hero',
       stdHideIds: ['our-story','event-details','travel-section','travel-standalone','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--beige', ink: '--text' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cdfe7e4-e470-4115-bb89-993f7b234798.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f1e4c9', ink: '#53141e', accent: '#53141e', rule: 'rgba(83,20,30,0.24)' },
       fonts: { display: "'Sorts Mill Goudy',Georgia,serif", body: "'Noto Serif',Georgia,serif" }
