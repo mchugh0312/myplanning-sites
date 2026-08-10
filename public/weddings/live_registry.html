@@ -95,13 +95,13 @@
   .acc-body{display:grid;grid-template-rows:0fr;opacity:.3;transition:grid-template-rows .26s ease,opacity .2s ease}
   .acc.open .acc-body{grid-template-rows:1fr;opacity:1}
   .acc-inner{overflow:hidden;min-height:0}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding:4px 0 34px;align-items:start}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding:4px 0 34px;align-items:stretch}
   @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
   @media(min-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
 
   /* ── Cards ──────────────────────────────────────────── */
-  .card{display:flex;flex-direction:column;background:var(--white);border-radius:4px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.06);align-self:start}
-  .card-click{cursor:pointer}
+  .card{display:flex;flex-direction:column;background:var(--white);border-radius:4px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+  .card-click{cursor:pointer;display:flex;flex-direction:column;flex:1 1 auto}
   .imgwrap{position:relative;height:230px;background:var(--white);border:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
   .imgwrap img{width:100%;height:100%;object-fit:cover}
   .ph{color:var(--border)}
@@ -117,7 +117,7 @@
   .card .sub{font-size:11px;color:var(--olive);margin-top:2px}
   .progress{height:5px;border-radius:999px;background:rgba(255,255,255,.55);overflow:hidden;margin:8px 2px 0}
   .progress > i{display:block;height:100%;background:var(--gold);border-radius:999px}
-  .cta-row{display:flex;gap:7px;margin-top:11px;padding:0 12px 14px;min-height:78px;align-items:flex-start}
+  .cta-row{display:flex;gap:7px;margin-top:11px;padding:0 12px 14px;align-items:flex-start}
   .cta{flex:1;border:none;border-radius:999px;padding:9px 0;font-size:12.5px;font-weight:600;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:5px}
   .cta.solid{background:var(--sage);color:#fff}
   .cta.solid:hover{opacity:.92}
@@ -326,7 +326,7 @@
 .chip:hover{border-color:#A9BDC4;}
 .chip.on{background:#4B5244;border-color:#4B5244;color:#fff;font-weight:600;}
 .chip.clear{border-style:dashed;color:var(--muted);}
-.qf-count{flex:0 0 100%;margin-top:8px;font-size:11.5px;color:var(--muted);white-space:nowrap;text-align:right;}
+.qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
 
 /* ── Drag handle: dead centre of the card ── */
 .drag-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
@@ -337,21 +337,23 @@
 /* ── Filter / sort row: dropdowns on a single line ── */
 .qf{background:#F9F7F5;border-bottom:1px solid var(--border);}
 .qf .wrap{max-width:1180px;margin:0 auto;padding:12px 20px;}
-.qf-line{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.qf-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .fsel{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);
-  border-radius:999px;padding:5px 6px 5px 14px;flex:1 1 0;min-width:150px;}
+  border-radius:999px;padding:5px 6px 5px 14px;flex:1 1 auto;min-width:150px;}
+.qf-line .qf-count ~ .fsel{flex:0 0 auto;min-width:0;}
 .fsel-lbl{font-size:11px;letter-spacing:.02em;color:var(--muted);white-space:nowrap;}
 .fsel select{border:none;outline:none;background:transparent;font-family:"Open Sans";font-size:12.5px;
   color:var(--ink);cursor:pointer;padding:2px 4px;flex:1 1 auto;width:100%;}
-.qf-count{flex:0 0 100%;margin-top:8px;font-size:11.5px;color:var(--muted);white-space:nowrap;text-align:right;}
+.qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
 @media(max-width:640px){ .fsel select{max-width:120px;} .qf-count{margin-left:0;width:100%;} }
 
 .card .brand{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
-.card .body{text-align:center;padding:10px 12px 0;}
-.card .ttl{min-height:0;}
+.card .body{text-align:center;padding:10px 12px 0;flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;}
+.card .ttl{min-height:34px;}
 .empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
 .ipurch{margin-top:2px;}
 .ipurch.done{color:var(--olive);font-weight:600;justify-content:center;}
+.ipurch.spacer{height:16px;margin-top:2px;pointer-events:none;}
 
 /* Purchase form card — sage panel with white fields (per the design) */
 .modal-card.sage{background:#A9BDC4;}
@@ -636,9 +638,9 @@ function quickFiltersHtml(count){
     + sel("f-cat",   "Category", [...f.cats][0]  || "", catOpts,   "pickCat(this.value)")
     + sel("f-price", "Price",    [...f.price][0] || "", priceOpts, "pickPrice(this.value)")
     + sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
-    + sel("f-sort",  "Sort",     f.sort, sortOpts, "setSort(this.value)")
     + (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
     + '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
+    + sel("f-sort",  "Sort",     f.sort, sortOpts, "setSort(this.value)")
     + '</div></div></div>';
 }
 
@@ -824,9 +826,9 @@ function renderCard(t){
               + '</label>')
         + '</div>';
   } else if(t.kind==="fund"){
-    cta = '<div class="cta-row"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button></div>';
+    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else {
-    cta = '<div class="cta-row"><button class="cta solid" onclick="event.stopPropagation();openExp(\''+t.id+'\')">Contribute</button></div>';
+    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openExp(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   }
 
   const openFn = t.kind==="experience" ? "openExp" : (t.kind==="fund" ? "openFund" : "openDetail");
