@@ -121,6 +121,9 @@ body.hydrating{visibility:hidden;}
 .hero-image img{
   width:100%;height:100%;
   object-fit:cover;display:block;
+  /* Warm sepia cast, as in the design — the app was showing the photo
+     untinted. */
+  filter:sepia(0.55) saturate(0.85) contrast(0.95) brightness(0.98);
 }
 /* Subtle gradient at top to keep nav legible over varied photos */
 .hero::after{
@@ -270,18 +273,29 @@ body.hydrating{visibility:hidden;}
   max-width:900px;
   margin:0 auto;
   background:var(--beige);
-  /* Notched / cut-corner frame using clip-path */
+  /* Thick olive border with cut corners, per the design. clip-path can't be
+     combined with a border, so the border is drawn as an olive layer behind a
+     slightly inset beige panel, both clipped to the same notch. */
+  --notch:24px;
+  --frame-border:4px;
+  background:var(--olive);
   clip-path:polygon(
-    24px 0,
-    calc(100% - 24px) 0,
-    100% 24px,
-    100% calc(100% - 24px),
-    calc(100% - 24px) 100%,
-    24px 100%,
-    0 calc(100% - 24px),
-    0 24px
+    var(--notch) 0, calc(100% - var(--notch)) 0,
+    100% var(--notch), 100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%, var(--notch) 100%,
+    0 calc(100% - var(--notch)), 0 var(--notch)
   );
-  padding:3rem 2rem 3rem;
+  padding:var(--frame-border);
+}
+.event-details-inner{
+  background:var(--beige);
+  clip-path:polygon(
+    var(--notch) 0, calc(100% - var(--notch)) 0,
+    100% var(--notch), 100% calc(100% - var(--notch)),
+    calc(100% - var(--notch)) 100%, var(--notch) 100%,
+    0 calc(100% - var(--notch)), 0 var(--notch)
+  );
+  padding:3rem 2rem;
 }
 .event-details-grid{
   display:grid;
@@ -305,7 +319,10 @@ body.hydrating{visibility:hidden;}
   margin-bottom:0.6rem;
 }
 .event-col-divider{
-  width:80px;
+  /* Rhombus — line — rhombus, olive, running the full width of the column so
+     it matches the event title above it. It was a 80px line with round dots. */
+  width:100%;
+  max-width:100%;
   height:1px;
   background:var(--olive);
   margin:0 auto 1rem;
@@ -315,10 +332,10 @@ body.hydrating{visibility:hidden;}
 .event-col-divider::after{
   content:'';
   position:absolute;
-  top:50%;transform:translateY(-50%);
-  width:5px;height:5px;
-  border-radius:50%;
+  top:50%;
+  width:7px;height:7px;
   background:var(--olive);
+  transform:translateY(-50%) rotate(45deg);
 }
 .event-col-divider::before{left:-3px;}
 .event-col-divider::after{right:-3px;}
@@ -385,7 +402,8 @@ body.hydrating{visibility:hidden;}
   margin-bottom:0.5rem;
 }
 .travel-col-divider{
-  width:90px;
+  /* Same rhombus — line — rhombus as Event Details, running the column width. */
+  width:min(100%, 230px);
   height:1px;
   background:var(--olive);
   margin:0 auto 1.6rem;
@@ -395,10 +413,10 @@ body.hydrating{visibility:hidden;}
 .travel-col-divider::after{
   content:'';
   position:absolute;
-  top:50%;transform:translateY(-50%);
-  width:5px;height:5px;
-  border-radius:50%;
+  top:50%;
+  width:7px;height:7px;
   background:var(--olive);
+  transform:translateY(-50%) rotate(45deg);
 }
 .travel-col-divider::before{left:-3px;}
 .travel-col-divider::after{right:-3px;}
@@ -424,10 +442,10 @@ body.hydrating{visibility:hidden;}
 .travel-cta{
   display:inline-block;
   margin-top:0.6rem;
-  padding:0.6rem 1.8rem;
+  padding:0.45rem 2.2rem;
   background:transparent;
   color:var(--burgundy);
-  border:1px solid var(--burgundy);
+  border:2px solid var(--burgundy);
   border-radius:999px;
   font-family:var(--body);
   font-size:0.78rem;
@@ -488,7 +506,7 @@ body.hydrating{visibility:hidden;}
 
 /* ── REGISTRY (warm beige band with flower on left) ───────── */
 .registry-wrap{
-  background:var(--beige);
+  background:var(--ivory);
   position:relative;
   padding:3rem 2rem;
   text-align:center;
@@ -519,20 +537,21 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.2rem;
 }
 .registry-cta{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:0.85rem 2.6rem;
-  border:1px solid var(--burgundy);
+  /* Thinner pill with a thick burgundy edge, as in the design. */
+  display:inline-block;
+  padding:0.45rem 2.4rem;
+  border:2px solid var(--burgundy);
   border-radius:999px;
-  font-family:var(--body);
-  font-size:0.85rem;
-  color:var(--burgundy);
-  font-weight:400;
-  text-decoration:none;
-  transition:background 0.25s, color 0.25s;
   background:transparent;
+  color:var(--burgundy);
+  font-family:var(--body);
+  font-size:0.78rem;
+  letter-spacing:0.02em;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background 0.2s,color 0.2s;
 }
+.registry-cta:hover{background:var(--burgundy);color:var(--ivory);}
 .registry-cta:hover{background:var(--burgundy);color:var(--ivory);}
 .registry-info{
   margin-top:1rem;
@@ -569,8 +588,9 @@ body.hydrating{visibility:hidden;}
   margin:0 auto 2rem;
 }
 .rsvp-name-input{
-  width:100%;padding:0.85rem 1.6rem;
-  border:1px solid var(--burgundy);
+  /* The design's name field is a contained pill, not full-bleed. */
+  width:min(100%, 420px);margin:0 auto;padding:0.6rem 1.6rem;
+  border:2px solid var(--burgundy);
   background:transparent;
   border-radius:999px;
   font-family:var(--body);font-size:0.85rem;
@@ -581,6 +601,8 @@ body.hydrating{visibility:hidden;}
 }
 .rsvp-name-input:focus{background:rgba(83,20,30,0.04);}
 .rsvp-name-input::placeholder{color:rgba(83,20,30,0.45);font-style:italic;}
+.rsvp-select,.rsvp-text-input,.rsvp-name-input{margin-bottom:0.85rem;}
+.rsvp-expanded .rsvp-field-row:last-child .rsvp-select{margin-bottom:0;}
 .rsvp-event-block{
   max-width:420px;
   margin:0 auto 1.4rem;
@@ -650,11 +672,15 @@ body.hydrating{visibility:hidden;}
 
 .rsvp-expanded{display:none;}
 .rsvp-expanded.visible{display:block;}
-.rsvp-field-row{margin-bottom:0.5rem;}
+.rsvp-field-row{margin-bottom:0.5rem;  row-gap:0.85rem;
+  justify-items:center;
+}
 .rsvp-field-row:last-child{margin-bottom:0;}
 .rsvp-select,.rsvp-text-input{
-  width:100%;padding:0.75rem 1.6rem;
-  border:1px solid var(--burgundy);
+  /* Same thick pill edge as the other buttons in this template, and narrower
+     than full width so the column reads as a stack of pills. */
+  width:min(100%, 420px);padding:0.55rem 1.6rem;
+  border:2px solid var(--burgundy);
   background:transparent;
   font-family:var(--body);font-size:0.85rem;
   color:var(--burgundy);outline:none;border-radius:999px;
@@ -894,7 +920,7 @@ footer{
   }
 
   .event-details{padding:2.5rem 1rem 3.5rem;}
-  .event-details-frame{padding:2rem 1.2rem;}
+  .event-details-inner{padding:2rem 1.2rem;}
   .event-details-grid,
   .event-details-grid[data-event-count="1"],
   .event-details-grid[data-event-count="2"],
@@ -983,6 +1009,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
   <div class="event-details-bg"></div>
   <h2 class="event-details-title">Event Details</h2>
   <div class="event-details-frame">
+   <div class="event-details-inner">
     <div class="event-details-grid" id="eventGrid">
       <div class="event-col">
         <div class="event-col-name">Welcome Dinner</div>
@@ -1018,6 +1045,8 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
         <div class="event-col-dress">Dress Code: Casual</div>
       </div>
     </div>
+   </div>
+
     <img class="event-details-flower"
       src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png" alt="">
   </div>
@@ -1407,7 +1436,11 @@ function hydrateTravelInfo(d, menu) {
       '<div class="travel-col-divider"></div>' +
       hotelItemsHtml +
       (firstNote ? '<div class="travel-note">' + firstNote + '</div>' : '') +
-      (bookUrl ? '<a class="travel-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '') +
+      (bookUrl
+        ? '<a class="travel-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
+        // The design always carries this button; without a URL it stays for the
+        // layout and the runtime makes href="#" inert.
+        : '<a class="travel-cta" href="#">Book Now</a>') +
     '</div>';
   }
 
