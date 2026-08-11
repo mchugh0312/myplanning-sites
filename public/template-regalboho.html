@@ -110,8 +110,8 @@ body.hydrating{visibility:hidden;}
 .hero{
   position:relative;
   width:100%;
-  aspect-ratio:16/10;
-  min-height:280px;
+  aspect-ratio:16/8.6;
+  min-height:240px;
   background:#3a3a36;
   overflow:hidden;
 }
@@ -123,7 +123,8 @@ body.hydrating{visibility:hidden;}
   object-fit:cover;display:block;
   /* Warm sepia cast, as in the design — the app was showing the photo
      untinted. */
-  filter:sepia(0.55) saturate(0.85) contrast(0.95) brightness(0.98);
+  /* Subtle warm cast — 0.55 read as a full sepia treatment. */
+  filter:sepia(0.22) saturate(0.94) contrast(0.98);
 }
 /* Subtle gradient at top to keep nav legible over varied photos */
 .hero::after{
@@ -186,7 +187,9 @@ body.hydrating{visibility:hidden;}
 /* ── OUR STORY (names + body text + flower on left) ───────── */
 .our-story{
   background:var(--ivory);
-  padding:0 2rem 4rem;
+  /* Extra room at the foot so the lowered bloom isn't clipped. */
+  padding:0 2rem 5.5rem;
+  overflow:visible;
   position:relative;
   text-align:center;
 }
@@ -219,7 +222,8 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   left:0;
-  bottom:-30px;
+  /* Lower, so the bloom clears the story copy instead of overlapping it. */
+  bottom:-90px;
   width:130px;
   height:200px;
   background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cdfe7e4-e470-4115-bb89-993f7b234798.png');
@@ -243,7 +247,7 @@ body.hydrating{visibility:hidden;}
 /* ── EVENT DETAILS (warm beige with notched frame, 3 events) ── */
 .event-details{
   background:var(--ivory);
-  padding:3.5rem 1.5rem 4.5rem;
+  padding:3.5rem 1.5rem 6rem;
   position:relative;
   text-align:center;
   /* Subtle floral pattern in the background using the flower asset tinted */
@@ -251,10 +255,11 @@ body.hydrating{visibility:hidden;}
 .event-details-bg{
   position:absolute;
   inset:0;
-  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png');
-  background-size:160px;
-  background-repeat:repeat;
-  opacity:0.07;
+  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/1679eb9c-c5be-422a-ba6f-de6182f93bef.svg');
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  opacity:1;
   pointer-events:none;
 }
 .event-details-title{
@@ -361,7 +366,8 @@ body.hydrating{visibility:hidden;}
 .event-details-flower{
   position:absolute;
   right:-10px;
-  bottom:-30px;
+  /* Sits below the frame rather than across its bottom-right corner. */
+  bottom:-72px;
   width:clamp(80px, 14vw, 130px);
   z-index:3;
   pointer-events:none;
@@ -932,7 +938,7 @@ footer{
   .event-details-flower{
     width:80px;
     right:-5px;
-    bottom:-15px;
+    bottom:-46px;
   }
 
   .travel-section{padding:3rem 1.4rem 3.5rem;}
@@ -953,6 +959,67 @@ footer{
 
 @media(min-width:769px){
   .nav-mobile-toggle{display:none;}
+}
+
+/* ── MOBILE PASS (phones) ─────────────────────────────────────────────
+   Additions only, inside media queries — desktop is untouched. */
+@media(max-width:640px){
+  /* Hero */
+  .hero{aspect-ratio:4/3;min-height:0;}
+  .hero-nav{display:none;}   /* replaced by the shared hamburger */
+
+  /* Names and story */
+  .our-story{padding:0 1.1rem 4.5rem;}
+  .our-story-names{font-size:clamp(2.1rem,11vw,3.4rem);}
+  .our-story-body{font-size:0.9rem;line-height:1.75;padding-left:0;}
+  .our-story-body::before{
+    /* The bloom sits under the copy on a phone rather than beside it. */
+    position:relative;display:block;
+    left:auto;bottom:auto;margin:1.4rem auto 0;
+    width:96px;height:120px;background-position:bottom center;
+  }
+
+  /* Event details: one column, and the frame's cut corners scaled down. */
+  .event-details{padding:2.5rem 0.9rem 4.5rem;}
+  .event-details-title,.travel-title,.ntk-title,.registry-title,.rsvp-title{
+    font-size:clamp(1.6rem,8vw,2.2rem);
+  }
+  .event-details-frame{--notch:16px;--frame-border:3px;}
+  .event-details-inner{padding:1.8rem 1.1rem;}
+  .event-details-grid,
+  .event-details-grid[data-event-count="2"],
+  .event-details-grid[data-event-count="3"],
+  .event-details-grid[data-event-count="4"]{grid-template-columns:1fr;gap:2rem;}
+  .event-col + .event-col{border-top:1px solid rgba(81,80,0,0.28);padding-top:1.8rem;}
+  .event-col-name{font-size:1.25rem;}
+  .event-col-meta{font-size:0.86rem;}
+  .event-details-flower{width:72px;right:0;bottom:-40px;}
+
+  /* Travel */
+  .travel-col-divider{width:min(100%,190px);}
+  .travel-item{font-size:0.88rem;}
+
+  /* Buttons and fields: thumb-sized, one column, no iOS zoom on focus. */
+  .travel-cta,.registry-cta{
+    min-height:44px;padding-left:1.8rem;padding-right:1.8rem;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .rsvp-field-row{grid-template-columns:1fr;}
+  .rsvp-select,.rsvp-text-input,.rsvp-name-input{
+    font-size:16px;min-height:44px;width:100%;
+  }
+  .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
+  .rsvp-add-guest{min-height:44px;}
+  .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}
+
+  .faq-q,.faq-question{font-size:0.98rem;}
+  .faq-a,.faq-answer{font-size:0.87rem;line-height:1.7;}
+}
+
+@media(max-width:400px){
+  .hero{aspect-ratio:5/4;}
+  .our-story-names{font-size:clamp(1.8rem,10.5vw,2.6rem);}
+  .event-details-inner{padding:1.5rem 0.9rem;}
 }
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────── */
