@@ -102,7 +102,7 @@ body{
   -webkit-font-smoothing:antialiased;
   font-size:16px;line-height:1.6;
 }
-body.hydrating{visibility:hidden}
+body.hydrating{visibility:hidden;}
 
 /* ── MENU ─────────────────────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
@@ -875,6 +875,59 @@ footer{
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;padding:0 0.5rem;}
   .gallery-lb-prev{left:6px;padding:10px 12px;}
   .gallery-lb-next{right:6px;padding:10px 12px;}
+}
+
+/* ── MOBILE PASS (phones) ─────────────────────────────────────────────
+   Additions only, inside media queries — desktop is untouched. The existing
+   768px block handled padding and the hero; this covers the parts that still
+   break at phone width: the two-up cards, tap targets and form fields. */
+@media(max-width:640px){
+  /* The hero's own 640px rule sets the composition; here it just gets a little
+     more room for the names. */
+  .hero{padding:2rem 1rem 1.2rem;}
+
+  /* Hotel and Flights were still two-up at 320–430px, which left each card
+     about 130px wide — narrower than its own Book Now button. */
+  .accom-inner{grid-template-columns:1fr;gap:1.2rem;max-width:340px;margin:0 auto;}
+  .accom-card{min-height:0;padding:2rem 1.4rem 1.8rem;}
+  .accom-card-title{font-size:1.15rem;}
+  .accom-card-rule{width:clamp(96px,50%,150px);}
+  .accom-card-name{font-size:1rem;}
+  .accom-card-cta{
+    padding:0.75rem 1.8rem;font-size:0.72rem;min-height:44px;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+
+  /* The Weekend */
+  .weekend-title{font-size:clamp(1.4rem,7vw,1.9rem);margin-bottom:2rem;}
+  .weekend-event{margin-bottom:2.4rem;}
+  .weekend-event-name{font-size:1.15rem;}
+  .weekend-event-detail{font-size:0.9rem;line-height:1.8;}
+  .weekend-flourish{width:clamp(110px,34vw,150px);margin-top:2rem;}
+
+  /* Need to Knows / registry / RSVP headings */
+  .ntk-title,.registry-title,.rsvp-title{font-size:clamp(1.35rem,6.5vw,1.8rem);}
+  .faq-q-text{font-size:0.98rem;}
+  .faq-answer{font-size:0.87rem;line-height:1.7;}
+  .faq-question{min-height:44px;}
+
+  /* Registry overlay text needs to stay clear of the photo's edges. */
+  .registry-section{min-height:200px;}
+  .registry-overlay{padding-left:1rem;padding-right:1rem;}
+
+  /* Forms */
+  .rsvp-select,.rsvp-text-input,.rsvp-name-input{
+    font-size:16px;   /* stops iOS zooming the page on focus */
+    min-height:44px;
+  }
+  .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
+  .rsvp-add-guest{min-height:44px;}
+  .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}
+}
+
+@media(max-width:400px){
+  .accom-inner{max-width:100%;}
+  .weekend-event-detail{font-size:0.86rem;}
 }
 
 @media(max-width:420px){

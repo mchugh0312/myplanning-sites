@@ -928,22 +928,39 @@ footer{
 
 /* ── MOBILE ────────────────────────────────────────────────── */
 @media(max-width:768px){
-  .hero-wrap{padding:0.8rem 0.8rem 0;}
-  /* Proportions unchanged from desktop — only the frame gets a little wider on
-     a phone so the names have room. */
-  .hero{width:min(92%, 1000px);border-radius:clamp(22px,6vw,40px);}
+  .hero-wrap{padding:0.9rem 0 0;}
+  /* On a phone the frame takes almost the full width, and the rosy border
+     scales down with it — at desktop thickness it ate a third of a 300px
+     screen. The proportions stay the same, only the scale changes. */
+  .hero{
+    width:min(94%, 1000px);
+    border-width:clamp(0.6rem, 3.2vw, 1.2rem);
+    border-radius:clamp(20px, 6vw, 40px);
+    /* Taller than the desktop banner: a 32/10.8 strip is only ~90px on a phone,
+       which leaves no room for two lines of names. */
+    aspect-ratio:16/11;
+    min-height:0;
+  }
+  .hero-wrap::before{
+    width:calc(min(94%, 1000px) + 0.7rem);
+    top:calc(0.9rem - 0.35rem);
+    bottom:-0.35rem;
+    border-radius:clamp(26px, 7vw, 48px);
+  }
   .hero-couple-name .name-1,
-  .hero-couple-name .name-2{font-size:clamp(2rem, 11vw, 4.5rem);}
-  .our-story{padding:2.5rem 1.4rem;}
+  .hero-couple-name .name-2{font-size:clamp(1.9rem, 12vw, 4.5rem);}
+  /* Less air around the story: the desktop block centres it in leftover space,
+     which on a phone reads as a large empty gap. */
+  .our-story{padding:1.6rem 1.4rem 2.2rem;}
+  .story-text{font-size:0.95rem;line-height:1.75;}
   .itinerary{padding:3rem 1.2rem 3.5rem;}
   .itinerary-grid{
     grid-template-columns:1fr;
     gap:2.4rem;
   }
-  .itinerary-flowers{
-    right:-12px;
-    width:80px;
-  }
+  .itinerary-flowers{width:60px;}
+  .itinerary-title-wrap{padding-top:1.4rem;margin-bottom:1.6rem;}
+  .itinerary-title-text{font-size:104px;}
   .accommodations{padding:2.5rem 1.4rem;}
   .accom-inner{
     grid-template-columns:1fr;
@@ -964,6 +981,32 @@ footer{
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;padding:0 0.5rem;}
   .gallery-lb-prev{left:6px;padding:10px 12px;}
   .gallery-lb-next{right:6px;padding:10px 12px;}
+}
+
+/* ── MOBILE PASS (phones) — additions only ───────────────────────────── */
+@media(max-width:640px){
+  .itinerary-event-name{font-size:1.5rem;}
+  .itinerary-event-detail{font-size:0.9rem;line-height:1.7;}
+  .accom-title{font-size:clamp(1.4rem,7vw,1.9rem);}
+  .accom-name{font-size:1.15rem;}
+  .accom-address,.accom-meta{font-size:0.86rem;}
+  .ntk-title{font-size:clamp(1.4rem,7vw,1.9rem);}
+  .faq-q-text{font-size:0.98rem;}
+  .faq-answer{font-size:0.86rem;line-height:1.7;}
+  .registry-section{padding:2.4rem 1.1rem 2.8rem;width:calc(100% - 1.6rem);border-radius:18px;}
+  .registry-title{font-size:clamp(1.5rem,8vw,2.2rem);}
+  .registry-flowers{width:76px;right:0.6rem;}
+  /* Tap targets and fields */
+  .accom-cta,.registry-cta,.rsvp-submit{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .rsvp-submit{width:100%;max-width:300px;min-height:48px;}
+  .rsvp-select,.rsvp-text-input,.rsvp-name-input{
+    font-size:16px;   /* stops iOS zooming the page on focus */
+    min-height:44px;
+  }
+  .rsvp-add-guest{min-height:44px;}
+  .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
