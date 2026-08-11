@@ -176,17 +176,10 @@ const BRAND_THEME = {
   bg: '#f9f7f5', ink: '#8d8863', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)'
 };
 
-// After the first load we know which template this slug uses, so the next visit
-// (and the redirect back from the template) can theme the loader immediately.
-function rememberTemplate(slug, tid) {
-  try { localStorage.setItem('tmpl_' + slug, tid); } catch (e) {}
-}
-function recallTheme(slug) {
-  try {
-    const tid = localStorage.getItem('tmpl_' + slug);
-    if (tid && TEMPLATE_THEME[tid]) return TEMPLATE_THEME[tid];
-  } catch (e) {}
-  return BRAND_THEME;
+// Once the payload arrives we know the template, so the loader can pick up its
+// colours and motif for the moment before the redirect.
+function themeFromTemplate(tid) {
+  if (tid && TEMPLATE_THEME[tid]) applyLoadingTheme(TEMPLATE_THEME[tid]);
 }
 
 // Paint the loading screen in the remembered template's colours and motif.
@@ -238,8 +231,10 @@ const DEFAULT_TEMPLATE = '/template-pressedpetals.html';
 const path = window.location.pathname.split('/').filter(p => p);
 const slug = path[0] || '';
 
-// Theme the loader before anything else renders.
-applyLoadingTheme(slug ? recallTheme(slug) : BRAND_THEME);
+// Always start neutral. We can't know the template until the API answers, and
+// guessing from the last visit showed the wrong template's motif whenever a
+// couple had just switched.
+applyLoadingTheme(BRAND_THEME);
 
 function templateFor(data) {
   const label = (data && data.template ? String(data.template) : '').toLowerCase();
@@ -257,7 +252,7 @@ function templateIdFromFile(file) {
 // to delete it), so a refresh on a password-protected site doesn't dead-end.
 function handOff(data) {
   const file = templateFor(data);
-  rememberTemplate(slug, templateIdFromFile(file));
+  themeFromTemplate(templateIdFromFile(file));
   try { sessionStorage.setItem('weddingData_' + slug, JSON.stringify(data)); } catch (e) {}
   window.location.replace(file + '?slug=' + encodeURIComponent(slug));
 }

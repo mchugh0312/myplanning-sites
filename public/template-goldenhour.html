@@ -667,8 +667,13 @@ function hydrateTemplate(d){
       }
       wParts.forEach(function(part){wCards.innerHTML+=makeWCard(part);});
     
-      if (_orig_wCards) _orig_wCards.innerHTML = (wCards.children.length || (wCards.innerHTML || '').trim())
-        ? wCards.innerHTML : _ph_wCards;
+      if (_orig_wCards) {
+        var _real_wCards = (wCards.children.length || (wCards.innerHTML || '').trim());
+        _orig_wCards.innerHTML = _real_wCards ? wCards.innerHTML : _ph_wCards;
+        // Tell the runtime the page is showing sample content, so it
+        // doesn't mix the couple's real dates into placeholder sections.
+        if (!_real_wCards) window.MP_SHOWING_PLACEHOLDERS = true;
+        }
 }
   }
 
@@ -700,8 +705,13 @@ function hydrateTemplate(d){
         evList.appendChild(box);
       });
     
-      if (_orig_evList) _orig_evList.innerHTML = (evList.children.length || (evList.innerHTML || '').trim())
-        ? evList.innerHTML : _ph_evList;
+      if (_orig_evList) {
+        var _real_evList = (evList.children.length || (evList.innerHTML || '').trim());
+        _orig_evList.innerHTML = _real_evList ? evList.innerHTML : _ph_evList;
+        // Tell the runtime the page is showing sample content, so it
+        // doesn't mix the couple's real dates into placeholder sections.
+        if (!_real_evList) window.MP_SHOWING_PLACEHOLDERS = true;
+        }
 }
   }
 
@@ -772,8 +782,13 @@ function hydrateTemplate(d){
         nl.appendChild(item);
       });
     
-      if (_orig_nl) _orig_nl.innerHTML = (nl.children.length || (nl.innerHTML || '').trim())
-        ? nl.innerHTML : _ph_nl;
+      if (_orig_nl) {
+        var _real_nl = (nl.children.length || (nl.innerHTML || '').trim());
+        _orig_nl.innerHTML = _real_nl ? nl.innerHTML : _ph_nl;
+        // Tell the runtime the page is showing sample content, so it
+        // doesn't mix the couple's real dates into placeholder sections.
+        if (!_real_nl) window.MP_SHOWING_PLACEHOLDERS = true;
+        }
 }
   }
 

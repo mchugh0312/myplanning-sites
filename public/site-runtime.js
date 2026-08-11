@@ -1064,6 +1064,14 @@
     var section = document.getElementById('registry-section') ||
                   document.getElementById('registry') ||
                   document.getElementById('registry-wrap');
+
+    // Some templates make the whole registry section a single <a> (Sage & Still,
+    // Regal Boho, Vintage Love Story). That's already the clickable element, so
+    // wire it directly — injecting a fallback link inside it printed the CTA
+    // text twice and left the outer anchor inert.
+    if (section && section.tagName === 'A' && nodes.indexOf(section) === -1) {
+      nodes.push(section);
+    }
     if (section) {
       try {
         Array.prototype.slice.call(section.querySelectorAll('a[href="#"], a:not([href])'))
@@ -1525,6 +1533,7 @@
     }
     applyCustomFont(d.custom_font);
 
+    window.MP_SHOWING_PLACEHOLDERS = false;
     try {
       if (typeof window.hydrateTemplate === 'function') window.hydrateTemplate(d);
     } catch (err) {
@@ -1542,8 +1551,12 @@
       // in July with an RSVP deadline in October. Same condition the templates
       // use for placeholder retention: only speak for the couple once they've
       // given us a schedule, or an explicit deadline.
-      var hasRealSchedule = !!(d.weddings_info || d.events_info ||
-        (d.events && d.events.length));
+      // Templates set MP_SHOWING_PLACEHOLDERS when any section fell back to its
+      // sample content. Checking the raw fields wasn't enough: a couple can have
+      // weddings_info filled in that parses to nothing, so the schedule still
+      // shows sample events while the field looks populated.
+      var hasRealSchedule = !window.MP_SHOWING_PLACEHOLDERS &&
+        !!(d.weddings_info || d.events_info || (d.events && d.events.length));
       var text = '';
       if (deadline) text = fmtDate(deadline);
       else if (hasRealSchedule && d.celebration_date) text = fmtDate(d.celebration_date);
