@@ -350,11 +350,13 @@ body.hydrating{visibility:hidden}
   z-index:3;
 }
 .travel-image-frame .frame-photo img{
-  width:100%;height:100%;object-fit:cover;display:block;
-  /* The window is square and most uploads are landscape, so cover has to crop
-     something. Biasing upward keeps faces in frame instead of slicing heads
-     off at the top. */
-  object-position:center 28%;
+  width:100%;height:100%;display:block;
+  /* `cover` cropped heads out of frame whichever way it was biased, because the
+     window is square and uploads generally aren't. `contain` shows the whole
+     photograph; the ivory fill behind it reads as part of the stamp. */
+  object-fit:contain;
+  object-position:center;
+  background:var(--ivory);
 }
 
 /* ── FAQs — dark navy bg ─────────────────────────────────── */
@@ -1400,7 +1402,12 @@ function hydrateTemplate(d){
           // If no label was found in the first section, fall back to the
           // caller-supplied label (e.g. "Accommodations") so we never render
           // a labelless block.
-          if (!label && out.length === 0 && fallbackLabel) label = fallbackLabel;
+          if (out.length === 0 && fallbackLabel) {
+            // Section label is fixed by the design. Anything the couple bolded
+            // is content, so fold it back into the detail rather than losing it.
+            if (label) detail = '<strong>' + label + '</strong><br>' + detail;
+            label = fallbackLabel;
+          }
           // A trailing <em>…</em> is the room-block note in the design
           // ("*Request the Liz & Nic room block"), styled separately.
           var noteHtml = '';
@@ -1426,7 +1433,15 @@ function hydrateTemplate(d){
         parts.push(_renderRichTravel(d.travel_info, 'Airport'));
       }
       if (menu.accommodations && d.accommodation_info){
-        parts.push(_renderRichTravel(d.accommodation_info, 'Hotel'));
+        var hotelHtml = d.accommodation_info;
+        // The design carries a room-block line under the hotel. If the couple
+        // hasn't written one, build it from their names rather than dropping
+        // the line the template shows.
+        if (!/<em[^>]*>/i.test(hotelHtml)) {
+          var _names = (d.couple_names || '').trim();
+          if (_names) hotelHtml += '<br><em>*Request the ' + _names + ' room block</em>';
+        }
+        parts.push(_renderRichTravel(hotelHtml, 'Hotel'));
       }
       // Keep the template's placeholder blocks when the couple hasn't written
       // anything — an empty Travel Info section looks broken.
