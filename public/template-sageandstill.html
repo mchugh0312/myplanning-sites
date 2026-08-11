@@ -262,7 +262,7 @@ body.hydrating{visibility:hidden}
 .weekend-event:last-child{margin-bottom:0;}
 .weekend-event-name{
   font-family:var(--sub);
-  font-size:1.15rem;
+  font-size:1.35rem;
   color:var(--dark-green);
   margin-bottom:0.85rem;
   letter-spacing:0.01em;
@@ -271,9 +271,9 @@ body.hydrating{visibility:hidden}
 }
 .weekend-event-detail{
   font-family:var(--body);
-  font-size:0.82rem;
+  font-size:0.95rem;
   color:var(--offwhite);
-  line-height:1.85;
+  line-height:1.9;
   letter-spacing:0.02em;
   font-weight:400;
 }
@@ -287,7 +287,7 @@ body.hydrating{visibility:hidden}
   margin-top:0.9rem;
   font-family:var(--body);
   font-style:normal;
-  font-size:0.86rem;
+  font-size:0.98rem;
   color:var(--offwhite);
   font-weight:700;
   letter-spacing:0.03em;
@@ -301,12 +301,14 @@ body.hydrating{visibility:hidden}
   color:rgba(255,255,255,0.7);
 }
 .weekend-flourish{
-  /* Ornament closing the section, as in the design. */
+  /* Ornament closing the section. The artwork is dark, so on the sage band it
+     has to be inverted to white or it simply isn't visible. */
   display:block;
   margin:3rem auto 0;
-  width:clamp(90px,12vw,130px);
+  width:clamp(150px,20vw,240px);
   height:auto;
-  opacity:0.8;
+  opacity:0.95;
+  filter:brightness(0) invert(1);
 }
 
 /* ── OUR STORY (cream) ────────────────────────────────────── */
@@ -403,7 +405,7 @@ body.hydrating{visibility:hidden}
 }
 .faq-list{
   display:flex;flex-direction:column;
-  border-top:1px solid rgba(105,108,98,0.22);
+  /* The design has no rule above the first question. */
 }
 .faq-item{
   /* No boxes in the design — questions are separated by nothing but space. */
@@ -420,7 +422,7 @@ body.hydrating{visibility:hidden}
 }
 .faq-q-text{
   font-family:var(--body);
-  font-size:0.92rem;
+  font-size:1.05rem;
   color:var(--text);
   font-weight:400;
   letter-spacing:0.01em;
@@ -493,9 +495,10 @@ body.hydrating{visibility:hidden}
   margin-bottom:0.6rem;
 }
 .accom-card-rule{
-  /* Ornament under the label, matching the design's flourish. */
-  width:60px;height:7px;
-  margin:0 auto 1.2rem;
+  /* Ornament under the label. Runs the width of the label and thick enough to
+     read — at 60x7 it was a smudge. */
+  width:clamp(120px,60%,190px);height:18px;
+  margin:0 auto 1.1rem;
   background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png');
   background-size:contain;
   background-repeat:no-repeat;
@@ -583,14 +586,16 @@ body.hydrating{visibility:hidden}
 }
 .rsvp-name-row{padding:0;}
 .rsvp-name-input{
-  width:100%;padding:0.85rem 1.4rem;
-  border:1px solid rgba(105,108,98,0.35);
-  background:#ffffff;
+  width:100%;
+  padding:0.85rem 1.2rem;
+  border:1px solid rgba(105,108,98,0.25);
   border-radius:999px;
-  font-family:var(--body);font-size:0.85rem;
-  color:var(--text);outline:none;display:block;
+  background:#ffffff;
+  font-family:var(--body);
+  font-size:0.95rem;
+  color:var(--text);
   text-align:center;
-  transition:border-color 0.2s;
+  outline:none;
 }
 .rsvp-name-input:focus{border-color:var(--green-gray);}
 .rsvp-name-input::placeholder{color:#a3a59c;font-style:italic;}
@@ -649,20 +654,24 @@ body.hydrating{visibility:hidden}
 .rsvp-success-msg{display:block;}
 
 .rsvp-expanded{
+  /* No card around each event in the design — the fields sit directly on the
+     section. */
   display:none;
-  margin-top:0.9rem;
-  padding:1.1rem;
-  background:#ffffff;
-  border:1px solid rgba(105,108,98,0.18);
-  border-radius:8px;
+  margin-top:0.6rem;
+  padding:0;
+  background:transparent;
+  border:none;
 }
 .rsvp-expanded.visible{display:block}
 .rsvp-field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;}
 .rsvp-field-row.full{grid-template-columns:1fr}
 .rsvp-select,.rsvp-text-input{
-  width:100%;padding:0.6rem 0.9rem;
+  width:100%;padding:0.75rem 1.1rem;
   border:1px solid rgba(105,108,98,0.25);
-  background:var(--offwhite);
+  /* White fields, as in the design — they were filled with the section's own
+     cream, which read as a brown box inside a white one. */
+  background:#ffffff;
+  border-radius:999px;
   font-family:var(--body);font-size:0.82rem;
   color:var(--text);outline:none;border-radius:4px;
   transition:border-color 0.2s;
@@ -1379,15 +1388,23 @@ function hydrateTemplate(d) {
             var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
             var timeLine = '';
             var detailLines = [];
-            var TIME_RE = /(\d{1,2}(?::\d{2})?\s*(?:[–—-]\s*\d{1,2}(?::\d{2})?)?\s*(?:AM|PM|am|pm)|\d{1,2}:\d{2}|\bo['’]clock\b|\bnoon\b|\bmidnight\b)/;
+            // A time is a clock reading, a range of them, or a worded hour.
+            var TIME_RE = /(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)?\s*[–—-]\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|\d{1,2}:\d{2}|\b\d{1,2}\s*o['’]clock\b[^,<]*|\bnoon\b|\bmidnight\b)/i;
+            // A date is a month name or a d/m/y style figure.
+            var DATE_RE = /(January|February|March|April|May|June|July|August|September|October|November|December|Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{1,2}[./]\d{1,2}[./]\d{2,4})/i;
             lines.forEach(function(line) {
               var plain = line.replace(/<[^>]+>/g, '').trim();
               var m = plain.match(TIME_RE);
               if (!m) { detailLines.push(line); return; }
-              // A line that is ONLY a time becomes the time. A line carrying a
-              // date AND a time is split, so the date keeps its own line and
-              // the time drops to the end of the block, as in the design.
-              var withoutTime = plain.replace(TIME_RE, '').replace(/[,;·|]\s*$/, '').trim();
+              if (!DATE_RE.test(plain)) {
+                // The whole line is the time — keep it intact so "7:00 PM –
+                // 9:00 PM" doesn't lose half of itself.
+                if (!timeLine) timeLine = plain;
+                return;
+              }
+              // Date and time share a line: split so the date keeps its place
+              // and the time moves to the end of the block, as in the design.
+              var withoutTime = plain.replace(TIME_RE, '').replace(/[,;·|]\s*$/, '').replace(/\s{2,}/g, ' ').trim();
               if (!timeLine) timeLine = m[0].trim();
               if (withoutTime) detailLines.push(withoutTime);
             });
@@ -1486,7 +1503,19 @@ function hydrateTemplate(d) {
       faqList = document.createElement('div');
 
       var rawHtml = d.faqs;
-      var blocks = rawHtml.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '|||SPLIT|||').split('|||SPLIT|||');
+      // Couples separate question blocks with one, two or three <br>s, and some
+      // paste <p> blocks. Split on any run of two or more breaks, on </p>, and
+      // fall back to splitting on <strong> starts so a run-on blob still yields
+      // every question rather than collapsing into one.
+      var normalised = rawHtml
+        .replace(/<\/p>\s*<p[^>]*>/gi, '|||SPLIT|||')
+        .replace(/<\/?p[^>]*>/gi, '')
+        .replace(/(?:<br\s*\/?>\s*){2,}/gi, '|||SPLIT|||');
+      if (normalised.indexOf('|||SPLIT|||') === -1 &&
+          (normalised.match(/<strong>/gi) || []).length > 1) {
+        normalised = normalised.replace(/(<strong>)/gi, '|||SPLIT|||$1');
+      }
+      var blocks = normalised.split('|||SPLIT|||');
       var faqPairs = blocks.map(function(block) {
         block = block.trim();
         if (!block) return null;

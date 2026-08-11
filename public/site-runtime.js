@@ -109,7 +109,7 @@
       heroId: 'hero',
       stdHideIds: ['our-story','weekend','registry-section','need-to-know','accommodations','travel-section','gallery','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9b9a3fea-d027-4ecc-9c71-dc5e5c6f04ae.png',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f5f3ee', ink: '#1f211d', accent: '#696c62', rule: 'rgba(105,108,98,0.28)' },
       fonts: { display: "'Aboreto','Cormorant Garamond',serif", body: "'DM Sans',system-ui,sans-serif" }
@@ -1543,17 +1543,14 @@
     // 5. RSVP deadline — one canonical accessor. Templates used to read three
     //    different keys, two of which the backend never sent.
     // ── RSVP deadline ────────────────────────────────────────────────────
-    // One rule, and no invented dates. The line shows the couple's configured
-    // RSVP deadline and nothing else.
+    // Treated exactly like every other bit of template copy: the couple's
+    // configured deadline replaces it, and until they set one the template's
+    // own placeholder line stands.
     //
-    // It used to fall back to the celebration date, which produced two separate
-    // wrong answers: "RSVP by [the wedding day]", which is not a deadline, and
-    // on records whose celebration date disagrees with the event dates, a date
-    // contradicting the schedule printed directly above it.
-    //
-    // With no deadline set: keep the template's own placeholder line while the
-    // page is showing sample content, and hide the line entirely once real
-    // content is on screen — better silent than wrong.
+    // What it never does is derive a date. Falling back to the celebration date
+    // produced "RSVP by [the wedding day]", and on records whose celebration
+    // date disagrees with the event dates it printed a deadline contradicting
+    // the schedule directly above it.
     var deadlineEl = document.getElementById('rsvpDeadline');
     if (deadlineEl) {
       var deadline = (d.rsvp_config && d.rsvp_config.deadline) || d.rsvp_deadline || '';
@@ -1563,11 +1560,8 @@
         var raw = (deadlineEl.textContent || '').trim();
         var lead = raw.match(/^(.*\bby\s+)/i);
         deadlineEl.textContent = (lead ? lead[1] : 'by ') + fmtDate(deadline);
-        deadlineEl.style.display = '';
-      } else if (!window.MP_SHOWING_PLACEHOLDERS) {
-        deadlineEl.style.display = 'none';
       }
-      // else: sample content is showing, so the template's placeholder stands
+      // else: the template's placeholder stands, as with any other sample copy
     }
 
     // 5. Mobile navigation. Built from the links the template just rendered,
