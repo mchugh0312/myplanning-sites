@@ -122,7 +122,7 @@ body.hydrating{visibility:hidden}
 .menu-close{
   position:absolute;top:1.4rem;right:1.6rem;
   background:none;border:none;font-size:1.6rem;
-  cursor:pointer;color:var(--dark-green);opacity:0.7;line-height:1;
+  cursor:pointer;color:#ffffff;opacity:0.8;line-height:1;
   font-family:var(--body);font-weight:300;
 }
 .menu-close:hover{opacity:1}
@@ -136,7 +136,8 @@ body.hydrating{visibility:hidden}
 .menu-links li a{
   font-family:var(--sub);
   font-size:1.02rem;
-  color:var(--dark-green);
+  /* White on the sage panel, per the design. */
+  color:#ffffff;
   text-decoration:none;
   letter-spacing:0.02em;display:block;
   padding:0.55rem 0;width:fit-content;
@@ -145,7 +146,7 @@ body.hydrating{visibility:hidden}
 }
 .menu-links li a:hover,
 .menu-links li a.active{
-  border-bottom-color:var(--dark-green);
+  border-bottom-color:#ffffff;
 }
 
 /* ── NAV ──────────────────────────────────────────────────── */
@@ -188,7 +189,7 @@ body.hydrating{visibility:hidden}
   /* Sized against the hero box rather than the viewport, and capped so the
      second line clears the photo's left edge — the names have to stay
      readable, which is what the design shows. */
-  font-size:clamp(2rem, 11vw, 7.2rem);
+  font-size:clamp(2.4rem, 17.5vw, 10.5rem);
   color:var(--sage);
   font-weight:400;
   line-height:0.92;
@@ -199,8 +200,11 @@ body.hydrating{visibility:hidden}
   top:50%;
   transform:translateY(-50%);
   width:100%;
-  z-index:1;
+  /* Above the photo. In the design the tail of the second line reads over the
+     picture — with the photo on top the names were simply cut off. */
+  z-index:3;
   white-space:nowrap;
+  pointer-events:none;
 }
 .hero-couple-name .line{display:block;}
 /* Photo: positioned absolutely on the RIGHT, layered ON TOP of names
@@ -211,10 +215,10 @@ body.hydrating{visibility:hidden}
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
      second name line. */
-  top:6%;
+  top:12%;
   right:0;
-  width:39%;
-  height:88%;
+  width:40%;
+  height:80%;
   overflow:hidden;
   z-index:2;
   background:#d8d4cb;
@@ -226,18 +230,13 @@ body.hydrating{visibility:hidden}
      which is what you asked for. */
   width:100%;height:100%;object-fit:cover;object-position:center;display:block;
 }
-.hero-photo-wrap img{
-  width:100%;height:100%;
-  object-fit:cover;display:block;
-}
-
 @media (max-width:640px){
   /* Same composition, slightly taller box and a narrower photo so the names
      stay readable on a phone. */
   .hero{padding:2rem 1.25rem 1.5rem;}
   .hero-inner{aspect-ratio:1.55 / 1;min-height:230px;}
-  .hero-couple-name{font-size:clamp(1.7rem, 13vw, 3.4rem);}
-  .hero-photo-wrap{width:44%;height:82%;top:9%;}
+  .hero-couple-name{font-size:clamp(2rem, 17vw, 4.6rem);}
+  .hero-photo-wrap{width:40%;height:78%;top:13%;}
 }
 
 /* ── THE WEEKEND (green-gray bg, single column) ───────────── */
@@ -267,7 +266,8 @@ body.hydrating{visibility:hidden}
   color:var(--dark-green);
   margin-bottom:0.85rem;
   letter-spacing:0.01em;
-  font-style:italic;
+  /* Ovo, upright — the design has no italic here. */
+  font-style:normal;
 }
 .weekend-event-detail{
   font-family:var(--body);
@@ -281,13 +281,16 @@ body.hydrating{visibility:hidden}
   font-weight:600;
 }
 .weekend-event-time{
+  /* Its own line at the end of the block, after the address — not alongside
+     the date. Bold, upright. */
   display:block;
-  margin-top:0.4rem;
-  font-family:var(--sub);
-  font-style:italic;
-  font-size:0.95rem;
+  margin-top:0.9rem;
+  font-family:var(--body);
+  font-style:normal;
+  font-size:0.86rem;
   color:var(--offwhite);
-  font-weight:600;
+  font-weight:700;
+  letter-spacing:0.03em;
 }
 .weekend-event-dress{
   display:block;
@@ -298,13 +301,12 @@ body.hydrating{visibility:hidden}
   color:rgba(255,255,255,0.7);
 }
 .weekend-flourish{
+  /* Ornament closing the section, as in the design. */
   display:block;
-  margin:2.2rem auto 0;
-  font-family:var(--sub);
-  font-style:italic;
-  font-size:0.85rem;
-  color:rgba(255,255,255,0.55);
-  letter-spacing:0.4em;
+  margin:3rem auto 0;
+  width:clamp(90px,12vw,130px);
+  height:auto;
+  opacity:0.8;
 }
 
 /* ── OUR STORY (cream) ────────────────────────────────────── */
@@ -468,7 +470,10 @@ body.hydrating{visibility:hidden}
 }
 .accom-card{
   background:var(--offwhite);
-  padding:2rem 1.5rem;
+  /* Taller panels, as in the design. */
+  padding:3rem 1.5rem 2.6rem;
+  min-height:clamp(300px, 26vw, 380px);
+  justify-content:center;
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -484,6 +489,7 @@ body.hydrating{visibility:hidden}
   margin-bottom:0.6rem;
 }
 .accom-card-rule{
+  /* Ornament under the label, matching the design's flourish. */
   width:60px;height:7px;
   margin:0 auto 1.2rem;
   background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png');
@@ -494,7 +500,7 @@ body.hydrating{visibility:hidden}
 }
 .accom-card-name{
   font-family:var(--sub);
-  font-style:italic;
+  font-style:normal;
   font-size:1.05rem;
   color:var(--text);
   margin-bottom:0.35rem;
@@ -552,8 +558,8 @@ body.hydrating{visibility:hidden}
 }
 .rsvp-deadline{
   font-family:var(--sub);
-  font-style:italic;
-  font-size:0.95rem;
+  font-style:normal;
+  font-size:1.05rem;
   color:var(--muted);
   margin-bottom:2.2rem;
   letter-spacing:0.01em;
@@ -938,7 +944,7 @@ body.thumbnail-mode .hero-photo-wrap{
           9700 N Torrey Pines Rd,<br>
           La Jolla, CA 92037
         </div>
-        <span class="weekend-event-time">7:00pm</span>
+        <span class="weekend-event-time">7–9pm</span>
       </div>
       <div class="weekend-event">
         <div class="weekend-event-name">The Wedding</div>
@@ -948,7 +954,7 @@ body.thumbnail-mode .hero-photo-wrap{
           9700 N Torrey Pines Rd,<br>
           La Jolla, CA 92037
         </div>
-        <span class="weekend-event-time">4:00pm</span>
+        <span class="weekend-event-time">5–10pm</span>
       </div>
       <div class="weekend-event">
         <div class="weekend-event-name">Farewell Brunch</div>
@@ -958,10 +964,10 @@ body.thumbnail-mode .hero-photo-wrap{
           9700 N Torrey Pines Rd,<br>
           La Jolla, CA 92037
         </div>
-        <span class="weekend-event-time">10:00am</span>
+        <span class="weekend-event-time">10–11am</span>
       </div>
     </div>
-    <span class="weekend-flourish">· · ·</span>
+    <img class="weekend-flourish" alt="" src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png">
   </div>
 </div>
 
@@ -984,21 +990,21 @@ body.thumbnail-mode .hero-photo-wrap{
           <span class="faq-q-text">What should I wear to the wedding?</span>
           <span class="faq-icon"></span>
         </button>
-        <div class="faq-answer">The dress code for the evening is cocktail attire. Think elegant dresses, jumpsuits, suits and blazers. Denim and golf attire are not permitted.</div>
+        <div class="faq-answer">The dress code for the evening of our wedding is cocktail attire. Think elegant dresses, jumpsuits, suits, and blazers. Denim and golf shirts are not permitted.</div>
       </div>
       <div class="faq-item">
         <button class="faq-question" onclick="toggleFaq(this)">
           <span class="faq-q-text">Will there be transportation?</span>
           <span class="faq-icon"></span>
         </button>
-        <div class="faq-answer">Shuttle services will be arranged from the ceremony to the evening reception.</div>
+        <div class="faq-answer">No need to worry about getting from point A to point B. Here is what we have arranged to make the evening seamless for you.</div>
       </div>
       <div class="faq-item">
         <button class="faq-question" onclick="toggleFaq(this)">
           <span class="faq-q-text">Will the ceremony be indoors or outdoors?</span>
           <span class="faq-icon"></span>
         </button>
-        <div class="faq-answer">The ceremony will be held outdoors, weather permitting. Everything is being planned accordingly and we will keep you updated.</div>
+        <div class="faq-answer">Here is a little more about the setting so you can plan accordingly and arrive feeling prepared.</div>
       </div>
     </div>
   </div>
@@ -1010,7 +1016,7 @@ body.thumbnail-mode .hero-photo-wrap{
     <div class="accom-card">
       <div class="accom-card-title">Hotel</div>
       <div class="accom-card-rule"></div>
-      <div class="accom-card-name">Hyatt Regency<br>La Jolla At Aventine</div>
+      <div class="accom-card-name">Hyatt Regency<br>La Jolla at Aventine</div>
       <div class="accom-card-meta"><em>Request the Maya<br>&amp; Jason room block</em></div>
       <a class="accom-card-cta" href="#" target="_blank">Book Now</a>
     </div>
@@ -1018,7 +1024,7 @@ body.thumbnail-mode .hero-photo-wrap{
       <div class="accom-card-title">Flights</div>
       <div class="accom-card-rule"></div>
       <div class="accom-card-name">San Diego<br>National Airport</div>
-      <div class="accom-card-meta"><em>Approximately 20<br>minutes from the venue</em></div>
+      <div class="accom-card-meta"><em>Approximately 30<br>minutes from the venue</em></div>
       <a class="accom-card-cta" href="#" target="_blank">Book Now</a>
     </div>
   </div>
@@ -1255,31 +1261,10 @@ function hydrateTemplate(d) {
     document.getElementById('footerDate').textContent = [dp, d.celebration_location].filter(Boolean).join(' · ');
   }
 
-  // ── RSVP deadline ────────────────────────────────────────────────────
-  var deadlineEl = document.getElementById('rsvpDeadline');
-  if (deadlineEl) {
-    if (d.rsvp_deadline) {
-      try {
-        var dl = new Date(d.rsvp_deadline);
-        var month = dl.toLocaleDateString('en-US', { month:'long' });
-        var day = dl.getDate();
-        var year = dl.getFullYear();
-        var suffix = (function(n){ if(n>=11&&n<=13)return 'th'; var m=n%10; return m===1?'st':m===2?'nd':m===3?'rd':'th';})(day);
-        deadlineEl.innerHTML = 'by ' + month + ' ' + day + '<sup>' + suffix + '</sup>, ' + year;
-      } catch(e) {}
-    } else if (d.celebration_date) {
-      // Default deadline: ~6 weeks before celebration
-      try {
-        var cd = new Date(d.celebration_date);
-        cd.setDate(cd.getDate() - 42);
-        var month2 = cd.toLocaleDateString('en-US', { month:'long' });
-        var day2 = cd.getDate();
-        var year2 = cd.getFullYear();
-        var suffix2 = (function(n){ if(n>=11&&n<=13)return 'th'; var m=n%10; return m===1?'st':m===2?'nd':m===3?'rd':'th';})(day2);
-        deadlineEl.innerHTML = 'by ' + month2 + ' ' + day2 + '<sup>' + suffix2 + '</sup>, ' + year2;
-      } catch(e) {}
-    }
-  }
+  // RSVP deadline is handled centrally in /site-runtime.js: it honours the
+  // configured deadline, keeps the template's placeholder while the page is
+  // showing sample content, and preserves this template's phrasing.
+  // (The version here invented a date six weeks before the celebration.)
 
   // ── Custom colours ────────────────────────────────────────────────────
   if (d.customization) {

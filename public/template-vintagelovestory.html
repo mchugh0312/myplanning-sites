@@ -1570,28 +1570,10 @@ function hydrateTemplate(d) {
     if (fEl2) fEl2.textContent = d.celebration_location;
   }
 
-  // ── RSVP deadline ────────────────────────────────────────────────────
-  var deadlineEl = document.getElementById('rsvpDeadline');
-  if (deadlineEl) {
-    var deadlineSrc = d.rsvp_deadline || null;
-    if (!deadlineSrc && d.celebration_date) {
-      try {
-        var cd = new Date(d.celebration_date);
-        cd.setDate(cd.getDate() - 42);
-        deadlineSrc = cd.toISOString();
-      } catch(e) {}
-    }
-    if (deadlineSrc) {
-      try {
-        var dl = new Date(deadlineSrc);
-        var month = dl.toLocaleDateString('en-US', { month:'long' });
-        var day = dl.getDate();
-        var year = dl.getFullYear();
-        // Vintage Love Story shows just month + day with ordinal, no year — matching the design
-        deadlineEl.innerHTML = 'Kindly send us your response by ' + month + ' ' + day + '<sup>' + ordSuffix(day) + '</sup>';
-      } catch(e) {}
-    }
-  }
+  // RSVP deadline is handled centrally in /site-runtime.js, which honours the
+  // configured deadline and keeps the template's placeholder while the page
+  // is showing sample content. The version here invented a date six weeks
+  // before the celebration.
 
   // ── Custom colours ────────────────────────────────────────────────────
   // primary_color → brown (nav, story bg, registry bg, submit btn)
