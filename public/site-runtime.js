@@ -83,6 +83,10 @@
     },
     blacktietimeless: {
       label: 'Black Tie Timeless',
+      // The motif is white line art, so the loading screen is dark for this
+      // template. Separate from `palette`, which the drawer and gate screens
+      // use and which stays light here.
+      loading: { bg: '#1c2120', ink: '#f4f2ed', accent: '#f4f2ed', rule: 'rgba(244,242,237,0.30)' },
       heroNamesId: 'heroCoupleNames',
       heroId: 'home',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
@@ -1587,7 +1591,7 @@
      LOADING SCREEN
      ========================================================================== */
   function showLoading() {
-    var p = CFG.palette;
+    var p = CFG.loading || CFG.palette;
     document.body.innerHTML =
       '<style>@keyframes mpPulse{0%,100%{opacity:0.35}50%{opacity:1}}' +
       // The motif is static — no rotation, no pulse.

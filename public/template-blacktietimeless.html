@@ -216,11 +216,11 @@ img{max-width:100%;display:block;}
 }
 .other-event-detail{
   font-family:var(--serif);font-size:1rem;
-  color:var(--black);line-height:2.2;text-align:center;
+  color:var(--black);line-height:1.75;text-align:center;
 }
 .other-event-when,
 .other-event-where{display:block;}
-.other-event-where{margin-top:1.1rem;}
+.other-event-where{margin-top:1.4rem;}
 .other-event-dress{
   display:block;margin-top:1.5rem;
   font-family:var(--script);font-size:2rem;
@@ -245,8 +245,8 @@ img{max-width:100%;display:block;}
   background-repeat:no-repeat;
   background-position:center top;
   background-size:100% 100%;
-  padding:3.5rem 2rem 2.6rem;
-  min-height:clamp(380px,34vw,440px);
+  padding:3.2rem 2rem 2.2rem;
+  min-height:clamp(360px,32vw,420px);
   justify-content:flex-start;
   text-align:center;
   display:flex;flex-direction:column;align-items:center;
@@ -254,19 +254,21 @@ img{max-width:100%;display:block;}
 }
 .arch-card-label{
   font-family:var(--script);
-  font-size:1.6rem;
+  /* Slightly larger than before, matching the design. */
+  font-size:clamp(1.9rem,3vw,2.5rem);
   color:var(--black);
-  margin-bottom:0.5rem;line-height:1.2;
-  font-style:italic;
+  line-height:1.1;
 }
 .arch-card-rule{
-  /* Visible rule under the label, as in the design. */
-  width:96px;height:1px;background:rgba(28,33,32,0.45);
-  margin:0.5rem auto 1.5rem;
+  /* Thicker and wider than a hairline so it reads at card size. */
+  width:110px;height:2px;background:rgba(28,33,32,0.55);
+  margin:0.6rem auto 1.8rem;
 }
 .arch-card-name{
-  font-family:var(--serif);font-size:0.95rem;font-weight:600;
-  color:var(--black);line-height:1.5;margin-bottom:0.6rem;
+  /* Not bold in the design, and set a little lower with more room beneath so
+     the card doesn't end in a block of empty white. */
+  font-family:var(--serif);font-size:1rem;font-weight:400;
+  color:var(--black);line-height:1.6;margin:0.4rem 0 0.9rem;
   text-align:center;
 }
 .arch-card-note{
@@ -775,6 +777,7 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
 
 
 // Boot, slug detection and the RSVP engine live in /site-runtime.js.
+const _DEFAULT_DRESS = 'Evening Casual';
 const _CANDELABRA   = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png';
 const _EVENTS_PHOTO = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/549a3628-9df0-4712-b841-68cad63cfecd.png';
 const _ARC = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/18355396-7355-43fe-937f-e9ae89e88f81.png';
@@ -1148,10 +1151,24 @@ function hydrateTemplate(d) {
             // Separate the opening date/time lines from the venue block, which
             // in the design sit apart rather than running together.
             var _restLines = rest.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-            if (_restLines.length > 2) {
-              rest = '<span class="other-event-when">' + _restLines.slice(0, 2).join('<br>') + '</span>' +
-                     '<span class="other-event-where">' + _restLines.slice(2).join('<br>') + '</span>';
+            if (_restLines.length > 1) {
+              // "When" is the leading run of date/time lines — a couple may put
+              // the date and time on one line or on two. Everything after is the
+              // venue block, which must stay together: splitting at a fixed line
+              // count put the gap between a venue and its own address.
+              var _WHEN = /(January|February|March|April|May|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|o['’]clock|noon|midnight)/i;
+              var _whenCount = 0;
+              while (_whenCount < _restLines.length && _WHEN.test(_restLines[_whenCount])) _whenCount++;
+              if (_whenCount === 0) _whenCount = 1;
+              if (_whenCount < _restLines.length) {
+                rest = '<span class="other-event-when">' + _restLines.slice(0, _whenCount).join('<br>') + '</span>' +
+                       '<span class="other-event-where">' + _restLines.slice(_whenCount).join('<br>') + '</span>';
+              }
             }
+            // The design always closes the block with a dress code. If the
+            // couple hasn't given one, fall back to the template's sample line
+            // rather than dropping it — this is placeholder copy like any other.
+            if (!dressCode) dressCode = _DEFAULT_DRESS;
             list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, dressCode, photoUrl));
           });
         }
