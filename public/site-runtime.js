@@ -1536,8 +1536,26 @@
     var deadlineEl = document.getElementById('rsvpDeadline');
     if (deadlineEl) {
       var deadline = (d.rsvp_config && d.rsvp_config.deadline) || d.rsvp_deadline || '';
-      var text = deadline ? fmtDate(deadline) : (d.celebration_date ? fmtDate(d.celebration_date) : '');
-      deadlineEl.textContent = text ? 'by ' + text : '';
+      // Templates keep their placeholder events when the couple hasn't entered a
+      // schedule. Writing the real celebration date into the RSVP line while
+      // those placeholders are still showing produced nonsense — sample events
+      // in July with an RSVP deadline in October. Same condition the templates
+      // use for placeholder retention: only speak for the couple once they've
+      // given us a schedule, or an explicit deadline.
+      var hasRealSchedule = !!(d.weddings_info || d.events_info ||
+        (d.events && d.events.length));
+      var text = '';
+      if (deadline) text = fmtDate(deadline);
+      else if (hasRealSchedule && d.celebration_date) text = fmtDate(d.celebration_date);
+      if (text) {
+        // Keep each template's own phrasing — "Please send your response by …",
+        // "Kindly send us your response by …", "By …" — and swap only the date.
+        // Writing "by {date}" flat used to throw the lead-in away.
+        var raw = (deadlineEl.textContent || '').trim();
+        var lead = raw.match(/^(.*\bby\s+)/i);
+        deadlineEl.textContent = (lead ? lead[1] : 'by ') + text;
+      }
+      // else: leave the template's own placeholder line intact
     }
 
     // 5. Mobile navigation. Built from the links the template just rendered,
