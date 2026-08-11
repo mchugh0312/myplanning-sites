@@ -78,11 +78,12 @@ img{max-width:100%;display:block;}
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
 .menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s;pointer-events:none;}
 .menu-drawer{
-  width:300px;background:rgba(28,33,32,0.97);
+  /* Light panel in the design, not a dark drawer. */
+  width:min(46%,470px);background:var(--offwhite);
   transform:translateX(100%);
   transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
   display:flex;flex-direction:column;justify-content:center;
-  padding:3rem 2.5rem;
+  padding:4.5rem 3.5rem;justify-content:flex-start;
   pointer-events:auto;position:relative;
 }
 .menu-overlay.open .menu-backdrop{background:rgba(0,0,0,0.4);pointer-events:auto;}
@@ -90,22 +91,28 @@ img{max-width:100%;display:block;}
 .menu-close{
   position:absolute;top:1.2rem;right:1.4rem;
   background:none;border:none;cursor:pointer;
-  font-size:1.5rem;color:rgba(249,247,245,0.6);line-height:1;
+  font-size:1.6rem;color:rgba(28,33,32,0.55);line-height:1;
 }
-.menu-close:hover{color:var(--offwhite);}
+.menu-close:hover{color:var(--black);}
 
-.menu-links{list-style:none;display:flex;flex-direction:column;gap:1rem;}
+.menu-links{list-style:none;display:flex;flex-direction:column;gap:0.75rem;}
 .menu-links a{
-  font-family:var(--serif);font-size:0.82rem;
-  letter-spacing:0.06em;
-  color:rgba(249,247,245,0.75);text-decoration:none;
-  transition:color 0.2s;
+  /* Larger than before — in the design the links are close to body-copy size,
+     not micro-type. Underline on hover / active, as specified. */
+  font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.22rem);
+  letter-spacing:0.01em;
+  color:var(--black);text-decoration:none;
+  display:inline-block;width:fit-content;
+  border-bottom:1px solid transparent;
+  padding-bottom:2px;
+  transition:border-color 0.2s;
 }
-.menu-links a:hover{color:var(--offwhite);}
+.menu-links a:hover,
+.menu-links a.active{border-bottom-color:var(--black);}
 .menu-footer{
   margin-top:3rem;
-  font-family:var(--script);font-size:1.2rem;
-  color:rgba(249,247,245,0.35);
+  font-family:var(--script);font-size:1.3rem;
+  color:rgba(28,33,32,0.35);
 }
 
 /* ── HOME — offwhite bg, couple names centred vertically ────── */
@@ -297,11 +304,6 @@ img{max-width:100%;display:block;}
   text-align:center;max-width:480px;margin:0 auto;
 }
 /* Candelabra image at bottom of NTK section */
-.ntk-candelabra{
-  display:block;
-  width:90px;margin:3rem auto 0;
-  opacity:0.85;
-}
 
 /* ── GALLERY — offwhite bg ────────────────────────────────────── */
 .gallery-section{background:var(--offwhite);padding:5rem 2rem;}
@@ -341,6 +343,15 @@ img{max-width:100%;display:block;}
   color:var(--black);
   text-align:center;line-height:1.2;
 }
+a.registry-title{
+  display:inline-block;
+  text-decoration:none;
+  color:inherit;
+  border-bottom:1px solid transparent;
+  padding-bottom:2px;
+  transition:border-color 0.2s;
+}
+a.registry-title:hover{border-bottom-color:currentColor;}
 .registry-body{
   font-family:var(--serif);font-size:0.8rem;
   color:rgba(28,33,32,0.65);line-height:1.9;
@@ -387,7 +398,14 @@ img{max-width:100%;display:block;}
 }
 /* The hidden event-label header — kept for accessibility but rendered
    inside the expanded section as a serif heading instead. */
-.rsvp-event-label{display:none;}
+.rsvp-event-label{
+  display:block;
+  font-family:var(--serif);
+  font-size:1.05rem;
+  color:var(--black);
+  margin:1.6rem 0 0.6rem;
+  letter-spacing:0.01em;
+}
 .rsvp-name-row{padding:0;}
 .rsvp-name-input{
   width:100%;padding:0.95rem 1.2rem;
@@ -638,7 +656,7 @@ body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!importan
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-title" id="menuCoupleName" style="font-family:var(--script);font-size:1.5rem;color:var(--offwhite);margin-bottom:2rem">Menu</div>
+    <div class="menu-title" id="menuCoupleName" style="font-family:var(--script);font-size:clamp(2.4rem,4vw,3.4rem);color:var(--black);margin-bottom:1.6rem;line-height:1">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#home"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#our-story"        onclick="handleMenuClick(this)">Our Story</a></li>
@@ -685,20 +703,17 @@ body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!importan
   <div id="otherEventsList"></div>
 </section>
 
+<!-- NEED TO KNOWS — dark bg, candelabra at bottom -->
+<section class="section ntk-section" id="need-to-know" style="display:none">
+  <div class="ntk-title">Need to Knows</div>
+  <div class="ntk-inner" id="faqList"></div>
+</section>
+
 <!-- TRAVEL / ACCOMMODATIONS — dark bg, arch cards -->
 <section class="travel-section" id="travel-section" style="display:none">
   <div class="travel-cards" id="travelContent">
     <!-- injected by JS as arch cards -->
   </div>
-</section>
-
-<!-- NEED TO KNOWS — dark bg, candelabra at bottom -->
-<section class="section ntk-section" id="need-to-know" style="display:none">
-  <div class="ntk-title">Need to Knows</div>
-  <div class="ntk-inner" id="faqList"></div>
-  <img class="ntk-candelabra"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png"
-    alt="" id="ntkCandelabra">
 </section>
 
 <!-- GALLERY -->
@@ -720,7 +735,7 @@ body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!importan
 <!-- REGISTRY — minimal, just script title -->
 <section class="registry-section" id="registry-section" style="display:none">
   <div>
-    <div class="registry-title">See Our Registry</div>
+    <a class="registry-title registry-cta" id="registryCta" href="#">See Our Registry</a>
     <div class="registry-body" id="registryInfo"></div>
   </div>
 </section>
@@ -951,7 +966,7 @@ function hydrateTemplate(d) {
       var _orig_grid = grid;
       grid = document.createElement('div');
 
-      const candelabraSrc = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png';
+      const candelabraSrc = _CANDELABRA;
       const buildCard = function(eventName, detail, dressCode) {
         return '<div class="wedding-card">' +
           (eventName ? '<div class="wedding-card-name">' + eventName + '</div>' : '') +
@@ -1007,8 +1022,11 @@ function hydrateTemplate(d) {
         grid.innerHTML = leftHTML +
           '<img class="wedding-candelabra" src="' + candelabraSrc + '" alt="">' +
           rightHTML;
-      } else {
-        grid.innerHTML = leftHTML || rightHTML || '';
+      } else if (leftHTML || rightHTML) {
+        // One card: keep the chandelier as the section's divider rather than
+        // dropping it, which is what made the motif disappear.
+        grid.innerHTML = (leftHTML || rightHTML) +
+          '<img class="wedding-candelabra" src="' + candelabraSrc + '" alt="">';
       }
     
       if (_orig_grid) {
@@ -1091,6 +1109,23 @@ function hydrateTemplate(d) {
             if (!photoUrl && d.events && eventName) {
               var matched = d.events.find(function(e) { return e.name && e.name.trim().toLowerCase() === eventName.trim().toLowerCase(); });
               if (matched && (matched.photo || matched.image)) photoUrl = matched.photo || matched.image;
+            }
+            // The design always carries a photo here. Fall back to the couple's
+            // gallery, then their hero, then the template's own image.
+            if (!photoUrl) {
+              var _g = (d.gallery_images || []).map(function(x){ return typeof x === 'string' ? x : (x.url || ''); }).filter(Boolean);
+              photoUrl = _g[0] || d.hero_image || _EVENTS_PHOTO;
+            }
+            // Dress code: also accept a short final line with no keyword at all
+            // ("Evening Casual"), which is how the design writes it.
+            if (!dressCode) {
+              var _lines = rest.split(/<br\s*\/?>/i);
+              var _last = (_lines[_lines.length - 1] || '').replace(/<[^>]+>/g, '').trim();
+              if (_last && _last.split(/\s+/).length <= 3 && !/\d/.test(_last)) {
+                dressCode = _last;
+                _lines.pop();
+                rest = _lines.join('<br>').replace(/<br\s*\/?>\s*$/i, '').trim();
+              }
             }
             list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, dressCode, photoUrl));
           });
@@ -1187,8 +1222,14 @@ function hydrateTemplate(d) {
   // <br><br>; each block: <strong>Label</strong>, body lines, optional
   // <em>note</em> and/or <a href>book-now</a>.
   const travelSection = document.getElementById('travel-section');
-  if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
-  if (menu.travel && d.travel_info) {
+  // The design shows two arch cards, Hotel and Flights, from accommodation_info
+  // and travel_info respectively. This used to be gated on travel_info alone,
+  // so a couple with accommodation details and no flight details got nothing at
+  // all — the Hotel card was never built.
+  var _showTravelBlock = (menu.travel && d.travel_info) ||
+                         (menu.accommodations && d.accommodation_info);
+  if (travelSection) travelSection.style.display = _showTravelBlock ? '' : 'none';
+  if (_showTravelBlock) {
     let travelContent = document.getElementById('travelContent');
     if (travelContent) {
       // Placeholder retention: render into a detached node and only
@@ -1197,11 +1238,24 @@ function hydrateTemplate(d) {
       var _orig_travelContent = travelContent;
       travelContent = document.createElement('div');
 
-      // Normalize newlines so plain-text data with \n still parses.
-      var tinfoNorm = d.travel_info
-        .replace(/\r\n/g, '\n')
-        .replace(/\n\n+/g, '<br><br>')
-        .replace(/\n/g, '<br>');
+      // Hotel comes from accommodation_info, Flights from travel_info. Each is
+      // one arch card with its own fixed label, as in the design.
+      var _normalise = function(txt){
+        return (txt || '')
+          .replace(/\r\n/g, '\n')
+          .replace(/\n\n+/g, '<br><br>')
+          .replace(/\n/g, '<br>');
+      };
+      var tinfoNorm = _normalise(
+        (menu.accommodations && d.accommodation_info ? d.accommodation_info : '') +
+        ((menu.accommodations && d.accommodation_info && menu.travel && d.travel_info) ? '<br><br>' : '') +
+        (menu.travel && d.travel_info ? d.travel_info : '')
+      );
+      // Labels for the first and second card when the couple hasn't titled
+      // their own blocks.
+      var _defaultLabels = [];
+      if (menu.accommodations && d.accommodation_info) _defaultLabels.push('Hotel');
+      if (menu.travel && d.travel_info) _defaultLabels.push('Flights');
       var tParts = tinfoNorm.replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
                             .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
                             .split('||SPLIT||')
@@ -1218,16 +1272,22 @@ function hydrateTemplate(d) {
         '</div>';
       };
       if (tParts.length) {
-        tParts.forEach(function(part) {
-          // Extract label = first <strong>
+        tParts.forEach(function(part, _idx) {
+          // Extract label = first <strong>, else the design's fixed label for
+          // this card (Hotel then Flights). Cards were coming out untitled
+          // whenever the couple hadn't bolded a heading of their own.
           var labelMatch = part.match(/<strong>([^<]+)<\/strong>/i);
-          var label = labelMatch ? labelMatch[1] : '';
+          var label = labelMatch ? labelMatch[1] : (_defaultLabels[_idx] || '');
           var rest  = labelMatch ? part.replace(labelMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
           // Extract link (first <a href="…">…</a>)
           var linkMatch = rest.match(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/i);
           var linkHref = linkMatch ? linkMatch[1] : '';
-          // Dedicated fields (Accomodation URL / Travel URL) take precedence.
-          if (d.accommodation_url || d.travel_url) linkHref = d.accommodation_url || d.travel_url;
+          // Dedicated field for THIS card takes precedence — the hotel card
+          // gets Accomodation URL, the flights card gets Travel URL.
+          var _isHotel = /hotel|accommodat|stay|room/i.test(label) ||
+                         (_defaultLabels[_idx] === 'Hotel');
+          var _fieldUrl = _isHotel ? d.accommodation_url : d.travel_url;
+          if (_fieldUrl) linkHref = _fieldUrl;
           var linkText  = linkMatch ? linkMatch[2] : '';
           if (linkMatch) rest = rest.replace(linkMatch[0], '');
           // Extract italic note (last <em>…</em>)
@@ -1241,7 +1301,7 @@ function hydrateTemplate(d) {
       } else {
         // No structured parsing possible — fall back to dumping the HTML
         // inside a single full-width arch card.
-        travelContent.innerHTML = '<div class="arch-card" style="' + archBgStyle + 'grid-column:1/-1">' + d.travel_info + '</div>';
+        travelContent.innerHTML = '<div class="arch-card" style="' + archBgStyle + 'grid-column:1/-1">' + tinfoNorm + '</div>';
       }
     
       if (_orig_travelContent) {
