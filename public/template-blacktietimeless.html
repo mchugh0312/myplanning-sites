@@ -117,7 +117,10 @@ img{max-width:100%;display:block;}
 
 /* ── HOME — offwhite bg, couple names centred vertically ────── */
 .home-section{
-  min-height:100vh;
+  /* Half the viewport, as in the design — the menu screenshot shows the hero
+     and the event details sharing the fold. It was a full 100vh. */
+  min-height:50vh;
+  height:clamp(280px,50vh,520px);
   background:var(--offwhite);
   display:flex;align-items:center;justify-content:center;
   padding:2rem;
@@ -215,6 +218,9 @@ img{max-width:100%;display:block;}
   font-family:var(--serif);font-size:1rem;
   color:var(--black);line-height:2.2;text-align:center;
 }
+.other-event-when,
+.other-event-where{display:block;}
+.other-event-where{margin-top:1.1rem;}
 .other-event-dress{
   display:block;margin-top:1.5rem;
   font-family:var(--script);font-size:2rem;
@@ -239,8 +245,9 @@ img{max-width:100%;display:block;}
   background-repeat:no-repeat;
   background-position:center top;
   background-size:100% 100%;
-  padding:3.5rem 2rem 2.2rem;
-  min-height:340px;
+  padding:3.5rem 2rem 2.6rem;
+  min-height:clamp(380px,34vw,440px);
+  justify-content:flex-start;
   text-align:center;
   display:flex;flex-direction:column;align-items:center;
   /* the PNG already provides the arch outline + interior fill */
@@ -253,8 +260,9 @@ img{max-width:100%;display:block;}
   font-style:italic;
 }
 .arch-card-rule{
-  width:54px;height:1px;background:rgba(28,33,32,0.3);
-  margin:0 auto 1.4rem;
+  /* Visible rule under the label, as in the design. */
+  width:96px;height:1px;background:rgba(28,33,32,0.45);
+  margin:0.5rem auto 1.5rem;
 }
 .arch-card-name{
   font-family:var(--serif);font-size:0.95rem;font-weight:600;
@@ -336,6 +344,8 @@ img{max-width:100%;display:block;}
   min-height:160px;
   display:flex;align-items:center;justify-content:center;
   border-top:1px solid rgba(28,33,32,0.08);
+  /* Registry and RSVP share a background, so a rule separates them. */
+  border-bottom:1px solid var(--black);
 }
 .registry-title{
   font-family:var(--script);
@@ -646,7 +656,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 /* ── THUMBNAIL MODE ─────────────────────────────────────── */
-body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!important;}
+body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
 </style>
 </head>
 <body class="hydrating">
@@ -765,7 +775,7 @@ body.thumbnail-mode .home-section{height:66.67vw!important;min-height:0!importan
 
 
 // Boot, slug detection and the RSVP engine live in /site-runtime.js.
-const _CANDELABRA   = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png';
+const _CANDELABRA   = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png';
 const _EVENTS_PHOTO = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/549a3628-9df0-4712-b841-68cad63cfecd.png';
 const _ARC = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/18355396-7355-43fe-937f-e9ae89e88f81.png';
 
@@ -1119,13 +1129,28 @@ function hydrateTemplate(d) {
             // Dress code: also accept a short final line with no keyword at all
             // ("Evening Casual"), which is how the design writes it.
             if (!dressCode) {
+              // The design writes the attire as a bare final line — "Evening
+              // Casual" — with no <em>, no "attire" keyword and nothing else to
+              // identify it. Accept a short trailing line with no digits, or
+              // any line naming a known dress code.
               var _lines = rest.split(/<br\s*\/?>/i);
               var _last = (_lines[_lines.length - 1] || '').replace(/<[^>]+>/g, '').trim();
-              if (_last && _last.split(/\s+/).length <= 3 && !/\d/.test(_last)) {
+              var _looksLikeAttire = _last && (
+                /\b(casual|formal|black\s*tie|white\s*tie|cocktail|festive|semi-?formal|smart|beach|garden)\b/i.test(_last) ||
+                (_last.split(/\s+/).length <= 3 && !/\d/.test(_last))
+              );
+              if (_looksLikeAttire) {
                 dressCode = _last;
                 _lines.pop();
                 rest = _lines.join('<br>').replace(/<br\s*\/?>\s*$/i, '').trim();
               }
+            }
+            // Separate the opening date/time lines from the venue block, which
+            // in the design sit apart rather than running together.
+            var _restLines = rest.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
+            if (_restLines.length > 2) {
+              rest = '<span class="other-event-when">' + _restLines.slice(0, 2).join('<br>') + '</span>' +
+                     '<span class="other-event-where">' + _restLines.slice(2).join('<br>') + '</span>';
             }
             list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, dressCode, photoUrl));
           });
@@ -1276,9 +1301,16 @@ function hydrateTemplate(d) {
           // Extract label = first <strong>, else the design's fixed label for
           // this card (Hotel then Flights). Cards were coming out untitled
           // whenever the couple hadn't bolded a heading of their own.
+          // The section label is fixed by the design (Hotel / Flights). Anything
+          // the couple bolded is content, so it stays in the body rather than
+          // being promoted into the label.
           var labelMatch = part.match(/<strong>([^<]+)<\/strong>/i);
-          var label = labelMatch ? labelMatch[1] : (_defaultLabels[_idx] || '');
-          var rest  = labelMatch ? part.replace(labelMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
+          var _fixedLabel = _defaultLabels[_idx] || '';
+          var label = _fixedLabel || (labelMatch ? labelMatch[1] : '');
+          var rest  = part;
+          if (labelMatch && !_fixedLabel) {
+            rest = part.replace(labelMatch[0], '').replace(/^<br\s*\/?>\s*/i, '');
+          }
           // Extract link (first <a href="…">…</a>)
           var linkMatch = rest.match(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/i);
           var linkHref = linkMatch ? linkMatch[1] : '';

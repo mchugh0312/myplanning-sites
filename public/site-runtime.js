@@ -87,7 +87,7 @@
       heroId: 'home',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--text' },
-      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png',
+      loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f4f2ed', ink: '#1c2120', accent: '#1c2120', rule: 'rgba(28,33,32,0.24)' },
       fonts: { display: "'Parfumerie Script',cursive", body: "'Goudy',Georgia,serif" }
