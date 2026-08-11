@@ -343,15 +343,18 @@ body.hydrating{visibility:hidden}
 }
 .travel-image-frame .frame-photo{
   position:absolute;
-  /* Inner window of the frame — values calibrated to the provided SVG. Sits
-     ABOVE the frame: the frame art isn't transparent in its centre, so at a
-     lower z-index the photo was completely hidden. */
-  inset:19%;
+  /* Inner window of the frame. Sits ABOVE the frame art, which isn't
+     transparent in its centre — at a lower z-index the photo vanished. */
+  inset:21%;
   overflow:hidden;
   z-index:3;
 }
 .travel-image-frame .frame-photo img{
   width:100%;height:100%;object-fit:cover;display:block;
+  /* The window is square and most uploads are landscape, so cover has to crop
+     something. Biasing upward keeps faces in frame instead of slicing heads
+     off at the top. */
+  object-position:center 28%;
 }
 
 /* ── FAQs — dark navy bg ─────────────────────────────────── */
@@ -1317,14 +1320,20 @@ function hydrateTemplate(d){
           allEvents = allEvents.concat(parseHtmlBlocks(d.events_info));
         }
       }
-      if (allEvents.length){
+      // Only replace the template's placeholder events when the couple's data
+      // has real content. Parsed blocks with a name but no date or venue used
+      // to wipe the placeholder and leave a nearly empty grid.
+      var hasRealEvents = allEvents.some(function(ev){
+        return (ev.name || '').trim() && ((ev.date || '').trim() || (ev.venue || '').trim());
+      });
+      if (hasRealEvents){
         grid.innerHTML = '';
         // Set count attribute so CSS can adjust columns; mobile rule overrides via media query
         grid.dataset.count = allEvents.length;
         if (allEvents.length === 1) grid.style.gridTemplateColumns = '1fr';
         else if (allEvents.length === 2) grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
         else grid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-        allEvents.forEach(function(ev){
+        allEvents.filter(function(ev){ return (ev.name||'').trim(); }).forEach(function(ev){
           var dateLine = ev.date || '';
           if (ev.time) dateLine += (dateLine ? '<br>' : '') + ev.time;
           var html =
@@ -1392,10 +1401,19 @@ function hydrateTemplate(d){
           // caller-supplied label (e.g. "Accommodations") so we never render
           // a labelless block.
           if (!label && out.length === 0 && fallbackLabel) label = fallbackLabel;
+          // A trailing <em>…</em> is the room-block note in the design
+          // ("*Request the Liz & Nic room block"), styled separately.
+          var noteHtml = '';
+          var noteMatch = detail.match(/<em[^>]*>([\s\S]*?)<\/em>\s*$/i);
+          if (noteMatch){
+            noteHtml = '<div class="travel-note">' + noteMatch[1].replace(/<[^>]+>/g,'').trim() + '</div>';
+            detail = detail.substring(0, noteMatch.index).replace(/(<br\s*\/?>)+$/i,'').trim();
+          }
           out.push(
             '<div class="travel-block">' +
               (label ? '<div class="travel-block-label">' + label + '</div>' : '') +
               '<div class="travel-block-detail">' + detail + '</div>' +
+              noteHtml +
             '</div>'
           );
         });
@@ -1403,13 +1421,16 @@ function hydrateTemplate(d){
       }
 
       var parts = [];
+      // Labels match the design: AIRPORT for travel, HOTEL for accommodation.
       if (menu.travel && d.travel_info){
-        parts.push(_renderRichTravel(d.travel_info, 'Travel'));
+        parts.push(_renderRichTravel(d.travel_info, 'Airport'));
       }
       if (menu.accommodations && d.accommodation_info){
-        parts.push(_renderRichTravel(d.accommodation_info, 'Accommodations'));
+        parts.push(_renderRichTravel(d.accommodation_info, 'Hotel'));
       }
-      travelContentEl.innerHTML = parts.join('');
+      // Keep the template's placeholder blocks when the couple hasn't written
+      // anything — an empty Travel Info section looks broken.
+      if (parts.length) travelContentEl.innerHTML = parts.join('');
     }
     // Wire the Book Now button. If the user pasted a link anywhere in
     // travel_info or accommodation_info, the button points to that URL.
@@ -1427,9 +1448,20 @@ function hydrateTemplate(d){
       // into the copy is the fallback.
       var bookUrl = d.travel_url || d.accommodation_url ||
         (linkMatch ? linkMatch[1] : (bareMatch ? bareMatch[0].replace(/[.,;)]+$/,'') : ''));
-      if (bookUrl) btn.href = bookUrl;
-      // A button that goes nowhere is worse than no button.
-      btn.style.display = bookUrl ? '' : 'none';
+      // The design always shows this button, so it stays visible. With no URL
+      // configured it's inert rather than hidden, keeping the layout intact.
+      btn.textContent = 'Book Now';
+      if (bookUrl){
+        btn.href = bookUrl;
+        btn.removeAttribute('aria-disabled');
+        btn.style.opacity = '';
+        btn.onclick = null;
+      } else {
+        btn.href = '#';
+        btn.setAttribute('aria-disabled','true');
+        btn.onclick = function(e){ e.preventDefault(); };
+      }
+      btn.style.display = '';
     }
   }
 
