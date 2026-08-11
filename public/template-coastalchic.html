@@ -190,7 +190,7 @@ body.hydrating{visibility:hidden}
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--white);
   letter-spacing:0.02em;
-  margin-bottom:2.5rem;
+  margin-bottom:1rem;
 }
 .schedule-grid{
   display:grid;
@@ -266,6 +266,17 @@ body.hydrating{visibility:hidden}
 }
 .travel-rule-line{flex:0 0 50px;height:1px;background:var(--gray-blue);opacity:0.5;}
 .travel-rule-dot{width:5px;height:5px;border-radius:50%;background:var(--gray-blue);}
+
+/* Shared section rule — a dot at each end of a short line, matching the design.
+   The previous treatment put the dot in the middle of two lines. */
+.sec-rule{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin:0 auto 2rem;width:fit-content;
+}
+.sec-rule i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.9;flex:none;}
+.sec-rule span{display:block;width:clamp(90px,18vw,150px);height:1px;background:currentColor;opacity:0.45;}
+.sec-rule.on-navy{color:rgba(255,255,255,0.75);}
+.sec-rule.on-ivory{color:var(--gray-blue);}
 .travel-block{
   margin-bottom:1.5rem;
   font-family:var(--body);
@@ -332,10 +343,12 @@ body.hydrating{visibility:hidden}
 }
 .travel-image-frame .frame-photo{
   position:absolute;
-  /* Inner window of the frame — values calibrated to the provided SVG */
-  inset:18%;
+  /* Inner window of the frame — values calibrated to the provided SVG. Sits
+     ABOVE the frame: the frame art isn't transparent in its centre, so at a
+     lower z-index the photo was completely hidden. */
+  inset:19%;
   overflow:hidden;
-  z-index:1;
+  z-index:3;
 }
 .travel-image-frame .frame-photo img{
   width:100%;height:100%;object-fit:cover;display:block;
@@ -419,6 +432,8 @@ body.hydrating{visibility:hidden}
 .registry-btn{
   display:inline-block;
   padding:0.85rem 3rem;
+  /* Fully rounded pill, per the design. */
+  border-radius:999px;
   background:var(--navy);
   color:var(--white);
   font-family:var(--body);
@@ -945,6 +960,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <div class="event-schedule" id="event-schedule">
   <div class="schedule-card">
     <h2 class="schedule-title">Our Wedding Weekend</h2>
+    <div class="sec-rule on-navy"><i></i><span></span><i></i></div>
     <div class="schedule-grid" id="scheduleGrid">
       <div class="schedule-event">
         <div class="schedule-event-name">Welcome Drinks</div>
@@ -994,11 +1010,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
   <div class="travel-inner">
     <div class="travel-text">
       <h2 class="travel-title">Travel Info</h2>
-      <div class="travel-rule-wrap">
-        <div class="travel-rule-line"></div>
-        <div class="travel-rule-dot"></div>
-        <div class="travel-rule-line"></div>
-      </div>
+      <div class="sec-rule on-ivory"><i></i><span></span><i></i></div>
       <div id="travelContent">
         <div class="travel-block">
           <div class="travel-block-label">Airport</div>
@@ -1095,7 +1107,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
     <div class="registry-info" id="registryInfo">
       Your presence at our celebration is the greatest gift of all. For those who wish to honour us with a gift, we have registered at the link below.
     </div>
-    <a class="registry-btn" href="#" id="registryBtn" target="_blank">View on Pottery Barn</a>
+    <a class="registry-btn" href="#" id="registryBtn" target="_blank">View Our Registry</a>
   </div>
 </div>
 
@@ -1108,6 +1120,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 
   <div class="rsvp-inner">
     <h2 class="rsvp-title">RSVP</h2>
+    <div class="sec-rule on-navy"><i></i><span></span><i></i></div>
     <p class="rsvp-deadline" id="rsvpDeadline">Please send your response by June 10<sup>th</sup></p>
 
     <div id="rsvpBlocks"></div>
@@ -1262,6 +1275,18 @@ function hydrateTemplate(d){
     storySection.style.display = '';
   } else if (storySection){
     storySection.style.display = 'none';
+  }
+
+  // Stamp-frame photo. It was left on the template's placeholder because
+  // nothing ever assigned it — use a gallery image if there is one, else the
+  // hero photo.
+  var travelImgEl = document.getElementById('travelImg');
+  if (travelImgEl){
+    var _gal = (d.gallery_images || []).map(function(g){
+      return typeof g === 'string' ? g : (g.url || '');
+    }).filter(Boolean);
+    var _stampSrc = _gal[1] || _gal[0] || d.hero_image || '';
+    if (_stampSrc) travelImgEl.src = _stampSrc;
   }
 
   // Event Schedule (combines weddings_info + events_info into the 3-column grid)
@@ -1477,7 +1502,7 @@ function hydrateTemplate(d){
       if (linkMatch){
         if (btnEl){
           btnEl.href = linkMatch[1];
-          btnEl.textContent = 'View on ' + linkMatch[2];
+          btnEl.textContent = 'View Our Registry';
         }
         // Replace info with the surrounding text minus the link
         var withoutLink = d.registry_info.replace(linkMatch[0], '').replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'<br>').trim();

@@ -1097,7 +1097,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d4804def-fb67-408c-b715-0ad5fdb9e23a.png" alt="">
   <a class="registry-section" id="registry-section" href="#" target="_blank">
     <h2 class="registry-title">Wedding Registry</h2>
-    <span class="registry-cta" id="registryCta">View on registry</span>
+    <span class="registry-cta" id="registryCta">View Our Registry</span>
   </a>
   <div class="registry-info" id="registryInfo"></div>
 </section>
@@ -1670,7 +1670,7 @@ function hydrateTemplate(d) {
         try {
           var u = new URL(urlMatch[1]);
           var host = u.hostname.replace(/^www\./, '');
-          if (ctaEl) ctaEl.textContent = 'View on ' + host;
+          if (ctaEl) ctaEl.textContent = 'View Our Registry';
         } catch(e) {}
       }
       var stripped = d.registry_info.replace(/<a [^>]*>([^<]*)<\/a>/g, '$1').replace(/https?:\/\/\S+/g, '');

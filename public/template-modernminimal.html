@@ -968,7 +968,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
       </div>
     </div>
     <div class="registry-cta-wrap" id="registryCtaWrap">
-      <a class="registry-cta" href="#" id="registryCta" target="_blank">View more on Crateandbarrel.com</a>
+      <a class="registry-cta" href="#" id="registryCta" target="_blank">View Our Registry</a>
     </div>
   </div>
 </div>
@@ -1348,7 +1348,7 @@ function hydrateTemplate(d){
       var linkMatch = d.registry_info.match(/<a[^>]+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/i);
       if (linkMatch){
         infoEl.href = linkMatch[1];
-        infoEl.textContent = 'View more on ' + linkMatch[2];
+        infoEl.textContent = 'View Our Registry';
       } else {
         // No external link: keep the button (the runtime points it at
         // /{slug}/registry) and show the couple's text above it.

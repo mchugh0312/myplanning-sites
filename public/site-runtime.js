@@ -239,106 +239,140 @@
   }
 
   /* ==========================================================================
-     RSVP — BLOCK CONSTRUCTION
+     RSVP ENGINE
      ==========================================================================
-     One block per event. Markup and class names are the same on every
-     template; each template styles these classes in its own CSS.
+     Flow, matching the designs: the guest enters their name ONCE, we look them
+     up on the guest list, and only then do the event blocks appear — already
+     attributed to them. The previous version put a name field inside every
+     event block, so a guest attending three events typed their name three
+     times and each block did its own lookup.
+
+     Class names are unchanged from that version, so every template's existing
+     RSVP styling still applies. `.rsvp-event-block` is now a per-event answer
+     block rather than a self-contained mini-form.
   ========================================================================== */
+
+  var _rsvpState = {
+    guestId: '',
+    matchedName: '',
+    plusOneAllowed: false,
+    householdMembers: [],
+    events: []
+  };
+
+  function rsvpEl(id) { return document.getElementById(id); }
+
   function buildRsvpBlocks(events) {
     var container = document.getElementById('rsvpBlocks');
     if (!container) return;
-    container.innerHTML = '';
 
-    (events || []).forEach(function (ev) {
-      var block = document.createElement('div');
-      block.className = 'rsvp-event-block';
-      block.dataset.eventId = ev.id;
-      block.innerHTML =
-        '<div class="rsvp-event-label">' + esc(ev.label) + '</div>' +
+    _rsvpState.events = (events || []).slice();
+    _rsvpState.guestId = '';
+    _rsvpState.matchedName = '';
+    _rsvpState.plusOneAllowed = false;
+    _rsvpState.householdMembers = [];
+
+    container.innerHTML =
+      // ── Step 1: who are you ──────────────────────────────────────────────
+      '<div class="rsvp-identity" id="rsvpIdentity">' +
         '<div class="rsvp-name-row">' +
-          '<input class="rsvp-name-input" type="text" placeholder="Your full name" autocomplete="name" oninput="onNameInput(this)">' +
+          '<input class="rsvp-name-input" id="rsvpNameInput" type="text" ' +
+            'placeholder="Enter your first and last name" autocomplete="name" ' +
+            'oninput="onNameInput(this)">' +
         '</div>' +
-        '<div class="rsvp-expanded" id="expanded-' + esc(ev.id) + '">' +
-          '<div class="rsvp-field-row" style="margin-bottom:0.75rem">' +
-            '<select class="rsvp-select" data-field="attending">' +
-              '<option value="">Will you attend?</option>' +
-              '<option value="yes">Attending</option>' +
-              '<option value="no">Cannot make it</option>' +
-              '<option value="maybe">Not sure yet</option>' +
-            '</select>' +
-            '<select class="rsvp-select" data-field="meal">' + mealOptionsHtml('') + '</select>' +
-          '</div>' +
-          '<div class="rsvp-field-row full" style="margin-bottom:0.75rem">' +
-            '<select class="rsvp-select" data-field="entree" style="width:100%">' +
-              '<option value="">Entree choice (select one)</option>' + entreeOptionsHtml() +
-            '</select>' +
-          '</div>' +
-          '<div class="rsvp-field-row full" style="margin-bottom:0.75rem">' +
-            '<input class="rsvp-text-input" type="email" placeholder="Email address (required) *" data-field="email" required oninput="checkShowSubmit()">' +
-          '</div>' +
-          '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
-            '<textarea class="rsvp-textarea" rows="2" placeholder="Allergies or dietary requirements?" data-field="dietary"></textarea>' +
-          '</div>' +
-          '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
-            '<textarea class="rsvp-textarea" rows="2" placeholder="Message for the couple (optional)" data-field="notes"></textarea>' +
-          '</div>' +
-          '<div class="rsvp-household" id="household-' + esc(ev.id) + '">' +
-            '<div class="rsvp-household-label" id="household-label-' + esc(ev.id) + '"></div>' +
-            '<div class="rsvp-household-list" id="household-list-' + esc(ev.id) + '"></div>' +
-          '</div>' +
-          '<div class="extra-guests-list" id="extra-guests-' + esc(ev.id) + '"></div>' +
-          '<button type="button" class="rsvp-add-guest" onclick="addExtraGuest(this)" style="display:none">+ Add Invited Guest</button>' +
-        '</div>';
-      container.appendChild(block);
-    });
+        '<div class="rsvp-lookup-status" id="rsvpStatus" style="display:none"></div>' +
+        '<div class="rsvp-name-disambig" id="rsvpDisambig" style="display:none"></div>' +
+      '</div>' +
+
+      // ── Step 2: revealed once the guest is found ────────────────────────
+      '<div class="rsvp-answers" id="rsvpAnswers" style="display:none">' +
+        '<div id="rsvpEventList"></div>' +
+        '<div class="rsvp-household" id="rsvpHousehold">' +
+          '<div class="rsvp-household-label" id="rsvpHouseholdLabel"></div>' +
+          '<div class="rsvp-household-list" id="rsvpHouseholdList"></div>' +
+        '</div>' +
+        '<div class="extra-guests-list" id="rsvpExtraGuests"></div>' +
+        '<button type="button" class="rsvp-add-guest" id="rsvpAddGuestBtn" ' +
+          'onclick="addExtraGuest(this)" style="display:none">+ Add Invited Guest</button>' +
+        '<div class="rsvp-field-row full" style="margin-bottom:0.75rem">' +
+          '<input class="rsvp-text-input" type="email" id="rsvpEmail" ' +
+            'placeholder="Email address (required) *" data-field="email" required ' +
+            'oninput="checkShowSubmit()">' +
+        '</div>' +
+        '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
+          '<textarea class="rsvp-textarea" rows="2" id="rsvpDietary" ' +
+            'placeholder="Allergies or dietary requirements?"></textarea>' +
+        '</div>' +
+        '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
+          '<textarea class="rsvp-textarea" rows="2" id="rsvpMessage" ' +
+            'placeholder="Message for the couple (optional)"></textarea>' +
+        '</div>' +
+      '</div>';
+
     checkShowSubmit();
+  }
+
+  // Per-event answer blocks, built once the guest is identified.
+  function renderEventBlocks() {
+    var list = rsvpEl('rsvpEventList');
+    if (!list) return;
+    list.innerHTML = _rsvpState.events.map(function (ev) {
+      return '' +
+        '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
+          '<div class="rsvp-event-label">' + esc(ev.label) + '</div>' +
+          '<div class="rsvp-expanded visible">' +
+            '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
+              '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
+                '<option value="">Do you plan to attend?</option>' +
+                '<option value="yes">Yes</option>' +
+                '<option value="no">Cannot make it</option>' +
+                '<option value="maybe">Not sure yet</option>' +
+              '</select>' +
+              '<select class="rsvp-select" data-field="entree">' +
+                '<option value="">Your entr\u00e9e choice</option>' + entreeOptionsHtml() +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('');
   }
 
   function onNameInput(input) {
-    var block = input.closest('.rsvp-event-block');
-    if (!block) return;
-    var eventId = block.dataset.eventId;
-    var expanded = document.getElementById('expanded-' + eventId);
-    if (expanded) expanded.classList.toggle('visible', input.value.trim().length >= 2);
+    var name = (input.value || '').trim();
 
-    // Typing a new name invalidates any previous match — otherwise a guest
-    // could match "Jane", edit the field to someone else's name and submit
-    // under the first guest's id.
-    if (block.dataset.lookupState === 'found' && input.value.trim() !== (block.dataset.matchedName || '')) {
-      block.dataset.lookupState = '';
-      block.dataset.guestId = '';
-    }
+    // Editing the name after a match invalidates it, otherwise a guest could
+    // match, retype someone else's name and submit under the first guest's id.
+    if (_rsvpState.guestId && name !== _rsvpState.matchedName) resetRsvpMatch();
+
     checkShowSubmit();
 
-    if (_guestLookupTimers[eventId]) clearTimeout(_guestLookupTimers[eventId]);
-    _guestLookupTimers[eventId] = setTimeout(function () {
-      lookupGuest(block, input.value.trim());
+    if (_guestLookupTimers.identity) clearTimeout(_guestLookupTimers.identity);
+    if (name.length < 2) { setStatus('', ''); return; }
+    _guestLookupTimers.identity = setTimeout(function () {
+      lookupGuest(null, name);
     }, 500);
   }
 
-  function checkShowSubmit() {
-    // Submit appears only when at least one block has a guest matched on the
-    // list AND an email. The backend re-validates both; this is purely UX.
-    var blocks = document.querySelectorAll('.rsvp-event-block');
-    var anyValid = false;
-    blocks.forEach(function (block) {
-      var nameEl = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
-      var nameVal = nameEl ? (nameEl.value || '') : '';
-      if (nameVal.trim().length < 2) return;
-      if (block.dataset.lookupState !== 'found') return;
-      var exp = document.getElementById('expanded-' + block.dataset.eventId);
-      var emailEl = exp && exp.querySelector('[data-field="email"]');
-      var emailVal = emailEl ? (emailEl.value || '').trim() : '';
-      if (!emailVal || emailVal.indexOf('@') < 1) return;
-      anyValid = true;
-    });
-    var btn = document.getElementById('rsvpSubmitBtn');
-    if (btn) btn.style.display = anyValid ? 'block' : 'none';
+  function resetRsvpMatch() {
+    _rsvpState.guestId = '';
+    _rsvpState.matchedName = '';
+    _rsvpState.plusOneAllowed = false;
+    _rsvpState.householdMembers = [];
+    var answers = rsvpEl('rsvpAnswers');
+    if (answers) answers.style.display = 'none';
   }
 
-  /* ==========================================================================
-     RSVP — STATUS BANNER
-     ========================================================================== */
+  function checkShowSubmit() {
+    // Submit appears once the guest is on the list and has given an email. The
+    // backend re-validates both; this is purely UX.
+    var email = rsvpEl('rsvpEmail');
+    var emailVal = email ? (email.value || '').trim() : '';
+    var ok = !!_rsvpState.guestId && !!emailVal && emailVal.indexOf('@') > 0;
+    var btn = document.getElementById('rsvpSubmitBtn');
+    if (btn) btn.style.display = ok ? 'block' : 'none';
+  }
+
+  /* ── Status banner ────────────────────────────────────────────────────── */
   var BANNER = {
     checking: { border: 'var(--mp-muted,#A9BDC4)', bg: 'rgba(169,189,196,0.10)', color: 'var(--mp-muted,#8C7D6E)' },
     ok:       { border: 'var(--mp-ok,#4B5244)',    bg: 'rgba(75,82,68,0.08)',    color: 'var(--mp-ok,#4B5244)' },
@@ -346,81 +380,60 @@
     error:    { border: '#C23331',                 bg: 'rgba(194,51,49,0.08)',   color: '#C23331' }
   };
 
-  function setStatus(block, kind, text) {
-    var expanded = document.getElementById('expanded-' + block.dataset.eventId);
-    var el = block.querySelector('.rsvp-lookup-status');
-    if (!el) {
-      el = document.createElement('div');
-      el.className = 'rsvp-lookup-status';
-      el.style.cssText = [
-        'font-family:inherit', 'font-size:0.85rem', 'line-height:1.45',
-        'padding:0.5rem 0.8rem', 'margin:0.5rem 0 0.4rem',
-        'border-left:3px solid', 'border-radius:4px', 'transition:opacity 0.2s'
-      ].join(';');
-      var nameInput = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
-      if (expanded && expanded.parentNode === block) block.insertBefore(el, expanded);
-      else if (nameInput && nameInput.parentNode) nameInput.parentNode.insertBefore(el, nameInput.nextSibling);
-      else block.appendChild(el);
-    }
+  function setStatus(kind, text) {
+    var el = rsvpEl('rsvpStatus');
+    if (!el) return;
+    if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
     var s = BANNER[kind] || BANNER.checking;
+    el.style.cssText = [
+      'font-family:inherit', 'font-size:0.85rem', 'line-height:1.45',
+      'padding:0.5rem 0.8rem', 'margin:0.6rem 0 0.2rem',
+      'border-left:3px solid ' + s.border, 'border-radius:4px',
+      'background:' + s.bg, 'color:' + s.color, 'display:block'
+    ].join(';');
     el.textContent = text;
-    el.style.borderLeftColor = s.border;
-    el.style.background = s.bg;
-    el.style.color = s.color;
-    return el;
   }
 
-  /* ==========================================================================
-     RSVP — GUEST LOOKUP
-     ========================================================================== */
-  function applyFoundGuest(block, json, displayName) {
-    var expanded = document.getElementById('expanded-' + block.dataset.eventId);
-    block.dataset.guestId = json.guest_id || '';
-    block.dataset.plusOneAllowed = json.plus_one_allowed ? '1' : '0';
-    block.dataset.householdAllowed = String(json.household_members_allowed || 0);
-    block.dataset.lookupState = 'found';
-    block.dataset.matchedName = json.name || displayName || '';
+  /* ── Guest lookup ─────────────────────────────────────────────────────── */
+  function applyFoundGuest(json, displayName) {
+    _rsvpState.guestId = json.guest_id || '';
+    _rsvpState.matchedName = json.name || displayName || '';
+    _rsvpState.plusOneAllowed = !!json.plus_one_allowed;
+    _rsvpState.householdMembers = Array.isArray(json.household_members) ? json.household_members : [];
 
-    var nameEl = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
-    if (nameEl && json.name) nameEl.value = json.name;
+    var input = rsvpEl('rsvpNameInput');
+    if (input && json.name) input.value = json.name;
 
-    setStatus(block, 'ok', '\u2713 Found you on the list \u2014 ' + (json.name || displayName || ''));
+    setStatus('ok', '\u2713 Found you on the list \u2014 ' + _rsvpState.matchedName);
 
-    var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
-    var listEl = expanded && expanded.querySelector('.extra-guests-list');
+    var disambig = rsvpEl('rsvpDisambig');
+    if (disambig) { disambig.style.display = 'none'; disambig.innerHTML = ''; }
+
+    renderEventBlocks();
+    renderHousehold(json);
+
+    var addBtn = rsvpEl('rsvpAddGuestBtn');
     if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
-    if (listEl && !json.plus_one_allowed) listEl.innerHTML = '';
+    var extras = rsvpEl('rsvpExtraGuests');
+    if (extras && !json.plus_one_allowed) extras.innerHTML = '';
 
-    renderHousehold(block, json);
+    var answers = rsvpEl('rsvpAnswers');
+    if (answers) answers.style.display = 'block';
+
     checkShowSubmit();
   }
 
-  function rejectGuest(block, kind, message) {
-    var expanded = document.getElementById('expanded-' + block.dataset.eventId);
-    block.dataset.lookupState = kind;
-    block.dataset.guestId = '';
-    block.dataset.plusOneAllowed = '0';
-    block.dataset.matchedName = '';
-    setStatus(block, kind === 'ambiguous' ? 'warn' : 'error', message);
-    var addBtn = expanded && expanded.querySelector('.rsvp-add-guest');
-    var listEl = expanded && expanded.querySelector('.extra-guests-list');
-    if (addBtn) addBtn.style.display = 'none';
-    if (listEl) listEl.innerHTML = '';
-    clearHousehold(block);
+  function rejectGuest(kind, message) {
+    resetRsvpMatch();
+    setStatus(kind === 'ambiguous' ? 'warn' : 'error', message);
     checkShowSubmit();
   }
 
-  function lookupGuest(block, name) {
+  function lookupGuest(_block, name) {
     if (_isPreview) return;
     var slug = window._weddingSlug || _liveSlug || '';
     if (!slug || !name || name.length < 2) return;
-
-    var expanded = document.getElementById('expanded-' + block.dataset.eventId);
-    if (expanded) {
-      var stale = expanded.querySelector('.rsvp-name-disambig');
-      if (stale) stale.remove();
-    }
-    setStatus(block, 'checking', 'Checking guest list\u2026');
+    setStatus('checking', 'Checking guest list\u2026');
 
     fetch(API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-lookup?name=' + encodeURIComponent(name))
       .then(function (r) {
@@ -429,59 +442,53 @@
       })
       .then(function (json) {
         if (json.found === true) {
-          applyFoundGuest(block, json, name);
+          applyFoundGuest(json, name);
         } else if (json.ambiguous) {
-          rejectGuest(block, 'ambiguous', 'Multiple matches \u2014 please pick yours below');
-          showAmbiguousMatches(block, json.matches || []);
+          rejectGuest('ambiguous', 'Multiple matches \u2014 please pick yours below');
+          showAmbiguousMatches(json.matches || []);
         } else {
-          rejectGuest(block, 'unknown',
+          rejectGuest('unknown',
             "We couldn't find your name on the guest list. RSVPs are by invitation only \u2014 " +
             'please contact the couple if you believe this is a mistake.');
         }
       })
       .catch(function () {
-        rejectGuest(block, 'error', 'Could not check the guest list right now. Please try again.');
+        rejectGuest('error', 'Could not check the guest list right now. Please try again.');
       });
   }
 
-  function lookupGuestById(block, guestId, displayName) {
-    // Used after the user picks from the ambiguous-match list. Goes straight to
-    // the record id so identical names don't loop back into "ambiguous".
+  function lookupGuestById(_block, guestId, displayName) {
+    // Used after the guest picks from the ambiguous-match list, so identical
+    // names don't loop straight back into "ambiguous".
     if (_isPreview) return;
     var slug = window._weddingSlug || _liveSlug || '';
     if (!slug || !guestId) return;
-    setStatus(block, 'checking', 'Confirming\u2026');
+    setStatus('checking', 'Confirming\u2026');
 
     fetch(API + '/wedding-site/' + encodeURIComponent(slug) + '/guest-by-id/' + encodeURIComponent(guestId))
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (json) {
         if (!json || !json.found) {
-          rejectGuest(block, 'unknown', "We couldn't verify that guest. Please try again.");
+          rejectGuest('unknown', "We couldn't verify that guest. Please try again.");
           return;
         }
-        applyFoundGuest(block, json, displayName);
+        applyFoundGuest(json, displayName);
       })
       .catch(function () {
-        rejectGuest(block, 'error', 'Could not check the guest list right now. Please try again.');
+        rejectGuest('error', 'Could not check the guest list right now. Please try again.');
       });
   }
 
-  function showAmbiguousMatches(block, matches) {
-    var expanded = document.getElementById('expanded-' + block.dataset.eventId);
-    if (!expanded) return;
-    var existing = expanded.querySelector('.rsvp-name-disambig');
-    if (existing) existing.remove();
-    if (!matches.length) return;
+  function showAmbiguousMatches(matches) {
+    var wrap = rsvpEl('rsvpDisambig');
+    if (!wrap) return;
+    if (!matches.length) { wrap.style.display = 'none'; return; }
 
-    var wrap = document.createElement('div');
-    wrap.className = 'rsvp-name-disambig';
-    wrap.style.cssText = 'background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.10);border-radius:6px;' +
-      'padding:0.55rem 0.7rem;margin-bottom:0.6rem;font-family:inherit;font-size:0.8rem;';
-
-    var label = document.createElement('div');
-    label.textContent = 'We found a few matches \u2014 please pick yours:';
-    label.style.cssText = 'margin-bottom:0.4rem;font-size:0.72rem;opacity:0.7';
-    wrap.appendChild(label);
+    wrap.style.cssText = 'background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.10);' +
+      'border-radius:6px;padding:0.55rem 0.7rem;margin:0.5rem 0 0.6rem;' +
+      'font-family:inherit;font-size:0.8rem;display:block;';
+    wrap.innerHTML = '<div style="margin-bottom:0.4rem;font-size:0.72rem;opacity:0.7">' +
+      'We found a few matches \u2014 please pick yours:</div>';
 
     matches.forEach(function (m) {
       var btn = document.createElement('button');
@@ -500,44 +507,34 @@
         btn.appendChild(hint);
       }
       btn.onclick = function () {
-        var nameInput = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
-        if (nameInput) nameInput.value = m.name;
-        wrap.remove();
-        lookupGuestById(block, m.id, m.name);
+        var input = rsvpEl('rsvpNameInput');
+        if (input) input.value = m.name;
+        wrap.style.display = 'none';
+        lookupGuestById(null, m.id, m.name);
       };
       wrap.appendChild(btn);
     });
-    expanded.insertBefore(wrap, expanded.firstChild);
   }
 
-  /* ==========================================================================
-     RSVP — HOUSEHOLD (party members who already exist on the guest list)
-     ========================================================================== */
-  function clearHousehold(block) {
-    var id = block.dataset.eventId;
-    var section = document.getElementById('household-' + id);
-    var label = document.getElementById('household-label-' + id);
-    var list = document.getElementById('household-list-' + id);
+  /* ── Household (party members already on the guest list) ──────────────── */
+  function clearHousehold() {
+    var section = rsvpEl('rsvpHousehold');
+    var label = rsvpEl('rsvpHouseholdLabel');
+    var list = rsvpEl('rsvpHouseholdList');
     if (section) section.classList.remove('visible');
     if (label) label.textContent = '';
     if (list) list.innerHTML = '';
-    block.dataset.householdMembers = '';
   }
 
-  function renderHousehold(block, json) {
-    var id = block.dataset.eventId;
-    var section = document.getElementById('household-' + id);
-    var label = document.getElementById('household-label-' + id);
-    var list = document.getElementById('household-list-' + id);
+  function renderHousehold(json) {
+    var section = rsvpEl('rsvpHousehold');
+    var label = rsvpEl('rsvpHouseholdLabel');
+    var list = rsvpEl('rsvpHouseholdList');
     if (!section || !label || !list) return;
 
-    var members = Array.isArray(json && json.household_members) ? json.household_members : [];
-    members = members.filter(function (m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
-    if (!members.length) { clearHousehold(block); return; }
-
-    block.dataset.householdMembers = JSON.stringify(members.map(function (m) {
-      return { guest_id: m.guest_id, name: m.name };
-    }));
+    var members = (Array.isArray(json && json.household_members) ? json.household_members : [])
+      .filter(function (m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+    if (!members.length) { clearHousehold(); return; }
 
     var party = (json.party_name || '').trim();
     var count = members.length + ' other ' + (members.length === 1 ? 'person' : 'people');
@@ -570,16 +567,12 @@
     section.classList.add('visible');
   }
 
-  /* ==========================================================================
-     RSVP — PLUS ONE
-     ========================================================================== */
+  /* ── Plus one ─────────────────────────────────────────────────────────── */
   function addExtraGuest(btn) {
-    var block = btn.closest('.rsvp-event-block');
-    if (!block) return;
-    var list = document.getElementById('extra-guests-' + block.dataset.eventId);
+    var list = rsvpEl('rsvpExtraGuests');
     if (!list || list.children.length > 0) return; // one plus-one only
 
-    var primaryInput = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
+    var primaryInput = rsvpEl('rsvpNameInput');
     var primaryName = primaryInput ? (primaryInput.value || '').trim() : '';
     var defaultName = primaryName ? primaryName + "'s Plus One" : '';
 
@@ -593,10 +586,10 @@
     nameInput.className = 'rsvp-text-input';
     nameInput.type = 'text';
     nameInput.value = defaultName;
-    nameInput.placeholder = 'Plus one full name (or leave as default)';
+    nameInput.placeholder = 'Enter invited guest name';
     nameInput.dataset.role = 'plus-one-name';
-    // Track whether the guest has customised the name. While untouched, it
-    // follows the primary's name so the seating chart never gets "Unnamed".
+    // While untouched the name follows the primary guest's, so the seating
+    // chart never ends up with "Unnamed".
     nameInput.dataset.isDefault = '1';
     nameInput.addEventListener('input', function () { nameInput.dataset.isDefault = '0'; });
     if (primaryInput) {
@@ -641,87 +634,90 @@
     btn.style.display = 'none';
   }
 
-  /* ==========================================================================
-     RSVP — SUBMIT
-     ========================================================================== */
+  /* ── Submit ───────────────────────────────────────────────────────────── */
   function submitRSVP() {
     if (_isPreview) { alert('RSVP is disabled in preview mode.'); return; }
     var btn = document.getElementById('rsvpSubmitBtn');
     if (!btn) return;
+
+    var name = (rsvpEl('rsvpNameInput') || {}).value || '';
+    var email = ((rsvpEl('rsvpEmail') || {}).value || '').trim();
+    if (!_rsvpState.guestId || !name.trim() || !email || email.indexOf('@') < 1) {
+      alert('Please enter your name as it appears on the invitation, and your email address.');
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
     var slug = window._weddingSlug || _liveSlug || '';
-    var payloads = [];
+    var dietary = (rsvpEl('rsvpDietary') || {}).value || '';
+    var message = (rsvpEl('rsvpMessage') || {}).value || '';
 
-    document.querySelectorAll('.rsvp-event-block').forEach(function (block) {
-      var nameEl = block.querySelector('.rsvp-name-input, .rsvp-name-pill');
-      var name = nameEl ? nameEl.value.trim() : '';
-      if (!name) return;
-      if (block.dataset.lookupState !== 'found' || !block.dataset.guestId) return;
+    // Plus-one and household answers ride along with the first event so they're
+    // recorded once rather than duplicated per event.
+    var extraGuests = [];
+    var plusOneRow = document.querySelector('#rsvpExtraGuests .extra-guest-row');
+    if (plusOneRow) {
+      var pn = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
+      var pm = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
+      var pe = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
+      if (pn.trim()) extraGuests.push({ name: pn.trim(), meal: pm, entree: pe });
+    }
 
-      var exp = document.getElementById('expanded-' + block.dataset.eventId);
-      var val = function (sel) {
-        var el = exp && exp.querySelector(sel);
-        return el ? (el.value || '') : '';
-      };
-      var email = val('[data-field="email"]').trim();
-      if (!email || email.indexOf('@') < 1) return;
-
-      var labelEl = block.querySelector('.rsvp-event-label');
-
-      var extraGuests = [];
-      var plusOneRow = exp && exp.querySelector('.extra-guest-row');
-      if (plusOneRow) {
-        var pn = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
-        var pm = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
-        var pe = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
-        if (pn.trim()) extraGuests.push({ name: pn.trim(), meal: pm, entree: pe });
-      }
-
-      var householdRsvps = [];
-      var hList = exp && exp.querySelector('.rsvp-household-list');
-      if (hList) {
-        hList.querySelectorAll('.rsvp-household-row').forEach(function (hr) {
-          var gid = hr.dataset.guestId || '';
-          if (!gid) return;
-          var att = hr.querySelector('[data-h-field="attending"]');
-          var attending = att ? (att.value || '').trim() : '';
-          if (!attending) return; // unanswered rows leave existing RSVPs untouched
-          var meal = hr.querySelector('[data-h-field="meal"]');
-          var entree = hr.querySelector('[data-h-field="entree"]');
-          householdRsvps.push({
-            guest_id: gid,
-            attending: attending,
-            meal_preference: meal ? (meal.value || '') : '',
-            entree_choice: entree ? (entree.value || '') : ''
-          });
+    var householdRsvps = [];
+    var hList = rsvpEl('rsvpHouseholdList');
+    if (hList) {
+      hList.querySelectorAll('.rsvp-household-row').forEach(function (hr) {
+        var gid = hr.dataset.guestId || '';
+        if (!gid) return;
+        var att = hr.querySelector('[data-h-field="attending"]');
+        var attending = att ? (att.value || '').trim() : '';
+        if (!attending) return; // unanswered rows leave existing RSVPs untouched
+        var meal = hr.querySelector('[data-h-field="meal"]');
+        var entree = hr.querySelector('[data-h-field="entree"]');
+        householdRsvps.push({
+          guest_id: gid,
+          attending: attending,
+          meal_preference: meal ? (meal.value || '') : '',
+          entree_choice: entree ? (entree.value || '') : ''
         });
-      }
+      });
+    }
 
+    var payloads = [];
+    document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(function (block) {
+      var attendingEl = block.querySelector('[data-field="attending"]');
+      var attending = attendingEl ? (attendingEl.value || '').trim() : '';
+      if (!attending) return;   // unanswered events aren't submitted
+      var entreeEl = block.querySelector('[data-field="entree"]');
+      var labelEl = block.querySelector('.rsvp-event-label');
       payloads.push({
         slug: slug,
-        guest_name: name,
-        guest_id: block.dataset.guestId,
-        attending: val('[data-field="attending"]') || 'yes',
-        meal_preference: val('[data-field="meal"]'),
-        entree_choice: val('[data-field="entree"]'),
+        guest_name: name.trim(),
+        guest_id: _rsvpState.guestId,
+        attending: attending,
+        meal_preference: '',
+        entree_choice: entreeEl ? (entreeEl.value || '') : '',
         email: email,
-        dietary_notes: val('[data-field="dietary"]'),
-        message: val('[data-field="notes"]'),
+        dietary_notes: dietary,
+        message: message,
         event_name: labelEl ? labelEl.textContent : '',
-        plus_one: extraGuests.length > 0,
-        extra_guests: extraGuests,
-        household_rsvps: householdRsvps
+        plus_one: false,
+        extra_guests: [],
+        household_rsvps: []
       });
     });
 
     if (!payloads.length) {
-      alert('Please enter your name as it appears on the invitation, and your email address.');
+      alert('Please let us know whether you can attend at least one event.');
       btn.disabled = false;
       btn.textContent = 'Send My RSVP';
       return;
     }
+    payloads[0].plus_one = extraGuests.length > 0;
+    payloads[0].extra_guests = extraGuests;
+    payloads[0].household_rsvps = householdRsvps;
 
     Promise.all(payloads.map(function (body) {
       return fetch(API + '/rsvp', {
@@ -759,6 +755,8 @@
         try { successEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
       }
       btn.style.display = 'none';
+      var answers = rsvpEl('rsvpAnswers');
+      if (answers) answers.style.display = 'none';
     }).catch(function (err) {
       alert('Sorry \u2014 ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
       btn.disabled = false;
