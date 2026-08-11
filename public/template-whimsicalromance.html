@@ -118,7 +118,7 @@ body{
   -webkit-font-smoothing:antialiased;
   font-size:16px;line-height:1.6;
 }
-body.hydrating{visibility:hidden}
+body.hydrating{visibility:hidden;}
 
 /* ── MENU ─────────────────────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
@@ -194,13 +194,18 @@ body.hydrating{visibility:hidden}
 .hero-wrap{
   background:var(--rose);
   /* Wide rosy border around the framed photo, as in the design. */
-  padding:clamp(1.6rem,3.5vw,2.8rem) clamp(1.6rem,3.5vw,2.8rem) 0;
+  /* Double the previous border width. */
+  padding:clamp(3.2rem,7vw,5.6rem) clamp(3.2rem,7vw,5.6rem) 0;
 }
 .hero{
   position:relative;
   width:100%;
-  aspect-ratio:16/9;
-  min-height:260px;
+  /* Half the previous height (16/9 -> 32/9). The min-height floor keeps the
+     doubled couple names inside the frame at desktop widths, where two lines
+     of type are taller than a 32/9 box would otherwise be. */
+  aspect-ratio:32/9;
+  /* The floor is what the doubled names need; 32/9 governs wherever they fit. */
+  min-height:clamp(200px, 37vw, 470px);
   /* Deep rounding, per the design. */
   border-radius:clamp(28px,4vw,60px);
   overflow:hidden;
@@ -211,10 +216,10 @@ body.hydrating{visibility:hidden}
 .hero-wrap::before{
   content:'';
   position:absolute;
-  left:clamp(0.7rem,1.8vw,1.4rem);
-  right:clamp(0.7rem,1.8vw,1.4rem);
-  top:clamp(0.7rem,1.8vw,1.4rem);
-  bottom:calc(-1 * clamp(0.7rem,1.8vw,1.4rem));
+  left:clamp(1.5rem,3.4vw,2.7rem);
+  right:clamp(1.5rem,3.4vw,2.7rem);
+  top:clamp(1.5rem,3.4vw,2.7rem);
+  bottom:calc(-1 * clamp(1.5rem,3.4vw,2.7rem));
   border:1px solid rgba(83,20,30,0.28);
   border-radius:clamp(36px,5vw,74px);
   pointer-events:none;
@@ -250,7 +255,11 @@ body.hydrating{visibility:hidden}
 .hero-couple-name .name-2{
   display:block;
   /* Corben is far wider than the script face at the same size. */
-  font-size:clamp(2.6rem, 11vw, 7rem);
+  /* Doubled at every width: the vw term and the ceiling are both twice what
+     they were. Weight unchanged; leading tightened so two lines still sit
+     inside the shortened frame. */
+  font-size:clamp(5.2rem, 22vw, 14rem);
+  line-height:0.82;
   letter-spacing:0.005em;
 }
 .hero-couple-name .name-1{ text-align:center; }
@@ -479,7 +488,7 @@ body.hydrating{visibility:hidden}
   padding:0.7rem 2.2rem;
   background:var(--ivory);
   color:var(--burgundy);
-  border:1px solid var(--burgundy);
+  border:2px solid var(--burgundy);
   border-radius:999px;
   font-family:var(--body);
   font-size:0.78rem;
@@ -580,7 +589,7 @@ body.hydrating{visibility:hidden}
   padding:0.7rem 2.2rem;
   background:var(--ivory);
   color:var(--burgundy);
-  border:1px solid var(--burgundy);
+  border:2px solid var(--burgundy);
   border-radius:999px;
   font-family:var(--body);
   font-size:0.82rem;
@@ -637,7 +646,7 @@ body.hydrating{visibility:hidden}
 .rsvp-name-row{padding:0;}
 .rsvp-name-input{
   width:100%;padding:0.85rem 1.4rem;
-  border:none;
+  border:2px solid rgba(83,20,30,0.45);
   background:var(--ivory);
   border-radius:999px;
   font-family:var(--body);font-size:0.85rem;
@@ -712,7 +721,7 @@ body.hydrating{visibility:hidden}
 .rsvp-field-row.full{grid-template-columns:1fr}
 .rsvp-select,.rsvp-text-input{
   width:100%;padding:0.7rem 1.2rem;
-  border:none;
+  border:2px solid rgba(83,20,30,0.45);
   background:var(--ivory);
   font-family:var(--body);font-size:0.82rem;
   color:var(--burgundy);outline:none;border-radius:999px;
@@ -725,7 +734,7 @@ body.hydrating{visibility:hidden}
   padding-right:2.4rem;
 }
 .rsvp-text-input{background-image:none;padding-right:1.2rem;}
-.rsvp-select:focus,.rsvp-text-input:focus{box-shadow:0 0 0 2px rgba(83,20,30,0.25);}
+.rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--burgundy);}
 .rsvp-textarea{
   width:100%;padding:0.7rem 1.2rem;resize:vertical;min-height:54px;
   border:none;
@@ -754,7 +763,7 @@ body.hydrating{visibility:hidden}
   padding:0.85rem 3rem;
   margin:1.2rem auto 0;
   background:var(--burgundy);color:var(--ivory);
-  border:none;border-radius:999px;
+  border:2px solid var(--burgundy);border-radius:999px;
   cursor:pointer;font-family:var(--body);
   font-size:0.82rem;
   font-weight:600;
