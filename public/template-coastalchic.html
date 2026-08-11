@@ -260,21 +260,17 @@ body.hydrating{visibility:hidden}
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
-.travel-rule-wrap{
-  display:flex;align-items:center;justify-content:center;gap:0.8rem;
-  margin-bottom:2rem;
-}
-.travel-rule-line{flex:0 0 50px;height:1px;background:var(--gray-blue);opacity:0.5;}
-.travel-rule-dot{width:5px;height:5px;border-radius:50%;background:var(--gray-blue);}
 
 /* Shared section rule — a dot at each end of a short line, matching the design.
    The previous treatment put the dot in the middle of two lines. */
+.sec-head{width:fit-content;margin:0 auto;}
+.sec-head > h2{margin-bottom:0.75rem;}
 .sec-rule{
   display:flex;align-items:center;justify-content:center;gap:0;
-  margin:0 auto 2rem;width:fit-content;
+  margin:0 auto 2rem;width:100%;min-width:150px;
 }
 .sec-rule i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.9;flex:none;}
-.sec-rule span{display:block;width:clamp(90px,18vw,150px);height:1px;background:currentColor;opacity:0.45;}
+.sec-rule span{display:block;flex:1 1 auto;height:1px;background:currentColor;opacity:0.45;}
 .sec-rule.on-navy{color:rgba(255,255,255,0.75);}
 .sec-rule.on-ivory{color:var(--gray-blue);}
 .travel-block{
@@ -351,12 +347,10 @@ body.hydrating{visibility:hidden}
 }
 .travel-image-frame .frame-photo img{
   width:100%;height:100%;display:block;
-  /* `cover` cropped heads out of frame whichever way it was biased, because the
-     window is square and uploads generally aren't. `contain` shows the whole
-     photograph; the ivory fill behind it reads as part of the stamp. */
-  object-fit:contain;
+  /* Fills the stamp window edge to edge. The window is square and uploads
+     usually aren't, so this crops — centred, which keeps the subject. */
+  object-fit:cover;
   object-position:center;
-  background:var(--ivory);
 }
 
 /* ── FAQs — dark navy bg ─────────────────────────────────── */
@@ -375,12 +369,6 @@ body.hydrating{visibility:hidden}
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
-.faq-rule-wrap{
-  display:flex;align-items:center;justify-content:center;gap:0.8rem;
-  margin-bottom:2.5rem;
-}
-.faq-rule-line{flex:0 0 50px;height:1px;background:rgba(255,255,255,0.4);}
-.faq-rule-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5);}
 .faq-item{
   margin-bottom:2.2rem;
   text-align:center;
@@ -420,12 +408,6 @@ body.hydrating{visibility:hidden}
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
-.registry-rule-wrap{
-  display:flex;align-items:center;justify-content:center;gap:0.8rem;
-  margin-bottom:1.8rem;
-}
-.registry-rule-line{flex:0 0 50px;height:1px;background:var(--gray-blue);opacity:0.5;}
-.registry-rule-dot{width:5px;height:5px;border-radius:50%;background:var(--gray-blue);}
 .registry-info{
   font-family:var(--body);
   font-weight:300;
@@ -964,8 +946,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <!-- EVENT SCHEDULE — Our Wedding Weekend -->
 <div class="event-schedule" id="event-schedule">
   <div class="schedule-card">
-    <h2 class="schedule-title">Our Wedding Weekend</h2>
-    <div class="sec-rule on-navy"><i></i><span></span><i></i></div>
+    <div class="sec-head"><h2 class="schedule-title">Our Wedding Weekend</h2><div class="sec-rule on-navy"><i></i><span></span><i></i></div></div>
     <div class="schedule-grid" id="scheduleGrid">
       <div class="schedule-event">
         <div class="schedule-event-name">Welcome Drinks</div>
@@ -1014,8 +995,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <div class="travel-section" id="travel-section">
   <div class="travel-inner">
     <div class="travel-text">
-      <h2 class="travel-title">Travel Info</h2>
-      <div class="sec-rule on-ivory"><i></i><span></span><i></i></div>
+      <div class="sec-head"><h2 class="travel-title">Travel Info</h2><div class="sec-rule on-ivory"><i></i><span></span><i></i></div></div>
       <div id="travelContent">
         <div class="travel-block">
           <div class="travel-block-label">Airport</div>
@@ -1062,12 +1042,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <!-- FAQs — dark navy bg -->
 <div class="faq-section" id="faq-section">
   <div class="faq-inner">
-    <h2 class="faq-title">FAQs</h2>
-    <div class="faq-rule-wrap">
-      <div class="faq-rule-line"></div>
-      <div class="faq-rule-dot"></div>
-      <div class="faq-rule-line"></div>
-    </div>
+    <div class="sec-head"><h2 class="faq-title">FAQs</h2><div class="sec-rule on-navy"><i></i><span></span><i></i></div></div>
     <div id="faqList">
       <div class="faq-item">
         <span class="faq-q-text">What should I wear to the wedding?</span>
@@ -1103,12 +1078,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <!-- REGISTRY — ivory bg -->
 <div class="registry-section" id="registry-section">
   <div class="registry-inner">
-    <h2 class="registry-title">Our Gift Registry</h2>
-    <div class="registry-rule-wrap">
-      <div class="registry-rule-line"></div>
-      <div class="registry-rule-dot"></div>
-      <div class="registry-rule-line"></div>
-    </div>
+    <div class="sec-head"><h2 class="registry-title">Our Gift Registry</h2><div class="sec-rule on-ivory"><i></i><span></span><i></i></div></div>
     <div class="registry-info" id="registryInfo">
       Your presence at our celebration is the greatest gift of all. For those who wish to honour us with a gift, we have registered at the link below.
     </div>
@@ -1124,8 +1094,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5e026b97-db20-416e-95f9-706d428af337.png" alt="">
 
   <div class="rsvp-inner">
-    <h2 class="rsvp-title">RSVP</h2>
-    <div class="sec-rule on-navy"><i></i><span></span><i></i></div>
+    <div class="sec-head"><h2 class="rsvp-title">RSVP</h2><div class="sec-rule on-navy"><i></i><span></span><i></i></div></div>
     <p class="rsvp-deadline" id="rsvpDeadline">Please send your response by June 10<sup>th</sup></p>
 
     <div id="rsvpBlocks"></div>
