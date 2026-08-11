@@ -643,7 +643,12 @@ function hydrateTemplate(d){
     }
     var wCards=el('weddingCards');
     if(wCards&&d.weddings_info){
-      wCards.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_wCards = wCards.innerHTML;
+      var _orig_wCards = wCards;
+      wCards = document.createElement('div');
+
       var wSource=d.weddings_info.replace(/^\s*<em>[\s\S]*?<\/em>\s*(?:<br\s*\/?>\s*){0,2}/i,'');
       var wParts=wSource.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
@@ -661,7 +666,10 @@ function hydrateTemplate(d){
           '</div>';
       }
       wParts.forEach(function(part){wCards.innerHTML+=makeWCard(part);});
-    }
+    
+      if (_orig_wCards) _orig_wCards.innerHTML = (wCards.children.length || (wCards.innerHTML || '').trim())
+        ? wCards.innerHTML : _ph_wCards;
+}
   }
 
   // Other Events
@@ -669,7 +677,12 @@ function hydrateTemplate(d){
   if(menu.other_events){
     var evList=el('otherEventsList');
     if(evList&&d.events_info){
-      evList.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_evList = evList.innerHTML;
+      var _orig_evList = evList;
+      evList = document.createElement('div');
+
       var evParts=d.events_info.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
       if(!evParts.length)evParts=[d.events_info];
@@ -686,7 +699,10 @@ function hydrateTemplate(d){
           (dress?'<span class="event-dress">'+dress+'</span>':'');
         evList.appendChild(box);
       });
-    }
+    
+      if (_orig_evList) _orig_evList.innerHTML = (evList.children.length || (evList.innerHTML || '').trim())
+        ? evList.innerHTML : _ph_evList;
+}
   }
 
   // Accommodations — left content, right photo
@@ -739,7 +755,12 @@ function hydrateTemplate(d){
   if((menu.things_to_do||menu.faqs)&&d.faqs){
     var nl=el('ntkList');
     if(nl){
-      nl.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_nl = nl.innerHTML;
+      var _orig_nl = nl;
+      nl = document.createElement('div');
+
       var blocks=d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
       blocks.forEach(function(block){
@@ -750,7 +771,10 @@ function hydrateTemplate(d){
         item.innerHTML=(q?'<div class="ntk-question">'+q+'</div>':'')+(a?'<div class="ntk-answer">'+a+'</div>':'');
         nl.appendChild(item);
       });
-    }
+    
+      if (_orig_nl) _orig_nl.innerHTML = (nl.children.length || (nl.innerHTML || '').trim())
+        ? nl.innerHTML : _ph_nl;
+}
   }
 
   // Gallery

@@ -1301,9 +1301,14 @@ function hydrateTemplate(d) {
   const showWeekend = menu.wedding || menu.other_events;
   if (weekendSection) weekendSection.style.display = showWeekend ? '' : 'none';
   if (showWeekend) {
-    const list = document.getElementById('weekendEventsList');
-    if (list) {
-      list.innerHTML = '';
+    const _origList = document.getElementById('weekendEventsList');
+    if (_origList) {
+      // Render into a detached container first. The template's placeholder
+      // events stay put unless the couple's data actually produces cards —
+      // clearing up front left an empty section whenever parsing came up dry.
+      var _placeholder = _origList.innerHTML;
+      var _staging = document.createElement('div');
+      var list = _staging;
 
       // Build an ordered list of HTML blobs to render
       var blobs = [];
@@ -1382,6 +1387,11 @@ function hydrateTemplate(d) {
           });
         });
       }
+
+      // Commit only if the couple's data produced real cards; otherwise the
+      // template's placeholder events stay.
+      if (_staging.children.length) _origList.innerHTML = _staging.innerHTML;
+      else _origList.innerHTML = _placeholder;
     }
   }
 
@@ -1389,7 +1399,7 @@ function hydrateTemplate(d) {
   const accomSection = document.getElementById('accommodations');
   if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
   if (menu.accommodations) {
-    const accomInner = document.getElementById('accomInner');
+    let accomInner = document.getElementById('accomInner');
     if (accomInner) {
       var accomBlob = d.accommodation_info || '';
       var travelBlob = d.travel_info || '';
@@ -1404,7 +1414,12 @@ function hydrateTemplate(d) {
         var hotelHtml  = accomParts[0] || accomBlob;
         var flightHtml = accomParts[1] || (menu.travel ? travelBlob : '');
 
-        accomInner.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_accomInner = accomInner.innerHTML;
+        var _orig_accomInner = accomInner;
+        accomInner = document.createElement('div');
+
         accomInner.style.gridTemplateColumns = '1fr 1fr';
 
         if (hotelHtml) {
@@ -1423,7 +1438,10 @@ function hydrateTemplate(d) {
             first.style.margin = '0 auto';
           }
         }
-      }
+      
+        if (_orig_accomInner) _orig_accomInner.innerHTML = (accomInner.children.length || (accomInner.innerHTML || '').trim())
+          ? accomInner.innerHTML : _ph_accomInner;
+}
     }
   }
 
@@ -1432,9 +1450,14 @@ function hydrateTemplate(d) {
   const showNTK    = menu.things_to_do || menu.faqs;
   if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
   if (showNTK) {
-    const faqList = document.getElementById('faqList');
+    let faqList = document.getElementById('faqList');
     if (d.faqs && menu.faqs) {
-      faqList.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_faqList = faqList.innerHTML;
+      var _orig_faqList = faqList;
+      faqList = document.createElement('div');
+
       var rawHtml = d.faqs;
       var blocks = rawHtml.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '|||SPLIT|||').split('|||SPLIT|||');
       var faqPairs = blocks.map(function(block) {
@@ -1460,7 +1483,10 @@ function hydrateTemplate(d) {
         item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">' + pair.q + '</span><span class="faq-icon"></span></button><div class="faq-answer">' + pair.a + '</div>';
         faqList.appendChild(item);
       });
-    }
+    
+      if (_orig_faqList) _orig_faqList.innerHTML = (faqList.children.length || (faqList.innerHTML || '').trim())
+        ? faqList.innerHTML : _ph_faqList;
+}
 
     if (d.things_to_do && menu.things_to_do) {
       const item = document.createElement('div');
@@ -1489,9 +1515,14 @@ function hydrateTemplate(d) {
     gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
       _galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
-      const grid = document.getElementById('galleryGrid');
+      let grid = document.getElementById('galleryGrid');
       if (grid) {
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         _galleryUrls.forEach(function(url, i) {
           const div = document.createElement('div');
           div.className = 'gallery-item';
@@ -1500,7 +1531,10 @@ function hydrateTemplate(d) {
           div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1549,7 +1583,8 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'               },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'                       },
   ];
-  menuEl.innerHTML = '';
+  menuEl.innerHTML = ''; // nav: rebuilt every time
+
   links.filter(l => l.show).forEach(l => {
     const li = document.createElement('li');
     li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;

@@ -1413,9 +1413,13 @@ function hydrateTemplate(d) {
   const showItinerary = menu.wedding || menu.other_events;
   if (itinerarySection) itinerarySection.style.display = showItinerary ? '' : 'none';
   if (showItinerary) {
-    const grid = document.getElementById('itineraryGrid');
+    let grid = document.getElementById('itineraryGrid');
     if (grid) {
-      grid.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_grid = grid.innerHTML;
+      var _orig_grid = grid;
+      grid = document.createElement('div');
 
       var blobs = [];
       if (d.events_info && menu.other_events) blobs.push(d.events_info);
@@ -1456,7 +1460,10 @@ function hydrateTemplate(d) {
           });
         });
       }
-    }
+    
+      if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+        ? grid.innerHTML : _ph_grid;
+}
   }
 
   // ── Accommodations ────────────────────────────────────────────────────
@@ -1471,9 +1478,14 @@ function hydrateTemplate(d) {
   const showNTK    = menu.things_to_do || menu.faqs;
   if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
   if (showNTK) {
-    const faqList = document.getElementById('faqList');
+    let faqList = document.getElementById('faqList');
     if (d.faqs && menu.faqs) {
-      faqList.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_faqList = faqList.innerHTML;
+      var _orig_faqList = faqList;
+      faqList = document.createElement('div');
+
       var rawHtml = d.faqs;
       var blocks = rawHtml.replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '|||SPLIT|||').split('|||SPLIT|||');
       var faqPairs = blocks.map(function(block) {
@@ -1500,7 +1512,10 @@ function hydrateTemplate(d) {
                          (pair.a ? '<div class="faq-answer">' + pair.a + '</div>' : '');
         faqList.appendChild(item);
       });
-    }
+    
+      if (_orig_faqList) _orig_faqList.innerHTML = (faqList.children.length || (faqList.innerHTML || '').trim())
+        ? faqList.innerHTML : _ph_faqList;
+}
 
     if (d.things_to_do && menu.things_to_do) {
       const item = document.createElement('div');
@@ -1528,9 +1543,14 @@ function hydrateTemplate(d) {
     gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
       _galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
-      const grid = document.getElementById('galleryGrid');
+      let grid = document.getElementById('galleryGrid');
       if (grid) {
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         _galleryUrls.forEach(function(url, i) {
           const div = document.createElement('div');
           div.className = 'gallery-item';
@@ -1539,7 +1559,10 @@ function hydrateTemplate(d) {
           div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1605,7 +1628,8 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'      },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'              },
   ];
-  menuEl.innerHTML = '';
+  menuEl.innerHTML = ''; // nav: rebuilt every time
+
   links.filter(l => l.show).forEach(l => {
     const li = document.createElement('li');
     li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;

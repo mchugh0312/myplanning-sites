@@ -1155,7 +1155,7 @@ function hydrateTemplate(d){
   const weddingSection = document.getElementById('events-primary');
   if (weddingSection) weddingSection.style.display = menu.wedding ? '' : 'none';
   if (menu.wedding){
-    const grid = document.getElementById('eventsGrid');
+    let grid = document.getElementById('eventsGrid');
     if (grid){
       // Try to parse weddings_info into Ceremony + Reception
       if (d.weddings_info){
@@ -1166,7 +1166,12 @@ function hydrateTemplate(d){
           .map(function(p){ return p.trim(); })
           .filter(function(p){ return p.length > 3; });
         if (wParts.length >= 1){
-          grid.innerHTML = '';
+          // Placeholder retention: render into a detached node and only
+          // replace the template's own content if something is produced.
+          var _ph_grid = grid.innerHTML;
+          var _orig_grid = grid;
+          grid = document.createElement('div');
+
           var icons = [
             'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
             'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/0e88714c-8ed6-4d94-be6b-afaa377772c6.svg'
@@ -1188,9 +1193,17 @@ function hydrateTemplate(d){
               '</div>';
             grid.insertAdjacentHTML('beforeend', html);
           });
-        }
+        
+          if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+            ? grid.innerHTML : _ph_grid;
+}
       } else if (d.events && d.events.length){
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         var icons = [
           'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
           'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/0e88714c-8ed6-4d94-be6b-afaa377772c6.svg'
@@ -1210,7 +1223,10 @@ function hydrateTemplate(d){
             '</div>';
           grid.insertAdjacentHTML('beforeend', html);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1218,7 +1234,7 @@ function hydrateTemplate(d){
   const otherSection = document.getElementById('other-events');
   if (otherSection) otherSection.style.display = menu.other_events ? '' : 'none';
   if (menu.other_events){
-    const list = document.getElementById('otherEventsList');
+    let list = document.getElementById('otherEventsList');
     if (list){
       if (d.events_info){
         list.innerHTML =
@@ -1228,7 +1244,12 @@ function hydrateTemplate(d){
             '</div>' +
           '</div>';
       } else if (d.events && d.events.length > 2){
-        list.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_list = list.innerHTML;
+        var _orig_list = list;
+        list = document.createElement('div');
+
         d.events.slice(2).forEach(function(ev){
           var card = document.createElement('div');
           card.className = 'other-event-card';
@@ -1240,7 +1261,10 @@ function hydrateTemplate(d){
             '</div>';
           list.appendChild(card);
         });
-      }
+      
+        if (_orig_list) _orig_list.innerHTML = (list.children.length || (list.innerHTML || '').trim())
+          ? list.innerHTML : _ph_list;
+}
     }
   }
 
@@ -1284,8 +1308,16 @@ function hydrateTemplate(d){
     var faqList = document.getElementById('faqList');
     // Clear default placeholder items if dynamic data is present
     if (d.faqs || d.things_to_do){
-      faqList.innerHTML = '';
-    }
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_faqList = faqList.innerHTML;
+      var _orig_faqList = faqList;
+      faqList = document.createElement('div');
+
+    
+      if (_orig_faqList) _orig_faqList.innerHTML = (faqList.children.length || (faqList.innerHTML || '').trim())
+        ? faqList.innerHTML : _ph_faqList;
+}
     if (d.faqs && menu.faqs){
       var blocks = d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'|||SPLIT|||').split('|||SPLIT|||');
       blocks.forEach(function(block){
@@ -1324,7 +1356,12 @@ function hydrateTemplate(d){
       window._galleryUrls = _galleryUrls;
       var grid = document.getElementById('galleryGrid');
       if (grid){
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         _galleryUrls.forEach(function(url, i){
           var div = document.createElement('div');
           div.className = 'gallery-item';
@@ -1332,7 +1369,10 @@ function hydrateTemplate(d){
           div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1398,7 +1438,8 @@ function _buildNav(menu, rsvpOn, d){
     { show: !!menu.registry,                            href:'#registry-section',  label:'Registry'    },
     { show: !!rsvpOn && !!menu.rsvp,                    href:'#rsvp',              label:'RSVP'        },
   ];
-  nav.innerHTML = '';
+  nav.innerHTML = ''; // nav: rebuilt every time
+
   links.filter(function(l){ return l.show; }).forEach(function(l, i){
     var a = document.createElement('a');
     a.href = l.href;

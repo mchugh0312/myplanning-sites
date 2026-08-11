@@ -943,9 +943,14 @@ function hydrateTemplate(d) {
   const weddingSection = document.getElementById('events-primary');
   if (weddingSection) weddingSection.style.display = menu.wedding ? '' : 'none';
   if (menu.wedding) {
-    const grid = document.getElementById('eventsGrid');
+    let grid = document.getElementById('eventsGrid');
     if (grid) {
-      grid.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_grid = grid.innerHTML;
+      var _orig_grid = grid;
+      grid = document.createElement('div');
+
       const candelabraSrc = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/cd72cd5d-9c8c-4074-8e11-a5b4a5f987d0.png';
       const buildCard = function(eventName, detail, dressCode) {
         return '<div class="wedding-card">' +
@@ -1005,7 +1010,10 @@ function hydrateTemplate(d) {
       } else {
         grid.innerHTML = leftHTML || rightHTML || '';
       }
-    }
+    
+      if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+        ? grid.innerHTML : _ph_grid;
+}
   }
 
   // ── Other Events ──────────────────────────────────────────────────────
@@ -1017,9 +1025,14 @@ function hydrateTemplate(d) {
   const otherSection = document.getElementById('other-events');
   if (otherSection) otherSection.style.display = menu.other_events ? '' : 'none';
   if (menu.other_events) {
-    const list = document.getElementById('otherEventsList');
+    let list = document.getElementById('otherEventsList');
     if (list) {
-      list.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_list = list.innerHTML;
+      var _orig_list = list;
+      list = document.createElement('div');
+
       const buildOtherCard = function(eventName, detail, dressCode, photoUrl) {
         return '<div class="other-event-item">' +
           (photoUrl  ? '<img class="other-event-photo" src="' + photoUrl + '" alt="">' : '') +
@@ -1084,7 +1097,10 @@ function hydrateTemplate(d) {
           list.insertAdjacentHTML('beforeend', buildOtherCard(ev.name, detail, ev.dress_code, ev.photo || ev.image));
         });
       }
-    }
+    
+      if (_orig_list) _orig_list.innerHTML = (list.children.length || (list.innerHTML || '').trim())
+        ? list.innerHTML : _ph_list;
+}
   }
 
   // ── Accommodations ────────────────────────────────────────────────────
@@ -1105,9 +1121,14 @@ function hydrateTemplate(d) {
   const showNTK    = menu.things_to_do || menu.faqs;
   if (ntkSection) ntkSection.style.display = showNTK ? '' : 'none';
   if (showNTK) {
-    const faqList = document.getElementById('faqList');
+    let faqList = document.getElementById('faqList');
     if (faqList) {
-      faqList.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_faqList = faqList.innerHTML;
+      var _orig_faqList = faqList;
+      faqList = document.createElement('div');
+
       const buildItem = function(q, a) {
         return '<div class="ntk-item">' +
           (q ? '<div class="ntk-question">' + q + '</div>' : '') +
@@ -1136,7 +1157,10 @@ function hydrateTemplate(d) {
       if (d.things_to_do && menu.things_to_do) {
         faqList.insertAdjacentHTML('beforeend', buildItem('Things to do nearby?', d.things_to_do));
       }
-    }
+    
+      if (_orig_faqList) _orig_faqList.innerHTML = (faqList.children.length || (faqList.innerHTML || '').trim())
+        ? faqList.innerHTML : _ph_faqList;
+}
   }
 
   // ── Travel ───────────────────────────────────────────────────────────
@@ -1150,9 +1174,14 @@ function hydrateTemplate(d) {
   const travelSection = document.getElementById('travel-section');
   if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
   if (menu.travel && d.travel_info) {
-    const travelContent = document.getElementById('travelContent');
+    let travelContent = document.getElementById('travelContent');
     if (travelContent) {
-      travelContent.innerHTML = '';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_travelContent = travelContent.innerHTML;
+      var _orig_travelContent = travelContent;
+      travelContent = document.createElement('div');
+
       // Normalize newlines so plain-text data with \n still parses.
       var tinfoNorm = d.travel_info
         .replace(/\r\n/g, '\n')
@@ -1181,7 +1210,9 @@ function hydrateTemplate(d) {
           var rest  = labelMatch ? part.replace(labelMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
           // Extract link (first <a href="…">…</a>)
           var linkMatch = rest.match(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/i);
-          var linkHref  = linkMatch ? linkMatch[1] : '';
+          var linkHref = linkMatch ? linkMatch[1] : '';
+          // Dedicated fields (Accomodation URL / Travel URL) take precedence.
+          if (d.accommodation_url || d.travel_url) linkHref = d.accommodation_url || d.travel_url;
           var linkText  = linkMatch ? linkMatch[2] : '';
           if (linkMatch) rest = rest.replace(linkMatch[0], '');
           // Extract italic note (last <em>…</em>)
@@ -1197,7 +1228,10 @@ function hydrateTemplate(d) {
         // inside a single full-width arch card.
         travelContent.innerHTML = '<div class="arch-card" style="' + archBgStyle + 'grid-column:1/-1">' + d.travel_info + '</div>';
       }
-    }
+    
+      if (_orig_travelContent) _orig_travelContent.innerHTML = (travelContent.children.length || (travelContent.innerHTML || '').trim())
+        ? travelContent.innerHTML : _ph_travelContent;
+}
   }
 
   // (Legacy "old registry strip" lookup removed — this template uses
@@ -1212,9 +1246,14 @@ function hydrateTemplate(d) {
     gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
       _galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
-      const grid = document.getElementById('galleryGrid');
+      let grid = document.getElementById('galleryGrid');
       if (grid) {
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         _galleryUrls.forEach(function(url, i) {
           const div = document.createElement('div');
           div.className = 'gallery-item';
@@ -1223,7 +1262,10 @@ function hydrateTemplate(d) {
           div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1266,7 +1308,8 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'   },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'           },
   ];
-  menuEl.innerHTML = '';
+  menuEl.innerHTML = ''; // nav: rebuilt every time
+
   links.filter(l => l.show).forEach(l => {
     const li = document.createElement('li');
     li.innerHTML = `<a href="${l.href}" onclick="handleMenuClick(this)">${l.label}</a>`;

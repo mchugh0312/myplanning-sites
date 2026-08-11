@@ -307,7 +307,9 @@ body.hydrating{visibility:hidden}
 .travel-btn{
   display:inline-block;
   margin-top:1.5rem;
-  padding:0.8rem 2rem;
+  /* Same pill as the registry CTA — one button treatment across the site. */
+  padding:0.85rem 3rem;
+  border-radius:999px;
   background:var(--navy);
   color:var(--white);
   font-family:var(--body);
@@ -1268,7 +1270,7 @@ function hydrateTemplate(d){
   const showSchedule = menu.wedding || menu.other_events;
   if (scheduleSection) scheduleSection.style.display = showSchedule ? '' : 'none';
   if (showSchedule){
-    const grid = document.getElementById('scheduleGrid');
+    let grid = document.getElementById('scheduleGrid');
     if (grid){
       // Build event list: prefer structured d.events, otherwise parse weddings_info + events_info
       var allEvents = [];
@@ -1298,7 +1300,12 @@ function hydrateTemplate(d){
         return (ev.name || '').trim() && ((ev.date || '').trim() || (ev.venue || '').trim());
       });
       if (hasRealEvents){
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         // Set count attribute so CSS can adjust columns; mobile rule overrides via media query
         grid.dataset.count = allEvents.length;
         if (allEvents.length === 1) grid.style.gridTemplateColumns = '1fr';
@@ -1316,7 +1323,10 @@ function hydrateTemplate(d){
             '</div>';
           grid.insertAdjacentHTML('beforeend', html);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1456,8 +1466,16 @@ function hydrateTemplate(d){
   if (showFaq){
     var faqList = document.getElementById('faqList');
     if (d.faqs || d.things_to_do){
-      faqList.innerHTML = '';
-    }
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_faqList = faqList.innerHTML;
+      var _orig_faqList = faqList;
+      faqList = document.createElement('div');
+
+    
+      if (_orig_faqList) _orig_faqList.innerHTML = (faqList.children.length || (faqList.innerHTML || '').trim())
+        ? faqList.innerHTML : _ph_faqList;
+}
     if (d.faqs && menu.faqs){
       var blocks = d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'|||SPLIT|||').split('|||SPLIT|||');
       blocks.forEach(function(block){
@@ -1494,7 +1512,12 @@ function hydrateTemplate(d){
       window._galleryUrls = d.gallery_images.map(function(i){ return i.url || i; });
       var grid = document.getElementById('galleryGrid');
       if (grid){
-        grid.innerHTML = '';
+        // Placeholder retention: render into a detached node and only
+        // replace the template's own content if something is produced.
+        var _ph_grid = grid.innerHTML;
+        var _orig_grid = grid;
+        grid = document.createElement('div');
+
         window._galleryUrls.forEach(function(url, i){
           var div = document.createElement('div');
           div.className = 'gallery-item';
@@ -1502,7 +1525,10 @@ function hydrateTemplate(d){
           div.addEventListener('click', function(){ openLightbox(i); });
           grid.appendChild(div);
         });
-      }
+      
+        if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+          ? grid.innerHTML : _ph_grid;
+}
     }
   }
 
@@ -1615,7 +1641,8 @@ function _buildNav(menu, rsvpOn, d){
     { show: !!menu.registry,                            href:'#registry-section', label:'Registry'       },
     { show: !!rsvpOn && !!menu.rsvp,                    href:'#rsvp',             label:'RSVP'           },
   ];
-  nav.innerHTML = '';
+  nav.innerHTML = ''; // nav: rebuilt every time
+
   links.filter(function(l){ return l.show; }).forEach(function(l, i){
     var li = document.createElement('li');
     var a  = document.createElement('a');

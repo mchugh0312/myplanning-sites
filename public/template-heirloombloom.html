@@ -902,7 +902,12 @@ function hydrateTemplate(d) {
   if(menu.wedding){
     var grid=document.getElementById('weddingGrid');
     if(grid&&d.weddings_info){
-      grid.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_grid = grid.innerHTML;
+      var _orig_grid = grid;
+      grid = document.createElement('div');
+
       var wParts=d.weddings_info
         .replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
@@ -932,7 +937,10 @@ function hydrateTemplate(d) {
         grid.style.gridTemplateColumns='1fr';
         grid.innerHTML=makeWCard(wParts[0]);
       }
-    }
+    
+      if (_orig_grid) _orig_grid.innerHTML = (grid.children.length || (grid.innerHTML || '').trim())
+        ? grid.innerHTML : _ph_grid;
+}
   }
 
   // ── Other Events ─────────────────────────────────────────────────────
@@ -941,7 +949,12 @@ function hydrateTemplate(d) {
   if(menu.other_events){
     var evList=document.getElementById('otherEventsList');
     if(evList&&d.events_info){
-      evList.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_evList = evList.innerHTML;
+      var _orig_evList = evList;
+      evList = document.createElement('div');
+
       var evParts=d.events_info
         .replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
@@ -960,7 +973,10 @@ function hydrateTemplate(d) {
           (dress ?'<div class="other-event-dress">'+dress+'</div>':'');
         evList.appendChild(item);
       });
-    }
+    
+      if (_orig_evList) _orig_evList.innerHTML = (evList.children.length || (evList.innerHTML || '').trim())
+        ? evList.innerHTML : _ph_evList;
+}
   }
 
   // ── Accommodations ────────────────────────────────────────────────────
@@ -995,7 +1011,12 @@ function hydrateTemplate(d) {
   if(showNTK&&d.faqs){
     var ntkList=document.getElementById('ntkList');
     if(ntkList){
-      ntkList.innerHTML='';
+      // Placeholder retention: render into a detached node and only
+      // replace the template's own content if something is produced.
+      var _ph_ntkList = ntkList.innerHTML;
+      var _orig_ntkList = ntkList;
+      ntkList = document.createElement('div');
+
       var blocks=d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
       var pairs=blocks.map(function(block){
@@ -1012,7 +1033,10 @@ function hydrateTemplate(d) {
           (pair.a?'<div class="ntk-answer">'+pair.a+'</div>':'');
         ntkList.appendChild(item);
       });
-    }
+    
+      if (_orig_ntkList) _orig_ntkList.innerHTML = (ntkList.children.length || (ntkList.innerHTML || '').trim())
+        ? ntkList.innerHTML : _ph_ntkList;
+}
   }
 
   // ── Gallery ───────────────────────────────────────────────────────────

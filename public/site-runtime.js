@@ -1088,6 +1088,21 @@
       nodes.push(fallback);
     }
 
+    // Any remaining href="#" anchors in content areas are placeholder CTAs the
+    // template ships (a Book Now with no URL configured, a demo registry item).
+    // Left alone they jump the guest to the top of the page, which reads as a
+    // broken link. Make them inert instead — the layout keeps its button.
+    try {
+      Array.prototype.slice.call(document.querySelectorAll('a[href="#"]'))
+        .forEach(function (a) {
+          if (nodes.indexOf(a) !== -1) return;                 // handled below
+          if (a.closest && a.closest('nav, .mp-mnav-panel')) return;  // real anchors
+          a.removeAttribute('target');
+          a.style.cursor = 'default';
+          a.addEventListener('click', function (e) { e.preventDefault(); });
+        });
+    } catch (e) {}
+
     nodes.forEach(function (a) {
       if (!url) {
         // Editor preview — there's no slug to build a real link from, so make
