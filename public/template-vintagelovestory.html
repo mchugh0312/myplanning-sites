@@ -881,7 +881,8 @@ footer{
 body.thumbnail-mode .top-nav{padding:0.6rem 1rem;}
 body.thumbnail-mode .top-nav a{font-size:0.6rem;letter-spacing:0.1em;}
 body.thumbnail-mode .hero{padding:1.5rem 1rem;}
-body.thumbnail-mode .hero-couple-name{font-size:clamp(1.6rem,12vw,3rem);}
+/* Name size is not capped in thumbnail mode: the card renders at 1100px, so
+   a 3rem cap showed type far smaller than the live site's. */
 </style>
 </head>
 <body class="hydrating">

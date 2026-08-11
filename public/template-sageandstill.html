@@ -406,8 +406,11 @@ body.hydrating{visibility:hidden}
   border-top:1px solid rgba(105,108,98,0.22);
 }
 .faq-item{
-  border-bottom:1px solid rgba(105,108,98,0.22);
-  overflow:hidden;
+  /* No boxes in the design — questions are separated by nothing but space. */
+  border:none;
+  background:transparent;
+  padding:0;
+  margin-bottom:1.6rem;
 }
 .faq-question{
   width:100%;background:none;border:none;
@@ -470,9 +473,9 @@ body.hydrating{visibility:hidden}
 }
 .accom-card{
   background:var(--offwhite);
-  /* Taller panels, as in the design. */
-  padding:3rem 1.5rem 2.6rem;
-  min-height:clamp(300px, 26vw, 380px);
+  /* Design has larger labels and tighter boxes than my first attempt. */
+  padding:2rem 1.4rem 1.8rem;
+  min-height:clamp(250px, 21vw, 300px);
   justify-content:center;
   text-align:center;
   display:flex;
@@ -481,10 +484,11 @@ body.hydrating{visibility:hidden}
 }
 .accom-card-title{
   font-family:var(--display);
-  font-size:1rem;
-  letter-spacing:0.28em;
-  color:var(--text);
+  /* Bigger than before — the design's labels are the largest type in the card. */
+  font-size:clamp(1.15rem, 2.2vw, 1.5rem);
+  letter-spacing:0.16em;
   text-transform:uppercase;
+  color:var(--dark-green);
   font-weight:400;
   margin-bottom:0.6rem;
 }
@@ -848,8 +852,8 @@ footer{
   .our-story{padding:3.5rem 1.2rem;}
   .accommodations{padding:3rem 1.2rem 4rem;}
   .accom-inner{grid-template-columns:1fr 1fr;gap:0.8rem;}
-  .accom-card{padding:1.5rem 0.9rem;}
-  .accom-card-title{font-size:0.88rem;letter-spacing:0.22em;}
+  .accom-card{padding:1.6rem 0.9rem;min-height:230px;}
+  .accom-card-title{font-size:1.05rem;letter-spacing:0.16em;}
   .accom-card-name{font-size:0.95rem;}
   .accom-card-cta{padding:0.6rem 1.6rem;font-size:0.66rem;}
   .need-to-know{padding:3.5rem 1.2rem 3rem;}
@@ -869,13 +873,12 @@ footer{
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
+/* No thumbnail-specific hero overrides. The hero is now sized entirely in
+   proportion to its own box (aspect-ratio + percentages), so it renders
+   identically in the template card, the preview and the live site. The old
+   overrides capped the names at 2.6rem, which is why the card showed tiny type
+   next to a full-size photo while the preview looked completely different. */
 body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
-body.thumbnail-mode .hero-inner{min-height:clamp(140px, 60vw, 260px);}
-body.thumbnail-mode .hero-couple-name{font-size:clamp(1.4rem,16vw,2.6rem);}
-body.thumbnail-mode .hero-photo-wrap{
-  width:clamp(110px, 44%, 180px);
-  height:clamp(140px, 60vw, 240px);
-}
 </style>
 </head>
 <body class="hydrating">
@@ -1190,7 +1193,11 @@ function renderAccomCard(title, html, fieldUrl) {
     '<div class="accom-card-name">' + nameHtml + '</div>' +
     (place && name ? '<div class="accom-card-place">' + place + '</div>' : '') +
     (meta ? '<div class="accom-card-meta"><em>' + meta + '</em></div>' : '') +
-    (bookUrl ? '<a class="accom-card-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '');
+    (bookUrl
+      ? '<a class="accom-card-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
+      // The design always carries this button. Without a URL it stays for the
+      // layout but does nothing (the runtime makes href="#" inert).
+      : '<a class="accom-card-cta" href="#">Book Now</a>');
   return card;
 }
 
@@ -1372,13 +1379,17 @@ function hydrateTemplate(d) {
             var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
             var timeLine = '';
             var detailLines = [];
+            var TIME_RE = /(\d{1,2}(?::\d{2})?\s*(?:[–—-]\s*\d{1,2}(?::\d{2})?)?\s*(?:AM|PM|am|pm)|\d{1,2}:\d{2}|\bo['’]clock\b|\bnoon\b|\bmidnight\b)/;
             lines.forEach(function(line) {
-              // Time line = contains a time pattern OR contains "o'clock" / "noon" / "midnight"
-              if (!timeLine && /\d{1,2}:\d{2}|\bo['’]clock\b|\bAM\b|\bPM\b|\bam\b|\bpm\b|\bnoon\b|\bmidnight\b/i.test(line)) {
-                timeLine = line.replace(/<[^>]+>/g, '').trim();
-              } else {
-                detailLines.push(line);
-              }
+              var plain = line.replace(/<[^>]+>/g, '').trim();
+              var m = plain.match(TIME_RE);
+              if (!m) { detailLines.push(line); return; }
+              // A line that is ONLY a time becomes the time. A line carrying a
+              // date AND a time is split, so the date keeps its own line and
+              // the time drops to the end of the block, as in the design.
+              var withoutTime = plain.replace(TIME_RE, '').replace(/[,;·|]\s*$/, '').trim();
+              if (!timeLine) timeLine = m[0].trim();
+              if (withoutTime) detailLines.push(withoutTime);
             });
 
             var detailHtml = '';
@@ -1627,17 +1638,17 @@ const SAMPLE_DATA = {
   // Sage & Still renders events_info (welcome events) first, then weddings_info.
   // For chronological Welcome → Wedding → Farewell ordering, weddings_info itself
   // contains Wedding + Farewell so they appear after the welcome event.
-  weddings_info:'<strong>The Wedding</strong><br>Saturday, April 3rd, 2027<br>4:00 PM<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>Farewell Brunch</strong><br>Sunday, April 4th, 2027<br>10:00 AM<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037',
-  events_info:'<strong>The Welcome Cocktails</strong><br>Friday, April 2nd, 2027<br>7:00 PM<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037',
+  weddings_info:'<strong>The Wedding</strong><br>Saturday, April 3rd, 2027<br>5–10pm<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>Farewell Brunch</strong><br>Sunday, April 4th, 2027<br>10–11am<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037',
+  events_info:'<strong>The Welcome Cocktails</strong><br>Friday, April 2nd, 2027<br>7–9pm<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd<br>La Jolla, CA 92037',
   accommodation_info:'<strong>Hyatt Regency La Jolla At Aventine</strong><br>3777 La Jolla Village Drive<br>La Jolla, CA 92037<br><em>Request the Maya &amp; Jason room block</em><br><br><br><strong>San Diego National Airport</strong><br><em>Approximately 20 minutes from the venue</em>',
   travel_info:'',
   things_to_do:'',
   faqs:'<strong>What should I wear to the wedding?</strong><br>The dress code is cocktail attire. Think elegant dresses, jumpsuits, suits and blazers. Denim and golf attire are not permitted.<br><br><strong>Will there be transportation?</strong><br>Shuttle services will be arranged from the ceremony to the evening reception.<br><br><strong>Will the ceremony be indoors or outdoors?</strong><br>The ceremony will be held outdoors, weather permitting.',
   registry_info:'',
   events:[
-    { id:'1', name:'The Welcome Cocktails', date:'2027-04-02', time:'7:00 PM', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037' },
-    { id:'2', name:'The Wedding',           date:'2027-04-03', time:'4:00 PM', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },
-    { id:'3', name:'Farewell Brunch',       date:'2027-04-04', time:'10:00 AM', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037' }
+    { id:'1', name:'The Welcome Cocktails', date:'2027-04-02', time:'7–9pm', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037' },
+    { id:'2', name:'The Wedding',           date:'2027-04-03', time:'5–10pm', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037', dress_code:'Cocktail Attire' },
+    { id:'3', name:'Farewell Brunch',       date:'2027-04-04', time:'10–11am', venue:'Estancia La Jolla Hotel & Spa', address:'9700 N Torrey Pines Rd, La Jolla, CA 92037' }
   ],
   gallery_images:[], rsvp_enabled:true, password_protected:false,
   website_mode:'Full', custom_font:'',

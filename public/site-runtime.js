@@ -1542,33 +1542,32 @@
 
     // 5. RSVP deadline — one canonical accessor. Templates used to read three
     //    different keys, two of which the backend never sent.
+    // ── RSVP deadline ────────────────────────────────────────────────────
+    // One rule, and no invented dates. The line shows the couple's configured
+    // RSVP deadline and nothing else.
+    //
+    // It used to fall back to the celebration date, which produced two separate
+    // wrong answers: "RSVP by [the wedding day]", which is not a deadline, and
+    // on records whose celebration date disagrees with the event dates, a date
+    // contradicting the schedule printed directly above it.
+    //
+    // With no deadline set: keep the template's own placeholder line while the
+    // page is showing sample content, and hide the line entirely once real
+    // content is on screen — better silent than wrong.
     var deadlineEl = document.getElementById('rsvpDeadline');
     if (deadlineEl) {
       var deadline = (d.rsvp_config && d.rsvp_config.deadline) || d.rsvp_deadline || '';
-      // Templates keep their placeholder events when the couple hasn't entered a
-      // schedule. Writing the real celebration date into the RSVP line while
-      // those placeholders are still showing produced nonsense — sample events
-      // in July with an RSVP deadline in October. Same condition the templates
-      // use for placeholder retention: only speak for the couple once they've
-      // given us a schedule, or an explicit deadline.
-      // Templates set MP_SHOWING_PLACEHOLDERS when any section fell back to its
-      // sample content. Checking the raw fields wasn't enough: a couple can have
-      // weddings_info filled in that parses to nothing, so the schedule still
-      // shows sample events while the field looks populated.
-      var hasRealSchedule = !window.MP_SHOWING_PLACEHOLDERS &&
-        !!(d.weddings_info || d.events_info || (d.events && d.events.length));
-      var text = '';
-      if (deadline) text = fmtDate(deadline);
-      else if (hasRealSchedule && d.celebration_date) text = fmtDate(d.celebration_date);
-      if (text) {
-        // Keep each template's own phrasing — "Please send your response by …",
-        // "Kindly send us your response by …", "By …" — and swap only the date.
-        // Writing "by {date}" flat used to throw the lead-in away.
+      if (deadline) {
+        // Keep each template's phrasing ("Please send your response by …",
+        // "Kindly …", "By …") and swap only the date.
         var raw = (deadlineEl.textContent || '').trim();
         var lead = raw.match(/^(.*\bby\s+)/i);
-        deadlineEl.textContent = (lead ? lead[1] : 'by ') + text;
+        deadlineEl.textContent = (lead ? lead[1] : 'by ') + fmtDate(deadline);
+        deadlineEl.style.display = '';
+      } else if (!window.MP_SHOWING_PLACEHOLDERS) {
+        deadlineEl.style.display = 'none';
       }
-      // else: leave the template's own placeholder line intact
+      // else: sample content is showing, so the template's placeholder stands
     }
 
     // 5. Mobile navigation. Built from the links the template just rendered,
