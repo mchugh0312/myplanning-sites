@@ -929,9 +929,11 @@ footer{
 /* ── MOBILE ────────────────────────────────────────────────── */
 @media(max-width:768px){
   .hero-wrap{padding:0.8rem 0.8rem 0;}
-  .hero{aspect-ratio:5/4;border-radius:14px;}
+  /* Proportions unchanged from desktop — only the frame gets a little wider on
+     a phone so the names have room. */
+  .hero{width:min(92%, 1000px);border-radius:clamp(22px,6vw,40px);}
   .hero-couple-name .name-1,
-  .hero-couple-name .name-2{font-size:clamp(2.6rem, 14vw, 4.5rem);}
+  .hero-couple-name .name-2{font-size:clamp(2rem, 11vw, 4.5rem);}
   .our-story{padding:2.5rem 1.4rem;}
   .itinerary{padding:3rem 1.2rem 3.5rem;}
   .itinerary-grid{
@@ -965,8 +967,11 @@ footer{
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
-body.thumbnail-mode .hero{aspect-ratio:5/4;}
-/* Name size is not capped in thumbnail mode — see Vintage Love Story. */
+/* The hero keeps its own proportions here — a 5/4 override made the frame tall
+   and square, so the names spilled past its sides in the template card. */
+/* The card renders at 1100x3500, where 100vh is the full 3500px: that filled
+   the card with empty pink below the hero. */
+body.thumbnail-mode .home-block{min-height:0;}
 </style>
 </head>
 <body class="hydrating">

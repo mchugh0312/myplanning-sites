@@ -104,7 +104,7 @@ body{
   -webkit-font-smoothing:antialiased;
   font-size:16px;line-height:1.65;
 }
-body.hydrating{visibility:hidden}
+body.hydrating{visibility:hidden;}
 
 /* ── HERO + OVERLAY NAV ───────────────────────────────────── */
 .hero{
@@ -930,7 +930,8 @@ footer{
 }
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────── */
-body.thumbnail-mode .hero{aspect-ratio:5/4;}
+/* Hero keeps its 16/10 proportions in the card, so the template card shows
+   the same composition as the live site. */
 body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
 </style>
 </head>
