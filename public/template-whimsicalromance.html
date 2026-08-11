@@ -152,14 +152,14 @@ body.hydrating{visibility:hidden}
 .menu-close > *{display:none;} /* hide × text since we use lines */
 .menu-title{
   font-family:var(--display);
-  font-size:1.6rem;
+  font-size:clamp(1.9rem,3.2vw,2.5rem);
   color:var(--burgundy);margin-bottom:1.2rem;
   font-weight:700;
 }
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
   font-family:var(--body);
-  font-size:0.92rem;
+  font-size:clamp(0.95rem,1.4vw,1.1rem);
   color:var(--burgundy);
   text-decoration:none;
   display:block;
@@ -223,7 +223,9 @@ body.hydrating{visibility:hidden}
   padding:1rem;
 }
 .hero-couple-name{
-  font-family:var(--script);
+  /* Corben in the design — the script face is used only for the joining word
+     and for section titles. */
+  font-family:var(--display);
   color:var(--yellow);
   line-height:1;
   font-weight:400;
@@ -232,7 +234,8 @@ body.hydrating{visibility:hidden}
 .hero-couple-name .name-1,
 .hero-couple-name .name-2{
   display:block;
-  font-size:clamp(3.6rem, 13vw, 8rem);
+  /* Corben is far wider than the script face at the same size. */
+  font-size:clamp(2.2rem, 7.5vw, 4.6rem);
   letter-spacing:0.005em;
 }
 .hero-couple-name .name-1{ text-align:center; }
@@ -242,7 +245,7 @@ body.hydrating{visibility:hidden}
 }
 .hero-couple-name .ampersand{
   font-family:var(--script);
-  font-size:clamp(1.4rem, 5vw, 3rem);
+  font-size:clamp(1.6rem, 5vw, 3.2rem);
   display:inline-block;
   margin:-0.2em 0.3em 0;
   font-style:italic;
@@ -279,8 +282,25 @@ body.hydrating{visibility:hidden}
 }
 .itinerary-title-wrap{
   position:relative;
-  display:inline-block;
-  margin-bottom:3rem;
+  display:block;
+  width:min(100%,760px);
+  margin:0 auto 3rem;
+}
+.itinerary-title-svg{
+  display:block;width:100%;height:auto;overflow:visible;
+}
+.itinerary-title-text{
+  font-family:var(--script);
+  font-size:76px;
+  fill:var(--yellow);
+  letter-spacing:0.01em;
+}
+.visually-hidden{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+@media(max-width:640px){
+  .itinerary-title-text{font-size:92px;}
 }
 .itinerary-title{
   font-family:var(--script);
@@ -293,13 +313,13 @@ body.hydrating{visibility:hidden}
   z-index:1;
 }
 .itinerary-flowers{
-  position:absolute;
-  right:-30px;
-  top:60%;
-  transform:translateY(-30%);
-  width:clamp(60px, 14vw, 100px);
+  /* Centred under the arc, as in the design — it used to sit over the last
+     word of the title. */
+  position:relative;
+  display:block;
+  margin:-0.6rem auto 0;
+  width:clamp(70px, 12vw, 110px);
   pointer-events:none;
-  z-index:0;
 }
 .itinerary-grid{
   display:grid;
@@ -405,7 +425,7 @@ body.hydrating{visibility:hidden}
 }
 .accom-title{
   font-family:var(--display);
-  font-size:clamp(1.6rem, 3.4vw, 2.1rem);
+  font-size:clamp(1.5rem, 3vw, 1.9rem);
   color:var(--burgundy);
   font-weight:700;
   margin-bottom:1.4rem;
@@ -428,9 +448,10 @@ body.hydrating{visibility:hidden}
 }
 .accom-meta{
   font-family:var(--body);
-  font-size:0.82rem;
+  font-size:0.86rem;
   color:var(--burgundy);
-  font-weight:600;
+  font-weight:700;
+  font-style:italic;
   margin-bottom:1.4rem;
   line-height:1.5;
 }
@@ -475,7 +496,7 @@ body.hydrating{visibility:hidden}
 }
 .faq-q-text{
   font-family:var(--display);
-  font-size:0.98rem;
+  font-size:clamp(1.02rem,1.7vw,1.2rem);
   color:var(--burgundy);
   font-weight:700;
   line-height:1.4;
@@ -485,7 +506,7 @@ body.hydrating{visibility:hidden}
 .faq-icon{display:none;} /* always-open layout — no chevron */
 .faq-answer{
   font-family:var(--body);
-  font-size:0.86rem;
+  font-size:0.9rem;
   color:var(--burgundy);
   font-style:italic;
   line-height:1.7;
@@ -501,9 +522,12 @@ body.hydrating{visibility:hidden}
 .registry-section{
   position:relative;
   background:var(--burgundy);
-  padding:3rem 2rem;
+  /* Inset rounded panel, as in the design — it was a near-full-bleed strip. */
+  margin:0 auto;
+  width:min(100% - 3rem, 1080px);
+  padding:3.4rem 2rem 3.6rem;
   text-align:center;
-  border-radius:6px;
+  border-radius:26px;
   overflow:hidden;
   display:block;
   text-decoration:none;
@@ -511,10 +535,11 @@ body.hydrating{visibility:hidden}
 }
 .registry-flowers{
   position:absolute;
-  right:0;
-  top:50%;
-  transform:translateY(-50%);
-  width:clamp(80px, 22vw, 160px);
+  right:1.5rem;
+  bottom:0;
+  top:auto;
+  transform:none;
+  width:clamp(90px, 18vw, 170px);
   pointer-events:none;
   z-index:1;
 }
@@ -593,7 +618,7 @@ body.hydrating{visibility:hidden}
 .rsvp-name-row{padding:0;}
 .rsvp-name-input{
   width:100%;padding:0.85rem 1.4rem;
-  border:1px solid rgba(83,20,30,0.18);
+  border:none;
   background:var(--ivory);
   border-radius:999px;
   font-family:var(--body);font-size:0.85rem;
@@ -650,6 +675,7 @@ body.hydrating{visibility:hidden}
 .rsvp-household-controls .rsvp-select{
   font-size:0.74rem;
   padding:0.55rem 0.85rem;
+  border:none;
 }
 @media (max-width:560px){
   .rsvp-household-controls,
@@ -667,7 +693,7 @@ body.hydrating{visibility:hidden}
 .rsvp-field-row.full{grid-template-columns:1fr}
 .rsvp-select,.rsvp-text-input{
   width:100%;padding:0.7rem 1.2rem;
-  border:1px solid rgba(83,20,30,0.18);
+  border:none;
   background:var(--ivory);
   font-family:var(--body);font-size:0.82rem;
   color:var(--burgundy);outline:none;border-radius:999px;
@@ -680,10 +706,10 @@ body.hydrating{visibility:hidden}
   padding-right:2.4rem;
 }
 .rsvp-text-input{background-image:none;padding-right:1.2rem;}
-.rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--burgundy);}
+.rsvp-select:focus,.rsvp-text-input:focus{box-shadow:0 0 0 2px rgba(83,20,30,0.25);}
 .rsvp-textarea{
   width:100%;padding:0.7rem 1.2rem;resize:vertical;min-height:54px;
-  border:1px solid rgba(83,20,30,0.18);
+  border:none;
   background:var(--ivory);font-family:var(--body);
   font-size:0.82rem;color:var(--burgundy);outline:none;border-radius:14px;
 }
@@ -935,7 +961,13 @@ body.thumbnail-mode .hero{aspect-ratio:5/4;}
 <!-- WEEKEND ITINERARY: burgundy bg, 3-col -->
 <div class="itinerary" id="itinerary">
   <div class="itinerary-title-wrap">
-    <h2 class="itinerary-title">Weekend Itinerary</h2>
+    <!-- Arched title, as in the design. SVG textPath curves the words; the
+         flower sits at the centre of the arc rather than over the letters. -->
+    <svg class="itinerary-title-svg" viewBox="0 0 800 190" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs><path id="wrArch" d="M 40,175 A 380,235 0 0 1 760,175" fill="none"></path></defs>
+      <text class="itinerary-title-text"><textPath href="#wrArch" startOffset="50%" text-anchor="middle">Weekend Itinerary</textPath></text>
+    </svg>
+    <h2 class="itinerary-title visually-hidden" id="itineraryTitle">Weekend Itinerary</h2>
     <img class="itinerary-flowers"
       src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/19e63d31-b432-4384-a3ca-3efb70e98b59.png" alt="">
   </div>
@@ -1242,12 +1274,22 @@ function renderAccomContent(html) {
   var urlMatch = html.match(/href=["']([^"']+)["']/i);
   var bookUrl = _mpBookUrl(html, (window.MP_DATA && window.MP_DATA.accommodation_url) || '');
 
+  // The design always carries the room-block line and the button. Fall back to
+  // the template's own copy when the couple hasn't written one, the same way
+  // other placeholder text works, and keep the button inert without a URL
+  // rather than dropping it out of the layout.
+  if (!meta) {
+    var _names = (window.MP_DATA && window.MP_DATA.couple_names) || '';
+    meta = _names ? 'Request the ' + _names + ' room block' : 'Request the room block';
+  }
   content.innerHTML =
     '<h2 class="accom-title">Hotel Details</h2>' +
     (name ? '<div class="accom-name">' + name + '</div>' : '') +
     (address ? '<div class="accom-address">' + address + '</div>' : '') +
-    (meta ? '<div class="accom-meta">' + meta + '</div>' : '') +
-    (bookUrl ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>' : '');
+    '<div class="accom-meta">' + meta + '</div>' +
+    (bookUrl
+      ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
+      : '<a class="accom-cta" href="#">Book Now</a>');
 }
 
 // ── Hydration ─────────────────────────────────────────────────
