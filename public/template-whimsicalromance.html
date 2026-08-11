@@ -124,11 +124,11 @@ body.hydrating{visibility:hidden;}
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
 .menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
 .menu-drawer{
-  width:300px;background:var(--ivory);
+  width:min(42%,440px);background:var(--ivory);
   transform:translateX(100%);
   transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
   display:flex;flex-direction:column;justify-content:flex-start;
-  padding:3rem 2.2rem 2.2rem;box-shadow:-8px 0 40px rgba(0,0,0,0.18);
+  padding:3.6rem 3rem 2.4rem;box-shadow:-8px 0 40px rgba(0,0,0,0.18);
   pointer-events:auto;position:relative;
   margin-left:auto;
 }
@@ -193,19 +193,20 @@ body.hydrating{visibility:hidden;}
 /* ── HERO — pink frame, rounded image with name overlay ───── */
 .hero-wrap{
   background:var(--rose);
-  /* Wide rosy border around the framed photo, as in the design. */
-  /* Double the previous border width. */
-  padding:clamp(3.2rem,7vw,5.6rem) clamp(3.2rem,7vw,5.6rem) 0;
+  /* The rosy border is drawn on the frame itself (see .hero), so this only has
+     to hold the band around it. */
+  padding:clamp(1.4rem,3vw,2.4rem) 1rem 0;
 }
 .hero{
   position:relative;
-  /* 25% smaller in both dimensions. Width drives height through the aspect
-     ratio, and the floor is scaled by the same 25% so the reduction holds
-     wherever the floor is what's governing. */
-  width:75%;
+  /* 25% smaller in both dimensions, with the rosy border as part of the frame
+     so its thickness is identical on all four sides. */
+  width:min(75%, 1000px);
   margin:0 auto;
+  box-sizing:border-box;
+  border:clamp(1.4rem,3vw,2.4rem) solid var(--rose);
   aspect-ratio:32/9;
-  min-height:clamp(150px, 30vw, 352px);
+  min-height:clamp(150px, 33vw, 352px);
   /* Deep rounding, per the design. */
   border-radius:clamp(28px,4vw,60px);
   overflow:hidden;
@@ -214,12 +215,14 @@ body.hydrating{visibility:hidden;}
 /* Thin outline sitting just outside the photo, inside the rosy border. */
 .hero-wrap{position:relative;}
 .hero-wrap::before{
+  /* Thin outline sitting just outside the frame, concentric with it. */
   content:'';
   position:absolute;
-  left:clamp(1.5rem,3.4vw,2.7rem);
-  right:clamp(1.5rem,3.4vw,2.7rem);
-  top:clamp(1.5rem,3.4vw,2.7rem);
-  bottom:calc(-1 * clamp(1.5rem,3.4vw,2.7rem));
+  left:50%;
+  transform:translateX(-50%);
+  width:calc(min(75%, 1000px) + clamp(1rem,2vw,1.8rem));
+  top:calc(clamp(1.4rem,3vw,2.4rem) - clamp(0.5rem,1vw,0.9rem));
+  bottom:calc(-1 * clamp(0.5rem,1vw,0.9rem));
   border:1px solid rgba(83,20,30,0.28);
   border-radius:clamp(36px,5vw,74px);
   pointer-events:none;
@@ -229,8 +232,7 @@ body.hydrating{visibility:hidden;}
 }
 .hero-image img{
   width:100%;height:100%;
-  /* Contained, so the whole photograph shows inside the frame. */
-  object-fit:contain;display:block;
+  object-fit:cover;display:block;
 }
 .hero-gradient{
   position:absolute;inset:0;
@@ -259,7 +261,7 @@ body.hydrating{visibility:hidden;}
   /* Doubled at every width: the vw term and the ceiling are both twice what
      they were. Weight unchanged; leading tightened so two lines still sit
      inside the shortened frame. */
-  font-size:clamp(4.16rem, 17.6vw, 11.2rem);
+  font-size:clamp(3.33rem, 14.08vw, 8.96rem);
   line-height:0.8;
   letter-spacing:0.005em;
 }
@@ -282,11 +284,32 @@ body.hydrating{visibility:hidden;}
 }
 
 /* ── OUR STORY (rosy pink, burgundy text) ─────────────────── */
+/* Hero and story share one full-height block; the story takes the remainder. */
+.home-block{
+  background:var(--rose);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.home-block > .hero-wrap{flex:0 0 auto;}
 .our-story{
   background:var(--rose);
   padding:3.5rem 2rem;
   text-align:center;
+  flex:1 1 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+@media(max-width:640px){
+  /* On a phone a full screen of mostly empty pink isn't worth it. */
+  .home-block{min-height:0;}
+  .our-story{display:block;}
+}
+/* With the story switched off — including save-the-date mode — the block sizes
+   to the hero rather than holding a screen of empty pink beneath it. */
+.home-block:has(> .our-story[style*="display:none"]),
+.home-block:has(> .our-story[style*="display: none"]){min-height:0;}
 .story-inner{max-width:600px;margin:0 auto;}
 .story-text{
   font-family:var(--body);
@@ -456,7 +479,8 @@ body.hydrating{visibility:hidden;}
 }
 .accom-title{
   font-family:var(--display);
-  font-size:clamp(1.5rem, 3vw, 1.9rem);
+  /* Same size as the FAQs heading. */
+  font-size:clamp(1.8rem, 4vw, 2.4rem);
   color:var(--burgundy);
   font-weight:400;
   margin-bottom:1.4rem;
@@ -962,6 +986,8 @@ body.thumbnail-mode .hero{aspect-ratio:5/4;}
   </button>
 </nav>
 
+<!-- HERO + OUR STORY: together they fill one desktop screen -->
+<div class="home-block">
 <!-- HERO: pink frame, rounded image with name overlay -->
 <section class="hero-wrap">
   <div class="hero" id="hero">
@@ -988,6 +1014,7 @@ body.thumbnail-mode .hero{aspect-ratio:5/4;}
     </p>
   </div>
 </div>
+</div><!-- /home-block -->
 
 <!-- WEEKEND ITINERARY: burgundy bg, 3-col -->
 <div class="itinerary" id="itinerary">
