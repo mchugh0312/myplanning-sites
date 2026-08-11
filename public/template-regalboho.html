@@ -110,8 +110,8 @@ body.hydrating{visibility:hidden;}
 .hero{
   position:relative;
   width:100%;
-  aspect-ratio:16/8.6;
-  min-height:240px;
+  aspect-ratio:16/7.5;
+  min-height:215px;
   background:#3a3a36;
   overflow:hidden;
 }
@@ -215,17 +215,18 @@ body.hydrating{visibility:hidden;}
   position:relative;
   max-width:520px;
   margin:0 auto;
-  padding:0 0 0 80px;
+  padding:0;
   text-align:left;
 }
-.our-story-body::before{
+.our-story::before{
   content:'';
   position:absolute;
-  left:0;
-  /* Lower, so the bloom clears the story copy instead of overlapping it. */
-  bottom:-90px;
-  width:130px;
-  height:200px;
+  /* Out at the section's left edge and low, per the design — it used to hang
+     off the centred text column, which put it right beside the copy. */
+  left:clamp(0.5rem, 6vw, 5rem);
+  bottom:-40px;
+  width:clamp(110px, 13vw, 165px);
+  height:clamp(150px, 18vw, 230px);
   background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cdfe7e4-e470-4115-bb89-993f7b234798.png');
   background-size:contain;
   background-repeat:no-repeat;
@@ -247,9 +248,10 @@ body.hydrating{visibility:hidden;}
 /* ── EVENT DETAILS (warm beige with notched frame, 3 events) ── */
 .event-details{
   background:var(--ivory);
-  padding:3.5rem 1.5rem 6rem;
+  padding:3.5rem 1.5rem 7rem;
   position:relative;
   text-align:center;
+  overflow:visible;
   /* Subtle floral pattern in the background using the flower asset tinted */
 }
 .event-details-bg{
@@ -338,8 +340,10 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   top:50%;
+  /* Outline rhombus, not a solid one. */
   width:7px;height:7px;
-  background:var(--olive);
+  background:transparent;
+  border:1px solid var(--olive);
   transform:translateY(-50%) rotate(45deg);
 }
 .event-col-divider::before{left:-3px;}
@@ -365,10 +369,11 @@ body.hydrating{visibility:hidden;}
 /* Carnation/poppy flower at bottom-right of frame */
 .event-details-flower{
   position:absolute;
-  right:-10px;
-  /* Sits below the frame rather than across its bottom-right corner. */
-  bottom:-72px;
-  width:clamp(80px, 14vw, 130px);
+  /* Clear of the frame: down and to the right of its bottom corner, as in the
+     design. It was overlapping the corner and being cut by it. */
+  right:clamp(-10px, -1vw, 10px);
+  bottom:clamp(-110px, -9vw, -60px);
+  width:clamp(90px, 15vw, 145px);
   z-index:3;
   pointer-events:none;
 }
@@ -420,8 +425,10 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   top:50%;
+  /* Outline rhombus, not a solid one. */
   width:7px;height:7px;
-  background:var(--olive);
+  background:transparent;
+  border:1px solid var(--olive);
   transform:translateY(-50%) rotate(45deg);
 }
 .travel-col-divider::before{left:-3px;}
@@ -919,10 +926,10 @@ footer{
   .our-story{padding:0 1.4rem 3rem;}
   .our-story-names{font-size:clamp(2.2rem, 13vw, 4.5rem);margin-top:0;padding-top:1.2rem;}
   .our-story-body{padding:0 0 0 60px;}
-  .our-story-body::before{
-    width:100px;height:160px;
-    margin-left:-65px;
-    bottom:-15px;
+  .our-story::before{
+    width:100px;height:150px;
+    left:0.6rem;
+    bottom:-20px;
   }
 
   .event-details{padding:2.5rem 1rem 3.5rem;}
@@ -972,11 +979,11 @@ footer{
   .our-story{padding:0 1.1rem 4.5rem;}
   .our-story-names{font-size:clamp(2.1rem,11vw,3.4rem);}
   .our-story-body{font-size:0.9rem;line-height:1.75;padding-left:0;}
-  .our-story-body::before{
-    /* The bloom sits under the copy on a phone rather than beside it. */
-    position:relative;display:block;
-    left:auto;bottom:auto;margin:1.4rem auto 0;
-    width:96px;height:120px;background-position:bottom center;
+  .our-story::before{
+    /* Smaller and tucked into the left corner on a phone. */
+    width:88px;height:120px;
+    left:0.4rem;
+    bottom:-14px;
   }
 
   /* Event details: one column, and the frame's cut corners scaled down. */
