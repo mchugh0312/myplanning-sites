@@ -359,6 +359,66 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   body.thumbnail-mode .hero-col,body.thumbnail-mode .hero-col-centre{display:none!important;}
   body.thumbnail-mode .hero-section::before,body.thumbnail-mode .hero-section::after{display:block!important;}
 }
+/* ── MOBILE PASS (phones) ─────────────────────────────────────────────
+   Additions only, inside media queries — desktop is untouched. The 768px block
+   above handles the hero collage and the menu; this covers the rest. */
+@media(max-width:640px){
+  /* The stacked hero is nearly a whole screen before any content. */
+  .hero-section{height:clamp(400px,64vh,560px);}
+  .hero-names-text{font-size:clamp(1.7rem,9vw,2.6rem);}
+
+  /* Sections: desktop padding is 4–5rem each side. */
+  .wedding-section{padding:2.5rem 1.1rem 2rem;}
+  .events-section{padding:0 1.1rem 3rem;}
+  .ntk-section{padding:2.8rem 1.1rem 3rem;}
+  .registry-section{padding:2.8rem 1.1rem;}
+  .rsvp-section{padding:2.8rem 1.1rem 3.5rem;}
+  .gallery-section{padding:2.5rem 0;}
+
+  /* The Wedding / Other Events */
+  .wedding-invite{font-size:0.95rem;line-height:1.8;}
+  .wedding-card{padding:1.6rem 1.1rem;}
+  .wedding-card-title{font-size:1.5rem;}
+  .wedding-card-detail,.event-detail{font-size:0.88rem;line-height:1.75;}
+  .event-box{padding:0 0.5rem 1.5rem;}
+  .event-title{font-size:1.5rem;}
+
+  /* Hotel / Flights stack, with the photo above each block. */
+  .split-photo{height:200px;}
+  .split-label{font-size:1.5rem;}
+  .split-name{font-size:0.9rem;}
+  .split-note{font-size:0.82rem;}
+  .split-btn{
+    min-height:44px;padding:0.7rem 1.8rem;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+
+  /* Need to Knows */
+  .ntk-title,.registry-title,.rsvp-title{font-size:clamp(1.5rem,7.5vw,2.1rem);}
+  .ntk-question{font-size:0.98rem;}
+  .ntk-answer{font-size:0.85rem;line-height:1.8;}
+
+  /* RSVP: one column, thumb-sized controls, no iOS zoom on focus. */
+  .rsvp-field-row{grid-template-columns:1fr;gap:0.6rem;}
+  .rsvp-select,.rsvp-text-input,.rsvp-name-input{
+    font-size:16px;min-height:44px;
+  }
+  .rsvp-textarea{font-size:16px;}
+  .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
+  .rsvp-add-guest{min-height:44px;}
+  .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}
+
+  /* The menu drawer's links need to be reachable and comfortably spaced. */
+  .menu-links{gap:0.2rem;}
+  .menu-links a{padding:0.7rem 0;min-height:44px;display:flex;align-items:center;}
+}
+
+@media(max-width:400px){
+  .hero-section{height:clamp(360px,60vh,460px);}
+  .hero-names-text{font-size:clamp(1.5rem,8.5vw,2.1rem);}
+  .split-photo{height:170px;}
+}
+
 </style>
 </head>
 <body class="hydrating">
@@ -720,9 +780,10 @@ function hydrateTemplate(d){
   if(menu.accommodations&&d.accommodation_info){
     var acContent=el('accomContent');
     if(acContent){
-      var nm=d.accommodation_info.match(/^<strong>([^<]+)<\/strong>/i);
-      var acName=nm?nm[1]:'Hotel';
-      var rest=nm?d.accommodation_info.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():d.accommodation_info;
+      // The label is fixed by the design. A <strong> in the couple's copy is
+      // the venue NAME, so it stays in the body instead of replacing "Hotel".
+      var acName='Hotel';
+      var rest=d.accommodation_info;
       // Dedicated field first (Accomodation URL / MXzO9); a link pasted into
       // the copy still works for couples who did it that way.
       var acUrl=d.accommodation_url||_extractUrl(d.accommodation_info);

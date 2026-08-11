@@ -110,8 +110,8 @@ body.hydrating{visibility:hidden;}
 .hero{
   position:relative;
   width:100%;
-  aspect-ratio:16/7.5;
-  min-height:215px;
+  aspect-ratio:16/6.6;
+  min-height:190px;
   background:#3a3a36;
   overflow:hidden;
 }
@@ -274,11 +274,17 @@ body.hydrating{visibility:hidden;}
   position:relative;
   z-index:1;
 }
-.event-details-frame{
+.event-details-frame-wrap{
+  /* Holds the frame and the flower. The frame itself is clipped by clip-path
+     for its cut corners, and clip-path clips descendants — so the flower has
+     to live outside it or it gets cropped whatever its z-index. */
   position:relative;
   z-index:2;
   max-width:900px;
   margin:0 auto;
+}
+.event-details-frame{
+  position:relative;
   background:var(--beige);
   /* Thick olive border with cut corners, per the design. clip-path can't be
      combined with a border, so the border is drawn as an olive layer behind a
@@ -341,13 +347,13 @@ body.hydrating{visibility:hidden;}
   position:absolute;
   top:50%;
   /* Outline rhombus, not a solid one. */
-  width:7px;height:7px;
+  width:4px;height:4px;
   background:transparent;
   border:1px solid var(--olive);
   transform:translateY(-50%) rotate(45deg);
 }
-.event-col-divider::before{left:-3px;}
-.event-col-divider::after{right:-3px;}
+.event-col-divider::before{left:-2px;}
+.event-col-divider::after{right:-2px;}
 .event-col-meta{
   font-family:var(--body);
   font-size:0.82rem;
@@ -369,12 +375,12 @@ body.hydrating{visibility:hidden;}
 /* Carnation/poppy flower at bottom-right of frame */
 .event-details-flower{
   position:absolute;
-  /* Clear of the frame: down and to the right of its bottom corner, as in the
-     design. It was overlapping the corner and being cut by it. */
-  right:clamp(-10px, -1vw, 10px);
-  bottom:clamp(-110px, -9vw, -60px);
+  /* Down and right of the frame's bottom corner, in front of everything in the
+     section. It lives outside the clipped frame now, so nothing crops it. */
+  right:clamp(-24px, -2vw, 0px);
+  bottom:clamp(-96px, -8vw, -52px);
   width:clamp(90px, 15vw, 145px);
-  z-index:3;
+  z-index:6;
   pointer-events:none;
 }
 
@@ -426,13 +432,13 @@ body.hydrating{visibility:hidden;}
   position:absolute;
   top:50%;
   /* Outline rhombus, not a solid one. */
-  width:7px;height:7px;
+  width:4px;height:4px;
   background:transparent;
   border:1px solid var(--olive);
   transform:translateY(-50%) rotate(45deg);
 }
-.travel-col-divider::before{left:-3px;}
-.travel-col-divider::after{right:-3px;}
+.travel-col-divider::before{left:-2px;}
+.travel-col-divider::after{right:-2px;}
 .travel-item{
   font-family:var(--body);
   font-size:0.88rem;
@@ -918,7 +924,7 @@ footer{
 
 /* ── MOBILE ────────────────────────────────────────────────── */
 @media(max-width:768px){
-  .hero{aspect-ratio:5/4;}
+  .hero{aspect-ratio:4/3;}
   .hero-nav a{display:none;}
   .hero-nav-sep{display:none;}
   .nav-mobile-toggle{display:flex;}
@@ -943,9 +949,9 @@ footer{
     gap:2rem;
   }
   .event-details-flower{
-    width:80px;
-    right:-5px;
-    bottom:-46px;
+    width:78px;
+    right:-8px;
+    bottom:-40px;
   }
 
   .travel-section{padding:3rem 1.4rem 3.5rem;}
@@ -972,7 +978,7 @@ footer{
    Additions only, inside media queries — desktop is untouched. */
 @media(max-width:640px){
   /* Hero */
-  .hero{aspect-ratio:4/3;min-height:0;}
+  .hero{aspect-ratio:16/11;min-height:0;}
   .hero-nav{display:none;}   /* replaced by the shared hamburger */
 
   /* Names and story */
@@ -1000,7 +1006,7 @@ footer{
   .event-col + .event-col{border-top:1px solid rgba(81,80,0,0.28);padding-top:1.8rem;}
   .event-col-name{font-size:1.25rem;}
   .event-col-meta{font-size:0.86rem;}
-  .event-details-flower{width:72px;right:0;bottom:-40px;}
+  .event-details-flower{width:66px;right:-6px;bottom:-34px;}
 
   /* Travel */
   .travel-col-divider{width:min(100%,190px);}
@@ -1082,6 +1088,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
 <section class="event-details" id="event-details">
   <div class="event-details-bg"></div>
   <h2 class="event-details-title">Event Details</h2>
+  <div class="event-details-frame-wrap">
   <div class="event-details-frame">
    <div class="event-details-inner">
     <div class="event-details-grid" id="eventGrid">
@@ -1121,9 +1128,11 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
     </div>
    </div>
 
+  </div>
     <img class="event-details-flower"
       src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac4cb10b-9194-484b-bf23-70b7694d3c86.png" alt="">
   </div>
+
 </section>
 
 <!-- TRAVEL INFO -->

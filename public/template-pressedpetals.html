@@ -107,13 +107,13 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--serif);color:var(--text);background:var(--offwhite);overflow-x:hidden;}
 /* Hide body until hydrated to prevent flash of placeholder content */
-body.hydrating{visibility:hidden}
+body.hydrating{visibility:hidden;}
 
 /* ── MENU ─────────────────────────────────────────────────── */
 .menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;pointer-events:none;}
 .menu-backdrop{flex:1;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;}
 .menu-drawer{
-  width:340px;background:var(--offwhite);
+  width:min(46%,470px);background:var(--offwhite);
   transform:translateX(100%);
   transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
   display:flex;flex-direction:column;justify-content:center;
@@ -163,7 +163,9 @@ body.hydrating{visibility:hidden}
 .nav-hamburger span{display:block;width:22px;height:1.5px;background:var(--text);}
 
 /* ── HERO — full bleed, couple name bold & large centred ──── */
-.hero{position:relative;height:100vh;min-height:560px;overflow:hidden;}
+/* Banner proportions from the design (~1.9:1), so the event details sit
+   within the first screen rather than below a full-height photo. */
+.hero{position:relative;height:clamp(360px,52vw,100vh);min-height:0;overflow:hidden;}
 .hero-image{position:absolute;inset:0;}
 .hero-image img{width:100%;height:100%;object-fit:cover;display:block;}
 .hero-gradient{
@@ -374,6 +376,15 @@ body.hydrating{visibility:hidden}
   font-family:var(--script);font-size:3.2rem;
   color:var(--white);font-weight:400;letter-spacing:0.02em;
 }
+a.registry-title{
+  display:inline-block;
+  text-decoration:none;
+  color:inherit;
+  border-bottom:1px solid transparent;
+  padding-bottom:2px;
+  transition:border-color 0.2s;
+}
+a.registry-title:hover{border-bottom-color:currentColor;}
 
 /* ── RSVP ──────────────────────────────────────────────────── */
 /* FIX 7: Matches screenshot exactly */
@@ -641,6 +652,59 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
 body.thumbnail-mode .hero{height:66.67vw!important;min-height:0!important;}
 body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!important;}
+/* ── MOBILE PASS (phones) ─────────────────────────────────────────────
+   Additions only, inside media queries — desktop is untouched. */
+@media(max-width:640px){
+  /* Hero: the 768px rule leaves a 320px floor plus 65vw, which is most of a
+     phone screen before any content. */
+  .hero{height:auto;min-height:0;aspect-ratio:4/3;}
+  .hero-couple-name{font-size:clamp(2rem,10vw,3.2rem);}
+
+  /* Sections */
+  .events-primary,.accommodations,.rsvp-section,.other-events-inner,
+  .our-story,.travel-section,.registry-section{padding-left:1.1rem;padding-right:1.1rem;}
+  .events-primary{padding-top:2.6rem;padding-bottom:2.6rem;}
+  .rsvp-section{padding-bottom:3.2rem;}
+  .ntk-header{padding:2.4rem 1.1rem 1.6rem;}
+  .ntk-faq-area{padding:1.6rem 1.1rem 2.6rem;}
+
+  /* Event cards */
+  .event-card-primary{padding:1.6rem 1.1rem;}
+  .event-card-title{font-size:1.5rem;}
+  .event-card-detail{font-size:0.88rem;line-height:1.75;}
+
+  /* Accommodations / travel */
+  .accom-title,.travel-title,.registry-title,.rsvp-title,.ntk-title{
+    font-size:clamp(1.5rem,7.5vw,2.1rem);
+  }
+  .accom-btn,.travel-btn{
+    min-height:44px;padding:0.7rem 1.8rem;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+
+  /* The decorative flowers crowd the copy at phone width. */
+  .story-flower-r{width:96px;right:-18px;}
+  .flower-mid-right{width:84px;right:-14px;}
+  .flower-boundary-bottom{width:80px;bottom:-32px;left:-10px;}
+  .flower-bottom-left{width:80px;left:8px;bottom:-32px;}
+
+  /* Forms */
+  .rsvp-select,.rsvp-text-input,.rsvp-name-input{
+    font-size:16px;min-height:44px;   /* 16px stops iOS zooming on focus */
+  }
+  .rsvp-textarea{font-size:16px;}
+  .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
+  .rsvp-add-guest{min-height:44px;}
+  .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}
+  .menu-links a{padding:0.65rem 0;min-height:44px;display:flex;align-items:center;}
+}
+
+@media(max-width:400px){
+  .hero{aspect-ratio:5/4;}
+  .hero-couple-name{font-size:clamp(1.7rem,9vw,2.4rem);}
+  .story-flower-r,.flower-mid-right{display:none;}
+}
+
 </style>
 </head>
 <body class="hydrating">
@@ -822,7 +886,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 
 <!-- REGISTRY: plain olive strip, script title only -->
 <div class="registry" id="registry">
-  <div class="registry-title">See Our Registry</div>
+  <a class="registry-title registry-cta" href="#">See Our Registry</a>
 </div>
 
 <!-- TRAVEL -->
@@ -855,7 +919,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 
 <!-- REGISTRY — uses the original .registry olive strip design -->
 <div class="registry" id="registry-section" style="display:none">
-  <div class="registry-title">See Our Registry</div>
+  <a class="registry-title registry-cta" id="registryCta" href="#">See Our Registry</a>
   <div id="registryInfo" style="font-family:var(--serif);font-size:0.88rem;color:rgba(255,255,255,0.88);line-height:1.9;max-width:560px;margin:1.2rem auto 0;font-style:italic;"></div>
 </div>
 
