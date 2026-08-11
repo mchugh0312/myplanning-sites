@@ -199,13 +199,13 @@ body.hydrating{visibility:hidden;}
 }
 .hero{
   position:relative;
-  width:100%;
-  /* Half the previous height (16/9 -> 32/9). The min-height floor keeps the
-     doubled couple names inside the frame at desktop widths, where two lines
-     of type are taller than a 32/9 box would otherwise be. */
+  /* 25% smaller in both dimensions. Width drives height through the aspect
+     ratio, and the floor is scaled by the same 25% so the reduction holds
+     wherever the floor is what's governing. */
+  width:75%;
+  margin:0 auto;
   aspect-ratio:32/9;
-  /* The floor is what the doubled names need; 32/9 governs wherever they fit. */
-  min-height:clamp(200px, 37vw, 470px);
+  min-height:clamp(150px, 30vw, 352px);
   /* Deep rounding, per the design. */
   border-radius:clamp(28px,4vw,60px);
   overflow:hidden;
@@ -229,7 +229,8 @@ body.hydrating{visibility:hidden;}
 }
 .hero-image img{
   width:100%;height:100%;
-  object-fit:cover;display:block;
+  /* Contained, so the whole photograph shows inside the frame. */
+  object-fit:contain;display:block;
 }
 .hero-gradient{
   position:absolute;inset:0;
@@ -258,24 +259,26 @@ body.hydrating{visibility:hidden;}
   /* Doubled at every width: the vw term and the ceiling are both twice what
      they were. Weight unchanged; leading tightened so two lines still sit
      inside the shortened frame. */
-  font-size:clamp(5.2rem, 22vw, 14rem);
-  line-height:0.82;
+  font-size:clamp(4.16rem, 17.6vw, 11.2rem);
+  line-height:0.8;
   letter-spacing:0.005em;
 }
 .hero-couple-name .name-1{ text-align:center; }
 .hero-couple-name .name-2{
   text-align:center;
-  margin-top:-0.25em;
+  /* A little air between the two lines — they were pulled together. */
+  margin-top:0.06em;
 }
 .hero-couple-name .ampersand{
   font-family:var(--script);
-  font-size:clamp(1.6rem, 5vw, 3.2rem);
+  font-size:clamp(2.08rem, 6.5vw, 4.16rem);
   display:inline-block;
   margin:-0.2em 0.3em 0;
   font-style:italic;
   vertical-align:0.3em;
-  color:var(--ivory);
-  opacity:0.95;
+  /* Same yellow as the names, per the design. */
+  color:var(--yellow);
+  opacity:1;
 }
 
 /* ── OUR STORY (rosy pink, burgundy text) ─────────────────── */
