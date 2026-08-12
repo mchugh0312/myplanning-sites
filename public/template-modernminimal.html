@@ -157,11 +157,11 @@ body.hydrating{visibility:hidden;}
 .hero-deco-left{
   /* Overlapping the photo's left edge, as in the design — they were pushed far
      out into the margin. */
-  left:-90px;top:130px;
+  left:-90px;top:200px;
   width:150px;height:auto;
 }
 .hero-deco-right{
-  right:-70px;top:40px;
+  right:-70px;top:115px;
   width:135px;height:auto;
 }
 .hero-pair{
@@ -372,7 +372,7 @@ body.hydrating{visibility:hidden;}
   display:flex;justify-content:center;
   margin-bottom:1.2rem;
 }
-.registry-icon img{width:103px;height:auto;display:block;}
+.registry-icon img{width:129px;height:auto;display:block;}
 .registry-title{
   font-family:var(--heading);
   font-weight:700;
@@ -793,8 +793,10 @@ body.hydrating{visibility:hidden;}
   .site-nav.open{display:flex;}
   .site-header{padding:2rem 1.2rem 1.2rem;}
   .hero{padding:1rem 1.5rem 3rem;}
-  .hero-deco-left{left:-30px;top:-20px;width:80px;}
-  .hero-deco-right{right:-20px;top:-20px;width:75px;}
+  /* Tablet step: lower than desktop's margin position but not yet tucked
+     into the corners the way the phone rules do. */
+  .hero-deco-left{left:-30px;top:150px;width:80px;}
+  .hero-deco-right{right:-20px;top:85px;width:75px;}
   .events-primary,.other-events,.travel-section,
   .faq-section,.registry-section{padding:2.5rem 1.2rem 3rem;}
   .rsvp-section{padding:3rem 1.2rem 3.5rem;}
@@ -851,7 +853,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   .event-venue,.event-address{font-size:0.86rem;}
   /* Icons scaled with the smaller type. */
   .event-icon img{width:64px;}
-  .registry-icon img{width:76px;}
+  .registry-icon img{width:95px;}
 
   /* Sections */
   .events-primary,.other-events,.travel-section,
@@ -891,7 +893,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   .hero-deco-left,.hero-deco-right{display:none;}
   .hero-pair{max-width:100%;}
   .event-icon img{width:56px;}
-  .registry-icon img{width:66px;}
+  .registry-icon img{width:82px;}
 }
 
 </style>
