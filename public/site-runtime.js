@@ -160,6 +160,9 @@
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg',
       scriptVar: null, displayVar: '--display', bodyVar: '--sans',
       palette: { bg: '#f4efe6', ink: '#1a1a1a', accent: '#6b5844', rule: 'rgba(26,26,26,0.2)' },
+      // The template's own desktop drawer is maroon, so the mobile one matches
+      // it rather than taking the page's cream ground.
+      drawer: { bg: '#513229', ink: '#fffdf5', rule: 'rgba(255,253,245,0.22)' },
       fonts: { display: "'Instrument Serif',Georgia,serif", body: "'Inter',system-ui,sans-serif" }
     },
     regalboho: {
@@ -1177,7 +1180,10 @@
     } catch (e) { return; }
     if (!links.length) return;
 
+    // A template can declare its own drawer colours; otherwise the page palette
+    // is used.
     var p = CFG.palette;
+    var dp = CFG.drawer || { bg: p.bg, ink: p.ink, rule: p.rule };
 
     var style = document.createElement('style');
     style.id = 'mp-mnav-css';
@@ -1198,13 +1204,13 @@
           'opacity:0;pointer-events:none;transition:opacity .28s ease}' +
         '.mp-mnav-scrim.open{opacity:1;pointer-events:auto}' +
         '.mp-mnav-panel{display:block;position:fixed;top:0;right:0;bottom:0;z-index:9998;' +
-          'width:min(78vw,300px);background:' + p.bg + ';color:' + p.ink + ';' +
+          'width:min(78vw,300px);background:' + dp.bg + ';color:' + dp.ink + ';' +
           'transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);' +
           'padding:76px 26px 30px;overflow-y:auto;box-shadow:-12px 0 34px rgba(0,0,0,0.18)}' +
         '.mp-mnav-panel.open{transform:translateX(0)}' +
-        '.mp-mnav-panel a{display:block;padding:15px 0;text-decoration:none;color:' + p.ink + ';' +
+        '.mp-mnav-panel a{display:block;padding:15px 0;text-decoration:none;color:' + dp.ink + ';' +
           'font-size:0.94rem;letter-spacing:0.13em;text-transform:uppercase;' +
-          'border-bottom:1px solid ' + p.rule + '}' +
+          'border-bottom:1px solid ' + dp.rule + '}' +
         '.mp-mnav-panel a:last-child{border-bottom:none}' +
         'body.mp-mnav-open{overflow:hidden}' +
       '}';
