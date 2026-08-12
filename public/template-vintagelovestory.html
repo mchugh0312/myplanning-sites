@@ -43,7 +43,6 @@
     title and is rendered via .oval-title — left/right lines extend from it.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <style>
 @font-face{
   font-family:'Instrument Serif';
@@ -164,8 +163,8 @@ body.hydrating{visibility:hidden;}
 }
 .oval-title-line{
   flex:1;
-  /* Thick rules, per the design. */
-  height:6px;
+  /* Thin rules — only the pill's own border is heavy. */
+  height:2px;
   background:currentColor;
   opacity:0.9;
 }
@@ -225,18 +224,18 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.4rem;
 }
 .hero-couple-name .ampersand{
-  /* A decorative swash ampersand. The names are already Instrument Serif, so
-     naming that face here changed nothing — this is a distinctly different
-     letterform, which is what the design shows. */
-  font-family:'Cormorant Garamond', 'Instrument Serif', Georgia, serif;
+  /* Instrument Serif italic, per the template's own typeface spec. In the
+     design the ampersand is SMALLER than the names and tucked tight between
+     them — it was set larger than the names with space either side, which is
+     what made it look like the wrong font. */
+  font-family:var(--display);
   color:var(--blue);
-  font-weight:600;
-  margin:0 0.01em;
+  font-weight:400;
   font-style:italic;
-  font-size:1.4em;
-  line-height:0;
+  font-size:0.78em;
+  margin:0 -0.02em;
   display:inline-block;
-  vertical-align:-0.06em;
+  vertical-align:0.02em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -316,12 +315,17 @@ body.hydrating{visibility:hidden;}
 .our-story .oval-title span{color:var(--ivory);}
 .story-body{
   display:grid;
+  /* Two columns when the couple has written two paragraphs; a single paragraph
+     spans the full block and stays centred beneath the title, instead of
+     sitting in the left-hand column. */
   grid-template-columns:1fr 1fr;
   gap:2.5rem;
-  max-width:900px;
+  max-width:620px;
   margin:0 auto 2.6rem;
   text-align:center;
 }
+.story-body:has(> .story-col:only-child){grid-template-columns:1fr;}
+.story-body > .story-col:only-child{max-width:520px;margin:0 auto;}
 .story-col{
   font-family:var(--display);
   font-size:1.05rem;
@@ -356,14 +360,14 @@ body.hydrating{visibility:hidden;}
 }
 .events-grid{
   display:grid;
-  grid-template-columns:1fr 6px 1fr;
+  grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
   margin:0 auto;
   align-items:start;
 }
 .events-divider{
-  width:6px;
+  width:2px;
   background:currentColor;
   align-self:stretch;
   min-height:200px;
@@ -398,14 +402,14 @@ body.hydrating{visibility:hidden;}
 }
 .travel-grid{
   display:grid;
-  grid-template-columns:1fr 6px 1fr;
+  grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
   margin:0 auto;
   align-items:start;
 }
 .travel-divider{
-  width:6px;
+  width:2px;
   background:currentColor;
   align-self:stretch;
   min-height:200px;
@@ -485,19 +489,19 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .registry-lace{
-  /* One motif spanning the whole panel. The asset already contains both corner
-     pieces, so two copies produced a duplicated ornament rather than the
-     design's single continuous frame. */
+  /* Pinned to the panel's corners. Stretching a single copy across the band
+     left the art bunched in the middle, because the asset's ornament sits
+     inboard of its own canvas — so each corner gets its own copy, cropped to
+     the half it needs. */
   position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:fill;
+  width:clamp(150px, 24vw, 300px);
   pointer-events:none;   /* never intercepts the CTA's clicks */
   user-select:none;
   z-index:1;
   filter:brightness(0) invert(1) opacity(0.85);  /* renders the dark SVG as ivory */
 }
+.registry-lace.tl{top:0;left:0;transform-origin:top left;}
+.registry-lace.br{bottom:0;right:0;transform:rotate(180deg);transform-origin:bottom right;}
 .registry-section{
   /* Above the motif, so the label reads clearly and the whole pill stays
      clickable. */
@@ -1153,7 +1157,9 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 
 <!-- REGISTRY -->
 <section class="registry-wrap" id="registry-wrap">
-  <img class="registry-lace"
+  <img class="registry-lace tl"
+    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
+  <img class="registry-lace br"
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
   <a class="registry-section" id="registry-section" href="#" target="_blank">
     <span class="registry-cta">View our registry</span>
@@ -1549,13 +1555,22 @@ function hydrateEventsSection(d, menu) {
       renderColMeta(p) +
     '</div>';
   });
-  grid.innerHTML = html;
+  // Keep the template's sample events unless the couple's data produced at
+  // least as many. Writing straight over it meant a record with one event
+  // replaced the two-event sample and Sunday Brunch vanished.
+  var _placeholderCols = (grid.innerHTML.match(/class="event-col"/g) || []).length;
+  if (parsed.length >= _placeholderCols || _placeholderCols === 0) {
+    grid.innerHTML = html;
+  } else {
+    window.MP_SHOWING_PLACEHOLDERS = true;
+    return;
+  }
 
   // Adjust grid template based on number of events
   if (parsed.length === 1) {
     grid.style.gridTemplateColumns = '1fr';
   } else if (parsed.length === 2) {
-    grid.style.gridTemplateColumns = '1fr 6px 1fr';   // track matches the divider
+    grid.style.gridTemplateColumns = '1fr 2px 1fr';   // track matches the divider
   } else {
     // 3+ events — use repeating columns with thinner dividers
     var cols = [];
