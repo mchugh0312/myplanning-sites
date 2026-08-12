@@ -157,7 +157,7 @@ body.hydrating{visibility:hidden;}
   gap:1rem;
   /* Spans the same width as the content beneath it — the rules used to stop at
      560px, well short of the copy and photos. */
-  margin:0 auto 2.4rem;
+  margin:0 auto 1.4rem;
   max-width:900px;
   padding:0 1rem;
 }
@@ -232,8 +232,11 @@ body.hydrating{visibility:hidden;}
   color:var(--blue);
   font-weight:400;
   font-style:normal;
-  font-size:1em;
-  margin:0 0.04em;
+  font-size:1.4em;
+  margin:0 0.02em;
+  line-height:1;
+  display:inline-block;
+  vertical-align:-0.04em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -357,11 +360,14 @@ body.hydrating{visibility:hidden;}
 /* ── EVENTS (ivory, 2-col with vertical divider) ────────── */
 .events-section{
   background:var(--ivory);
-  padding:3.5rem 2rem 4rem;
+  padding:3.5rem 2rem;
   text-align:center;
 }
 .events-grid{
   display:grid;
+  /* Matching space above and below the columns, so the divider sits centred
+     between this title and the next. */
+  margin-top:1rem;
   grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
@@ -399,11 +405,12 @@ body.hydrating{visibility:hidden;}
 /* ── TRAVEL INFO (ivory, 2-col with vertical divider) ───── */
 .travel-section{
   background:var(--ivory);
-  padding:3.5rem 2rem 3rem;
+  padding:3.5rem 2rem;
   text-align:center;
 }
 .travel-grid{
   display:grid;
+  margin-top:1rem;
   grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
@@ -565,7 +572,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-name-input{
   /* Contained pill, not full-bleed — the design's field is about a third of
      the section width. */
-  width:min(100%, 340px);margin:0 auto;padding:0.7rem 1.6rem;
+  width:min(100%, 340px);margin:0 auto 0.9rem;padding:0.7rem 1.6rem;
   border:2px solid var(--text);
   background:transparent;
   border-radius:999px;
@@ -645,11 +652,13 @@ body.hydrating{visibility:hidden;}
 
 .rsvp-expanded{display:none;}
 .rsvp-expanded.visible{display:block;}
-.rsvp-field-row{margin-bottom:0.5rem;}
+/* The pills were nearly touching. */
+.rsvp-field-row{margin-bottom:0.9rem;}
+.rsvp-field-row > * + *{margin-top:0.9rem;}
 .rsvp-field-row:last-child{margin-bottom:0;}
 .rsvp-select,.rsvp-text-input{
   width:100%;padding:0.85rem 1.6rem;
-  border:1px solid var(--text);
+  border:2px solid var(--text);
   background:transparent;
   font-family:var(--sans);font-size:0.85rem;
   color:var(--text);outline:none;border-radius:999px;
@@ -873,17 +882,28 @@ footer{
     width:140px;
     order:-1;
   }
-  .wedding-grid .wedding-col:nth-of-type(1){order:0;}
+  /* nth-child, not nth-of-type: the children are all divs, so counting by type
+     put the figure at position 2 and left the second column unordered — which
+     is why both events stacked and the figure fell to the bottom. */
+  .wedding-grid .wedding-col:nth-child(1){order:0;}
   .wedding-grid .wedding-figure{order:1;margin:0.5rem auto;}
-  .wedding-grid .wedding-col:nth-of-type(2){order:2;}
+  .wedding-grid .wedding-col:nth-child(3){order:2;}
 
   .our-story{padding:3rem 1.4rem 3.5rem;}
   .story-body{grid-template-columns:1fr;gap:1.4rem;text-align:left;}
-  .story-photos{grid-template-columns:repeat(3, 1fr);gap:0.5rem;}
+  /* Two across, the third centred underneath — a plain 2-col grid left an
+     empty bottom-right cell. */
+  .story-photos{grid-template-columns:repeat(2, 1fr);gap:0.7rem;max-width:420px;}
+  .story-photo:nth-child(3){grid-column:1 / -1;width:calc(50% - 0.35rem);margin:0 auto;}
   .story-photo{border-radius:14px;}
 
   .events-section,
-  .travel-section{padding:2.5rem 1.4rem 3rem;}
+  .travel-section{padding:2.5rem 1.4rem;}
+  /* Equal space above and below the stacked columns, as on desktop. */
+  .events-grid,.travel-grid{margin-top:0.6rem;}
+  .oval-title{padding:0.7rem 2rem;}
+  .oval-title span{font-size:clamp(1.1rem,4.6vw,1.4rem);}
+  .oval-title::before{border-width:7px;}
   .events-grid,
   .travel-grid{
     grid-template-columns:1fr;
@@ -956,7 +976,7 @@ footer{
 
 @media(max-width:400px){
   .hero-couple-name{font-size:clamp(1.7rem,10vw,2.4rem);}
-  .story-photos{grid-template-columns:1fr 1fr;}
+  .story-photos{grid-template-columns:repeat(2, 1fr);}
   .registry-lace-left,.registry-lace-right{display:none;}
 }
 
@@ -1117,7 +1137,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
         <span class="travel-item-name">Lakeshore Plaza Hotel</span>
         <span class="travel-item-meta">680 N Lake Shore Dr<br>Chicago, IL 60611</span>
       </div>
-      <div class="travel-note">*Request the Iris &amp; Nathan room block</div>
+      <div class="travel-note" id="travelRoomBlock">*Request the Iris &amp; Nathan room block</div>
     </div>
   </div>
 </section>
@@ -1451,9 +1471,18 @@ function hydrateTravelInfo(d, menu) {
       firstNote = _n ? 'Request the ' + _n + ' room block' : '';
     }
     if (firstNote) hotelsHtml += '<div class="travel-note">*' + firstNote + '</div>';
+    // A note the couple wrote themselves may still name the sample couple, and
+    // the static placeholder certainly does — rewrite it with their own names.
+    var _cn = (d.couple_names || '').trim();
+    if (_cn) hotelsHtml = hotelsHtml.replace(/Request the .*? room block/i, 'Request the ' + _cn + ' room block');
   }
 
   // If neither airports nor hotels are available, hide the section
+  // Keep the placeholder's room-block line in step with the couple's names.
+  var _rb = document.getElementById('travelRoomBlock');
+  var _cnames = (d.couple_names || '').trim();
+  if (_rb && _cnames) _rb.textContent = '*Request the ' + _cnames + ' room block';
+
   var travelSection = document.getElementById('travel-section');
   if (!airportsHtml && !hotelsHtml) {
     if (travelSection) travelSection.style.display = 'none';
