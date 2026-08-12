@@ -387,10 +387,13 @@ body.hydrating{visibility:hidden;}
   gap:1.4rem;
   max-width:720px;
   margin:0 auto 2rem;
+  align-items:stretch;
 }
 .registry-card{
   display:flex;flex-direction:column;align-items:center;
   text-align:center;
+  /* Full row height, so the button can be pinned to the bottom. */
+  height:100%;
 }
 .registry-card img{
   width:100%;
@@ -409,6 +412,9 @@ body.hydrating{visibility:hidden;}
   margin-bottom:0.5rem;
 }
 .registry-buy-btn{
+  /* Pushed to the foot of the card, so buttons line up across the row whatever
+     the title wraps to or whether a quantity line is present. */
+  margin-top:auto;
   display:inline-block;
   padding:0.45rem 1rem;
   border:3px solid var(--black);
@@ -1073,7 +1079,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
     <div class="registry-icon">
       <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8f241d25-335e-4043-bf8f-110e15494f21.svg" alt="">
     </div>
-    <h2 class="registry-title">View Our Registry</h2>
+    <h2 class="registry-title">Our Registry</h2>
     <div class="registry-grid" id="registryGrid">
       <div class="registry-card">
         <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" alt="Item 1">

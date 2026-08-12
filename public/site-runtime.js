@@ -1376,7 +1376,10 @@
       priceEl.className = 'mp-reg-price';
       name.parentNode.insertBefore(priceEl, name.nextSibling);
     }
-    if (priceEl) priceEl.textContent = amount ? fmtMoney(amount) + (isFund ? ' goal' : '') : '';
+    if (priceEl) {
+      priceEl.textContent = amount ? fmtMoney(amount) + (isFund ? ' goal' : '') : '';
+      priceEl.style.display = amount ? '' : 'none';
+    }
 
     // Group gift / remaining count, the way the registry page shows it.
     var metaEl = card.querySelector('.mp-reg-meta');
@@ -1393,6 +1396,9 @@
         bits.push(it.quantity_remaining + ' of ' + it.quantity_requested + ' left');
       }
       metaEl.textContent = bits.join(' \u00b7 ');
+      // Collapse when empty, so a card with no quantity line doesn't reserve
+      // space for one.
+      metaEl.style.display = bits.length ? '' : 'none';
     }
 
     if (btn) {
