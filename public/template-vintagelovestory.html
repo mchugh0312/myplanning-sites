@@ -42,6 +42,8 @@
     The oval frame ornament (asset 92b20dd3-...svg) wraps every section
     title and is rendered via .oval-title — left/right lines extend from it.
 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <style>
 @font-face{
   font-family:'Instrument Serif';
@@ -162,8 +164,8 @@ body.hydrating{visibility:hidden;}
 }
 .oval-title-line{
   flex:1;
-  /* Thicker, per the design. */
-  height:2px;
+  /* Thick rules, per the design. */
+  height:6px;
   background:currentColor;
   opacity:0.9;
 }
@@ -179,7 +181,7 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   inset:0;
-  border:2px solid currentColor;
+  border:6px solid currentColor;
   border-radius:50%;
   pointer-events:none;
   opacity:1;
@@ -223,16 +225,18 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.4rem;
 }
 .hero-couple-name .ampersand{
-  /* Instrument Serif italic — the design's ampersand is a proper serif swash,
-     not the sans the surrounding names use. */
-  font-family:'Instrument Serif', Georgia, serif;
+  /* A decorative swash ampersand. The names are already Instrument Serif, so
+     naming that face here changed nothing — this is a distinctly different
+     letterform, which is what the design shows. */
+  font-family:'Cormorant Garamond', 'Instrument Serif', Georgia, serif;
   color:var(--blue);
-  font-weight:400;
-  margin:0 0.02em;
+  font-weight:600;
+  margin:0 0.01em;
   font-style:italic;
-  font-size:1.15em;
+  font-size:1.4em;
+  line-height:0;
   display:inline-block;
-  vertical-align:-0.02em;
+  vertical-align:-0.06em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -316,7 +320,7 @@ body.hydrating{visibility:hidden;}
   gap:2.5rem;
   max-width:900px;
   margin:0 auto 2.6rem;
-  text-align:left;
+  text-align:center;
 }
 .story-col{
   font-family:var(--display);
@@ -329,7 +333,8 @@ body.hydrating{visibility:hidden;}
   display:grid;
   grid-template-columns:repeat(3, 1fr);
   gap:1rem;
-  max-width:900px;
+  /* Smaller squares than the full content width. */
+  max-width:620px;
   margin:0 auto;
 }
 .story-photo{
@@ -351,15 +356,15 @@ body.hydrating{visibility:hidden;}
 }
 .events-grid{
   display:grid;
-  grid-template-columns:1fr 1px 1fr;
+  grid-template-columns:1fr 6px 1fr;
   gap:2rem;
   max-width:780px;
   margin:0 auto;
   align-items:start;
 }
 .events-divider{
-  width:1px;
-  background:rgba(0,0,0,0.4);
+  width:6px;
+  background:currentColor;
   align-self:stretch;
   min-height:200px;
 }
@@ -393,15 +398,15 @@ body.hydrating{visibility:hidden;}
 }
 .travel-grid{
   display:grid;
-  grid-template-columns:1fr 1px 1fr;
+  grid-template-columns:1fr 6px 1fr;
   gap:2rem;
   max-width:780px;
   margin:0 auto;
   align-items:start;
 }
 .travel-divider{
-  width:1px;
-  background:rgba(0,0,0,0.4);
+  width:6px;
+  background:currentColor;
   align-self:stretch;
   min-height:200px;
 }
@@ -480,18 +485,23 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .registry-lace{
+  /* One motif spanning the whole panel. The asset already contains both corner
+     pieces, so two copies produced a duplicated ornament rather than the
+     design's single continuous frame. */
   position:absolute;
-  /* Large corner lace, as in the design — it was rendering small and adrift
-     inside the band. */
-  width:clamp(150px, 26vw, 270px);
-  pointer-events:none;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  pointer-events:none;   /* never intercepts the CTA's clicks */
   user-select:none;
+  z-index:1;
   filter:brightness(0) invert(1) opacity(0.85);  /* renders the dark SVG as ivory */
 }
-.registry-lace.tl{top:0;left:0;}
-.registry-lace.br{bottom:0;right:0;transform:scale(-1,-1);}
 .registry-section{
-  position:relative;z-index:2;
+  /* Above the motif, so the label reads clearly and the whole pill stays
+     clickable. */
+  position:relative;z-index:3;
   display:inline-block;
   text-decoration:none;
   cursor:pointer;
@@ -1143,9 +1153,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 
 <!-- REGISTRY -->
 <section class="registry-wrap" id="registry-wrap">
-  <img class="registry-lace tl"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
-  <img class="registry-lace br"
+  <img class="registry-lace"
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
   <a class="registry-section" id="registry-section" href="#" target="_blank">
     <span class="registry-cta">View our registry</span>
@@ -1547,7 +1555,7 @@ function hydrateEventsSection(d, menu) {
   if (parsed.length === 1) {
     grid.style.gridTemplateColumns = '1fr';
   } else if (parsed.length === 2) {
-    grid.style.gridTemplateColumns = '1fr 1px 1fr';
+    grid.style.gridTemplateColumns = '1fr 6px 1fr';   // track matches the divider
   } else {
     // 3+ events — use repeating columns with thinner dividers
     var cols = [];
