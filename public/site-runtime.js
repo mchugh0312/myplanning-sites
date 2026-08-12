@@ -1275,6 +1275,62 @@
   }
 
   /* ==========================================================================
+     REGISTRY PREVIEW
+     ==========================================================================
+     Templates that show a few product cards above the "View Our Registry"
+     button fill them with stock photos. The backend already exposes the real
+     items at /public/registry/by-slug/{slug}, so pull the first few and show
+     those instead — a genuine preview that the button then opens in full.
+
+     Fails quietly: if the registry is unpublished, password-gated, empty or
+     unreachable, the template's own placeholder cards stay exactly as they are.
+  ========================================================================== */
+  function hydrateRegistryPreview(d) {
+    var grid = document.getElementById('registryGrid');
+    if (!grid || _isPreview) return;
+    var slug = window._weddingSlug || _liveSlug || '';
+    if (!slug) return;
+
+    var cards = grid.querySelectorAll('.registry-card');
+    if (!cards.length) return;
+
+    fetch(API + '/public/registry/by-slug/' + encodeURIComponent(slug))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (reg) {
+        if (!reg || reg.password_required || reg.not_published) return;
+        var items = (reg.items || []).filter(function (it) {
+          return it && it.image_url;   // a card without a photo looks broken
+        });
+        if (!items.length) return;
+
+        var registryUrl = '/' + encodeURIComponent(slug) + '/registry';
+        var shown = Math.min(cards.length, items.length);
+
+        for (var i = 0; i < cards.length; i++) {
+          if (i >= shown) { cards[i].style.display = 'none'; continue; }
+          var it = items[i];
+          var img = cards[i].querySelector('img');
+          var name = cards[i].querySelector('.registry-card-name, .registry-item-name');
+          var btn = cards[i].querySelector('a');
+          if (img) { img.src = it.image_url; img.alt = it.title || ''; }
+          if (name) name.textContent = it.title || '';
+          if (btn) {
+            // Everything goes to the couple's own registry page rather than an
+            // external retailer: that's where contributing actually happens.
+            btn.setAttribute('href', registryUrl);
+            btn.removeAttribute('target');
+            if (it.quantity_remaining === 0) {
+              btn.textContent = 'Fully gifted';
+              btn.setAttribute('aria-disabled', 'true');
+              btn.style.opacity = '0.55';
+            }
+          }
+        }
+      })
+      .catch(function () { /* placeholder cards stand */ });
+  }
+
+  /* ==========================================================================
      BRAND FOOTER
      ==========================================================================
      The MyPlanning.ai footer that sits below every couple's own footer. Lives
@@ -1591,6 +1647,7 @@
 
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
+    hydrateRegistryPreview(d);
     renderBrandFooter();
 
     reveal();
@@ -1702,6 +1759,7 @@
     hydrate: hydrate,
     applySaveTheDate: applySaveTheDate,
     wireRegistryLinks: wireRegistryLinks,
+    hydrateRegistryPreview: hydrateRegistryPreview,
     buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
