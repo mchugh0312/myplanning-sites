@@ -180,7 +180,7 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   inset:0;
-  border:6px solid currentColor;
+  border:12px solid currentColor;
   border-radius:50%;
   pointer-events:none;
   opacity:1;
@@ -228,14 +228,16 @@ body.hydrating{visibility:hidden;}
      design the ampersand is SMALLER than the names and tucked tight between
      them — it was set larger than the names with space either side, which is
      what made it look like the wrong font. */
+  /* In the design the ampersand is roughly two-thirds the cap height of the
+     names, sits on the baseline, and the names close in over it. */
   font-family:var(--display);
   color:var(--blue);
   font-weight:400;
   font-style:italic;
-  font-size:0.78em;
-  margin:0 -0.02em;
+  font-size:0.62em;
+  margin:0 -0.06em;
   display:inline-block;
-  vertical-align:0.02em;
+  vertical-align:0.06em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -324,8 +326,12 @@ body.hydrating{visibility:hidden;}
   margin:0 auto 2.6rem;
   text-align:center;
 }
-.story-body:has(> .story-col:only-child){grid-template-columns:1fr;}
-.story-body > .story-col:only-child{max-width:520px;margin:0 auto;}
+/* The markup always ships two columns; the second is simply empty when the
+   couple wrote one paragraph. :only-child never matched, which is why the copy
+   stayed in the left-hand column instead of centring under the title. */
+.story-col:empty{display:none;}
+.story-body:has(> .story-col:empty){grid-template-columns:1fr;}
+.story-body:has(> .story-col:empty) .story-col{max-width:560px;margin:0 auto;}
 .story-col{
   font-family:var(--display);
   font-size:1.05rem;
@@ -397,7 +403,7 @@ body.hydrating{visibility:hidden;}
 /* ── TRAVEL INFO (ivory, 2-col with vertical divider) ───── */
 .travel-section{
   background:var(--ivory);
-  padding:3.5rem 2rem 4rem;
+  padding:3.5rem 2rem 3rem;
   text-align:center;
 }
 .travel-grid{
@@ -406,13 +412,16 @@ body.hydrating{visibility:hidden;}
   gap:2rem;
   max-width:780px;
   margin:0 auto;
-  align-items:start;
+  /* stretch, so the rule matches the columns' height exactly */
+  align-items:stretch;
 }
 .travel-divider{
+  /* Stretches to the taller column, with no arbitrary floor — a 200px minimum
+     left it hanging below the text when both columns were short. */
   width:2px;
   background:currentColor;
   align-self:stretch;
-  min-height:200px;
+  min-height:0;
 }
 .travel-col{text-align:center;}
 .travel-col-title{
@@ -427,7 +436,7 @@ body.hydrating{visibility:hidden;}
   font-size:0.82rem;
   color:var(--text);
   line-height:1.7;
-  margin-bottom:1.4rem;
+  margin-bottom:1.6rem;
   font-weight:400;
 }
 .travel-item:last-child{margin-bottom:0;}
@@ -489,19 +498,21 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .registry-lace{
-  /* Pinned to the panel's corners. Stretching a single copy across the band
-     left the art bunched in the middle, because the asset's ornament sits
-     inboard of its own canvas — so each corner gets its own copy, cropped to
-     the half it needs. */
+  /* Each copy covers half the band and is anchored to its own corner, so the
+     ornament reaches the panel's edges instead of sitting in from them. */
   position:absolute;
-  width:clamp(150px, 24vw, 300px);
+  top:0;
+  bottom:0;
+  width:50%;
+  height:100%;
   pointer-events:none;   /* never intercepts the CTA's clicks */
   user-select:none;
   z-index:1;
+  object-fit:contain;
   filter:brightness(0) invert(1) opacity(0.85);  /* renders the dark SVG as ivory */
 }
-.registry-lace.tl{top:0;left:0;transform-origin:top left;}
-.registry-lace.br{bottom:0;right:0;transform:rotate(180deg);transform-origin:bottom right;}
+.registry-lace.tl{left:0;object-position:left top;}
+.registry-lace.br{right:0;object-position:right bottom;transform:rotate(180deg);}
 .registry-section{
   /* Above the motif, so the label reads clearly and the whole pill stays
      clickable. */
@@ -1439,6 +1450,10 @@ function hydrateTravelInfo(d, menu) {
     for (var i = 0; i < hotelItems.length; i++) {
       if (hotelItems[i].note) { firstNote = hotelItems[i].note; break; }
     }
+    if (!firstNote) {
+      var _n = (d.couple_names || '').trim();
+      firstNote = _n ? 'Request the ' + _n + ' room block' : '';
+    }
     if (firstNote) hotelsHtml += '<div class="travel-note">*' + firstNote + '</div>';
   }
 
@@ -1524,7 +1539,16 @@ function hydrateWeddingSection(d, menu) {
       '</div>'
     : '<div class="wedding-col"></div>';
 
-  grid.innerHTML = leftHtml + figureHtml + rightHtml;
+  // Keep the template's fuller sample when the couple's data is thinner — a
+  // one-airport, one-hotel record was replacing a two-and-two sample and
+  // leaving the columns looking sparse.
+  var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
+  var _newItems = (airportItems.length + hotelItems.length);
+  if (_newItems >= _phItems || _phItems === 0) {
+    grid.innerHTML = leftHtml + figureHtml + rightHtml;
+  } else {
+    window.MP_SHOWING_PLACEHOLDERS = true;
+  }
 }
 
 // Hydrate the Events section (other_events) — 2 events side-by-side
