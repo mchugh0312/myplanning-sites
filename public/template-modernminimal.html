@@ -39,7 +39,7 @@
     below will pick it up automatically.
   • Body: Poppins (already in your fontlist as POPPINSRegular.woff2 etc.)
 -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&display=swap" rel="stylesheet">
 <style>
 @font-face {
   font-family: 'DIN Next Condensed';
@@ -53,7 +53,11 @@
   --ivory:#fffdf5;
   --text:#000000;
   --white:#ffffff;
-  --heading:'DIN Next Condensed','Poppins',sans-serif;
+  /* DIN Next Condensed is commercial; drop DINNextCondensedBold.woff2 into
+     /public/fonts/ and it takes precedence. Until then Oswald keeps the
+     condensed proportions the design depends on — Poppins is not
+     condensed, so it was rendering the titles far too wide. */
+  --heading:'DIN Next Condensed','Oswald','Poppins',sans-serif;
   --body:'Poppins',sans-serif;
 }
 html{scroll-behavior:smooth}
@@ -77,7 +81,7 @@ body.hydrating{visibility:hidden;}
 .brand-couple{
   font-family:var(--heading);
   font-weight:700;
-  font-size:clamp(1.5rem,3vw,2.1rem);
+  font-size:clamp(1.9rem,4.2vw,3rem);
   color:var(--black);
   letter-spacing:0.22em;
   line-height:1.1;
@@ -203,7 +207,7 @@ body.hydrating{visibility:hidden;}
 .section-title{
   font-family:var(--heading);
   font-weight:700;
-  font-size:clamp(1.5rem,2.6vw,1.95rem);
+  font-size:clamp(1.8rem,3.4vw,2.5rem);
   color:var(--black);
   letter-spacing:0.02em;
   text-align:center;
