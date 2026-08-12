@@ -173,21 +173,22 @@ body.hydrating{visibility:hidden;}
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:0.65rem 2.2rem;
+  padding:0.95rem 3rem;
   flex-shrink:0;
 }
 .oval-title::before{
   content:'';
   position:absolute;
   inset:0;
-  border:12px solid currentColor;
+  /* 80% of the previous weight. */
+  border:10px solid currentColor;
   border-radius:50%;
   pointer-events:none;
   opacity:1;
 }
 .oval-title span{
   font-family:var(--display);
-  font-size:1.05rem;
+  font-size:clamp(1.3rem, 2.4vw, 1.7rem);
   font-weight:400;
   letter-spacing:0.005em;
   position:relative;
@@ -224,20 +225,15 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.4rem;
 }
 .hero-couple-name .ampersand{
-  /* Instrument Serif italic, per the template's own typeface spec. In the
-     design the ampersand is SMALLER than the names and tucked tight between
-     them — it was set larger than the names with space either side, which is
-     what made it look like the wrong font. */
-  /* In the design the ampersand is roughly two-thirds the cap height of the
-     names, sits on the baseline, and the names close in over it. */
+  /* A plain ampersand in the template's own face, at the same size as the
+     names — only the colour differs. Earlier attempts shrank it, italicised it
+     and tried other faces; the design just uses the ordinary glyph. */
   font-family:var(--display);
   color:var(--blue);
   font-weight:400;
-  font-style:italic;
-  font-size:0.62em;
-  margin:0 -0.06em;
-  display:inline-block;
-  vertical-align:0.06em;
+  font-style:normal;
+  font-size:1em;
+  margin:0 0.04em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -498,21 +494,23 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .registry-lace{
-  /* Each copy covers half the band and is anchored to its own corner, so the
-     ornament reaches the panel's edges instead of sitting in from them. */
+  /* The asset holds TWO ornaments side by side, so drawing it whole put a
+     second piece in the middle of the band. Each corner is a window showing
+     only the half it needs: background-size 200% keeps the art at full scale
+     while background-position picks which half is visible. */
   position:absolute;
-  top:0;
-  bottom:0;
-  width:50%;
-  height:100%;
+  width:clamp(150px, 20vw, 260px);
+  height:clamp(150px, 20vw, 260px);
   pointer-events:none;   /* never intercepts the CTA's clicks */
   user-select:none;
   z-index:1;
-  object-fit:contain;
+  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg');
+  background-repeat:no-repeat;
+  background-size:200% auto;
   filter:brightness(0) invert(1) opacity(0.85);  /* renders the dark SVG as ivory */
 }
-.registry-lace.tl{left:0;object-position:left top;}
-.registry-lace.br{right:0;object-position:right bottom;transform:rotate(180deg);}
+.registry-lace.tl{top:0;left:0;background-position:left top;}
+.registry-lace.br{bottom:0;right:0;background-position:left top;transform:rotate(180deg);}
 .registry-section{
   /* Above the motif, so the label reads clearly and the whole pill stays
      clickable. */
@@ -1168,10 +1166,8 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 
 <!-- REGISTRY -->
 <section class="registry-wrap" id="registry-wrap">
-  <img class="registry-lace tl"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
-  <img class="registry-lace br"
-    src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg" alt="">
+  <span class="registry-lace tl" aria-hidden="true"></span>
+  <span class="registry-lace br" aria-hidden="true"></span>
   <a class="registry-section" id="registry-section" href="#" target="_blank">
     <span class="registry-cta">View our registry</span>
   </a>
@@ -1474,7 +1470,16 @@ function hydrateTravelInfo(d, menu) {
     (hotelsHtml || '<div class="travel-item" style="color:#999;font-style:italic">No hotel info provided.</div>') +
   '</div>';
 
-  grid.innerHTML = leftHtml + '<div class="travel-divider"></div>' + rightHtml;
+  // Keep the template's fuller sample when the couple's data is thinner — a
+  // one-airport, one-hotel record was replacing the two-and-two sample and
+  // leaving the columns sparse.
+  var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
+  var _newItems = airportItems.length + hotelItems.length;
+  if (_newItems >= _phItems || _phItems === 0) {
+    grid.innerHTML = leftHtml + '<div class="travel-divider"></div>' + rightHtml;
+  } else {
+    window.MP_SHOWING_PLACEHOLDERS = true;
+  }
 }
 
 // Hydrate the wedding section (Ceremony + figure + Reception)
@@ -1539,16 +1544,7 @@ function hydrateWeddingSection(d, menu) {
       '</div>'
     : '<div class="wedding-col"></div>';
 
-  // Keep the template's fuller sample when the couple's data is thinner — a
-  // one-airport, one-hotel record was replacing a two-and-two sample and
-  // leaving the columns looking sparse.
-  var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
-  var _newItems = (airportItems.length + hotelItems.length);
-  if (_newItems >= _phItems || _phItems === 0) {
-    grid.innerHTML = leftHtml + figureHtml + rightHtml;
-  } else {
-    window.MP_SHOWING_PLACEHOLDERS = true;
-  }
+  grid.innerHTML = leftHtml + figureHtml + rightHtml;
 }
 
 // Hydrate the Events section (other_events) — 2 events side-by-side
