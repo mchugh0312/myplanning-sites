@@ -1298,36 +1298,112 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (reg) {
         if (!reg || reg.password_required || reg.not_published) return;
-        var items = (reg.items || []).filter(function (it) {
-          return it && it.image_url;   // a card without a photo looks broken
-        });
+        // The API already returns items in the couple's arranged order
+        // (sort_order). Take them as they come — filtering out image-less items
+        // reordered the preview relative to the registry itself, which is why
+        // it looked shuffled.
+        var items = (reg.items || []).slice(0, cards.length);
         if (!items.length) return;
 
         var registryUrl = '/' + encodeURIComponent(slug) + '/registry';
-        var shown = Math.min(cards.length, items.length);
+        injectPreviewStyles();
 
         for (var i = 0; i < cards.length; i++) {
-          if (i >= shown) { cards[i].style.display = 'none'; continue; }
-          var it = items[i];
-          var img = cards[i].querySelector('img');
-          var name = cards[i].querySelector('.registry-card-name, .registry-item-name');
-          var btn = cards[i].querySelector('a');
-          if (img) { img.src = it.image_url; img.alt = it.title || ''; }
-          if (name) name.textContent = it.title || '';
-          if (btn) {
-            // Everything goes to the couple's own registry page rather than an
-            // external retailer: that's where contributing actually happens.
-            btn.setAttribute('href', registryUrl);
-            btn.removeAttribute('target');
-            if (it.quantity_remaining === 0) {
-              btn.textContent = 'Fully gifted';
-              btn.setAttribute('aria-disabled', 'true');
-              btn.style.opacity = '0.55';
-            }
-          }
+          if (i >= items.length) { cards[i].style.display = 'none'; continue; }
+          renderPreviewCard(cards[i], items[i], registryUrl);
         }
       })
       .catch(function () { /* placeholder cards stand */ });
+  }
+
+  function fmtMoney(cents) {
+    var n = Number(cents || 0) / 100;
+    try {
+      return n.toLocaleString('en-US', {
+        style: 'currency', currency: 'USD',
+        minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2
+      });
+    } catch (e) { return '$' + n.toFixed(0); }
+  }
+
+  function injectPreviewStyles() {
+    if (document.getElementById('mp-regprev-css')) return;
+    var st = document.createElement('style');
+    st.id = 'mp-regprev-css';
+    // Inherits each template's own card styling; these only add the parts the
+    // templates have no markup for.
+    st.textContent =
+      '.registry-card{position:relative}' +
+      '.mp-reg-badge{position:absolute;top:8px;right:8px;z-index:2;' +
+        'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;' +
+        'justify-content:center;background:rgba(255,255,255,0.92);' +
+        'box-shadow:0 1px 4px rgba(0,0,0,0.18);font-size:13px;line-height:1;color:#c0392b}' +
+      '.mp-reg-price{font-size:0.86rem;opacity:0.85;margin-top:2px}' +
+      '.mp-reg-meta{font-size:0.72rem;opacity:0.65;margin-top:2px}' +
+      '.mp-reg-gifted{opacity:0.55}';
+    document.head.appendChild(st);
+  }
+
+  function renderPreviewCard(card, it, registryUrl) {
+    var img = card.querySelector('img');
+    var name = card.querySelector('.registry-card-name, .registry-item-name');
+    var btn = card.querySelector('a');
+
+    if (img) {
+      if (it.image_url) { img.src = it.image_url; img.alt = it.title || ''; img.style.display = ''; }
+      else { img.style.visibility = 'hidden'; }   // keeps the card's shape
+    }
+    if (name) name.textContent = it.title || '';
+
+    // Most-wanted heart, as on the registry page.
+    var old = card.querySelector('.mp-reg-badge');
+    if (old) old.remove();
+    if (it.is_most_wanted) {
+      var badge = document.createElement('span');
+      badge.className = 'mp-reg-badge';
+      badge.setAttribute('title', 'Most wanted');
+      badge.textContent = '\u2665';
+      card.insertBefore(badge, card.firstChild);
+    }
+
+    // Price, or the goal for a cash fund.
+    var isFund = Number(it.price_cents) === 0 && Number(it.goal_amount_cents) > 0;
+    var amount = isFund ? it.goal_amount_cents : it.price_cents;
+    var priceEl = card.querySelector('.mp-reg-price');
+    if (!priceEl && name) {
+      priceEl = document.createElement('div');
+      priceEl.className = 'mp-reg-price';
+      name.parentNode.insertBefore(priceEl, name.nextSibling);
+    }
+    if (priceEl) priceEl.textContent = amount ? fmtMoney(amount) + (isFund ? ' goal' : '') : '';
+
+    // Group gift / remaining count, the way the registry page shows it.
+    var metaEl = card.querySelector('.mp-reg-meta');
+    if (!metaEl && priceEl) {
+      metaEl = document.createElement('div');
+      metaEl.className = 'mp-reg-meta';
+      priceEl.parentNode.insertBefore(metaEl, priceEl.nextSibling);
+    }
+    if (metaEl) {
+      var bits = [];
+      if (it.is_group_gift) bits.push('Group gift');
+      if (typeof it.quantity_remaining === 'number' &&
+          it.quantity_remaining > 0 && it.quantity_requested > 1) {
+        bits.push(it.quantity_remaining + ' of ' + it.quantity_requested + ' left');
+      }
+      metaEl.textContent = bits.join(' \u00b7 ');
+    }
+
+    if (btn) {
+      // Always the couple's own registry page — that's where contributing
+      // happens, not an external retailer.
+      btn.setAttribute('href', registryUrl);
+      btn.removeAttribute('target');
+      var soldOut = it.quantity_remaining === 0;
+      btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase this Item');
+      card.classList.toggle('mp-reg-gifted', !!soldOut);
+    }
   }
 
   /* ==========================================================================
