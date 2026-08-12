@@ -1195,6 +1195,8 @@
       '.mp-mnav-btn,.mp-mnav-panel,.mp-mnav-scrim{display:none}' +
       '@media(max-width:768px){' +
         '.mp-nav-desktop-only{display:none!important}' +
+        // Content clears the fixed button rather than running under it.
+        'body.mp-has-mnav{padding-top:58px}' +
         '.mp-mnav-btn{display:flex;position:fixed;top:14px;right:14px;z-index:9999;' +
           'width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;' +
           'align-items:center;justify-content:center;flex-direction:column;gap:5px;' +
@@ -1216,6 +1218,12 @@
           'border-bottom:1px solid ' + dp.rule + '}' +
         '.mp-mnav-panel a:last-child{border-bottom:none}' +
         'body.mp-mnav-open{overflow:hidden}' +
+        // RSVP fields: 16px is the floor that stops iOS zooming the page on
+        // focus. Templates were setting larger sizes, which read as oversized
+        // on a phone, so this pins them all to the floor.
+        '.rsvp-name-input,.rsvp-text-input,.rsvp-select,.rsvp-textarea{' +
+          'font-size:16px!important;padding-top:0.7rem!important;padding-bottom:0.7rem!important}' +
+        '.rsvp-name-input{text-align:center}' +
       '}';
     document.head.appendChild(style);
 
@@ -1272,6 +1280,9 @@
     document.body.appendChild(scrim);
     document.body.appendChild(panel);
     document.body.appendChild(btn);
+    // Reserves the strip the fixed button occupies, so hero names and
+    // headers don't run underneath it.
+    document.body.classList.add('mp-has-mnav');
   }
 
   /* ==========================================================================
