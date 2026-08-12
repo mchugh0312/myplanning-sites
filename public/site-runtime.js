@@ -127,6 +127,9 @@
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
+      // The template's page frame and RSVP band are blue, so the mobile drawer
+      // matches rather than taking the ivory page ground.
+      drawer: { bg: '#004aad', ink: '#fffdf5', rule: 'rgba(255,253,245,0.28)' },
       fonts: { display: "'Poppins',sans-serif", body: "'Poppins',sans-serif" }
     },
     whimsicalromance: {

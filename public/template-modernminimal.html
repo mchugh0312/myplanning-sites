@@ -157,11 +157,11 @@ body.hydrating{visibility:hidden;}
 .hero-deco-left{
   /* Overlapping the photo's left edge, as in the design — they were pushed far
      out into the margin. */
-  left:-90px;top:70px;
+  left:-90px;top:130px;
   width:150px;height:auto;
 }
 .hero-deco-right{
-  right:-70px;top:-30px;
+  right:-70px;top:40px;
   width:135px;height:auto;
 }
 .hero-pair{
@@ -372,7 +372,7 @@ body.hydrating{visibility:hidden;}
   display:flex;justify-content:center;
   margin-bottom:1.2rem;
 }
-.registry-icon img{width:86px;height:auto;display:block;}
+.registry-icon img{width:103px;height:auto;display:block;}
 .registry-title{
   font-family:var(--heading);
   font-weight:700;
@@ -817,14 +817,26 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
    above handles the frame, nav and section padding; this covers type scale,
    stacking and tap targets. */
 @media(max-width:640px){
-  .hero-couple-name{font-size:clamp(1.7rem,9vw,2.6rem);letter-spacing:0.14em;}
+  /* .hero-couple-name doesn't exist in this template — the header uses
+     .brand-couple, so the old rule here never applied. */
+  .brand-couple{font-size:clamp(1.5rem,7.5vw,2.1rem);letter-spacing:0.16em;}
+  .brand-tagline{font-size:0.82rem;}
+  .site-header{padding:1.6rem 1.1rem 1rem;}
+
+  /* Hero */
+  .hero{padding:0.5rem 1.1rem 2.4rem;}
+  .hero-image-wrap img{max-width:100%;}
+  /* The decorations overlap the photo on desktop; at phone width there's no
+     margin for them to sit in, so they tuck against the frame's corners. */
+  .hero-deco-left{left:-14px;top:auto;bottom:-18px;width:74px;}
+  .hero-deco-right{right:-12px;top:-16px;width:68px;}
+
   /* The overlapping pair becomes two stacked photos: at phone width each half
      would be barely 130px wide. */
   .hero-pair{height:auto;display:grid;gap:0.9rem;max-width:340px;}
   .hero-pair img{position:static;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;}
   .hero-pair-a{transform:none;border-width:3px;}
-  .hero-tagline{font-size:0.9rem;}
-  .hero-deco-left,.hero-deco-right{width:60px;opacity:0.85;}
+  .hero-tagline{font-size:0.9rem;margin-top:1.4rem;}
 
   /* Section headings */
   .section-title,.events-title,.travel-title,.faq-title,.registry-title,.rsvp-title{
@@ -834,13 +846,23 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   /* Event blocks and photo strips stack */
   .events-grid,.photo-strip,.registry-grid{grid-template-columns:1fr;gap:1.2rem;}
   .event-block{padding:1.4rem 0;}
-  .event-name{font-size:1.15rem;}
+  .event-name{font-size:1.25rem;}
   .event-detail{font-size:0.88rem;line-height:1.7;}
+  .event-venue,.event-address{font-size:0.86rem;}
+  /* Icons scaled with the smaller type. */
+  .event-icon img{width:64px;}
+  .registry-icon img{width:76px;}
+
+  /* Sections */
+  .events-primary,.other-events,.travel-section,
+  .faq-section,.registry-section{padding:2.2rem 1.1rem 2.6rem;}
+  .rsvp-section{padding:2.4rem 1.1rem 3rem;}
 
   /* Buttons */
   .travel-btn,.registry-cta,.registry-buy-btn{
     min-height:44px;padding:0.7rem 1.6rem;
     display:inline-flex;align-items:center;justify-content:center;
+    border-width:3px;
   }
 
   /* FAQs */
@@ -864,8 +886,12 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 
 @media(max-width:400px){
   body{border-width:6px;}
-  .hero-couple-name{font-size:clamp(1.5rem,8.5vw,2.1rem);}
+  .brand-couple{font-size:clamp(1.3rem,7vw,1.8rem);letter-spacing:0.12em;}
+  /* No room for the decorations beside the photo at this width. */
   .hero-deco-left,.hero-deco-right{display:none;}
+  .hero-pair{max-width:100%;}
+  .event-icon img{width:56px;}
+  .registry-icon img{width:66px;}
 }
 
 </style>
