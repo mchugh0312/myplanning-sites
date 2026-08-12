@@ -154,15 +154,18 @@ body.hydrating{visibility:hidden;}
   align-items:center;
   justify-content:center;
   gap:1rem;
+  /* Spans the same width as the content beneath it — the rules used to stop at
+     560px, well short of the copy and photos. */
   margin:0 auto 2.4rem;
-  max-width:560px;
+  max-width:900px;
   padding:0 1rem;
 }
 .oval-title-line{
   flex:1;
-  height:1px;
+  /* Thicker, per the design. */
+  height:2px;
   background:currentColor;
-  opacity:0.55;
+  opacity:0.9;
 }
 .oval-title{
   position:relative;
@@ -176,10 +179,10 @@ body.hydrating{visibility:hidden;}
   content:'';
   position:absolute;
   inset:0;
-  border:1px solid currentColor;
+  border:2px solid currentColor;
   border-radius:50%;
   pointer-events:none;
-  opacity:0.85;
+  opacity:1;
 }
 .oval-title span{
   font-family:var(--display);
@@ -220,11 +223,16 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.4rem;
 }
 .hero-couple-name .ampersand{
+  /* Instrument Serif italic — the design's ampersand is a proper serif swash,
+     not the sans the surrounding names use. */
+  font-family:'Instrument Serif', Georgia, serif;
   color:var(--blue);
   font-weight:400;
-  margin:0 0.05em;
+  margin:0 0.02em;
   font-style:italic;
+  font-size:1.15em;
   display:inline-block;
+  vertical-align:-0.02em;
 }
 .hero-date{
   font-family:var(--sans);
@@ -299,14 +307,14 @@ body.hydrating{visibility:hidden;}
   padding:4rem 2rem 4.5rem;
   text-align:center;
 }
-.our-story .oval-title-line{background:var(--ivory);opacity:0.7;}
-.our-story .oval-title::before{border-color:var(--ivory);opacity:0.7;}
+.our-story .oval-title-line{background:var(--ivory);opacity:0.95;}
+.our-story .oval-title::before{border-color:var(--ivory);opacity:1;}
 .our-story .oval-title span{color:var(--ivory);}
 .story-body{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:2.5rem;
-  max-width:780px;
+  max-width:900px;
   margin:0 auto 2.6rem;
   text-align:left;
 }
@@ -321,13 +329,14 @@ body.hydrating{visibility:hidden;}
   display:grid;
   grid-template-columns:repeat(3, 1fr);
   gap:1rem;
-  max-width:780px;
+  max-width:900px;
   margin:0 auto;
 }
 .story-photo{
-  aspect-ratio:3/4;
+  /* Rounded square, per the design — these were 3/4 portraits. */
+  aspect-ratio:1/1;
   overflow:hidden;
-  border-radius:14px;
+  border-radius:22px;
   background:#3a2620;
 }
 .story-photo img{
@@ -339,7 +348,6 @@ body.hydrating{visibility:hidden;}
   background:var(--ivory);
   padding:3.5rem 2rem 4rem;
   text-align:center;
-  border-bottom:1px solid rgba(81,50,41,0.5);
 }
 .events-grid{
   display:grid;
@@ -382,7 +390,6 @@ body.hydrating{visibility:hidden;}
   background:var(--ivory);
   padding:3.5rem 2rem 4rem;
   text-align:center;
-  border-bottom:1px solid rgba(81,50,41,0.5);
 }
 .travel-grid{
   display:grid;
@@ -430,7 +437,6 @@ body.hydrating{visibility:hidden;}
   background:var(--ivory);
   padding:3.5rem 2rem 4rem;
   text-align:center;
-  border-bottom:1px solid rgba(81,50,41,0.5);
 }
 .faq-list{
   max-width:560px;
@@ -475,13 +481,15 @@ body.hydrating{visibility:hidden;}
 }
 .registry-lace{
   position:absolute;
-  width:clamp(120px, 22vw, 200px);
+  /* Large corner lace, as in the design — it was rendering small and adrift
+     inside the band. */
+  width:clamp(150px, 26vw, 270px);
   pointer-events:none;
   user-select:none;
-  filter:brightness(0) invert(1) opacity(0.75);  /* renders dark SVG as ivory */
+  filter:brightness(0) invert(1) opacity(0.85);  /* renders the dark SVG as ivory */
 }
-.registry-lace.tl{top:-10px;left:-10px;}
-.registry-lace.br{bottom:-10px;right:-10px;transform:scale(-1,-1);}
+.registry-lace.tl{top:0;left:0;}
+.registry-lace.br{bottom:0;right:0;transform:scale(-1,-1);}
 .registry-section{
   position:relative;z-index:2;
   display:inline-block;
@@ -532,8 +540,10 @@ body.hydrating{visibility:hidden;}
   margin:0 auto 2.5rem;
 }
 .rsvp-name-input{
-  width:100%;padding:0.95rem 1.6rem;
-  border:1px solid var(--text);
+  /* Contained pill, not full-bleed — the design's field is about a third of
+     the section width. */
+  width:min(100%, 340px);margin:0 auto;padding:0.7rem 1.6rem;
+  border:2px solid var(--text);
   background:transparent;
   border-radius:999px;
   font-family:var(--sans);font-size:0.85rem;
@@ -847,6 +857,7 @@ footer{
   .our-story{padding:3rem 1.4rem 3.5rem;}
   .story-body{grid-template-columns:1fr;gap:1.4rem;text-align:left;}
   .story-photos{grid-template-columns:repeat(3, 1fr);gap:0.5rem;}
+  .story-photo{border-radius:14px;}
 
   .events-section,
   .travel-section{padding:2.5rem 1.4rem 3rem;}
@@ -865,7 +876,7 @@ footer{
 
   .need-to-know{padding:2.5rem 1.4rem 3rem;}
   .registry-wrap{padding:3rem 1.4rem;}
-  .registry-lace{width:90px;}
+  .registry-lace{width:clamp(96px,26vw,150px);}
   .rsvp-section{padding:2.5rem 1.4rem 4rem;}
 
   .gallery-section{padding:2.5rem 0;}
@@ -883,6 +894,10 @@ footer{
 
   /* The oval section labels shrink with their type so they don't wrap. */
   .section-label,.oval-label{font-size:0.95rem;padding:0.5rem 1.6rem;}
+  /* The wider rules need to come back in on a phone. */
+  .oval-title-wrap{max-width:100%;gap:0.6rem;}
+  .oval-title{padding:0.5rem 1.4rem;}
+  .oval-title span{font-size:0.95rem;}
 
   /* Sections */
   .our-story,.events,.travel-section,.need-to-know,
@@ -1321,9 +1336,19 @@ function renderWeddingColMeta(parsed) {
 
 function parseAllEventsFromBlob(blob) {
   if (!blob) return [];
-  var parts = blob.replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
-                  .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
-                  .split('||SPLIT||')
+  // Split on a blank line between events, on paragraph boundaries, and — for a
+  // blob where the couple used single line breaks throughout — before each
+  // bolded event name. Requiring a double <br> meant a second event written
+  // with single breaks silently disappeared.
+  var normalised = blob
+    .replace(/<\/p>\s*<p[^>]*>/gi, '||SPLIT||')
+    .replace(/<\/?p[^>]*>/gi, '')
+    .replace(/(?:<br\s*\/?>\s*){2,}/gi, '||SPLIT||');
+  if (normalised.indexOf('||SPLIT||') === -1 &&
+      (normalised.match(/<strong>/gi) || []).length > 1) {
+    normalised = normalised.replace(/(?!^)(<strong>)/gi, '||SPLIT||$1');
+  }
+  var parts = normalised.split('||SPLIT||')
                   .map(function(p) { return p.trim(); })
                   .filter(function(p) { return p.length > 3; });
   return parts.map(parseEventBlob);
