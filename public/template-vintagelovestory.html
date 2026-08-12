@@ -157,7 +157,9 @@ body.hydrating{visibility:hidden;}
   gap:1rem;
   /* Spans the same width as the content beneath it — the rules used to stop at
      560px, well short of the copy and photos. */
-  margin:0 auto 1.4rem;
+  /* Sets the gap above the columns; the sections' 1.1rem top and bottom
+     padding together match it below. */
+  margin:0 auto 2.2rem;
   max-width:900px;
   padding:0 1rem;
 }
@@ -232,8 +234,8 @@ body.hydrating{visibility:hidden;}
   color:var(--blue);
   font-weight:400;
   font-style:normal;
-  font-size:1.4em;
-  margin:0 0.02em;
+  font-size:1.68em;
+  margin:0 0.01em;
   line-height:1;
   display:inline-block;
   vertical-align:-0.04em;
@@ -308,7 +310,7 @@ body.hydrating{visibility:hidden;}
 .our-story{
   background:var(--brown);
   color:var(--ivory);
-  padding:4rem 2rem 4.5rem;
+  padding:1.1rem 2rem 2.6rem;
   text-align:center;
 }
 .our-story .oval-title-line{background:var(--ivory);opacity:0.95;}
@@ -360,14 +362,11 @@ body.hydrating{visibility:hidden;}
 /* ── EVENTS (ivory, 2-col with vertical divider) ────────── */
 .events-section{
   background:var(--ivory);
-  padding:3.5rem 2rem;
+  padding:1.1rem 2rem;
   text-align:center;
 }
 .events-grid{
   display:grid;
-  /* Matching space above and below the columns, so the divider sits centred
-     between this title and the next. */
-  margin-top:1rem;
   grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
@@ -405,12 +404,11 @@ body.hydrating{visibility:hidden;}
 /* ── TRAVEL INFO (ivory, 2-col with vertical divider) ───── */
 .travel-section{
   background:var(--ivory);
-  padding:3.5rem 2rem;
+  padding:1.1rem 2rem;
   text-align:center;
 }
 .travel-grid{
   display:grid;
-  margin-top:1rem;
   grid-template-columns:1fr 2px 1fr;
   gap:2rem;
   max-width:780px;
@@ -427,6 +425,9 @@ body.hydrating{visibility:hidden;}
   min-height:0;
 }
 .travel-col{text-align:center;}
+/* Nothing hanging below the last line, so the divider ends with the text. */
+.travel-col > *:last-child,
+.event-col > *:last-child{margin-bottom:0;}
 .travel-col-title{
   font-family:var(--display);
   font-size:clamp(1.4rem, 3vw, 1.8rem);
@@ -442,7 +443,7 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1.6rem;
   font-weight:400;
 }
-.travel-item:last-child{margin-bottom:0;}
+
 .travel-item-name{display:block;}
 .travel-item-meta{display:block;color:var(--text);}
 .travel-note{
@@ -456,7 +457,7 @@ body.hydrating{visibility:hidden;}
 /* ── FAQS (ivory, oval title, always-open list) ──────────── */
 .need-to-know{
   background:var(--ivory);
-  padding:3.5rem 2rem 4rem;
+  padding:1.1rem 2rem 3rem;
   text-align:center;
 }
 .faq-list{
@@ -657,7 +658,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-field-row > * + *{margin-top:0.9rem;}
 .rsvp-field-row:last-child{margin-bottom:0;}
 .rsvp-select,.rsvp-text-input{
-  width:100%;padding:0.85rem 1.6rem;
+  width:min(100%, 340px);margin-left:auto;margin-right:auto;padding:0.85rem 1.6rem;
   border:2px solid var(--text);
   background:transparent;
   font-family:var(--sans);font-size:0.85rem;
@@ -676,6 +677,27 @@ body.hydrating{visibility:hidden;}
 }
 .rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--brown);}
 .rsvp-text-input::placeholder{color:rgba(0,0,0,0.4);}
+/* The textareas had no styling at all and were rendering as raw browser boxes:
+   monospace, undersized and resizable. */
+.rsvp-textarea{
+  display:block;
+  width:min(100%, 340px);
+  margin:0 auto 0.9rem;
+  padding:0.85rem 1.6rem;
+  border:2px solid var(--text);
+  border-radius:22px;
+  background:transparent;
+  font-family:var(--sans);
+  font-size:0.85rem;
+  font-weight:400;
+  color:var(--text);
+  line-height:1.6;
+  outline:none;
+  resize:vertical;
+  min-height:88px;
+}
+.rsvp-textarea::placeholder{color:rgba(0,0,0,0.4);}
+.rsvp-textarea:focus{border-color:var(--brown);}
 .rsvp-bottom{
   max-width:380px;
   margin:2rem auto 0;
@@ -685,11 +707,13 @@ body.hydrating{visibility:hidden;}
   align-items:center;
   justify-content:center;
   gap:0.5rem;
-  width:100%;
+  /* Same measure as the event pills — it was full width while they were
+     capped, so the form read as two different widths. */
+  width:min(100%, 340px);
   padding:0.85rem 1.6rem;
-  margin-bottom:0.8rem;
+  margin:0 auto 0.9rem;
   background:transparent;
-  border:1px solid var(--text);
+  border:2px solid var(--text);
   border-radius:999px;
   font-family:var(--sans);
   font-size:0.85rem;
@@ -898,9 +922,11 @@ footer{
   .story-photo{border-radius:14px;}
 
   .events-section,
-  .travel-section{padding:2.5rem 1.4rem;}
-  /* Equal space above and below the stacked columns, as on desktop. */
-  .events-grid,.travel-grid{margin-top:0.6rem;}
+  .travel-section{padding:0.8rem 1.4rem;}
+  .need-to-know{padding:0.8rem 1.4rem 2.4rem;}
+  /* Same symmetry as desktop: the title's margin below matches the two
+     sections' padding either side of the boundary. */
+  .oval-title-wrap{margin-bottom:1.6rem;}
   .oval-title{padding:0.7rem 2rem;}
   .oval-title span{font-size:clamp(1.1rem,4.6vw,1.4rem);}
   .oval-title::before{border-width:7px;}
