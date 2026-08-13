@@ -99,6 +99,7 @@
       fonts: { display: "'Parfumerie Script',cursive", body: "'Goudy',Georgia,serif" }
     },
     goldenhour: {
+      navOverHero: true,   // hero is a full-bleed photo collage
       label: 'Golden Hour',
       heroNamesId: 'heroNames',
       heroId: 'home',
