@@ -650,6 +650,9 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
     <div class="hero-slide">
       <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4387fe16-c0f9-4f99-87ac-80562c3fddae.png" alt="Couple">
     </div>
+    <div class="hero-slide">
+      <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9acfbbd0-db0f-4dea-a9ef-b91fe73d1aff.png" alt="Couple">
+    </div>
   </div>
   <button class="carousel-arrow prev" id="carouselPrev" onclick="shiftCarousel(-1)" style="display:none">&#8592;</button>
   <button class="carousel-arrow next" id="carouselNext" onclick="shiftCarousel(1)"  style="display:none">&#8594;</button>
@@ -922,8 +925,18 @@ function hydrateTemplate(d) {
       if (u && u!==d.hero_image) heroImgs.push(u);
     });
   }
-  if (heroImgs.length) buildCarousel(heroImgs);
-  // else: default image already in HTML, carousel not built, arrows hidden
+  if (heroImgs.length) {
+    buildCarousel(heroImgs);
+  } else {
+    // No uploads yet: build the carousel from the template's own placeholder
+    // slides so the dots and arrows appear, as in the design. Previously the
+    // markup sat static with no controls at all.
+    var _defaults = [];
+    document.querySelectorAll('#heroCarousel .hero-slide img').forEach(function(im){
+      if (im.src) _defaults.push(im.src);
+    });
+    if (_defaults.length) buildCarousel(_defaults);
+  }
 
   // Custom colours
   if (d.customization) {
