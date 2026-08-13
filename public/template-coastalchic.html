@@ -928,16 +928,18 @@ body.hydrating{visibility:hidden;}
   /* Forms: one column, and controls big enough to hit. */
   .rsvp-field-row{grid-template-columns:1fr;gap:0.6rem;}
   .rsvp-select,.rsvp-text-input,.rsvp-name-input,.extra-guest-input{
-    /* Desktop runs these at 0.78rem, so 16px read as oversized on a phone.
-       14px is the compromise: noticeably smaller, and close enough to iOS's
-       16px zoom threshold that the page shift on focus is slight. */
-    font-size:14px;
+    /* Matching desktop (0.78rem / 12.5px). Below 16px iOS zooms the page when
+       a field takes focus — accepted here, since two rounds at 16px and 14px
+       both read as oversized against the rest of this template. */
+    font-size:0.78rem;
     min-height:44px;
     padding-top:0.6rem;
     padding-bottom:0.6rem;
   }
-  .rsvp-name-input{font-size:14px;}
-  .rsvp-textarea{font-size:14px;}
+  .rsvp-name-input{font-size:0.78rem;}
+  .rsvp-textarea{font-size:0.78rem;}
+  .rsvp-select{font-size:0.72rem;}
+  .rsvp-household-controls .rsvp-select{font-size:0.66rem;}
   .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
   .rsvp-add-guest{min-height:44px;}
   .rsvp-household-controls,.rsvp-household-controls.three-up{grid-template-columns:1fr;}

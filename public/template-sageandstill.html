@@ -852,19 +852,34 @@ footer{
 @media(max-width:768px){
   .hero{padding:2.5rem 1.2rem 1.5rem;}
   .hero-inner{min-height:clamp(220px, 60vw, 360px);}
-  /* Desktop keeps the names on one line so the tail runs over the photo. On a
-     phone that line is wider than the screen, which pushed the photograph off
-     to the right — hence only a sliver of it showing. Wrapping instead, at a
-     size that leaves the picture room. */
-  .hero-couple-name{
-    font-size:clamp(1.9rem, 11vw, 3.2rem);
-    white-space:normal;
-    width:56%;
-    text-align:left;
+  /* Desktop overlaps the names and the photograph by positioning both
+     absolutely. On a phone that let the names — one long unwrapped line —
+     widen the box and push the picture off to the right, which is why only a
+     strip of it showed. Here they sit in an ordinary two-column row, so
+     neither can overflow the screen. */
+  .hero-inner{
+    display:grid;
+    grid-template-columns:1fr 42%;
+    gap:1rem;
+    align-items:center;
+    min-height:0;
+    aspect-ratio:auto;
   }
-  /* A larger, taller picture now that the names no longer crowd it. */
-  .hero-photo-wrap{width:40%;height:clamp(200px,64vw,340px);top:8%;}
-  .hero-inner{min-height:clamp(230px,66vw,380px);}
+  .hero-couple-name{
+    position:static;
+    transform:none;
+    width:auto;
+    white-space:normal;
+    text-align:left;
+    font-size:clamp(1.8rem, 10vw, 3rem);
+  }
+  .hero-photo-wrap{
+    position:static;
+    width:100%;
+    height:auto;
+    aspect-ratio:3/4;
+  }
+  .hero-photo-wrap img{width:100%;height:100%;object-fit:cover;}
   .hero-photo-wrap{
     width:clamp(140px, 44%, 220px);
     height:clamp(180px, 60vw, 320px);
@@ -921,12 +936,7 @@ footer{
   .ntk-title,.registry-title,.rsvp-title{font-size:clamp(1.35rem,6.5vw,1.8rem);}
   .faq-q-text{font-size:0.98rem;}
   .faq-answer{font-size:0.87rem;line-height:1.7;}
-  /* Centred on mobile: the desktop accordion pushes the chevron to the far
-     right, which at phone width leaves the question stranded on the left. */
-  .faq-question{min-height:44px;justify-content:center;gap:0.6rem;text-align:center;}
-  .faq-q-text{text-align:center;}
-  .faq-answer{text-align:center;}
-  .faq-item{text-align:center;}
+  .faq-question{min-height:44px;}
 
   /* Registry overlay text needs to stay clear of the photo's edges. */
   .registry-section{min-height:200px;}
