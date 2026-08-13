@@ -1179,10 +1179,11 @@
         return;
       }
       a.setAttribute('href', url);
-      // Same site, so same tab. target="_blank" here was part of why a stray
-      // href="#" opened the wedding site again in a new tab.
-      a.removeAttribute('target');
-      a.removeAttribute('rel');
+      // New tab: the registry is a separate journey — a guest browsing gifts
+      // shouldn't lose their place on the wedding site, and coming back from an
+      // external retailer's checkout via the back button is worse still.
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener');
     });
   }
 
@@ -1465,7 +1466,8 @@
       // Always the couple's own registry page — that's where contributing
       // happens, not an external retailer.
       btn.setAttribute('href', registryUrl);
-      btn.removeAttribute('target');
+      btn.setAttribute('target', '_blank');
+      btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
       btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase this Item');
       card.classList.toggle('mp-reg-gifted', !!soldOut);

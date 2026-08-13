@@ -504,13 +504,27 @@ function applySkin(found){
 /* Theme as early as possible, then confirm against the API for guests who
    opened the registry link cold. */
 function initSkin(){
-  if (!state.slug) return;
+  // Three cases:
+  //   a couple with a published site  -> their template's colours and type
+  //   a couple whose site is a draft  -> still their template, from the payload
+  //   a registry with no site at all  -> the MyPlanning palette in :root
+  // The last one needs no work: leaving the variables alone IS the brand theme.
+  // Only mark the body so the type rules know which way round we are.
+  if (!state.slug) { document.body.classList.add("brandskin"); return; }
+
   const stashed = readStashedSite(state.slug);
   if (stashed) { applySkin(skinFor(stashed)); return; }
+
   fetch(RENDER_API + "/wedding-site/" + encodeURIComponent(state.slug))
     .then(r => r.ok ? r.json() : null)
-    .then(d => { if (d && !d.password_required) applySkin(skinFor(d)); })
-    .catch(() => {});
+    .then(d => {
+      // A draft or password-protected site still tells us the template, and a
+      // couple previewing their own registry should see their skin either way.
+      const found = d ? skinFor(d) : null;
+      if (found) applySkin(found);
+      else document.body.classList.add("brandskin");
+    })
+    .catch(() => { document.body.classList.add("brandskin"); });
 }
 
 
