@@ -636,8 +636,10 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .accom-btn,.travel-btn,.registry-cta{
     min-height:44px;padding:0.7rem 1.8rem;
     display:inline-flex;align-items:center;justify-content:center;
-    font-size:clamp(1.9rem,3.6vw,2.6rem);
-}
+    /* Button text, not a section title — the type-scale pass matched this
+       grouped selector because it contains .registry-cta. */
+    font-size:0.95rem;
+  }
 
   /* Need to Knows */
   .ntk-question{font-size:0.98rem;}
@@ -666,19 +668,17 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   /* Taller than it is wide, which crops an upright photo far less. */
   /* Shorter than square, and contained rather than cropped, so the whole
      photograph is visible on a phone. */
-  /* Mobile hero strategy:
-       - full screen width, height from the photograph, so it is never sliced
-         down the middle the way a fixed-height `cover` frame does;
-       - capped at 75% of the screen so a portrait upload can't fill the whole
-         view — a strip of the next section stays visible, which is what tells
-         a guest there's more below;
-       - if a photo is taller than the cap it crops equally top and bottom
-         (centred), rather than lopping off the bottom.
-     Common shapes at 390px wide land at 260–585px, all well inside the cap. */
-  .hero{height:auto;min-height:0;max-height:75svh;overflow:hidden;}
-  .hero-carousel{position:relative;inset:auto;align-items:center;}
-  .hero-slide{height:auto;display:flex;align-items:center;justify-content:center;}
-  .hero-slide img{width:100%;height:auto;object-fit:contain;background:none;}
+  /* Mobile hero: a portrait frame at 4:5, capped so it can't take the whole
+     screen. The carousel keeps the desktop geometry — an absolutely positioned
+     track with each slide filling the frame — because the slide widths and the
+     translate both depend on it; putting the track back into normal flow made
+     a dot land part-way through the same photograph.
+     A square frame is the even split. A 4:5 portrait frame shows only ~53% of
+     a landscape photograph; 4:3 shows only ~50% of a portrait one. 1:1 shows
+     about 75% of either, and takes a bit under half the screen so the section
+     below stays in view. */
+  .hero{height:auto;aspect-ratio:1/1;min-height:0;max-height:74svh;overflow:hidden;}
+  .hero-slide img{object-position:center;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(6.25rem,32.5vw,11.25rem);}
   .hero-initial-amp{font-size:clamp(4.5rem,18.75vw,7.5rem);}
   .carousel-dots{bottom:0.9rem;}
@@ -715,13 +715,14 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 @media(max-width:400px){
-  .hero{height:auto;min-height:0;max-height:72svh;overflow:hidden;}
+  .hero{height:auto;aspect-ratio:1/1;min-height:0;max-height:72svh;overflow:hidden;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(4.2rem,28vw,7rem);}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
 body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
-body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!important;}
+/* The carousel is inset:0 within .hero, so it needs no height of its own —
+   giving it a different one left the slides short of the frame. */
 </style>
 </head>
 <body class="hydrating">

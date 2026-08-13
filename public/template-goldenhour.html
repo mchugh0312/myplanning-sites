@@ -228,7 +228,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
 .rsvp-deadline{font-family:var(--serif);font-size:0.8rem;color:rgba(255,255,255,0.75);margin-bottom:2rem;}
 .rsvp-deadline sup{font-size:0.6em;vertical-align:super;}
 .rsvp-wrap{max-width:480px;margin:0 auto;text-align:left;}
-.rsvp-name-input{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.9rem;color:var(--dark);padding:0.85rem 1.2rem;outline:none;text-align:center;margin-bottom:1.5rem;}
+.rsvp-name-input{width:min(100%,420px);margin-left:auto;margin-right:auto;display:block;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.9rem;color:var(--dark);padding:0.85rem 1.2rem;outline:none;text-align:center;margin-bottom:1.5rem;border-radius:999px;}
 .rsvp-name-input::placeholder{color:rgba(50,52,75,0.4);}
 .rsvp-event-label{font-family:var(--serif);font-size:0.95rem;font-weight:600;color:var(--dark);margin:1rem 0 0.6rem;}
 .rsvp-event-block + .rsvp-event-block{border-top:1px solid rgba(255,255,255,0.45);
@@ -236,13 +236,13 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
 .rsvp-expanded{display:none;}
 .rsvp-expanded.visible{display:block;}
 .rsvp-select-wrap{position:relative;margin-bottom:0.6rem;}
-.rsvp-select{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:rgba(50,52,75,0.6);padding:0.7rem 2rem 0.7rem 0.9rem;outline:none;appearance:none;cursor:pointer;}
+.rsvp-select{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:rgba(50,52,75,0.6);padding:0.7rem 2rem 0.7rem 0.9rem;outline:none;appearance:none;cursor:pointer;border-radius:999px;}
 .rsvp-select:focus{border-color:var(--dark);color:var(--dark);}
 .rsvp-chevron{position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);font-size:0.6rem;color:rgba(50,52,75,0.4);pointer-events:none;}
-.rsvp-text-input{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;}
+.rsvp-text-input{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;border-radius:999px;}
 .rsvp-text-input::placeholder{color:rgba(50,52,75,0.4);}
 /* Textareas for dietary + message — share the input look but allow vertical resize */
-.rsvp-textarea{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;resize:vertical;min-height:64px;}
+.rsvp-textarea{width:100%;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.82rem;color:var(--dark);padding:0.7rem 0.9rem;outline:none;margin-bottom:0.6rem;resize:vertical;min-height:64px;border-radius:10px;}
 .rsvp-textarea::placeholder{color:rgba(50,52,75,0.4);}
 .rsvp-textarea:focus,.rsvp-text-input:focus{border-color:var(--dark);}
 /* Two-column row for paired selects (attending + meal) */
@@ -352,7 +352,10 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   }
   .wedding-cards{grid-template-columns:1fr;gap:1rem;}
   .split-section{grid-template-columns:1fr;height:auto;}
-  .split-photo{height:240px;}
+  /* Photo first, then its copy, in BOTH sections. Desktop mirrors them, which
+     stacked into two adjacent photographs followed by two blocks of text. */
+  .split-photo{height:240px;order:-1 !important;}
+  .split-content{order:0;}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   /* Thumbnail mode: CSS background handles display */
   body.thumbnail-mode .hero-section{height:66.67vw!important;min-height:0!important;display:block!important;}
@@ -389,7 +392,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   .event-title{font-size:1.5rem;}
 
   /* Hotel / Flights stack, with the photo above each block. */
-  .split-photo{height:200px;}
+  .split-photo{height:200px;order:-1 !important;}
   .split-label{font-size:1.5rem;}
   .split-name{font-size:0.9rem;}
   .split-note{font-size:0.82rem;}
