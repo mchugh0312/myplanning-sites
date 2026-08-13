@@ -1757,7 +1757,33 @@
     }
     applyCustomFont(d.custom_font);
 
-    window.MP_SHOWING_PLACEHOLDERS = false;
+    // Toggling a section on should show something. Templates gate most sections
+    // on BOTH the menu toggle and the content field, so a couple who switches
+    // one on before writing anything sees nothing happen and reasonably
+    // concludes the save failed. Fill any empty field whose section is switched
+    // on from the template's own SAMPLE_DATA, and flag that placeholders are
+    // showing. Gallery is excluded: photographs can't be substituted.
+    try {
+      var SAMPLE = window.SAMPLE_DATA || (typeof SAMPLE_DATA !== 'undefined' ? SAMPLE_DATA : null);
+      if (SAMPLE && d.menu_config) {
+        var FIELD_FOR = {
+          story: 'story', wedding: 'weddings_info', other_events: 'events_info',
+          accommodations: 'accommodation_info', travel: 'travel_info',
+          faqs: 'faqs', things_to_do: 'things_to_do', registry: 'registry_info'
+        };
+        Object.keys(FIELD_FOR).forEach(function (toggle) {
+          var field = FIELD_FOR[toggle];
+          var on = d.menu_config[toggle];
+          var empty = !d[field] || !String(d[field]).trim();
+          if (on && empty && SAMPLE[field]) {
+            d[field] = SAMPLE[field];
+            window.MP_SHOWING_PLACEHOLDERS = true;
+          }
+        });
+      }
+    } catch (e) {}
+
+    window.MP_SHOWING_PLACEHOLDERS = window.MP_SHOWING_PLACEHOLDERS || false;
     try {
       if (typeof window.hydrateTemplate === 'function') window.hydrateTemplate(d);
     } catch (err) {

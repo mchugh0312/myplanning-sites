@@ -1494,10 +1494,20 @@ function hydrateTemplate(d) {
       }
     }
 
-    if (d.things_to_do && menu.things_to_do) {
-      const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
-      item.innerHTML = `<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">Things to do nearby?</span><span class="faq-icon">+</span></button><div class="faq-answer">${d.things_to_do}</div>`;
-      faqList.appendChild(item);
+    if (menu.things_to_do) {
+      // Falls back to the template's sample copy, like every other section —
+      // switching the toggle on used to render nothing at all until the couple
+      // had also written the content, which reads as a broken toggle.
+      var _ttd = d.things_to_do || (typeof SAMPLE_DATA !== 'undefined' ? SAMPLE_DATA.things_to_do : '');
+      if (_ttd) {
+        const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
+        item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)">' +
+          '<span class="faq-q-text">Things to do nearby?</span>' +
+          '<span class="faq-icon">+</span></button>' +
+          '<div class="faq-answer">' + _ttd + '</div>';
+        faqList.appendChild(item);
+        if (!d.things_to_do) window.MP_SHOWING_PLACEHOLDERS = true;
+      }
     }
   }
 
@@ -1541,6 +1551,9 @@ function hydrateTemplate(d) {
   var _galleryIdx  = 0;
   const gallerySection = document.getElementById('gallery');
   if (gallerySection) {
+    // A gallery needs the couple's own photographs; there's nothing sensible to
+    // substitute. The section stays hidden until they upload some, and the
+    // editor flags the toggle so it doesn't look like it did nothing.
     const hasImages = d.gallery_images && d.gallery_images.length > 0;
     gallerySection.style.display = (menu.gallery && hasImages) ? '' : 'none';
     if (hasImages) {
