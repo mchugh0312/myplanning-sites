@@ -190,7 +190,7 @@ img{max-width:100%;display:block;}
   margin-bottom:1.4rem;line-height:1.2;
 }
 .wedding-card-detail{
-  font-family:var(--serif);font-size:0.98rem;
+  font-family:var(--serif);font-size:1.18rem;
   color:#673d45;line-height:2.1;
   text-align:center;
 }
@@ -244,22 +244,23 @@ img{max-width:100%;display:block;}
 /* Short centred rule, as in the design — it ran the full band height. */
 .accom-divider{background:rgba(103,61,69,0.3);width:1px;align-self:center;height:72%;}
 .accom-title{
-  font-family:var(--script);font-size:clamp(1.8rem,4vw,2.6rem);
+  font-family:var(--script);font-size:clamp(2rem,4.4vw,2.9rem);
   color:var(--berry);margin-bottom:1.2rem;
 }
 .accom-rule{width:50px;height:1px;background:rgba(175,171,87,0.6);margin:0 auto 1.5rem;}
 .accom-detail{
   /* 3. Larger than 0.82rem, which read as fine print. */
-  font-family:var(--serif);font-size:0.98rem;
+  font-family:var(--serif);font-size:1.18rem;
   color:var(--text);line-height:1.95;
 }
 .accom-btn{
-  /* Solid green-gray pill with white type — it was pale text on a pale band
-     and effectively invisible. */
+  /* Solid pill in the palette's grey with white type. An earlier version used
+     var(--green-gray), which this template never defines — the variable
+     resolved to nothing, leaving white text on a pale band. */
   display:inline-block;margin-top:1.4rem;
   padding:0.6rem 2.2rem;
-  background:var(--green-gray);
-  border:1px solid var(--green-gray);
+  background:var(--gray);
+  border:1px solid var(--gray);
   border-radius:999px;
   color:#ffffff;
   font-family:var(--serif);font-size:0.85rem;
@@ -280,7 +281,7 @@ img{max-width:100%;display:block;}
 }
 .section-rule-gold{width:50px;height:1px;background:var(--gold);margin:0 auto 2rem;}
 .section-body-serif{
-  font-family:var(--serif);font-size:0.98rem;
+  font-family:var(--serif);font-size:1.18rem;
   color:var(--text);line-height:2;text-align:center;
 }
 
@@ -340,14 +341,15 @@ img{max-width:100%;display:block;}
 /* ── REGISTRY — gold bg, ornate border frame ───────────────────── */
 .registry-section{
   background:var(--gold);
-  padding:4rem 2rem;
-  min-height:220px;
+  /* Taller band: the frame was letterboxed into a shallow strip. */
+  padding:6rem 2rem;
+  min-height:420px;
   display:flex;align-items:center;justify-content:center;
 }
 .registry-frame{
   position:relative;
   max-width:580px;width:100%;
-  padding:2.8rem 3.5rem;
+  padding:5rem 3.5rem;
   text-align:center;
 }
 /* Ornate SVG border — scrollwork style matching screenshot */
@@ -393,7 +395,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   margin-bottom:0.5rem;
 }
 .rsvp-deadline{
-  font-family:var(--serif);font-size:0.78rem;
+  font-family:var(--serif);font-size:0.95rem;
   color:rgba(242,236,231,0.75);
   margin-bottom:2rem;letter-spacing:0.04em;
 }
@@ -401,6 +403,8 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 /* The RSVP blocks area — hidden event blocks expand below the name pill */
 .rsvp-blocks-wrap{max-width:420px;margin:0 auto;}
 .rsvp-event-block{margin-bottom:2rem;}
+/* Event titles in white against the grey band, per the design. */
+.rsvp-event-label{font-family:var(--serif);font-size:1.05rem;color:#ffffff;margin:0 0 0.7rem;letter-spacing:0.02em;}
 /* Name pill — offwhite rounded input per screenshot */
 .rsvp-name-pill{
   width:100%;
@@ -580,7 +584,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
   /* Event details */
   .wedding-card-title,.event-title{font-size:1.5rem;}
-  .wedding-card-detail,.event-detail{font-size:0.98rem;line-height:1.75;}
+  .wedding-card-detail,.event-detail{font-size:1.18rem;line-height:1.75;}
 
   /* Accommodations / travel stack */
   .accom-grid,.travel-grid{grid-template-columns:1fr;gap:1.8rem;}
@@ -637,7 +641,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
   /* Body copy */
   .wedding-card-detail,.event-detail,.accom-detail,
-  .section-body-serif,.story-text{font-size:0.95rem;line-height:1.85;}
+  .section-body-serif,.story-text{font-size:1.05rem;line-height:1.85;}
   .ntk-question{font-size:1.05rem;}
   .ntk-answer{font-size:0.92rem;}
 
