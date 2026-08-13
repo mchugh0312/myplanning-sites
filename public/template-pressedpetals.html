@@ -165,9 +165,7 @@ body.hydrating{visibility:hidden;}
 /* ── HERO — full bleed, couple name bold & large centred ──── */
 /* Banner proportions from the design (~1.9:1), so the event details sit
    within the first screen rather than below a full-height photo. */
-/* Shorter than a full screen, so the event cards sit within the first
-   view rather than below the fold. */
-.hero{position:relative;height:clamp(300px,42vw,560px);min-height:0;overflow:hidden;}
+.hero{position:relative;height:100vh;min-height:560px;overflow:hidden;}
 .hero-image{position:absolute;inset:0;}
 .hero-image img{width:100%;height:100%;object-fit:cover;display:block;}
 .hero-gradient{
@@ -292,9 +290,14 @@ body.hydrating{visibility:hidden;}
 }
 .section-rule{width:50px;height:1px;background:var(--olive);margin:0 auto 2.8rem;}
 .other-event-card{
-  /* Inherits .event-card-primary; this only centres it in the band. */
+  /* Inherits .event-card-primary for size and face. The wedding cards sit on
+     the olive band so their type is white; this band is off-white, so the
+     colours flip. */
   max-width:520px;margin:0 auto;
 }
+.other-event-card .event-card-name{color:var(--olive);}
+.other-event-card .event-card-detail{color:var(--text);}
+.other-event-card .event-card-dress{color:var(--olive);}
 .other-event-card:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
 .other-event-name{
   font-family:var(--script);font-size:1.7rem;
@@ -330,13 +333,32 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
 }
 .accom-divider{
+  /* Same treatment as the divider between the event cards: a hairline with
+     three dots at each end. */
+  position:relative;
   align-self:stretch;
-  background:rgba(255,255,255,0.45);
   width:1px;
+  background:rgba(255,255,255,0.45);
+}
+.accom-divider::after{
+  content:'';
+  position:absolute;
+  left:50%;top:0;bottom:0;
+  width:5px;
+  transform:translateX(-50%);
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px),
+    radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px);
+  background-size:5px 7px, 5px 7px;
+  background-position:top center, bottom center;
+  background-repeat:repeat-y, repeat-y;
+  -webkit-mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+  mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
 }
 @media(max-width:768px){
   .accom-split{grid-template-columns:1fr;gap:2.4rem;}
   .accom-divider{width:60%;height:1px;margin:0 auto;justify-self:center;}
+  .accom-divider::after{display:none;}
 }
 /* FIX 5: Hotel name — Instrument Serif, Title Case, normal (not uppercase) */
 .accom-name{
@@ -387,18 +409,22 @@ body.hydrating{visibility:hidden;}
 /* Dark hero-image header for the title */
 .ntk-header{
   position:relative;overflow:hidden;
-  padding:6.5rem 4rem 5rem;   /* ~50% taller, per the design */
+  padding:8rem 4rem 6.5rem;   /* a further ~25% */
   text-align:center;
 }
 .ntk-header-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
-  /* Was 0.3, which read as almost black; the design shows the photograph
-     at close to full strength with the title over it. */
-  filter:brightness(0.62);z-index:0;
+  /* No dimming: the photograph shows as-is, as in the design. */
+  z-index:0;
 }
 .ntk-header-content{position:relative;z-index:1;}
-.ntk-header .section-title{color:var(--white);}
+.ntk-header .section-title{
+  color:var(--white);
+  /* The photograph is no longer dimmed, so the title carries its own shadow
+     rather than relying on a darkened background. */
+  text-shadow:0 2px 14px rgba(0,0,0,0.55);
+}
 .ntk-rule{width:50px;height:1px;background:rgba(255,255,255,0.5);margin:0.5rem auto 0;}
 
 /* Light FAQ area */
@@ -421,7 +447,7 @@ body.hydrating{visibility:hidden;}
   font-size:1.05rem;
   color:var(--text);
   font-style:normal;
-  font-weight:600;               /* heavier than the body, not bold */
+  font-weight:400;               /* normal, as in the design */
   letter-spacing:0.03em;line-height:1.4;text-align:center;
 }
 .faq-icon{
@@ -1281,8 +1307,30 @@ function hydrateTemplate(d) {
     let list = document.getElementById('otherEventsList');
     if (list) {
       if (d.events_info) {
-        // User-authored HTML — renders the full section content
-        list.innerHTML = '<div style="font-family:var(--serif);font-size:0.9rem;line-height:1.9;text-align:center">' + d.events_info + '</div>';
+        // Parsed into cards using the same rules as the wedding section, so an
+        // event here looks identical to The Ceremony and The Reception. It used
+        // to be dumped as raw HTML in a 0.9rem div, which is why the heading
+        // and details didn't match.
+        var oParts = d.events_info
+          .replace(/(<br\s*\/?>\s*){2,}/gi, '||SPLIT||')
+          .split('||SPLIT||')
+          .map(function(p){ return p.trim(); })
+          .filter(function(p){ return p.length > 3; });
+        list.innerHTML = oParts.map(function(part){
+          var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+          var eventName  = nameMatch ? nameMatch[1] : '';
+          var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
+          var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
+          var dressCode  = dressMatch ? dressMatch[1] : '';
+          var detail     = dressMatch
+            ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim()
+            : rest;
+          return '<div class="event-card-primary other-event-card">' +
+            (eventName ? '<div class="event-card-name">' + eventName + '</div>' : '') +
+            (detail    ? '<div class="event-card-detail">' + detail + '</div>' : '') +
+            (dressCode ? '<span class="event-card-dress">' + dressCode + '</span>' : '') +
+          '</div>';
+        }).join('');
       } else if (d.events && d.events.length > 2) {
         // Fallback: structured events beyond the first 2
         // Placeholder retention: render into a detached node and only
@@ -1293,7 +1341,7 @@ function hydrateTemplate(d) {
 
         d.events.slice(2).forEach(function(ev) {
           const card = document.createElement('div');
-          card.className = 'other-event-card';
+          card.className = 'event-card-primary other-event-card';
           // Same classes as The Ceremony / The Reception, so an event the
           // couple adds looks identical to the two above it.
           card.innerHTML = '<div class="event-card-name">'+ev.name+'</div>' +
@@ -1324,9 +1372,15 @@ function hydrateTemplate(d) {
       // Replacing the whole list dropped the Book Now button, so it's rebuilt
       // here with a real link (Accomodation URL field, or one pasted into the
       // copy) and omitted when there's nothing to point at.
+      // Rebuild the whole column, title included. Writing only the couple's
+      // copy here dropped the "Hotel" heading along with the button, which is
+      // why the column arrived untitled.
       var _bookUrl = _mpBookUrl(d.accommodation_info, d.accommodation_url);
-      accomList.innerHTML = `<div style="font-family:var(--serif);font-size:0.9rem;color:rgba(255,255,255,0.88);line-height:1.9;">${d.accommodation_info}</div>`
-        + (_bookUrl ? `<a class="accom-btn" href="${_bookUrl}" target="_blank" rel="noopener">Book Now</a>` : '');
+      accomList.innerHTML =
+        '<div class="accom-col-title">Hotel</div>' +
+        '<div class="accom-address">' + d.accommodation_info + '</div>' +
+        '<a class="accom-btn" href="' + (_bookUrl || '#') + '"' +
+          (_bookUrl ? ' target="_blank" rel="noopener"' : '') + '>Book Now</a>';
     }
   }
 
