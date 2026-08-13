@@ -180,9 +180,9 @@ body.hydrating{visibility:hidden;}
 /* FIX 2: Larger, bold couple name on hero */
 .hero-couple-name{
   font-family:var(--script);
-  font-size:clamp(4rem,8vw,7.5rem); /* increased from 6rem */
+  font-size:clamp(4.5rem,9vw,8.5rem); /* increased from 6rem */
   color:var(--white);
-  font-weight:700;                   /* bold */
+  font-weight:400;                   /* bold */
   line-height:1.05;
   text-shadow:0 2px 28px rgba(0,0,0,0.28);
   white-space:nowrap;
@@ -226,9 +226,30 @@ body.hydrating{visibility:hidden;}
   mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
 }
 @media(max-width:768px){
-  /* Cards stack, so the divider turns horizontal. */
-  .events-grid::before{left:20%;right:20%;top:50%;bottom:auto;width:auto;height:1px;transform:translateY(-50%);}
-  .events-grid::after{display:none;}
+  /* One size for every section title. The registry title was being pulled down
+     to ~1.8rem by this rule while .section-title kept its 2.8rem desktop
+     value, so "See Our Registry" read as much smaller than its neighbours. */
+  .section-title,
+  .accom-title,.travel-title,.registry-title,.rsvp-title,.ntk-title,
+  .accom-col-title{
+    font-size:clamp(2rem,8.5vw,2.8rem);
+  }
+
+  /* Cards stack, so the divider lies down — dots and all, rather than becoming
+     a plain rule. */
+  .events-grid::before{
+    left:18%;right:18%;top:50%;bottom:auto;
+    width:auto;height:1px;transform:translateY(-50%);
+  }
+  .events-grid::after{
+    left:18%;right:18%;top:50%;bottom:auto;
+    width:auto;height:5px;transform:translateY(-50%);
+    background-size:7px 5px, 7px 5px;
+    background-position:left center, right center;
+    background-repeat:repeat-x, repeat-x;
+    -webkit-mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+    mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+  }
 }
 .event-card-primary{padding:2.5rem 3rem;text-align:center;position:relative;}
 /* FIX 3: Vertical designer separator — taller, refined */
@@ -249,7 +270,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--serif);
   font-size:1rem;         /* was 0.8rem */
   color:rgba(255,255,255,0.92);
-  font-weight:600;           /* slightly bold */
+  font-weight:400;           /* slightly bold */
   line-height:2.1;
   letter-spacing:0.04em;
   color:var(--text);             /* FIX 4: all text #040505 — but on olive bg use white */
@@ -309,6 +330,7 @@ body.hydrating{visibility:hidden;}
   font-size:1rem;         /* was 0.8rem */
   color:var(--text);             /* FIX 4 */
   line-height:2;letter-spacing:0.03em;
+  font-weight:400;
 }
 
 /* ── ACCOMMODATIONS (olive bg) ────────────────────────────── */
@@ -358,7 +380,16 @@ body.hydrating{visibility:hidden;}
 @media(max-width:768px){
   .accom-split{grid-template-columns:1fr;gap:2.4rem;}
   .accom-divider{width:60%;height:1px;margin:0 auto;justify-self:center;}
-  .accom-divider::after{display:none;}
+  .accom-divider::after{
+    /* Same dotted ends, laid down. */
+    left:0;right:0;top:50%;bottom:auto;
+    width:auto;height:5px;transform:translateY(-50%);
+    background-size:7px 5px, 7px 5px;
+    background-position:left center, right center;
+    background-repeat:repeat-x, repeat-x;
+    -webkit-mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+    mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+  }
 }
 /* FIX 5: Hotel name — Instrument Serif, Title Case, normal (not uppercase) */
 .accom-name{
@@ -379,6 +410,7 @@ body.hydrating{visibility:hidden;}
   line-height:1.9;
   font-style:italic;         /* italic */
   margin-bottom:2rem;
+  font-weight:400;
 }
 /* FIX 5: CTA matches screenshot — white outlined pill */
 .accom-btn{
@@ -791,6 +823,10 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 /* ── MOBILE PASS (phones) ─────────────────────────────────────────────
    Additions only, inside media queries — desktop is untouched. */
 @media(max-width:640px){
+  /* One field per row: side by side, each pill was ~150px, too narrow for
+     "Do you plan to attend?". */
+  .rsvp-field-row{grid-template-columns:1fr;gap:0.6rem;}
+
   /* Hero: the 768px rule leaves a 320px floor plus 65vw, which is most of a
      phone screen before any content. */
   .hero{height:auto;min-height:0;aspect-ratio:4/3;}
@@ -810,9 +846,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   .event-card-detail{font-size:0.88rem;line-height:1.75;}
 
   /* Accommodations / travel */
-  .accom-title,.travel-title,.registry-title,.rsvp-title,.ntk-title{
-    font-size:clamp(1.5rem,7.5vw,2.1rem);
-  }
   .accom-btn,.travel-btn{
     min-height:44px;padding:0.7rem 1.8rem;
     display:inline-flex;align-items:center;justify-content:center;

@@ -498,7 +498,35 @@ function applySkin(found){
   r.setProperty("--ink", ink);
   r.setProperty("--skin-display", s.display);
   r.setProperty("--skin-body", s.body);
+
+  // The page ground alone wasn't enough to make this read as part of the
+  // wedding site: the chrome around the cards — chips, borders, rules, the
+  // secondary accent — all stayed on the MyPlanning palette, so only the
+  // welcome panel looked themed. These derive from the template's own colours
+  // so the whole page belongs to the same set.
+  //
+  // Card faces stay white deliberately: product photography needs a neutral
+  // ground, and tinting it would fight every retailer's cut-out image.
+  r.setProperty("--sage",   mix(accent, bg, 0.55));   // secondary accent
+  r.setProperty("--border", mix(ink,    bg, 0.78));   // input and chip edges
+  r.setProperty("--line",   mix(ink,    bg, 0.88));   // hairlines
+  r.setProperty("--muted",  mix(ink,    bg, 0.42));   // secondary text
+  r.setProperty("--gold",   accent);                  // note accent bar
+
   document.body.classList.add("skinned");
+}
+
+/* Blends two hex colours; `amount` is how far to move from `a` toward `b`. */
+function mix(a, b, amount){
+  const hex = h => {
+    const v = String(h || "").replace("#", "");
+    const f = v.length === 3 ? v.split("").map(c => c + c).join("") : v;
+    return [parseInt(f.slice(0,2),16), parseInt(f.slice(2,4),16), parseInt(f.slice(4,6),16)];
+  };
+  const [r1,g1,b1] = hex(a), [r2,g2,b2] = hex(b);
+  if ([r1,g1,b1,r2,g2,b2].some(isNaN)) return a;
+  const ch = (x,y) => Math.round(x + (y - x) * amount).toString(16).padStart(2,"0");
+  return "#" + ch(r1,r2) + ch(g1,g2) + ch(b1,b2);
 }
 
 /* Theme as early as possible, then confirm against the API for guests who
