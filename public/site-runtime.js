@@ -277,6 +277,14 @@
 
   function rsvpEl(id) { return document.getElementById(id); }
 
+  // Event names arrive from the couple's data in whatever case they typed;
+  // the designs set them in Title Case.
+  function titleCase(str) {
+    return String(str || '').toLowerCase().replace(/\b([a-z])/g, function (m) {
+      return m.toUpperCase();
+    });
+  }
+
   function buildRsvpBlocks(events) {
     var container = document.getElementById('rsvpBlocks');
     if (!container) return;
@@ -334,7 +342,7 @@
     list.innerHTML = _rsvpState.events.map(function (ev) {
       return '' +
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
-          '<div class="rsvp-event-label">' + esc(ev.label) + '</div>' +
+          '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
           '<div class="rsvp-expanded visible">' +
             '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
               '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
@@ -378,13 +386,12 @@
   }
 
   function checkShowSubmit() {
-    // Submit appears once the guest is on the list and has given an email. The
-    // backend re-validates both; this is purely UX.
-    var email = rsvpEl('rsvpEmail');
-    var emailVal = email ? (email.value || '').trim() : '';
-    var ok = !!_rsvpState.guestId && !!emailVal && emailVal.indexOf('@') > 0;
+    // The button appears as soon as the guest is found on the list. It used to
+    // wait for a valid email too, which meant a matched guest saw no way to
+    // continue and no explanation — the form looked like it had no submit at
+    // all. submitRSVP() still checks the email and says so if it's missing.
     var btn = document.getElementById('rsvpSubmitBtn');
-    if (btn) btn.style.display = ok ? 'block' : 'none';
+    if (btn) btn.style.display = _rsvpState.guestId ? 'block' : 'none';
   }
 
   /* ── Status banner ────────────────────────────────────────────────────── */
