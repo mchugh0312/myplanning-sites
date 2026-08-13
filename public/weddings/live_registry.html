@@ -426,6 +426,9 @@ const state = {
 
 const fmt = c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format((Number(c)||0)/100);
 const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+// Safe inline markdown: escape first (no HTML/scripts can inject), then turn
+// **bold** and *italic* into <strong>/<em>. Matches the Registry Settings editor.
+const mdInline = s => esc(s).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
 const el  = id=>document.getElementById(id);
 const isFund = it=> it.item_type_id===CASH_FUND_TYPE || (Number(it.price_cents)===0 && Number(it.goal_amount_cents)>0);
 
@@ -763,7 +766,7 @@ function render(){
     +   '<div class="rhero-panel">'
     +     '<h1 class="serif rh-title'+(state.preview?' ed':'')+'"'
     +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)"':'')
-    +       '>'+(r.title || esc(name))+'</h1>'
+    +       '>'+(state.preview ? esc(r.title || name) : mdInline(r.title || name))+'</h1>'
     +     '<div class="rh-note'+(state.preview?' ed':'')+'"'
     +       (state.preview?' contenteditable="true" data-field="welcome_note" onblur="savePresentation(this)" data-ph="Add a welcome note for your guests…"':'')
     +       '>'+(r.welcome_note || '')+'</div>'
@@ -1505,7 +1508,7 @@ async function errText(res){ const t=await res.text(); try{ return JSON.parse(t)
 function renderGate(title, invalid){
   el("app").innerHTML =
       '<div class="gate"><div class="gate-card"><div class="eyebrow">Private registry</div>'
-    + '<h2 class="serif" style="margin-top:6px">'+esc(title)+'</h2>'
+    + '<h2 class="serif" style="margin-top:6px">'+mdInline(title)+'</h2>'
     + '<p>This registry is password-protected. Please enter the password the couple shared with you.</p>'
     + '<div class="field"><input type="password" id="gate-pw" placeholder="Password" style="text-align:center"></div>'
     + (invalid?'<div style="color:#C23331;font-size:12px;margin-top:8px">That password didn\'t match — please try again.</div>':"")
