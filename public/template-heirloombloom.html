@@ -146,26 +146,33 @@ img{max-width:100%;display:block;}
   position:absolute;
   inset:0;
   z-index:2;pointer-events:none;
+  /* A single centred row. The diagonal comes from each glyph's own vertical
+     offset, so the horizontal gaps stay even whatever the letters are. */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0.04em;
 }
 .hero-initial-left,
 .hero-initial-right{
-  position:absolute;
+  position:relative;
   font-family:'Lancelot',Georgia,serif;
   font-size:clamp(7rem,23vw,17rem);
   color:var(--gold);
   line-height:0.86;
-  transform:translate(-50%,-50%);
 }
-.hero-initial-left{  left:40%; top:36%; }
-.hero-initial-right{ left:60%; top:68%; }
+.hero-initial-left{  transform:translateY(-22%); }
+.hero-initial-right{ transform:translateY(22%); }
 .hero-initial-amp{
-  position:absolute;
-  left:50%; top:54%;
-  transform:translate(-50%,-50%);
+  position:relative;
   font-family:var(--script);
   font-size:clamp(5rem,13.5vw,10.5rem);
   color:var(--gold);
   line-height:1;
+  /* Optical spacing: the script ampersand's own side bearings are uneven, so a
+     touch more room on its right keeps both gaps looking equal. */
+  margin:0 0.02em 0 0;
+  padding-right:0.06em;
 }
 
 /* ── THE WEDDING — offwhite bg, no title, two cards + flower ─── */
@@ -563,11 +570,9 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .wedding-flower-sep{width:80px;margin:0 auto;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(4.5rem,24vw,9rem);}
   .hero-initial-amp{font-size:clamp(2rem,7vw,3.5rem);}
-  /* On mobile the figures are tighter together — pull the letters in slightly */
-  /* Keep the diagonal on mobile, just tighter. */
-  .hero-initial-left{left:38%;top:34%;}
-  .hero-initial-amp{left:50%;top:52%;}
-  .hero-initial-right{left:62%;top:70%;}
+  /* Same row, a shallower diagonal on a narrow screen. */
+  .hero-initial-left{transform:translateY(-18%);}
+  .hero-initial-right{transform:translateY(18%);}
   .gallery-grid{grid-template-columns:1fr 1fr;}
   .rsvp-field-row{grid-template-columns:1fr;}
 }

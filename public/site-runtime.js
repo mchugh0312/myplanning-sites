@@ -397,7 +397,13 @@
     for (var i = 0; node && i < 8; i++, node = node.parentElement) {
       try {
         var bg = getComputedStyle(node).backgroundColor;
-        if (bg && bg !== 'transparent' && !/rgba\(0,\s*0,\s*0,\s*0\)/.test(bg)) {
+        // Any fully transparent colour is skipped, not just rgba(0,0,0,0):
+        // matching that one literal meant a parent with, say,
+        // rgba(255,255,255,0) ended the walk and the banner sized its contrast
+        // against the wrong colour.
+        var alpha = bg && bg.match(/rgba?\([^)]*?,\s*([0-9.]+)\s*\)/);
+        var transparent = bg === 'transparent' || (alpha && parseFloat(alpha[1]) === 0);
+        if (bg && !transparent) {
           var c = parseColor(bg);
           if (c) return c;
         }
