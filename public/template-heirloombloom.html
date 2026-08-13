@@ -88,10 +88,12 @@ img{max-width:100%;display:block;}
   font-size:1.5rem;color:rgba(74,58,61,0.55);line-height:1;
 }
 .menu-close:hover{color:var(--offwhite);}
-.menu-title{font-family:var(--script);font-size:1.8rem;color:var(--gold);margin-bottom:2rem;}
+/* Larger than the links beneath it — at 1.8rem the script face read as
+   smaller than the 0.8rem uppercase links. */
+.menu-title{font-family:var(--script);font-size:clamp(2.6rem,4.4vw,3.6rem);color:var(--gold);margin-bottom:1.6rem;line-height:1;}
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:1.1rem;}
 .menu-links a{
-  font-family:var(--serif);font-size:0.8rem;letter-spacing:0.1em;
+  font-family:var(--serif);font-size:0.95rem;letter-spacing:0.1em;
   text-transform:uppercase;color:var(--text);text-decoration:none;
   transition:color 0.2s;
 }
@@ -161,7 +163,7 @@ img{max-width:100%;display:block;}
   left:50%; top:54%;
   transform:translate(-50%,-50%);
   font-family:var(--script);
-  font-size:clamp(4rem,11vw,8.5rem);
+  font-size:clamp(5rem,13.5vw,10.5rem);
   color:var(--gold);
   line-height:1;
 }
@@ -634,7 +636,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .hero{height:clamp(300px,72vw,460px);}
   .hero-slide img{object-fit:contain;background:var(--offwhite);}
   .hero-initial-left,.hero-initial-right{font-size:clamp(5rem,26vw,9rem);}
-  .hero-initial-amp{font-size:clamp(3rem,13vw,5rem);}
+  .hero-initial-amp{font-size:clamp(3.6rem,15vw,6rem);}
   .carousel-dots{bottom:0.9rem;}
   .carousel-dot{width:9px;height:9px;}   /* easier to hit */
 

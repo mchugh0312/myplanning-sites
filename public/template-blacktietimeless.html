@@ -141,7 +141,7 @@ img{max-width:100%;display:block;}
 /* ── OUR STORY — offwhite bg ─────────────────────────────────── */
 .story-section{background:var(--offwhite);}
 .story-title{
-  font-family:var(--script);font-size:clamp(2rem,4vw,3rem);
+  font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
   color:var(--black);text-align:center;margin-bottom:0.5rem;
 }
 .story-rule{width:40px;height:1px;background:rgba(28,33,32,0.25);margin:0 auto 2rem;}
@@ -318,7 +318,7 @@ img{max-width:100%;display:block;}
 /* ── GALLERY — offwhite bg ────────────────────────────────────── */
 .gallery-section{background:var(--offwhite);padding:5rem 2rem;}
 .gallery-title{
-  font-family:var(--script);font-size:clamp(2rem,4vw,3rem);
+  font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
   color:var(--black);text-align:center;margin-bottom:0.5rem;
 }
 .gallery-rule{width:40px;height:1px;background:rgba(28,33,32,0.25);margin:0 auto 2rem;}
@@ -650,6 +650,11 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
 /* ── RESPONSIVE ───────────────────────────────────────────────── */
 @media(max-width:640px){
+  /* Our Story is off by default, so it was missed by the mobile pass. */
+  .story-section{padding:2.6rem 1.2rem;}
+  .story-title{font-size:clamp(1.8rem,8vw,2.6rem);}
+  .story-body{font-size:0.95rem;line-height:1.8;}
+
   .wedding-grid{grid-template-columns:1fr;gap:2rem;}
   .wedding-candelabra{width:60px;margin:0 auto;}
   .wedding-card{text-align:center;}

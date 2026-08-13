@@ -390,16 +390,47 @@
     error:    { border: '#C23331',                 bg: 'rgba(194,51,49,0.08)',   color: '#C23331' }
   };
 
+  // Walks up from the element to find the first non-transparent background,
+  // so the banner can size its contrast against what's actually behind it.
+  function effectiveBackground(el) {
+    var node = el;
+    for (var i = 0; node && i < 8; i++, node = node.parentElement) {
+      try {
+        var bg = getComputedStyle(node).backgroundColor;
+        if (bg && bg !== 'transparent' && !/rgba\(0,\s*0,\s*0,\s*0\)/.test(bg)) {
+          var c = parseColor(bg);
+          if (c) return c;
+        }
+      } catch (e) {}
+    }
+    return { r: 255, g: 255, b: 255 };
+  }
+
   function setStatus(kind, text) {
     var el = rsvpEl('rsvpStatus');
     if (!el) return;
     if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
     var s = BANNER[kind] || BANNER.checking;
+
+    // The palette above is tuned for a light RSVP section. Several templates
+    // put the form on a dark band, where the dark-green "found you" message was
+    // unreadable against it. Measure the real background and flip to a light
+    // treatment when the fixed colour wouldn't carry.
+    var bg = effectiveBackground(el);
+    var fg = parseColor(s.color) || { r: 75, g: 82, b: 68 };
+    var colour = s.color, border = s.border, band = s.bg;
+    if (contrastRatio(fg, bg) < 4.5) {
+      var light = relLuminance(bg) <= 0.45;
+      colour = light ? '#ffffff' : '#1a1a1a';
+      border = colour;
+      band = light ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
+    }
+
     el.style.cssText = [
-      'font-family:inherit', 'font-size:0.85rem', 'line-height:1.45',
+      'font-family:inherit', 'font-size:0.9rem', 'line-height:1.45',
       'padding:0.5rem 0.8rem', 'margin:0.6rem 0 0.2rem',
-      'border-left:3px solid ' + s.border, 'border-radius:4px',
-      'background:' + s.bg, 'color:' + s.color, 'display:block'
+      'border-left:3px solid ' + border, 'border-radius:4px',
+      'background:' + band, 'color:' + colour, 'display:block'
     ].join(';');
     el.textContent = text;
   }

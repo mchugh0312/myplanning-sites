@@ -615,6 +615,16 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   justify-content:center;margin-bottom:2.2rem;
 }
 .story-rule-line{flex:1;max-width:80px;height:1px;background:rgba(141,136,99,0.35);}
+/* Our Story is off by default and had no heading rule at all, so switching it
+   on produced an unstyled browser heading. Matches .section-title. */
+.story-title{
+  font-family:var(--script);
+  font-size:2.8rem;
+  color:var(--olive);
+  text-align:center;
+  margin-bottom:1.2rem;
+  line-height:1.1;
+}
 .story-text{
   font-family:var(--serif);font-size:1rem;color:var(--text);
   line-height:2;font-style:italic;text-align:center;

@@ -904,6 +904,11 @@ body.hydrating{visibility:hidden;}
    already had the most mobile CSS of the ten; this covers what was left:
    hero height, tap targets, form fields and the stamp decorations. */
 @media(max-width:640px){
+  /* Our Story is off by default, so it was missed by the mobile pass. */
+  .our-story{padding:2.4rem 1.2rem;}
+  .story-title{font-size:clamp(1.5rem,7vw,2rem);}
+  .story-text{font-size:0.92rem;line-height:1.8;}
+
   /* 68vh + a 420px floor is nearly a whole phone screen of photo before any
      content. A 4:3-ish frame reads better and leaves room for the nav. */
   .hero{height:auto;min-height:0;aspect-ratio:4/3;}

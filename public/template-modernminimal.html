@@ -825,6 +825,10 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
    above handles the frame, nav and section padding; this covers type scale,
    stacking and tap targets. */
 @media(max-width:640px){
+  /* Our Story is off by default, so it was missed by the mobile pass. */
+  .our-story{padding:2.2rem 1.1rem;}
+  .story-text{font-size:0.95rem;line-height:1.8;}
+
   /* .hero-couple-name doesn't exist in this template — the header uses
      .brand-couple, so the old rule here never applied. */
   .brand-couple{font-size:clamp(1.5rem,7.5vw,2.1rem);letter-spacing:0.16em;}
