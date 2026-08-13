@@ -33,7 +33,7 @@
 <meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
 <meta name="theme-color" content="#673d45">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Luxurious+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luxurious+Script&family=Lancelot&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'Parfumerie Script';src:url('/fonts/PARFUMERIEREGULARScript.woff2') format('woff2'),url('/fonts/PARFUMERIEREGULARScript.woff') format('woff');}
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');}
@@ -185,12 +185,12 @@ img{max-width:100%;display:block;}
 .wedding-card{text-align:center;padding:1.5rem 1rem;}
 .wedding-card-name{
   font-family:var(--script);
-  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-size:1.25rem;
   color:#673d45;
   margin-bottom:1.4rem;line-height:1.2;
 }
 .wedding-card-detail{
-  font-family:var(--serif);font-size:1.18rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:#673d45;line-height:2.1;
   text-align:center;
 }
@@ -215,18 +215,18 @@ img{max-width:100%;display:block;}
 }
 .other-event-name{
   font-family:var(--script);
-  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-size:1.25rem;
   color:#f2ece7;
   margin-bottom:1.6rem;line-height:1.2;
 }
 .other-event-detail{
-  font-family:var(--serif);font-size:0.92rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:#f2ece7;line-height:2.2;
   text-align:center;
 }
 .other-event-dress{
   display:block;margin-top:1.4rem;
-  font-family:var(--script);font-size:1.3rem;
+  font-family:var(--script);font-size:1.25rem;
   color:#f2ece7;
 }
 
@@ -244,13 +244,12 @@ img{max-width:100%;display:block;}
 /* Short centred rule, as in the design — it ran the full band height. */
 .accom-divider{background:rgba(103,61,69,0.3);width:1px;align-self:center;height:72%;}
 .accom-title{
-  font-family:var(--script);font-size:clamp(2rem,4.4vw,2.9rem);
+  font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--berry);margin-bottom:1.2rem;
 }
-.accom-rule{width:50px;height:1px;background:rgba(175,171,87,0.6);margin:0 auto 1.5rem;}
 .accom-detail{
   /* 3. Larger than 0.82rem, which read as fine print. */
-  font-family:var(--serif);font-size:1.18rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:var(--text);line-height:1.95;
 }
 .accom-btn{
@@ -263,7 +262,7 @@ img{max-width:100%;display:block;}
   border:1px solid var(--gray);
   border-radius:999px;
   color:#ffffff;
-  font-family:var(--serif);font-size:0.85rem;
+  font-family:var(--serif);font-size:0.95rem;
   letter-spacing:0.06em;
   cursor:pointer;transition:opacity 0.2s;text-decoration:none;
 }
@@ -275,13 +274,13 @@ img{max-width:100%;display:block;}
 .travel-inner{max-width:540px;margin:0 auto;text-align:center;}
 .section-title-script{
   font-family:var(--script);
-  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--berry);text-align:center;
   margin-bottom:0.5rem;
 }
 .section-rule-gold{width:50px;height:1px;background:var(--gold);margin:0 auto 2rem;}
 .section-body-serif{
-  font-family:var(--serif);font-size:1.18rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:var(--text);line-height:2;text-align:center;
 }
 
@@ -290,23 +289,24 @@ img{max-width:100%;display:block;}
 .ntk-inner{max-width:560px;margin:0 auto;}
 .ntk-title{
   font-family:var(--script);
-  font-size:clamp(2rem,5vw,3.2rem);
-  color:#673d45;text-align:center;margin-bottom:3rem;
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
+  color:#673d45;text-align:center;margin-bottom:1.6rem;
 }
 .ntk-item{
+  /* The design's blocks are close together; these were ~3x the gap. */
   text-align:center;
-  margin-bottom:2.5rem;
-  padding-bottom:2.5rem;
+  margin-bottom:1.8rem;
+  padding-bottom:0;
   border-bottom:none;
 }
 .ntk-item:last-child{margin-bottom:0;padding-bottom:0;}
 .ntk-question{
   font-family:var(--serif);
-  font-size:1.15rem;font-weight:normal;
-  color:#673d45;margin-bottom:0.9rem;
+  font-size:1.25rem;font-weight:normal;
+  color:#673d45;margin-bottom:0.5rem;
 }
 .ntk-answer{
-  font-family:var(--serif);font-size:0.95rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:#4a3a3d;line-height:2;text-align:center;
   max-width:480px;margin:0 auto;
 }
@@ -314,7 +314,7 @@ img{max-width:100%;display:block;}
 /* ── GALLERY — berry bg ────────────────────────────────────────── */
 .gallery-section{background:var(--berry);padding:4rem 2rem;}
 .gallery-title{
-  font-family:var(--script);font-size:clamp(1.8rem,4vw,2.6rem);
+  font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--offwhite);text-align:center;margin-bottom:0.5rem;
 }
 .gallery-rule{width:50px;height:1px;background:rgba(175,171,87,0.6);margin:0 auto 2rem;}
@@ -341,15 +341,14 @@ img{max-width:100%;display:block;}
 /* ── REGISTRY — gold bg, ornate border frame ───────────────────── */
 .registry-section{
   background:var(--gold);
-  /* Taller band: the frame was letterboxed into a shallow strip. */
-  padding:6rem 2rem;
-  min-height:420px;
+  padding:3rem 2rem;
+  min-height:340px;
   display:flex;align-items:center;justify-content:center;
 }
 .registry-frame{
   position:relative;
   max-width:580px;width:100%;
-  padding:5rem 3.5rem;
+  padding:4rem 3.5rem;
   text-align:center;
 }
 /* Ornate SVG border — scrollwork style matching screenshot */
@@ -361,7 +360,7 @@ img{max-width:100%;display:block;}
 }
 .registry-title{
   font-family:var(--script);
-  font-size:clamp(2rem,5vw,3.2rem);
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:#3a2010;
   line-height:1.2;
   position:relative;z-index:1;
@@ -376,7 +375,7 @@ a.registry-title{
 }
 a.registry-title:hover{border-bottom-color:currentColor;}
 .registry-body{
-  font-family:var(--serif);font-size:0.78rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:rgba(58,32,16,0.75);line-height:1.9;
   margin-top:0.8rem;
   position:relative;z-index:1;
@@ -390,12 +389,12 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 .rsvp-title{
   font-family:var(--script);
-  font-size:clamp(2rem,5vw,3rem);
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--offwhite);
   margin-bottom:0.5rem;
 }
 .rsvp-deadline{
-  font-family:var(--serif);font-size:0.95rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:rgba(242,236,231,0.75);
   margin-bottom:2rem;letter-spacing:0.04em;
 }
@@ -404,13 +403,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 .rsvp-blocks-wrap{max-width:420px;margin:0 auto;}
 .rsvp-event-block{margin-bottom:2rem;}
 /* Event titles in white against the grey band, per the design. */
-.rsvp-event-label{font-family:var(--serif);font-size:1.05rem;color:#ffffff;margin:0 0 0.7rem;letter-spacing:0.02em;}
+.rsvp-event-label{font-family:var(--serif);font-size:1.25rem;color:#ffffff;margin:0 0 0.7rem;letter-spacing:0.02em;}
 /* Name pill — offwhite rounded input per screenshot */
 .rsvp-name-pill{
   width:100%;
   background:var(--offwhite);
   border:none;border-radius:999px;
-  font-family:var(--serif);font-size:0.9rem;
+  font-family:var(--serif);font-size:1.05rem;
   color:var(--text);
   padding:0.9rem 1.8rem;
   outline:none;text-align:center;
@@ -433,7 +432,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border-radius:999px;
   color:var(--text);
   font-family:var(--serif);
-  font-size:0.9rem;
+  font-size:1.05rem;
   padding:0.7rem 1.4rem;
   outline:none;
   appearance:none;
@@ -459,7 +458,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border-radius:999px;
   color:var(--offwhite);
   font-family:var(--serif);
-  font-size:0.85rem;
+  font-size:1.05rem;
   cursor:pointer;
   transition:background 0.2s;
 }
@@ -471,7 +470,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   display:block;width:100%;margin-top:1.8rem;
   background:var(--berry);border:none;
   color:var(--offwhite);font-family:var(--serif);
-  font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;
+  font-size:0.95rem;letter-spacing:0.12em;text-transform:uppercase;
   padding:0.85rem;cursor:pointer;border-radius:999px;transition:opacity 0.2s;
 }
 .rsvp-submit:hover{opacity:0.88;}
@@ -497,7 +496,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 .rsvp-household.visible{display:block;}
 .rsvp-household-label{
   font-family:var(--serif);font-style:italic;
-  font-size:0.85rem;color:rgba(242,236,231,0.85);
+  font-size:1.05rem;color:rgba(242,236,231,0.85);
   text-align:left;letter-spacing:0.02em;
   margin-bottom:0.7rem;line-height:1.5;
 }
@@ -511,7 +510,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   text-align:left;
 }
 .rsvp-household-name{
-  font-family:var(--serif);font-weight:400;font-size:0.92rem;
+  font-family:var(--serif);font-weight:400;font-size:1.05rem;
   color:var(--offwhite);
   display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
   letter-spacing:0.02em;
@@ -595,7 +594,8 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .accom-btn,.travel-btn,.registry-cta{
     min-height:44px;padding:0.7rem 1.8rem;
     display:inline-flex;align-items:center;justify-content:center;
-  }
+    font-size:clamp(1.9rem,3.6vw,2.6rem);
+}
 
   /* Need to Knows */
   .ntk-question{font-size:0.98rem;}
@@ -623,7 +623,10 @@ a.registry-title:hover{border-bottom-color:currentColor;}
    Additions only, inside media queries. */
 @media(max-width:640px){
   /* Taller than it is wide, which crops an upright photo far less. */
-  .hero{height:clamp(420px,118vw,620px);}
+  /* Shorter than square, and contained rather than cropped, so the whole
+     photograph is visible on a phone. */
+  .hero{height:clamp(300px,72vw,460px);}
+  .hero-slide img{object-fit:contain;background:var(--offwhite);}
   .hero-initial-left,.hero-initial-right{font-size:clamp(5rem,26vw,9rem);}
   .hero-initial-amp{font-size:clamp(3rem,13vw,5rem);}
   .carousel-dots{bottom:0.9rem;}
@@ -651,7 +654,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 @media(max-width:400px){
-  .hero{height:clamp(380px,125vw,560px);}
+  .hero{height:clamp(260px,76vw,400px);}
   .hero-initial-left,.hero-initial-right{font-size:clamp(4.2rem,28vw,7rem);}
 }
 
@@ -733,14 +736,12 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   <div class="accom-inner">
     <div class="accom-col" id="accomContent">
       <div class="accom-title">Hotel</div>
-      <div class="accom-rule"></div>
       <div class="accom-detail">Hyatt Regency La Jolla at Aventine<br><em>Request the room block</em></div>
       <a class="accom-btn" href="#">Book Now</a>
     </div>
     <div class="accom-divider"></div>
     <div class="accom-col" id="travelContent">
       <div class="accom-title">Flights</div>
-      <div class="accom-rule"></div>
       <div class="accom-detail">San Diego National Airport<br><em>Approximately 30 minutes from the venue</em></div>
       <a class="accom-btn" href="#">Book Now</a>
     </div>
@@ -1167,7 +1168,7 @@ function hydrateTemplate(d) {
       var _acUrl=_mpBookUrl(d.accommodation_info, d.accommodation_url);
       acContent.innerHTML=
         '<div class="accom-title">'+acName+'</div>'+
-        '<div class="accom-rule"></div>'+
+        ''+
         (rest?'<div class="accom-detail">'+rest+'</div>':'')+
         // The design always shows the button; inert without a URL.
         '<a class="accom-btn" href="'+(_acUrl||'#')+'"'+(_acUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
@@ -1181,7 +1182,7 @@ function hydrateTemplate(d) {
       var _trUrl=_mpBookUrl(d.travel_info, d.travel_url);
       trContent.innerHTML=
         '<div class="accom-title">Flights</div>'+
-        '<div class="accom-rule"></div>'+
+        ''+
         '<div class="accom-detail">'+d.travel_info+'</div>'+
         '<a class="accom-btn" href="'+(_trUrl||'#')+'"'+(_trUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
     }
