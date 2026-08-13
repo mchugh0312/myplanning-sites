@@ -665,9 +665,12 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   /* Taller than it is wide, which crops an upright photo far less. */
   /* Shorter than square, and contained rather than cropped, so the whole
      photograph is visible on a phone. */
-  /* Shorter than wide, with the whole photo shown rather than cropped. */
-  .hero{height:clamp(240px,62vw,380px);min-height:0;}
-  .hero-slide img{object-fit:contain;background:var(--offwhite);}
+  /* The frame takes its height from the photograph, so the whole image shows
+     with no crop and no letterbox bands either side. */
+  .hero{height:auto;min-height:0;}
+  .hero-carousel{position:relative;inset:auto;}
+  .hero-slide{height:auto;}
+  .hero-slide img{height:auto;object-fit:contain;background:none;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(6.25rem,32.5vw,11.25rem);}
   .hero-initial-amp{font-size:clamp(4.5rem,18.75vw,7.5rem);}
   .carousel-dots{bottom:0.9rem;}
@@ -704,7 +707,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 @media(max-width:400px){
-  .hero{height:clamp(210px,64vw,320px);min-height:0;}
+  .hero{height:auto;min-height:0;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(4.2rem,28vw,7rem);}
 }
 
