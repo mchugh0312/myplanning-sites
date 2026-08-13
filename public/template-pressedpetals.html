@@ -226,14 +226,6 @@ body.hydrating{visibility:hidden;}
   mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
 }
 @media(max-width:768px){
-  /* One size for every section title. The registry title was being pulled down
-     to ~1.8rem by this rule while .section-title kept its 2.8rem desktop
-     value, so "See Our Registry" read as much smaller than its neighbours. */
-  .section-title,
-  .accom-title,.travel-title,.registry-title,.rsvp-title,.ntk-title,
-  .accom-col-title{
-    font-size:clamp(2rem,8.5vw,2.8rem);
-  }
 
   /* Cards stack, so the divider lies down — dots and all, rather than becoming
      a plain rule. */
@@ -874,6 +866,19 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   .story-flower-r,.flower-mid-right{display:none;}
 }
 
+/* ── One size for every section title on mobile ───────────────────────
+   Placed at the end of the stylesheet deliberately: these selectors match the
+   desktop rules' specificity exactly, so this only wins by being later. When
+   it sat higher up, "See Our Registry" and "Rsvp Please" kept their desktop
+   3.2rem and 2.8rem while their neighbours shrank. */
+@media(max-width:768px){
+  .section-title,
+  .accom-title,.travel-title,.registry-title,.rsvp-title,.ntk-title,
+  .accom-col-title,
+  a.registry-title{
+    font-size:clamp(2rem,8.5vw,2.8rem);
+  }
+}
 </style>
 </head>
 <body class="hydrating">
