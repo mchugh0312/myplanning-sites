@@ -608,8 +608,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
    Additions only, inside media queries — desktop is untouched. The 640px block
    above handles the hero initials; this covers everything below the fold. */
 @media(max-width:640px){
-  /* Hero: a near-square carousel is a lot of screen on a phone. */
-  .hero{height:clamp(320px,62vh,460px);}
+  /* Hero height is set further down, in the block that also overlays the nav. */
 
   /* Sections */
   .wedding-section,.events-section,.accom-section,.travel-section,
@@ -655,7 +654,6 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 @media(max-width:400px){
-  .hero{height:clamp(280px,56vh,380px);}
   .hero-initial-left,.hero-initial-right{font-size:clamp(3.6rem,22vw,6rem);}
 }
 
@@ -665,12 +663,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   /* Taller than it is wide, which crops an upright photo far less. */
   /* Shorter than square, and contained rather than cropped, so the whole
      photograph is visible on a phone. */
-  /* The frame takes its height from the photograph, so the whole image shows
-     with no crop and no letterbox bands either side. */
-  .hero{height:auto;min-height:0;}
-  .hero-carousel{position:relative;inset:auto;}
-  .hero-slide{height:auto;}
-  .hero-slide img{height:auto;object-fit:contain;background:none;}
+  /* One screen exactly: svh accounts for the browser's own chrome, so the
+     hero never spills onto a second scroll. The hamburger floats over the
+     photograph rather than taking a strip above it. */
+  .hero{height:100svh;min-height:0;max-height:100svh;}
+  .hero-carousel{position:absolute;inset:0;}
+  .hero-slide{height:100%;}
+  .hero-slide img{height:100%;object-fit:cover;background:none;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(6.25rem,32.5vw,11.25rem);}
   .hero-initial-amp{font-size:clamp(4.5rem,18.75vw,7.5rem);}
   .carousel-dots{bottom:0.9rem;}
@@ -707,7 +706,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 @media(max-width:400px){
-  .hero{height:auto;min-height:0;}
+  .hero{height:100svh;min-height:0;max-height:100svh;}
   .hero-initial-left,.hero-initial-right{font-size:clamp(4.2rem,28vw,7rem);}
 }
 

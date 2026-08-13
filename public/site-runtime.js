@@ -60,6 +60,7 @@
   ========================================================================== */
   var TEMPLATES = {
     pressedpetals: {
+      navOverHero: true,   // hero is a full-bleed photograph
       label: 'Pressed Petals',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
@@ -71,6 +72,7 @@
       fonts: { display: "'Citadel Script','Dancing Script',cursive", body: "'Instrument Serif',serif" }
     },
     heirloombloom: {
+      navOverHero: true,   // hero is a full-bleed photograph
       label: 'Heirloom Bloom',
       heroNamesId: 'heroInitialsWrap',
       heroId: 'hero',
@@ -144,6 +146,7 @@
       fonts: { display: "'Pinyon Script','Dancing Script',cursive", body: "'DM Sans',system-ui,sans-serif" }
     },
     coastalchic: {
+      navOverHero: true,   // hero is a full-bleed photograph
       label: 'Coastal Chic',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
@@ -169,6 +172,7 @@
       fonts: { display: "'Instrument Serif',Georgia,serif", body: "'Inter',system-ui,sans-serif" }
     },
     regalboho: {
+      navOverHero: true,   // hero is a full-bleed photograph
       label: 'Regal Boho',
       heroNamesId: null,
       heroId: 'hero',
@@ -1324,7 +1328,9 @@
     document.body.appendChild(btn);
     // Reserves the strip the fixed button occupies, so hero names and
     // headers don't run underneath it.
-    document.body.classList.add('mp-has-mnav');
+    // Full-bleed photo heroes let the button sit over the image; everything
+    // else reserves a strip so the button doesn't land on the couple's names.
+    if (!CFG.navOverHero) document.body.classList.add('mp-has-mnav');
   }
 
   /* ==========================================================================
