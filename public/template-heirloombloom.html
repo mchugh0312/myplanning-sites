@@ -185,7 +185,7 @@ img{max-width:100%;display:block;}
 .wedding-card{text-align:center;padding:1.5rem 1rem;}
 .wedding-card-name{
   font-family:var(--script);
-  font-size:1.25rem;
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:#673d45;
   margin-bottom:1.4rem;line-height:1.2;
 }
@@ -215,7 +215,7 @@ img{max-width:100%;display:block;}
 }
 .other-event-name{
   font-family:var(--script);
-  font-size:1.25rem;
+  font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:#f2ece7;
   margin-bottom:1.6rem;line-height:1.2;
 }
@@ -341,21 +341,27 @@ img{max-width:100%;display:block;}
 /* ── REGISTRY — gold bg, ornate border frame ───────────────────── */
 .registry-section{
   background:var(--gold);
-  padding:3rem 2rem;
-  min-height:340px;
+  padding:2.4rem 2rem;
+  min-height:0;
   display:flex;align-items:center;justify-content:center;
 }
 .registry-frame{
   position:relative;
-  max-width:580px;width:100%;
-  padding:4rem 3.5rem;
+  /* Matches the border asset's own aspect, so it renders undistorted. */
+  width:min(100%, 620px);
+  aspect-ratio:5/2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 3.5rem;
   text-align:center;
 }
 /* Ornate SVG border — scrollwork style matching screenshot */
 .registry-frame-svg{
-  /* The design's ornate border, as a single asset. */
+  /* Contained, not filled: the ornament keeps its own proportions instead of
+     being stretched to whatever shape the text box happens to be. */
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:fill;
+  object-fit:contain;
   pointer-events:none;
 }
 .registry-title{
