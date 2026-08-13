@@ -1184,11 +1184,30 @@ function hydrateTemplate(d) {
     console.warn('[og-rewrite] failed:', e);
   }
 
-  // ── Hero image ────────────────────────────────────────────────────────
-  if (d.hero_image) {
-    document.getElementById('heroImg').src = d.hero_image;
-    const bg = document.getElementById('needToKnowBg');
-    if (bg) { bg.style.backgroundImage = `url('${d.hero_image}')`; bg.style.backgroundSize = 'cover'; bg.style.backgroundPosition = 'center'; }
+  // ── Photographs ───────────────────────────────────────────────────────
+  // The template uses two: one behind the hero, one behind the Need to Knows
+  // title. First upload goes to the hero, second to Need to Knows; with only
+  // one, both use it, so the page never falls back to a stock image once a
+  // couple has supplied their own.
+  var _photos = [];
+  if (d.hero_image) _photos.push(d.hero_image);
+  (d.gallery_images || []).forEach(function (g) {
+    var u = typeof g === 'string' ? g : (g && g.url) || '';
+    if (u && _photos.indexOf(u) === -1) _photos.push(u);
+  });
+
+  if (_photos[0]) {
+    var _heroImg = document.getElementById('heroImg');
+    if (_heroImg) _heroImg.src = _photos[0];
+  }
+  var _ntkPhoto = _photos[1] || _photos[0];
+  if (_ntkPhoto) {
+    var bg = document.getElementById('needToKnowBg');
+    if (bg) {
+      bg.style.backgroundImage = "url('" + _ntkPhoto + "')";
+      bg.style.backgroundSize = 'cover';
+      bg.style.backgroundPosition = 'center';
+    }
   }
 
   // ── Footer ────────────────────────────────────────────────────────────
@@ -1420,16 +1439,21 @@ function hydrateTemplate(d) {
         faqPairs = [{ q: 'FAQs', a: d.faqs }];
       }
 
-      // Render: each pair = one accordion item (default collapsed)
-      faqPairs.forEach(function(pair) {
-        var item = document.createElement('div');
-        item.className = 'faq-item faq-dynamic';
-        item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)"><span class="faq-q-text">' + pair.q + '</span><span class="faq-icon">+</span></button><div class="faq-answer" style="font-style:italic">' + pair.a + '</div>';
-        faqList.prepend(item);
-      });
-      // Reverse so first question appears at top
-      var dynamic = Array.from(faqList.querySelectorAll('.faq-dynamic'));
-      dynamic.reverse().forEach(function(el) { faqList.prepend(el); });
+      // Replace the template's sample questions rather than prepending to them:
+      // the couple's questions were being added ABOVE the three placeholders,
+      // so both sets rendered and the section looked duplicated.
+      if (faqPairs.length) {
+        faqList.innerHTML = '';
+        faqPairs.forEach(function(pair) {
+          var item = document.createElement('div');
+          item.className = 'faq-item faq-dynamic';
+          item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)">' +
+            '<span class="faq-q-text">' + pair.q + '</span>' +
+            '<span class="faq-icon">+</span></button>' +
+            '<div class="faq-answer" style="font-style:italic">' + pair.a + '</div>';
+          faqList.appendChild(item);   // appended in order, no reversing needed
+        });
+      }
     }
 
     if (d.things_to_do && menu.things_to_do) {
