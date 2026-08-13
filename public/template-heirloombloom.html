@@ -110,7 +110,8 @@ img{max-width:100%;display:block;}
 .hero{
   position:relative;width:100%;
   /* height set to viewport — square-ish on desktop, taller on mobile */
-  height:clamp(360px,44vw,560px);min-height:500px;
+  /* Squarer than a banner, so a portrait upload keeps more of its frame. */
+  height:clamp(420px,62vw,720px);min-height:500px;
   overflow:hidden;
   background:#888 url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4387fe16-c0f9-4f99-87ac-80562c3fddae.png') center/cover no-repeat;
 }
@@ -132,16 +133,6 @@ img{max-width:100%;display:block;}
   transition:all 0.3s;
 }
 .carousel-dot.active{background:var(--white);transform:scale(1.25);}
-.carousel-arrow{
-  position:absolute;top:50%;transform:translateY(-50%);
-  background:rgba(103,61,69,0.4);border:none;cursor:pointer;
-  color:var(--white);width:36px;height:36px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-size:1rem;
-  transition:background 0.2s;z-index:3;
-}
-.carousel-arrow:hover{background:rgba(103,61,69,0.75);}
-.carousel-arrow.prev{left:0.8rem;}
-.carousel-arrow.next{right:0.8rem;}
 /* Initials — overlaid on photo. T sits centred over the left figure,
    L over the right figure (same baseline), & smaller and sitting low
    between them. Each letter is absolutely positioned within the wrap so
@@ -199,7 +190,7 @@ img{max-width:100%;display:block;}
   margin-bottom:1.4rem;line-height:1.2;
 }
 .wedding-card-detail{
-  font-family:var(--serif);font-size:0.9rem;
+  font-family:var(--serif);font-size:0.98rem;
   color:#673d45;line-height:2.1;
   text-align:center;
 }
@@ -250,7 +241,8 @@ img{max-width:100%;display:block;}
   display:grid;grid-template-columns:1fr 1px 1fr;gap:2.5rem;align-items:stretch;
 }
 .accom-col{text-align:center;}
-.accom-divider{background:rgba(103,61,69,0.35);width:1px;align-self:stretch;}
+/* Short centred rule, as in the design — it ran the full band height. */
+.accom-divider{background:rgba(103,61,69,0.3);width:1px;align-self:center;height:72%;}
 .accom-title{
   font-family:var(--script);font-size:clamp(1.8rem,4vw,2.6rem);
   color:var(--berry);margin-bottom:1.2rem;
@@ -262,15 +254,19 @@ img{max-width:100%;display:block;}
   color:var(--text);line-height:1.95;
 }
 .accom-btn{
+  /* Solid green-gray pill with white type — it was pale text on a pale band
+     and effectively invisible. */
   display:inline-block;margin-top:1.4rem;
-  padding:0.55rem 2rem;
+  padding:0.6rem 2.2rem;
+  background:var(--green-gray);
   border:1px solid var(--green-gray);
-  color:var(--white);background:var(--green-gray);
   border-radius:999px;
-  font-family:var(--serif);font-size:0.78rem;
-  letter-spacing:0.1em;text-transform:uppercase;
-  cursor:pointer;transition:all 0.2s;background:transparent;text-decoration:none;
+  color:#ffffff;
+  font-family:var(--serif);font-size:0.85rem;
+  letter-spacing:0.06em;
+  cursor:pointer;transition:opacity 0.2s;text-decoration:none;
 }
+.accom-btn:hover{opacity:0.88;}
 .accom-btn:hover{opacity:0.88;}
 
 /* ── TRAVEL — offwhite bg ─────────────────────────────────────── */
@@ -284,7 +280,7 @@ img{max-width:100%;display:block;}
 }
 .section-rule-gold{width:50px;height:1px;background:var(--gold);margin:0 auto 2rem;}
 .section-body-serif{
-  font-family:var(--serif);font-size:0.82rem;
+  font-family:var(--serif);font-size:0.98rem;
   color:var(--text);line-height:2;text-align:center;
 }
 
@@ -305,11 +301,11 @@ img{max-width:100%;display:block;}
 .ntk-item:last-child{margin-bottom:0;padding-bottom:0;}
 .ntk-question{
   font-family:var(--serif);
-  font-size:1.05rem;font-weight:normal;
+  font-size:1.15rem;font-weight:normal;
   color:#673d45;margin-bottom:0.9rem;
 }
 .ntk-answer{
-  font-family:var(--serif);font-size:0.82rem;
+  font-family:var(--serif);font-size:0.95rem;
   color:#4a3a3d;line-height:2;text-align:center;
   max-width:480px;margin:0 auto;
 }
@@ -449,11 +445,21 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
 .rsvp-extra-list{margin-top:0.8rem;}
 .rsvp-add-guest{
-  display:block;width:100%;background:none;
-  border:1px solid rgba(242,236,231,0.3);color:rgba(242,236,231,0.75);
-  font-family:var(--serif);font-size:0.74rem;letter-spacing:0.08em;
-  padding:0.55rem;margin-top:0.8rem;cursor:pointer;transition:all 0.2s;
+  /* Matches the form's other pills; it was a full-width bordered bar. */
+  display:inline-block;
+  width:auto;
+  margin:0.4rem auto 0.9rem;
+  padding:0.5rem 1.6rem;
+  background:transparent;
+  border:1px solid rgba(242,236,231,0.55);
+  border-radius:999px;
+  color:var(--offwhite);
+  font-family:var(--serif);
+  font-size:0.85rem;
+  cursor:pointer;
+  transition:background 0.2s;
 }
+.rsvp-add-guest:hover{background:rgba(242,236,231,0.12);}
 .rsvp-add-guest:hover{border-color:rgba(242,236,231,0.6);color:var(--offwhite);}
 .extra-guest-row{margin-bottom:0.6rem;}
 .rsvp-remove-btn{background:none;border:none;cursor:pointer;color:rgba(242,236,231,0.5);font-size:1rem;padding:0 0.2rem;}
@@ -574,7 +580,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
   /* Event details */
   .wedding-card-title,.event-title{font-size:1.5rem;}
-  .wedding-card-detail,.event-detail{font-size:0.88rem;line-height:1.75;}
+  .wedding-card-detail,.event-detail{font-size:0.98rem;line-height:1.75;}
 
   /* Accommodations / travel stack */
   .accom-grid,.travel-grid{grid-template-columns:1fr;gap:1.8rem;}
@@ -607,6 +613,42 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 @media(max-width:400px){
   .hero{height:clamp(280px,56vh,380px);}
   .hero-initial-left,.hero-initial-right{font-size:clamp(3.6rem,22vw,6rem);}
+}
+
+/* ── MOBILE PASS ──────────────────────────────────────────────────────
+   Additions only, inside media queries. */
+@media(max-width:640px){
+  /* Taller than it is wide, which crops an upright photo far less. */
+  .hero{height:clamp(420px,118vw,620px);}
+  .hero-initial-left,.hero-initial-right{font-size:clamp(5rem,26vw,9rem);}
+  .hero-initial-amp{font-size:clamp(3rem,13vw,5rem);}
+  .carousel-dots{bottom:0.9rem;}
+  .carousel-dot{width:9px;height:9px;}   /* easier to hit */
+
+  /* Hotel / Flights stack, so the vertical rule becomes a horizontal one. */
+  .accom-inner{grid-template-columns:1fr;gap:2rem;}
+  .accom-divider{width:60%;height:1px;margin:0 auto;align-self:center;}
+  .accom-btn{padding:0.65rem 2rem;min-height:44px;
+    display:inline-flex;align-items:center;justify-content:center;}
+
+  /* Registry frame keeps its proportions on a narrow screen. */
+  .registry-frame{padding:2.2rem 1.6rem;}
+  .registry-section{padding:2.6rem 1.1rem;}
+
+  /* Body copy */
+  .wedding-card-detail,.event-detail,.accom-detail,
+  .section-body-serif,.story-text{font-size:0.95rem;line-height:1.85;}
+  .ntk-question{font-size:1.05rem;}
+  .ntk-answer{font-size:0.92rem;}
+
+  /* Form */
+  .rsvp-add-guest{width:auto;min-height:44px;}
+  .rsvp-submit{width:100%;max-width:320px;min-height:48px;}
+}
+
+@media(max-width:400px){
+  .hero{height:clamp(380px,125vw,560px);}
+  .hero-initial-left,.hero-initial-right{font-size:clamp(4.2rem,28vw,7rem);}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
@@ -654,8 +696,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
       <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9acfbbd0-db0f-4dea-a9ef-b91fe73d1aff.png" alt="Couple">
     </div>
   </div>
-  <button class="carousel-arrow prev" id="carouselPrev" onclick="shiftCarousel(-1)" style="display:none">&#8592;</button>
-  <button class="carousel-arrow next" id="carouselNext" onclick="shiftCarousel(1)"  style="display:none">&#8594;</button>
   <div class="carousel-dots" id="carouselDots"></div>
   <!-- Initials bottom-left, large gold, two letters with & between -->
   <div class="hero-initials-wrap" id="heroInitialsWrap">
@@ -707,7 +747,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 <section class="registry-section" id="registry" style="display:none">
   <div class="registry-frame">
     <img class="registry-frame-svg" alt=""
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d0d676e2-53e0-4c44-a89c-acba20c46bf5.svg">
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/313ec046-f45d-41cd-8300-1e991fefbe20.png">
     <a class="registry-title registry-cta" id="registryCta" href="#">See Our Registry</a>
     <div class="registry-body" id="registryBody"></div>
   </div>
@@ -786,32 +826,75 @@ function handleMenuClick(link) {
 }
 
 // ── Carousel ──────────────────────────────────────────────────────────────
-var _carouselIdx = 0, _carouselUrls = [];
+var _carouselIdx = 0, _carouselUrls = [], _carouselTimer = null;
 
 function buildCarousel(urls) {
   _carouselUrls = urls;
+  _carouselIdx = 0;
   var c = document.getElementById('heroCarousel');
   var d = document.getElementById('carouselDots');
+  if (!c) return;
   c.innerHTML = urls.map(function(u){
     return '<div class="hero-slide"><img src="'+u+'" alt="Couple"></div>';
   }).join('');
-  d.innerHTML = urls.map(function(_,i){
-    return '<button class="carousel-dot'+(i===0?' active':'')+'" onclick="goToSlide('+i+')"></button>';
-  }).join('');
-  var show = urls.length > 1;
-  document.getElementById('carouselPrev').style.display = show ? '' : 'none';
-  document.getElementById('carouselNext').style.display = show ? '' : 'none';
+  if (d) {
+    d.innerHTML = urls.map(function(_,i){
+      return '<button class="carousel-dot'+(i===0?' active':'')+'" type="button" aria-label="Slide '+(i+1)+'"></button>';
+    }).join('');
+    // Listeners rather than inline onclick: the old dots called a global that
+    // the 5-second autoplay could immediately override, so the first tap
+    // appeared to snap straight back to slide one.
+    Array.prototype.forEach.call(d.children, function(dot, i){
+      dot.addEventListener('click', function(){ goToSlide(i, true); });
+    });
+  }
+  c.style.transform = 'translateX(0)';
+  startCarouselAuto();
+  attachCarouselSwipe(c);
 }
-function goToSlide(idx) {
-  _carouselIdx = idx;
+
+function goToSlide(idx, userInitiated) {
+  if (!_carouselUrls.length) return;
+  _carouselIdx = (idx + _carouselUrls.length) % _carouselUrls.length;
   var c = document.getElementById('heroCarousel');
-  if (c) c.style.transform = 'translateX(-'+(idx*100)+'%)';
-  document.querySelectorAll('.carousel-dot').forEach(function(d,i){ d.classList.toggle('active',i===idx); });
+  if (c) c.style.transform = 'translateX(-'+(_carouselIdx*100)+'%)';
+  document.querySelectorAll('.carousel-dot').forEach(function(dot,i){
+    dot.classList.toggle('active', i===_carouselIdx);
+  });
+  // Any deliberate move restarts the clock, so the slide the guest chose gets
+  // a full interval rather than being replaced a moment later.
+  if (userInitiated) startCarouselAuto();
 }
-function shiftCarousel(dir) {
-  goToSlide((_carouselIdx + dir + (_carouselUrls.length||1)) % (_carouselUrls.length||1));
+
+function shiftCarousel(dir, userInitiated) {
+  goToSlide(_carouselIdx + dir, userInitiated);
 }
-setInterval(function(){ if(_carouselUrls.length>1) shiftCarousel(1); }, 5000);
+
+function startCarouselAuto() {
+  if (_carouselTimer) clearInterval(_carouselTimer);
+  if (_carouselUrls.length < 2) return;
+  _carouselTimer = setInterval(function(){ shiftCarousel(1); }, 6000);
+}
+
+// Swipe on touch devices.
+function attachCarouselSwipe(c) {
+  if (c._swipeBound) return;
+  c._swipeBound = true;
+  var x0 = null, y0 = null;
+  c.addEventListener('touchstart', function(e){
+    var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY;
+  }, { passive: true });
+  c.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - x0, dy = t.clientY - y0;
+    // Horizontal intent only, so a vertical scroll doesn't change slides.
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      shiftCarousel(dx < 0 ? 1 : -1, true);
+    }
+    x0 = y0 = null;
+  }, { passive: true });
+}
 
 // ── Gallery ────────────────────────────────────────────────────────────────
 var _galleryUrls=[], _galleryIdx=0;
