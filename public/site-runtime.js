@@ -409,7 +409,9 @@
         }
       } catch (e) {}
     }
-    return { r: 255, g: 255, b: 255 };
+    // Nothing resolved: assume dark. White text on an unexpectedly light
+    // ground is still legible; the reverse is what keeps going wrong.
+    return { r: 40, g: 40, b: 40 };
   }
 
   function setStatus(kind, text) {
@@ -418,19 +420,22 @@
     if (!text) { el.style.display = 'none'; el.textContent = ''; return; }
     var s = BANNER[kind] || BANNER.checking;
 
-    // The palette above is tuned for a light RSVP section. Several templates
-    // put the form on a dark band, where the dark-green "found you" message was
-    // unreadable against it. Measure the real background and flip to a light
-    // treatment when the fixed colour wouldn't carry.
+    // Text colour is always derived from the background rather than taken from
+    // the palette: the palette's greens and reds are tuned for a light section,
+    // and several templates put the RSVP form on a dark band. Deciding by
+    // luminance every time removes the guesswork — the earlier version only
+    // flipped when a contrast threshold was crossed, which left the message
+    // dark-on-dark whenever the background couldn't be resolved.
     var bg = effectiveBackground(el);
-    var fg = parseColor(s.color) || { r: 75, g: 82, b: 68 };
-    var colour = s.color, border = s.border, band = s.bg;
-    if (contrastRatio(fg, bg) < 4.5) {
-      var light = relLuminance(bg) <= 0.45;
-      colour = light ? '#ffffff' : '#1a1a1a';
-      border = colour;
-      band = light ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
-    }
+    // Mid-tones (a gold or sage band) sit near the luminance midpoint where a
+    // single cut-off picks badly, so compare both and take the better.
+    var white = { r: 255, g: 255, b: 255 }, ink = { r: 26, g: 26, b: 26 };
+    var onDark = contrastRatio(white, bg) >= contrastRatio(ink, bg);
+    var colour = onDark ? '#ffffff' : '#1a1a1a';
+    var band = onDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.05)';
+    // The semantic colour survives on the left border, where contrast matters
+    // less, so "found you" still reads differently from an error.
+    var border = s.border;
 
     el.style.cssText = [
       'font-family:inherit', 'font-size:0.9rem', 'line-height:1.45',
