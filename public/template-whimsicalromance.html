@@ -1000,6 +1000,14 @@ footer{
   .accom-cta,.registry-cta,.rsvp-submit{
     min-height:44px;display:inline-flex;align-items:center;justify-content:center;
   }
+  /* One line: the 2.2rem side padding left too little room for the label, so
+     it broke into three lines and the pill turned into a block. */
+  .registry-cta{
+    white-space:nowrap;
+    padding:0.7rem 1.4rem;
+    font-size:clamp(0.68rem, 3.4vw, 0.82rem);
+    max-width:calc(100% - 2rem);
+  }
   .rsvp-submit{width:100%;max-width:300px;min-height:48px;}
   .rsvp-select,.rsvp-text-input,.rsvp-name-input{
     font-size:16px;   /* stops iOS zooming the page on focus */

@@ -388,7 +388,9 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   .wedding-card{padding:1.6rem 1.1rem;}
   .wedding-card-title{font-size:1.5rem;}
   .wedding-card-detail,.event-detail{font-size:0.88rem;line-height:1.75;}
-  .event-box{padding:0 0.5rem 1.5rem;}
+  /* Was 0 at the top, so the event name touched the border while the
+     cards above it had breathing room. */
+  .event-box{padding:1.6rem 1.1rem 1.5rem;}
   .event-title{font-size:1.5rem;}
 
   /* Hotel / Flights stack, with the photo above each block. */

@@ -852,7 +852,19 @@ footer{
 @media(max-width:768px){
   .hero{padding:2.5rem 1.2rem 1.5rem;}
   .hero-inner{min-height:clamp(220px, 60vw, 360px);}
-  .hero-couple-name{font-size:clamp(2.6rem, 16vw, 5rem);}
+  /* Desktop keeps the names on one line so the tail runs over the photo. On a
+     phone that line is wider than the screen, which pushed the photograph off
+     to the right — hence only a sliver of it showing. Wrapping instead, at a
+     size that leaves the picture room. */
+  .hero-couple-name{
+    font-size:clamp(1.9rem, 11vw, 3.2rem);
+    white-space:normal;
+    width:56%;
+    text-align:left;
+  }
+  /* A larger, taller picture now that the names no longer crowd it. */
+  .hero-photo-wrap{width:40%;height:clamp(200px,64vw,340px);top:8%;}
+  .hero-inner{min-height:clamp(230px,66vw,380px);}
   .hero-photo-wrap{
     width:clamp(140px, 44%, 220px);
     height:clamp(180px, 60vw, 320px);
@@ -909,7 +921,12 @@ footer{
   .ntk-title,.registry-title,.rsvp-title{font-size:clamp(1.35rem,6.5vw,1.8rem);}
   .faq-q-text{font-size:0.98rem;}
   .faq-answer{font-size:0.87rem;line-height:1.7;}
-  .faq-question{min-height:44px;}
+  /* Centred on mobile: the desktop accordion pushes the chevron to the far
+     right, which at phone width leaves the question stranded on the left. */
+  .faq-question{min-height:44px;justify-content:center;gap:0.6rem;text-align:center;}
+  .faq-q-text{text-align:center;}
+  .faq-answer{text-align:center;}
+  .faq-item{text-align:center;}
 
   /* Registry overlay text needs to stay clear of the photo's edges. */
   .registry-section{min-height:200px;}

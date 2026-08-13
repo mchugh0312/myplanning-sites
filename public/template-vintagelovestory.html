@@ -919,7 +919,9 @@ footer{
   .wedding-grid .wedding-col:nth-child(3){order:2;}
 
   .our-story{padding:3rem 1.4rem 3.5rem;}
-  .story-body{grid-template-columns:1fr;gap:1.4rem;text-align:left;}
+  /* Centred, matching desktop — this rule was still forcing left. */
+  .story-body{grid-template-columns:1fr;gap:1.4rem;text-align:center;}
+  .story-col{text-align:center;}
   /* Two across, the third centred underneath — a plain 2-col grid left an
      empty bottom-right cell. */
   .story-photos{grid-template-columns:repeat(2, 1fr);gap:0.7rem;max-width:420px;}

@@ -1269,8 +1269,10 @@
         // RSVP fields: 16px is the floor that stops iOS zooming the page on
         // focus. Templates were setting larger sizes, which read as oversized
         // on a phone, so this pins them all to the floor.
+        // Floor, not a fixed size: a template may set its own smaller value and
+        // this used to override it with !important.
         '.rsvp-name-input,.rsvp-text-input,.rsvp-select,.rsvp-textarea{' +
-          'font-size:16px!important;padding-top:0.7rem!important;padding-bottom:0.7rem!important}' +
+          'font-size:16px;padding-top:0.7rem;padding-bottom:0.7rem}' +
         '.rsvp-name-input{text-align:center}' +
       '}';
     document.head.appendChild(style);
