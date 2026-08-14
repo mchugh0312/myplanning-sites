@@ -1347,6 +1347,27 @@
   }
 
   /* ==========================================================================
+     THINGS TO DO
+     ==========================================================================
+     Every template now carries a #things-to-do section. It used to be appended
+     as an item inside the FAQ accordion, which meant the toggle appeared to do
+     nothing and the content couldn't be reached from the menu.
+  ========================================================================== */
+  function hydrateThingsToDo(d) {
+    var section = document.getElementById('things-to-do');
+    if (!section) return;
+    var menu = d.menu_config || {};
+    var body = document.getElementById('thingsToDoText');
+    var content = d.things_to_do && String(d.things_to_do).trim();
+
+    section.style.display = menu.things_to_do ? '' : 'none';
+    if (!menu.things_to_do) return;
+
+    if (body && content) body.innerHTML = d.things_to_do;
+    else if (body) window.MP_SHOWING_PLACEHOLDERS = true;
+  }
+
+  /* ==========================================================================
      REGISTRY PREVIEW
      ==========================================================================
      Templates that show a few product cards above the "View Our Registry"
@@ -1828,6 +1849,7 @@
 
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
+    hydrateThingsToDo(d);
     hydrateRegistryPreview(d);
     renderBrandFooter();
 
@@ -1941,6 +1963,7 @@
     applySaveTheDate: applySaveTheDate,
     wireRegistryLinks: wireRegistryLinks,
     hydrateRegistryPreview: hydrateRegistryPreview,
+    hydrateThingsToDo: hydrateThingsToDo,
     buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,

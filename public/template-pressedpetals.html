@@ -1061,6 +1061,14 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   </div>
 </div>
 
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<div class="other-events" id="things-to-do" style="display:none">
+  <h2 class="section-title">Things to Do</h2>
+  <div class="other-event-detail" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+</div>
+
 <!-- REGISTRY: plain olive strip, script title only -->
 <div class="registry" id="registry">
   <a class="registry-title registry-cta" href="#" style="color:var(--white)">See Our Registry</a>
@@ -1070,6 +1078,15 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 <div class="registry" id="registry-section" style="display:none">
   <a class="registry-title registry-cta" id="registryCta" href="#" style="color:var(--white)">See Our Registry</a>
   <div id="registryInfo" style="font-family:var(--serif);font-size:0.88rem;color:rgba(255,255,255,0.88);line-height:1.9;max-width:560px;margin:1.2rem auto 0;font-style:italic;"></div>
+</div>
+
+<!-- GALLERY — the styles existed but the markup didn't, so the toggle had
+     nothing to show. -->
+<div class="gallery-section" id="gallery" style="display:none">
+  <div class="gallery-section-inner">
+    <h2 class="section-title">Our Gallery</h2>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
 </div>
 
 <!-- RSVP: FIX 7 — matches screenshot exactly -->
@@ -1494,21 +1511,8 @@ function hydrateTemplate(d) {
       }
     }
 
-    if (menu.things_to_do) {
-      // Falls back to the template's sample copy, like every other section —
-      // switching the toggle on used to render nothing at all until the couple
-      // had also written the content, which reads as a broken toggle.
-      var _ttd = d.things_to_do || (typeof SAMPLE_DATA !== 'undefined' ? SAMPLE_DATA.things_to_do : '');
-      if (_ttd) {
-        const item = document.createElement('div'); item.className = 'faq-item faq-dynamic';
-        item.innerHTML = '<button class="faq-question" onclick="toggleFaq(this)">' +
-          '<span class="faq-q-text">Things to do nearby?</span>' +
-          '<span class="faq-icon">+</span></button>' +
-          '<div class="faq-answer">' + _ttd + '</div>';
-        faqList.appendChild(item);
-        if (!d.things_to_do) window.MP_SHOWING_PLACEHOLDERS = true;
-      }
-    }
+    // Things to Do has its own section now, hydrated by /site-runtime.js — it
+    // used to be appended here as an accordion item.
   }
 
   // ── Hotel | Flights ──────────────────────────────────────────────────
@@ -1620,6 +1624,7 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.other_events,                              href: '#other-events',     label: 'Other Events'   },
     { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',    label: 'Need to Knows'  },
+    { show: !!menu.things_to_do,                              href: '#things-to-do',     label: 'Things to Do'   },
     { show: !!menu.travel,                                    href: '#accommodations',   label: 'Travel'         },
     { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'        },
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'   },

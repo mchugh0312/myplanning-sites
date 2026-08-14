@@ -1062,6 +1062,14 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   </div>
 </div>
 
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<div class="faq-section" id="things-to-do" style="display:none">
+  <h2 class="faq-title">Things to Do</h2>
+  <div class="faq-answer" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+</div>
+
 <!-- GALLERY -->
 <div class="gallery-section" id="gallery" style="display:none">
   <h2 class="section-title">Gallery</h2>
@@ -1507,14 +1515,7 @@ function hydrateTemplate(d){
         faqList.appendChild(item);
       });
     }
-    if (d.things_to_do && menu.things_to_do){
-      var item = document.createElement('div');
-      item.className = 'faq-item';
-      item.innerHTML =
-        '<span class="faq-q-text">Things to do nearby?</span>' +
-        '<div class="faq-answer">' + d.things_to_do + '</div>';
-      faqList.appendChild(item);
-    }
+    // Things to Do has its own section now, hydrated by /site-runtime.js.
   }
 
   // ── Gallery ──
@@ -1611,6 +1612,8 @@ function _buildNav(menu, rsvpOn, d){
     { show: !!menu.wedding || !!menu.other_events,      href:'#events-primary',    label:'Events'      },
     { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',    label:'Travel Info' },
     { show: !!(menu.faqs || menu.things_to_do),         href:'#faq-section',       label:'FAQs'        },
+    // Things to Do has its own section now, so it gets its own entry.
+    { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },
     { show: !!menu.gallery && !!(d.gallery_images && d.gallery_images.length), href:'#gallery', label:'Gallery' },
     { show: !!menu.registry,                            href:'#registry-section',  label:'Registry'    },
     { show: !!rsvpOn && !!menu.rsvp,                    href:'#rsvp',              label:'RSVP'        },

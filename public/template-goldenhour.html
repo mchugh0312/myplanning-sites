@@ -506,6 +506,14 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
     alt="" id="ntkDecoration">
 </section>
 
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<section class="ntk-section" id="things-to-do" style="display:none">
+  <h2 class="ntk-title">Things to Do</h2>
+  <div class="ntk-answer" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+</section>
+
 <!-- GALLERY -->
 <section class="gallery-section" id="gallery" style="display:none">
   <div style="max-width:860px;margin:0 auto">
@@ -680,7 +688,8 @@ function hydrateTemplate(d){
       {h:'#events',l:'Other Events',s:menu.other_events},
       {h:'#accommodations',l:'Recommended Accommodations',s:menu.accommodations},
       {h:'#travel',l:'Travel',s:menu.travel},
-      {h:'#ntk',l:'Need to Knows',s:menu.things_to_do||menu.faqs},
+      {h:'#ntk',l:'Need to Knows',s:menu.faqs},
+      {h:'#things-to-do',l:'Things to Do',s:menu.things_to_do},
       {h:'#gallery',l:'Gallery',s:menu.gallery},
       {h:'#registry',l:'Our Registry',s:menu.registry},
       {h:'#rsvp',l:'RSVP',s:menu.rsvp}

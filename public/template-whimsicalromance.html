@@ -1183,6 +1183,14 @@ body.thumbnail-mode .home-block{min-height:0;}
   </div>
 </div>
 
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<div class="need-to-know" id="things-to-do" style="display:none">
+  <h2 class="ntk-title">Things to Do</h2>
+  <div class="faq-answer" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+</div>
+
 <!-- GALLERY -->
 <div class="gallery-section" id="gallery" style="display:none">
   <h2 class="gallery-title">Gallery</h2>
@@ -1679,13 +1687,6 @@ function hydrateTemplate(d) {
         if (!_real_faqList) window.MP_SHOWING_PLACEHOLDERS = true;
         }
 }
-
-    if (d.things_to_do && menu.things_to_do) {
-      const item = document.createElement('div');
-      item.className = 'faq-item';
-      item.innerHTML = '<div class="faq-q-text">Things to do nearby?</div><div class="faq-answer">' + d.things_to_do + '</div>';
-      faqList.appendChild(item);
-    }
   }
 
   // ── Travel (only show if accommodations is hidden) ───────────────────
@@ -1791,6 +1792,10 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!(menu.wedding || menu.other_events),            href: '#itinerary',        label: 'Weekend Itinerary' },
     { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Hotel Details'     },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'FAQs'              },
+    // Things to Do renders as an item inside that accordion, so it points at
+    // the same section — without its own entry a couple who switched it on
+    // could not find it from the menu.
+    { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },
     { show: !!(menu.travel && !menu.accommodations),          href: '#travel-section',   label: 'Travel'            },
     { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'           },
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'      },

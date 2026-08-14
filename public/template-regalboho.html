@@ -1058,6 +1058,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
     <a href="#travel-section">Travel Info</a>
     <span class="hero-nav-sep"></span>
     <a href="#need-to-know">FAQs</a>
+    <a href="#things-to-do">Things to Do</a>
     <span class="hero-nav-sep"></span>
     <a href="#registry-section">Registry</a>
     <span class="hero-nav-sep"></span>
@@ -1187,6 +1188,14 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
       <div class="faq-answer">Here is a little more about the setting so you can plan accordingly and arrive feeling prepared.</div>
     </div>
   </div>
+</section>
+
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<section class="ntk-section" id="things-to-do" style="display:none">
+  <h2 class="ntk-title">Things to Do</h2>
+  <div class="faq-a" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
 </section>
 
 <!-- GALLERY -->
@@ -1738,13 +1747,6 @@ function hydrateTemplate(d) {
         if (!_real_faqList) window.MP_SHOWING_PLACEHOLDERS = true;
         }
 }
-
-    if (d.things_to_do && menu.things_to_do) {
-      const item = document.createElement('div');
-      item.className = 'faq-item';
-      item.innerHTML = '<div class="faq-q-text">Things to do nearby?</div><div class="faq-answer">' + d.things_to_do + '</div>';
-      faqList.appendChild(item);
-    }
   }
 
   // ── Gallery ──────────────────────────────────────────────────────────
@@ -1831,7 +1833,9 @@ function _hideNavLinks(menu, rsvpOn, d) {
     { href:'#our-story',        show:!!menu.story && !!d.story                 },
     { href:'#event-details',    show:!!(menu.wedding || menu.other_events)     },
     { href:'#travel-section',   show:!!(menu.accommodations || menu.travel)    },
-    { href:'#need-to-know',     show:!!(menu.things_to_do || menu.faqs)        },
+    { href:'#need-to-know',     show:!!menu.faqs                               },
+    // Things to Do has its own section now.
+    { href:'#things-to-do',     show:!!menu.things_to_do                       },
     { href:'#registry-section', show:!!menu.registry                           },
     { href:'#rsvp',             show:!!rsvpOn && !!menu.rsvp                   },
   ];

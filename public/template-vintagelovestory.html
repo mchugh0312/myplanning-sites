@@ -1041,6 +1041,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
   <a href="#wedding">Event Details</a>
   <a href="#travel-section">Travel Info</a>
   <a href="#need-to-know">FAQs</a>
+  <a href="#things-to-do">Things to Do</a>
   <a href="#registry-section">Registry</a>
   <a href="#rsvp">RSVP</a>
   <button class="nav-mobile-toggle" onclick="toggleMobileMenu(this)" aria-label="Open menu">
@@ -1201,6 +1202,18 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
       <div class="faq-answer">Here is a little more info about the setting so you can plan accordingly and arrive feeling prepared.</div>
     </div>
   </div>
+</section>
+
+<!-- THINGS TO DO — its own section, so the toggle does something visible.
+     Reuses this template's own classes so it inherits the type and
+     colour rather than introducing a new treatment. -->
+<section class="need-to-know" id="things-to-do" style="display:none">
+  <div class="oval-title-wrap">
+    <span class="oval-title-line"></span>
+    <span class="oval-title"><span>Things to Do</span></span>
+    <span class="oval-title-line"></span>
+  </div>
+  <div class="travel-item" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
 </section>
 
 <!-- GALLERY -->
@@ -1875,13 +1888,6 @@ function hydrateTemplate(d) {
         if (!_real_faqList) window.MP_SHOWING_PLACEHOLDERS = true;
         }
 }
-
-    if (d.things_to_do && menu.things_to_do) {
-      const item = document.createElement('div');
-      item.className = 'faq-item';
-      item.innerHTML = '<div class="faq-q-text">Things to do nearby?</div><div class="faq-answer">' + d.things_to_do + '</div>';
-      faqList.appendChild(item);
-    }
   }
 
   // ── Gallery ──────────────────────────────────────────────────────────
@@ -1960,7 +1966,8 @@ function _hideNavLinks(menu, rsvpOn, d) {
     { href:'#our-story',        show:!!menu.story && !!d.story            },
     { href:'#wedding',          show:!!menu.wedding                       },
     { href:'#travel-section',   show:!!(menu.accommodations || menu.travel) },
-    { href:'#need-to-know',     show:!!(menu.things_to_do || menu.faqs)   },
+    { href:'#need-to-know',     show:!!menu.faqs                          },
+    { href:'#things-to-do',     show:!!menu.things_to_do                  },
     { href:'#registry-section', show:!!menu.registry                      },
     { href:'#rsvp',             show:!!rsvpOn && !!menu.rsvp              },
   ];
