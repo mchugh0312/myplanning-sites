@@ -1353,7 +1353,28 @@
      as an item inside the FAQ accordion, which meant the toggle appeared to do
      nothing and the content couldn't be reached from the menu.
   ========================================================================== */
+  /* Optional sections are off by default, so they never appeared in a design
+     mock and several inherited a class that carries no vertical padding of its
+     own — Coastal Chic, Modern Minimal, Pressed Petals and Regal Boho. Switch
+     one on and the copy sits flush against the section below it.
+
+     :where() gives this zero specificity, so it fills a gap and never wins an
+     argument: the six templates that do style their own section keep exactly
+     what they have. Same reasoning as the RSVP field defaults above. */
+  function ensureOptionalSectionSpacing() {
+    if (document.getElementById('mp-optional-section-css')) return;
+    var s = document.createElement('style');
+    s.id = 'mp-optional-section-css';
+    s.textContent =
+      ':where(#things-to-do,#gallery){padding-top:3rem;padding-bottom:3rem}' +
+      '@media(max-width:768px){' +
+        ':where(#things-to-do,#gallery){padding-top:1.8rem;padding-bottom:1.8rem}' +
+      '}';
+    document.head.appendChild(s);
+  }
+
   function hydrateThingsToDo(d) {
+    ensureOptionalSectionSpacing();
     var section = document.getElementById('things-to-do');
     if (!section) return;
     var menu = d.menu_config || {};
