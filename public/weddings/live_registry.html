@@ -299,6 +299,12 @@
 }
 .rhero{display:grid;grid-template-columns:1fr;}
 @media(min-width:768px){ .rhero{grid-template-columns:52% 48%;} }
+/* Couple switched "Use a photo" off: no photo cell, and the panel drops to
+   about half the height the 4:3 photo would otherwise force. */
+.rhero.no-photo{grid-template-columns:1fr;}
+@media(min-width:768px){ .rhero.no-photo{grid-template-columns:1fr;} }
+.rhero.no-photo .rhero-panel{min-height:190px;}
+@media(min-width:768px){ .rhero.no-photo .rhero-panel{min-height:270px;} }
 .rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
 .rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .rhero-panel{position:relative;background:var(--olive);color:#fff;display:flex;flex-direction:column;
@@ -759,6 +765,14 @@ function render(){
   const name = couple.name || r.title || "Our Registry";
   const dateStr = couple.date ? new Date(couple.date).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric",timeZone:"UTC"}) : "";
   const hero = r.hero_image_url || HERO_PLACEHOLDER;
+  // Does this couple want a header photo at all? The API sends use_header_photo
+  // once the backend exposes the "Use Header Photo" field (CvT7i). Until then,
+  // infer it from whether a cover exists, since switching the toggle off also
+  // clears the cover.
+  const heroFlag = r.use_header_photo;
+  const wantsHero = (heroFlag === undefined || heroFlag === null)
+    ? !!r.hero_image_url
+    : !(heroFlag === false || heroFlag === 0 || heroFlag === "false" || heroFlag === "");
 
   const matched = state.things.filter(passesFilters);
   const total = matched.length;
@@ -771,16 +785,18 @@ function render(){
     : '<div class="empty">Nothing on the registry yet.</div>';
 
   el("app").innerHTML =
-      '<header class="rhero">'
-    +   '<div class="rhero-img">'
-    +     '<img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
-    +     (state.preview
-            ? '<label class="rh-edit" title="Change cover photo">'
-              + pencilSvg()
-              + '<input type="file" accept="image/*" onchange="uploadCover(event)">'
-              + '</label>'
-            : '')
-    +   '</div>'
+      '<header class="rhero'+(wantsHero?'':' no-photo')+'">'
+    +   (wantsHero
+          ? '<div class="rhero-img">'
+            + '<img src="'+esc(hero)+'" alt="" onerror="this.src=\''+HERO_PLACEHOLDER+'\'">'
+            + (state.preview
+                ? '<label class="rh-edit" title="Change cover photo">'
+                  + pencilSvg()
+                  + '<input type="file" accept="image/*" onchange="uploadCover(event)">'
+                  + '</label>'
+                : '')
+            + '</div>'
+          : '')
     +   '<div class="rhero-panel">'
     +     '<h1 class="serif rh-title'+(state.preview?' ed':'')+'"'
     +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)"':'')
