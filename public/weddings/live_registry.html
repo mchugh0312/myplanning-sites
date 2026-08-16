@@ -601,7 +601,7 @@ function renderBrandFooter(){
   state.preview = params.get("preview")==="1" || params.get("preview")==="true";
   const c = params.get("contribution");
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
-  else if (c==="cancel"){ showBanner("No worries — your checkout was cancelled.","info"); cleanParam("contribution"); }
+  else if (c==="cancel"){ showBanner("No worries, your checkout was cancelled.","info"); cleanParam("contribution"); }
   initSkin();          // colours + type from the couple's template
   renderBrandFooter(); // same footer as the wedding sites
   loadShipMethods();   // carrier list for the tracking forms
@@ -621,7 +621,7 @@ async function load(){
     if(qp.length) url += "?"+qp.join("&");
     const res = await fetch(url);
     const data = await res.json();
-    if(data.error==="not_published") return renderNotice("This registry isn't published yet.","Check back soon — the couple is still putting it together.");
+    if(data.error==="not_published") return renderNotice("This registry isn't published yet.","Check back soon. The couple is still putting it together.");
     if(data.password_required) return renderGate(data.title||"Our Registry", data.password_invalid);
     state.data = data;
     if(!state.registryId && data.registry) state.registryId = data.registry.id;
@@ -869,7 +869,7 @@ function renderCard(t){
             ? '<button class="cta solid" onclick="event.stopPropagation();openAddTracking(\''+t.id+'\')">Add tracking &rarr;</button>'
             : '<button class="cta solid" onclick="event.stopPropagation();openHow(\''+t.id+'\')">Purchase &rarr;</button>')
         + (bought
-            ? '<span class="ipurch done">✓ Purchased — thank you!</span>'
+            ? '<span class="ipurch done">✓ Purchased, thank you!</span>'
             : '<label class="ipurch" onclick="event.stopPropagation()">'
               + '<input type="checkbox" onchange="openOffline(\''+t.id+'\')"> I Purchased This Item'
               + '</label>')
@@ -1324,7 +1324,7 @@ function submitTracking(id){
         throw new Error(j.detail || "Couldn't save that");
       });
     })
-   .then(function(){ closeFlow(); toastPreview("Thank you — tracking saved!"); })
+   .then(function(){ closeFlow(); toastPreview("Thank you! Tracking saved."); })
    .catch(function(e){
       btn.disabled=false; btn.innerHTML="Save tracking";
       toastPreview(e.message || "Couldn't save that", true);
@@ -1346,7 +1346,7 @@ function openOffline(id){
     +   '<label>Shipping Method</label>'
     +   '<select id="g-ship">'+shipOptionsHtml()+'</select>'
     +   '<label>Tracking Number</label>'
-    +   '<input id="g-track" type="text" placeholder="Don\'t have it yet? Leave blank — you can add it later">'
+    +   '<input id="g-track" type="text" placeholder="Don\'t have it yet? Leave blank, you can add it later">'
     +   '<label>A Note For The Couple</label>'
     +   '<textarea id="g-note" rows="3" placeholder="Congratulations!"></textarea>'
     +   '<button class="m-cta dark" id="off-submit" onclick="submitOffline(\''+t.id+'\')">Back to Registry</button>'
@@ -1369,7 +1369,7 @@ function submitOffline(id){
                            shipping_method: (el("g-ship")||{}).value || "",
                            tracking_number: ((el("g-track")||{}).value || "").trim() })
   }).then(r=>{ if(!r.ok) throw new Error("save failed"); return r.json(); })
-   .then(()=>{ closeFlow(); toastPreview("Thank you — the couple has been told!"); load(); })
+   .then(()=>{ closeFlow(); toastPreview("Thank you! The couple has been told."); load(); })
    .catch(()=>{ btn.disabled=false; btn.innerHTML="Back to Registry"; toastPreview("Couldn't save that", true); });
 }
 
@@ -1400,7 +1400,7 @@ function openFund(id){
       + (handles.cashapp?'<a class="pay-opt" target="_blank" rel="noopener" href="https://cash.app/$'+encodeURIComponent(handles.cashapp)+'">Cash App<span style="color:var(--muted)">$'+esc(handles.cashapp)+'</span></a>':"")
       + '</div>';
   } else {
-    body = '<div class="hint">The couple hasn\'t finished setting up gifting yet — please check back soon.</div>';
+    body = '<div class="hint">The couple hasn\'t finished setting up gifting yet. Please check back soon.</div>';
   }
 
   el("fund-modal").innerHTML =
@@ -1461,7 +1461,7 @@ function openExp(id){
       + '<label class="check"><input type="checkbox" id="e-anon"> Keep my gift anonymous</label>'
       + '<button class="mbtn primary" id="e-submit" onclick="submitExp()">Contribute via Stripe →</button>'
       + '<div class="hint">Secure checkout via Stripe. Your gift funds a real moment on their trip.</div>')
-    : '<div class="hint">The couple hasn\'t finished setting up experience gifting yet — please check back soon.</div>';
+    : '<div class="hint">The couple hasn\'t finished setting up experience gifting yet. Please check back soon.</div>';
 
   el("exp-modal").innerHTML =
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'exp\')">✕</button></div>'
@@ -1517,7 +1517,7 @@ function renderGate(title, invalid){
     + '<h2 class="serif" style="margin-top:6px">'+mdInline(title)+'</h2>'
     + '<p>This registry is password-protected. Please enter the password the couple shared with you.</p>'
     + '<div class="field"><input type="password" id="gate-pw" placeholder="Password" style="text-align:center"></div>'
-    + (invalid?'<div style="color:#C23331;font-size:12px;margin-top:8px">That password didn\'t match — please try again.</div>':"")
+    + (invalid?'<div style="color:#C23331;font-size:12px;margin-top:8px">That password didn\'t match. Please try again.</div>':"")
     + '<button class="mbtn primary" onclick="submitGate()">Unlock registry</button></div></div>';
   setTimeout(()=>{ const g=el("gate-pw"); if(g){ g.focus(); g.addEventListener("keydown",e=>{ if(e.key==="Enter") submitGate(); }); } },50);
 }
