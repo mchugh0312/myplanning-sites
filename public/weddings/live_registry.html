@@ -429,6 +429,24 @@ const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt
 // Safe inline markdown: escape first (no HTML/scripts can inject), then turn
 // **bold** and *italic* into <strong>/<em>. Matches the Registry Settings editor.
 const mdInline = s => esc(s).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>");
+// Reverse of mdInline: a contenteditable's DOM back to plain text with markers.
+// Walks nodes rather than regexing innerHTML, so browser-inserted markup still
+// serialises cleanly. The title field must never hold HTML.
+function mdFromNode(node){
+  if(!node) return "";
+  function walk(n){
+    if(n.nodeType===3) return String(n.nodeValue||"");
+    if(n.nodeType!==1) return "";
+    var inner = Array.prototype.map.call(n.childNodes, walk).join("");
+    if(!inner.trim()) return inner;
+    var t = n.tagName;
+    if(t==="B"||t==="STRONG") return "**"+inner+"**";
+    if(t==="I"||t==="EM") return "*"+inner+"*";
+    if(t==="BR") return " ";
+    return inner;
+  }
+  return Array.prototype.map.call(node.childNodes, walk).join("").replace(/\s+/g," ").trim();
+}
 const el  = id=>document.getElementById(id);
 const isFund = it=> it.item_type_id===CASH_FUND_TYPE || (Number(it.price_cents)===0 && Number(it.goal_amount_cents)>0);
 
@@ -766,7 +784,7 @@ function render(){
     +   '<div class="rhero-panel">'
     +     '<h1 class="serif rh-title'+(state.preview?' ed':'')+'"'
     +       (state.preview?' contenteditable="true" data-field="title" onblur="savePresentation(this)"':'')
-    +       '>'+(state.preview ? esc(r.title || name) : mdInline(r.title || name))+'</h1>'
+    +       '>'+mdInline(r.title || name)+'</h1>'
     +     '<div class="rh-note'+(state.preview?' ed':'')+'"'
     +       (state.preview?' contenteditable="true" data-field="welcome_note" onblur="savePresentation(this)" data-ph="Add a welcome note for your guests…"':'')
     +       '>'+(r.welcome_note || '')+'</div>'
@@ -1069,8 +1087,8 @@ function savePresentation(node){
   // TEXT, never innerHTML, or the browser's markup leaks into the field and
   // every surface then shows raw tags. The welcome note IS rich text: keep HTML.
   const value = (field === "title"
-    ? (node.textContent || "")
-    : (node.innerHTML || "")).trim();
+    ? mdFromNode(node)
+    : (node.innerHTML || "").trim());
   const body = {}; body[field] = value;
   fetch(RENDER_API+"/registry/"+encodeURIComponent(state.registryId)+"/presentation", {
     method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
