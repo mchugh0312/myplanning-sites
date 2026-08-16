@@ -720,7 +720,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
+/* Scoped to wide renders. Below this the thumbnail is a phone-width
+   iframe and the template's own mobile CSS is the correct layout —
+   these overrides were written for the 1100px render only. */
+@media (min-width: 641px) {
 body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
+}
+
 /* The carousel is inset:0 within .hero, so it needs no height of its own —
    giving it a different one left the slides short of the frame. */
 </style>

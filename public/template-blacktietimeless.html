@@ -725,7 +725,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 
 /* ── THUMBNAIL MODE ─────────────────────────────────────── */
+/* Scoped to wide renders. Below this the thumbnail is a phone-width
+   iframe and the template's own mobile CSS is the correct layout —
+   these overrides were written for the 1100px render only. */
+@media (min-width: 641px) {
 body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
+}
+
 </style>
 </head>
 <body class="hydrating">

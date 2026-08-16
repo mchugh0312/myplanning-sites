@@ -50,6 +50,10 @@ body.hydrating{visibility:hidden;}
 img{display:block;max-width:100%;}
 
 /* ── THUMBNAIL MODE ──────────────────────────────────────────── */
+/* Scoped to wide renders. Below this the thumbnail is a phone-width
+   iframe and the template's own mobile CSS is the correct layout —
+   these overrides were written for the 1100px render only. */
+@media (min-width: 641px) {
 body.thumbnail-mode .hero-section{
   height:66.67vw!important;min-height:0!important;
   display:block!important;
@@ -73,6 +77,8 @@ body.thumbnail-mode .hero-names{
   transform:translateX(-50%)!important;
   width:auto!important;
 }
+}
+
 body.thumbnail-mode .hero-names-text{
   font-size:clamp(0.5rem,3.5vw,0.9rem)!important;
   white-space:nowrap!important;

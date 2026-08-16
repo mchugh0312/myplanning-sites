@@ -810,8 +810,14 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
+/* Scoped to wide renders. Below this the thumbnail is a phone-width
+   iframe and the template's own mobile CSS is the correct layout —
+   these overrides were written for the 1100px render only. */
+@media (min-width: 641px) {
 body.thumbnail-mode .hero{height:66.67vw!important;min-height:0!important;}
 body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!important;}
+}
+
 /* ── MOBILE PASS (phones) ─────────────────────────────────────────────
    Additions only, inside media queries — desktop is untouched. */
 @media(max-width:640px){
