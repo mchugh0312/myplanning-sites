@@ -1064,7 +1064,13 @@ function focusTitle(){
 
 function savePresentation(node){
   const field = node.getAttribute("data-field");
-  // The dashboard writes rich text (bold/italic) into these fields, so keep HTML.\n  const value = (node.innerHTML||"").trim();
+  // The TITLE is plain text with markdown markers (*italic*, **bold**) — it is
+  // shown escaped in preview and rendered with mdInline for guests, so save its
+  // TEXT, never innerHTML, or the browser's markup leaks into the field and
+  // every surface then shows raw tags. The welcome note IS rich text: keep HTML.
+  const value = (field === "title"
+    ? (node.textContent || "")
+    : (node.innerHTML || "")).trim();
   const body = {}; body[field] = value;
   fetch(RENDER_API+"/registry/"+encodeURIComponent(state.registryId)+"/presentation", {
     method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
