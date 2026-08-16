@@ -1911,16 +1911,30 @@
     // Editor preview: no slug. Wait for a HYDRATE_TEMPLATE postMessage from the
     // Softr block; fall back to the template's SAMPLE_DATA if none arrives.
     if (_isPreview) {
-      reveal();
+      // MP-285. reveal() used to run FIRST, so the editor's preview painted the
+      // template's built-in sample couple before the real payload arrived and
+      // the couple watched someone else's names for a beat. Reveal after the
+      // first hydrate instead, and tell the parent when that has happened so it
+      // can drop its own placeholder at the same moment.
+      //
+      // In a finally block on purpose: if hydrate throws we still reveal, so a
+      // bad payload shows a sample-data page rather than a permanently blank one.
       var got = false;
+      var settle = function (payload) {
+        try { hydrate(payload); }
+        finally {
+          reveal();
+          try { parent.postMessage({ type: 'TEMPLATE_HYDRATED' }, '*'); } catch (err) {}
+        }
+      };
       window.addEventListener('message', function (e) {
         if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
           got = true;
-          hydrate(e.data.payload);
+          settle(e.data.payload);
         }
       });
       setTimeout(function () {
-        if (!got) hydrate(window.SAMPLE_DATA || {});
+        if (!got) settle(window.SAMPLE_DATA || {});
       }, 800);
       return;
     }

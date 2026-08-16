@@ -969,7 +969,11 @@ body.hydrating{visibility:hidden;}
    blow up enormously. We cap the hero at a fixed pixel height so the
    rendered-then-scaled result looks like a real desktop page in miniature. */
 body.thumbnail-mode .hero{
-  height:560px!important;
+  /* 50.9vw, not 560px. At the original 1100px render these are the same value;
+     the difference only shows at the 420px mobile render width, where a flat
+     560px made a portrait box and cover-cropped the photograph to a strip.
+     Every other template already caps this in vw for the same reason. */
+  height:50.9vw!important;
   min-height:0!important;
 }
 /* Optional: speed up thumbnail rendering by skipping smooth-scroll behaviours */
