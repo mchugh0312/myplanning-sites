@@ -1136,12 +1136,30 @@ function uploadCover(e){
    1. "How This Works"  → explains buy-then-come-back-and-mark.
    2. "Did You Purchase This?" → after they return from the retailer.
    3. Purchase form → name + note for the couple, so the gift is logged. */
+// "shop.nordstrom.com/x" -> "Nordstrom", "williams-sonoma.com" -> "Williams
+// Sonoma". Every gift carries its own link, so the button can name the right
+// shop instead of always saying Amazon.
+function retailerName(url){
+  try{
+    var host=String(url||"").replace(/^https?:\/\//,"").split("/")[0].split(":")[0]
+      .replace(/^www\./,"").toLowerCase();
+    var parts=host.split(".").filter(Boolean);
+    if(!parts.length) return "";
+    var core = parts.length>1 ? parts[parts.length-2] : parts[0];
+    if(["co","com","net","org","ac"].indexOf(core)>-1 && parts.length>=3) core=parts[parts.length-3];
+    if(!core) return "";
+    return core.split("-").map(function(w){
+      return w ? w.charAt(0).toUpperCase()+w.slice(1) : w;
+    }).join(" ");
+  }catch(e){ return ""; }
+}
+
 function openHow(id){
   const t = id ? state.things.find(x=>x.id===id) : null;
   state.howItem = t ? t.id : null;
   const ship = shipBlockHtml();
   const buy = (t && t.raw && t.raw.source_url)
-    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(t.raw.source_url)+'" onclick="afterBuyClicked()">Head to Amazon &rarr;</a>'
+    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(t.raw.source_url)+'" onclick="afterBuyClicked()">'+(retailerName(t.raw.source_url) ? ("Head to "+esc(retailerName(t.raw.source_url))) : "Continue to the retailer")+' &rarr;</a>'
     : '<button class="m-cta solid" onclick="closeFlow()">Got it</button>';
   showFlow(
       '<h3 class="serif m-title">How This Works</h3>'
@@ -1402,9 +1420,19 @@ function submitOffline(id){
                            guest_name: name, quantity: 1, note: note,
                            shipping_method: (el("g-ship")||{}).value || "",
                            tracking_number: ((el("g-track")||{}).value || "").trim() })
-  }).then(r=>{ if(!r.ok) throw new Error("save failed"); return r.json(); })
+  }).then(r=>{
+      // Read the body on failure: the server now returns the real reason, and
+      // "Couldn't save that" on its own gives nobody anything to act on.
+      if(!r.ok) return r.text().then(t=>{ throw new Error((t||"").slice(0,160) || "save failed"); });
+      return r.json();
+    })
    .then(()=>{ closeFlow(); toastPreview("Thank you! The couple has been told."); load(); })
-   .catch(()=>{ btn.disabled=false; btn.innerHTML="Back to Registry"; toastPreview("Couldn't save that", true); });
+   .catch(err=>{
+     btn.disabled=false; btn.innerHTML="Save and Go Back to Registry";
+     console.error("mark-purchased-offline failed:", err);
+     toastPreview((err && err.message && err.message!=="save failed")
+       ? ("Couldn't save that. "+err.message) : "Couldn't save that", true);
+   });
 }
 
 /* ─── Cash fund / group gift contribute ─────────────── */
