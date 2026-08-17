@@ -727,7 +727,9 @@ function clearAllFilters(){
 function isPurchased(t){
   if(t.kind!=="gift") return false;
   const req = (t.raw && t.raw.quantity_requested) || 1;
-  const ful = (t.raw && t.raw.quantity_fulfilled) || 0;
+  const ful = (t.raw && (t.raw.quantity_purchased != null
+                          ? t.raw.quantity_purchased
+                          : t.raw.quantity_fulfilled)) || 0;
   return req > 0 && ful >= req;
 }
 
@@ -876,7 +878,8 @@ function renderCard(t){
   if(t.kind==="experience")   badges+='<span class="badge exp">Experience</span>';
   else if(t.kind==="fund")    badges+='<span class="badge group">Cash Fund</span>';
   else {
-    const req=(t.raw&&t.raw.quantity_requested)||1, ful=(t.raw&&t.raw.quantity_fulfilled)||0;
+    const req=(t.raw&&t.raw.quantity_requested)||1;
+    const ful=(t.raw&&(t.raw.quantity_purchased!=null?t.raw.quantity_purchased:t.raw.quantity_fulfilled))||0;
     const rem=Math.max(0,req-ful);
     if(ful>=req && req>0) badges+='<span class="badge group">Purchased</span>';
     else if(req>1)        badges+='<span class="badge want">'+rem+' of '+req+' Needed</span>';
