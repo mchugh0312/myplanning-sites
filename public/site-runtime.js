@@ -1373,6 +1373,113 @@
     document.head.appendChild(s);
   }
 
+
+  /* ── COUPLE NAMES MUST NEVER BE CLIPPED ─────────────────────────────────────
+     Four templates set the hero name at a viewport-scaled size with
+     white-space:nowrap (Pressed Petals, Coastal Chic, Golden Hour, Sage and
+     Still). Because the size scales with the viewport AND wrapping is
+     forbidden, whether the name fits depends only on HOW MANY CHARACTERS it
+     has, not on the screen. Every design's sample name fits at every width;
+     a longer real name overflows at every width. That is why this never showed
+     up in a mock and why it is not a responsive bug.
+
+     Fixing it per template would mean re-tuning four different hero designs
+     blind. This measures instead: the name is compared against the box it sits
+     in, and ONLY if it actually overflows is anything changed. A name that
+     fits is left completely alone, so the designs are untouched in the normal
+     case.
+
+     Order matters. A modest shrink keeps a one-line design on one line, which
+     is what the designs intend; wrapping is only allowed once shrinking alone
+     stops being enough, and clipping is never allowed at all. */
+  var MP_FIT_MIN     = 0.45;  /* never below 45% of the designed size */
+  var MP_FIT_WRAP_AT = 0.65;  /* allow wrapping once past this reduction */
+
+  function _fitHost(el) {
+    /* The box the name must stay inside. offsetParent is what matters for an
+       absolutely positioned name (Sage and Still sits at left:0 in the hero);
+       parentElement covers the rest. */
+    var host = el.offsetParent || el.parentElement;
+    if (!host || host === document.body) host = el.parentElement || host;
+    return host;
+  }
+
+  function _nameOverflows(el, host) {
+    try {
+      var b = el.getBoundingClientRect(), h = host.getBoundingClientRect();
+      if (!b.width || !h.width) return false;
+      /* scrollWidth catches a nowrap line inside a clipped box; the rect
+         comparison catches a name spilling out of an overlay or a hero it is
+         positioned against, which scrollWidth alone cannot see. */
+      if (el.scrollWidth > el.clientWidth + 1) return true;
+      return (b.right > h.right + 1) || (b.left < h.left - 1) || (b.bottom > h.bottom + 1);
+    } catch (e) { return false; }
+  }
+
+  function fitOneName(el) {
+    if (!el) return;
+    var host = _fitHost(el);
+    if (!host) return;
+    /* Start from the template's own values every time, so repeated runs are
+       idempotent and a window that grows back gets the full size back. */
+    el.style.removeProperty('font-size');
+    el.style.removeProperty('white-space');
+    el.style.removeProperty('overflow-wrap');
+    if (!_nameOverflows(el, host)) return;
+
+    var base = parseFloat(getComputedStyle(el).fontSize) || 0;
+    if (!base) return;
+
+    var scale = 1, wrapped = false;
+    for (var i = 0; i < 24 && scale > MP_FIT_MIN; i++) {
+      scale -= 0.05;
+      if (!wrapped && scale <= MP_FIT_WRAP_AT) {
+        el.style.whiteSpace  = 'normal';
+        el.style.overflowWrap = 'break-word';
+        wrapped = true;
+      }
+      el.style.fontSize = (base * scale).toFixed(2) + 'px';
+      if (!_nameOverflows(el, host)) return;
+    }
+    /* Floor reached and still tight. Wrapped and small beats clipped. */
+    el.style.whiteSpace   = 'normal';
+    el.style.overflowWrap = 'break-word';
+  }
+
+  function fitCoupleNames() {
+    var ids = [CFG.heroNamesId, 'heroCoupleNames', 'heroNames', 'heroInitialsWrap',
+               'footerNames', 'footerCouple', 'menuCoupleName'];
+    var seen = {};
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if (!id || seen[id]) continue;
+      seen[id] = 1;
+      var el = document.getElementById(id);
+      if (el) { try { fitOneName(el); } catch (e) {} }
+    }
+  }
+
+  var _nameFitBound = false;
+  function scheduleNameFit() {
+    var run = function () { try { fitCoupleNames(); } catch (e) {} };
+    /* Two frames: one for the write to land, one for layout to settle. */
+    if (window.requestAnimationFrame) {
+      requestAnimationFrame(function () { requestAnimationFrame(run); });
+    } else { setTimeout(run, 0); }
+    /* The script faces load late and change the metrics completely. Measuring
+       before they arrive measures the fallback face and gets the wrong answer,
+       which is the same trap the stationery editor hit with its font binding. */
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); } catch (e) {}
+    setTimeout(run, 400);
+    if (!_nameFitBound) {
+      _nameFitBound = true;
+      var t = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(t); t = setTimeout(run, 150);
+      });
+    }
+  }
+
   function hydrateThingsToDo(d) {
     ensureOptionalSectionSpacing();
     var section = document.getElementById('things-to-do');
@@ -1832,6 +1939,10 @@
       console.error('[site-runtime] hydrateTemplate failed:', err);
     }
 
+    // The template has just written the couple's real names over the sample
+    // ones. Anything longer than the sample can overflow, so check now.
+    scheduleNameFit();
+
     // 5. RSVP deadline — one canonical accessor. Templates used to read three
     //    different keys, two of which the backend never sent.
     // ── RSVP deadline ────────────────────────────────────────────────────
@@ -1999,6 +2110,7 @@
     wireRegistryLinks: wireRegistryLinks,
     hydrateRegistryPreview: hydrateRegistryPreview,
     hydrateThingsToDo: hydrateThingsToDo,
+    fitCoupleNames: fitCoupleNames,
     buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
