@@ -1396,12 +1396,43 @@
   var MP_FIT_WRAP_AT = 0.65;  /* allow wrapping once past this reduction */
 
   function _fitHost(el) {
-    /* The box the name must stay inside. offsetParent is what matters for an
-       absolutely positioned name (Sage and Still sits at left:0 in the hero);
-       parentElement covers the rest. */
-    var host = el.offsetParent || el.parentElement;
+    /* The box the name must stay inside. For an absolutely positioned name the
+       containing block is the offsetParent; for a name in normal flow it is the
+       parent, which for a grid item is its cell. Using offsetParent for both
+       was wrong: a grid item's offsetParent is the whole grid, so a name
+       overflowing its COLUMN measured as fitting. */
+    var host;
+    try {
+      var pos = getComputedStyle(el).position;
+      host = (pos === 'absolute' || pos === 'fixed')
+        ? (el.offsetParent || el.parentElement)
+        : el.parentElement;
+    } catch (e) { host = el.parentElement; }
     if (!host || host === document.body) host = el.parentElement || host;
     return host;
+  }
+
+  /* Templates that split the names across their own line elements are telling
+     us how many lines the design has. Sage and Still writes
+     <span class="line">Monika1</span><span class="line">&amp; Manish</span>,
+     so each span is meant to be ONE line. On a narrow column "& Manish" wrapped
+     to two, making three lines where the design has two: the names never left
+     their box, so a box-overflow test alone reported everything as fine while
+     the photo beside them was pushed off screen. */
+  function _lineWraps(el) {
+    try {
+      var lines = el.querySelectorAll ? el.querySelectorAll('.line') : null;
+      if (!lines || !lines.length) return false;
+      var cs = getComputedStyle(el);
+      var lh = parseFloat(cs.lineHeight);
+      if (!lh || isNaN(lh)) lh = (parseFloat(cs.fontSize) || 0) * 1.2;
+      if (!lh) return false;
+      for (var i = 0; i < lines.length; i++) {
+        var r = lines[i].getBoundingClientRect();
+        if (r.height > lh * 1.45) return true;   /* this span took 2+ lines */
+      }
+    } catch (e) {}
+    return false;
   }
 
   function _nameOverflows(el, host) {
@@ -1412,6 +1443,7 @@
          comparison catches a name spilling out of an overlay or a hero it is
          positioned against, which scrollWidth alone cannot see. */
       if (el.scrollWidth > el.clientWidth + 1) return true;
+      if (_lineWraps(el)) return true;
       return (b.right > h.right + 1) || (b.left < h.left - 1) || (b.bottom > h.bottom + 1);
     } catch (e) { return false; }
   }
