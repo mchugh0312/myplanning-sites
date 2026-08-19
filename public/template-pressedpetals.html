@@ -1471,8 +1471,9 @@ function hydrateTemplate(d) {
       accomList.innerHTML =
         '<div class="accom-col-title">Hotel</div>' +
         '<div class="accom-address">' + d.accommodation_info + '</div>' +
-        '<a class="accom-btn" href="' + (_bookUrl || '#') + '"' +
-          (_bookUrl ? ' target="_blank" rel="noopener"' : '') + '>Book Now</a>';
+        (_bookUrl
+          ? '<a class="accom-btn" href="' + _bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
+          : '');
     }
   }
 
@@ -1543,8 +1544,9 @@ function hydrateTemplate(d) {
     _travelCol.innerHTML =
       '<div class="accom-col-title">Flights</div>' +
       '<div class="accom-address">' + d.travel_info + '</div>' +
-      '<a class="accom-btn" href="' + (_trUrl || '#') + '"' +
-        (_trUrl ? ' target="_blank" rel="noopener"' : '') + '>Book Now</a>';
+      (_trUrl
+        ? '<a class="accom-btn" href="' + _trUrl + '" target="_blank" rel="noopener">Book Now</a>'
+        : '');
   }
   // Its own band now, so it stands or falls on its own toggle rather than
   // sharing the accommodations one.
