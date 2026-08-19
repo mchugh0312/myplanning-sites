@@ -1053,8 +1053,13 @@
       for (var i = 0; i < ids.length; i++) {
         var sec = document.getElementById(ids[i]);
         if (!sec) continue;
-        var node = _headingNode(sec);
-        if (node) node.textContent = text;
+        /* Home has no heading of its own: the first title-ish element in the
+           hero is the couple's names, and writing over those would be a
+           spectacular way to fail. Rename its menu link only. */
+        if (key !== 'home') {
+          var node = _headingNode(sec);
+          if (node) node.textContent = text;
+        }
         /* The menu has to agree with the page, or the couple renames a section
            and the nav still points at the old name. */
         try {
