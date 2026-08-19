@@ -898,10 +898,19 @@
       /* A section that is toggled off is display:none and has no box, so
          scrolling to it would land nowhere. Skip to the next candidate. */
       if (!el || !el.offsetParent && getComputedStyle(el).display === 'none') continue;
+      /* NOT scrollIntoView. In a frame it walks every scrollable ancestor,
+         including ones in the PARENT document, so asking the preview to move
+         dragged the editor panel around it — visible in Firefox in particular.
+         Scrolling this document's own window can't cross the frame boundary. */
       try {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var box = el.getBoundingClientRect();
+        var y = box.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+        window.scrollTo({ top: y, behavior: 'smooth' });
       } catch (e) {
-        el.scrollIntoView();
+        try {
+          var b2 = el.getBoundingClientRect();
+          window.scrollTo(0, b2.top + (window.pageYOffset || 0));
+        } catch (e2) { return false; }
       }
       return true;
     }
