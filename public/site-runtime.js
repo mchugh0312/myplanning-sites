@@ -2201,6 +2201,56 @@
   /* ==========================================================================
      HYDRATION
      ========================================================================== */
+  /* MP-310. Templates ship sample photographs in their markup, so the browser
+     has fetched and decoded those before hydrate swaps in the couple's URLs.
+     reveal() then painted the sample for however long the real image took to
+     arrive — the flash of someone else's wedding on first load.
+
+     Hold the reveal until the hero has actually loaded. Capped at 2.5s: a slow
+     or broken photograph must never leave the page hidden, and the sample is a
+     better outcome than a blank screen.
+
+     Covers both shapes of hero: an <img> (most templates) and a CSS background
+     (Golden Hour composites three). Probing a background URL through Image()
+     is free once the browser has it, and correct when it does not. */
+  function _heroSources() {
+    var urls = [];
+    try {
+      var img = document.getElementById('heroImg') ||
+                document.querySelector('.hero img, .hero-image img, #hero img');
+      if (img && img.getAttribute('src')) urls.push({ el: img, url: img.getAttribute('src') });
+
+      var bgHosts = document.querySelectorAll('#heroCol1, .hero-section, .hero, #hero');
+      for (var i = 0; i < bgHosts.length && urls.length < 3; i++) {
+        var bg = bgHosts[i].style && bgHosts[i].style.backgroundImage;
+        var m = bg && /url\(['"]?([^'")]+)/.exec(bg);
+        if (m) urls.push({ el: null, url: m[1] });
+      }
+    } catch (e) {}
+    return urls;
+  }
+
+  function revealWhenHeroReady() {
+    var sources = _heroSources();
+    if (!sources.length) { reveal(); return; }
+
+    var pending = 0, settled = false;
+    var finish = function () { if (settled) return; settled = true; reveal(); };
+    var one = function () { if (--pending <= 0) finish(); };
+
+    for (var i = 0; i < sources.length; i++) {
+      var s = sources[i];
+      if (s.el && s.el.complete) continue;
+      pending++;
+      var probe = s.el || new Image();
+      probe.addEventListener('load', one);
+      probe.addEventListener('error', one);
+      if (!s.el) probe.src = s.url;
+    }
+    if (!pending) { finish(); return; }
+    setTimeout(finish, 2500);
+  }
+
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
@@ -2373,7 +2423,11 @@
     hydrateRegistryPreview(d);
     renderBrandFooter();
 
-    reveal();
+    // The editor preview has its own placeholder covering the frame until the
+    // block says so, and delaying here would hold back the TEMPLATE_HYDRATED
+    // ack it waits for. Only the live site needs the image wait.
+    if (_isPreview) reveal();
+    else revealWhenHeroReady();
   }
 
   /* ==========================================================================
