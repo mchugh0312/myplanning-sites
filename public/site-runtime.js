@@ -1005,6 +1005,67 @@
     }, 1600);
   }
 
+  /* ── SECTION HEADINGS ──────────────────────────────────────────────────────
+     The couple can rename a section. Applied centrally, against the same anchor
+     table the scrolling uses, so no template needs to know about it.
+
+     Headings are marked up inconsistently: a <div class="story-title">, an <h2
+     class="ntk-title">, or Sage and Still's oval title wrapped in spans between
+     two decorative rules. Setting textContent on the outer element would delete
+     those rules, so find the innermost element that holds the whole heading and
+     write to that one. */
+  function _headingNode(section) {
+    var el = null;
+    try {
+      var cands = section.querySelectorAll('h1,h2,h3,h4,[class*="title"],[class*="Title"]');
+      for (var i = 0; i < cands.length; i++) {
+        var c = cands[i];
+        if (c.closest && c.closest('.mp-std-top,.mp-std-bottom,.mp-brand-footer')) continue;
+        var t = (c.textContent || '').trim();
+        if (t && t.length <= 60) { el = c; break; }
+      }
+    } catch (e) { return null; }
+    if (!el) return null;
+    /* Descend while a single child still carries the whole text, so decorative
+       siblings survive. */
+    var guard = 0;
+    while (guard++ < 4) {
+      var whole = (el.textContent || '').trim();
+      var next = null;
+      for (var j = 0; j < el.children.length; j++) {
+        if ((el.children[j].textContent || '').trim() === whole) { next = el.children[j]; break; }
+      }
+      if (!next) break;
+      el = next;
+    }
+    return el;
+  }
+
+  function applySectionHeadings(d) {
+    var map = d && d.section_headings;
+    if (!map) return;
+    Object.keys(map).forEach(function (key) {
+      var text = map[key];
+      if (!text || !String(text).trim()) return;   /* blank means keep the design's own */
+      text = String(text).trim();
+      var ids = SECTION_ANCHORS[key];
+      if (!ids) return;
+      for (var i = 0; i < ids.length; i++) {
+        var sec = document.getElementById(ids[i]);
+        if (!sec) continue;
+        var node = _headingNode(sec);
+        if (node) node.textContent = text;
+        /* The menu has to agree with the page, or the couple renames a section
+           and the nav still points at the old name. */
+        try {
+          var links = document.querySelectorAll('a[href="#' + ids[i] + '"]');
+          for (var k = 0; k < links.length; k++) links[k].textContent = text;
+        } catch (e) {}
+        break;
+      }
+    });
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -2423,6 +2484,10 @@
       console.error('[site-runtime] hydrateTemplate failed:', err);
     }
 
+    // Renames run before the mobile nav is built, so the drawer copies the new
+    // labels rather than the template's originals.
+    applySectionHeadings(d);
+
     // The template has just written the couple's real names over the sample
     // ones. Anything longer than the sample can overflow, so check now.
     scheduleNameFit();
@@ -2662,6 +2727,7 @@
     hydrateThingsToDo: hydrateThingsToDo,
     fitCoupleNames: fitCoupleNames,
     scrollToSection: scrollToSection,
+    applySectionHeadings: applySectionHeadings,
     buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
