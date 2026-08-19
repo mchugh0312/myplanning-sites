@@ -327,6 +327,10 @@ img{max-width:100%;display:block;}
 .ntk-section{background:var(--offwhite);padding:4rem 2rem;}
 .ntk-inner{max-width:560px;margin:0 auto;}
 .ntk-title{
+  /* Set explicitly: Need to Knows renders this heading as a plain div and
+     Things to Do as a level-two heading, so without a weight here the two
+     differed by the browser default. */
+  font-weight:400;
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:#673d45;text-align:center;margin-bottom:1.6rem;
@@ -633,12 +637,17 @@ a.registry-title:hover{border-bottom-color:currentColor;}
     font-size:clamp(1.5rem,7.5vw,2.1rem);
   }
   .accom-detail,.travel-detail{font-size:0.88rem;}
-  .accom-btn,.travel-btn,.registry-cta{
+  .accom-btn,.travel-btn{
     min-height:44px;padding:0.7rem 1.8rem;
     display:inline-flex;align-items:center;justify-content:center;
-    /* Button text, not a section title — the type-scale pass matched this
-       grouped selector because it contains .registry-cta. */
     font-size:0.95rem;
+  }
+  /* .registry-cta is NOT a button here — it is the registry section's title,
+     and grouping it above held it at 0.95rem while Need to Knows beside it ran
+     at the title clamp. It keeps the button geometry, not the button type. */
+  .registry-cta{
+    min-height:44px;padding:0.7rem 1.8rem;
+    display:inline-flex;align-items:center;justify-content:center;
   }
 
   /* Need to Knows */

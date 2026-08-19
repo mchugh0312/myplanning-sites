@@ -84,7 +84,10 @@ body.thumbnail-mode .hero-names{
 }
 
 body.thumbnail-mode .hero-names-text{
-  font-size:clamp(0.5rem,3.5vw,0.9rem)!important;
+  /* Was clamp(0.5rem,3.5vw,0.9rem): a 0.9rem ceiling meant roughly 14px at
+     every render width, so the names read as a caption rather than the hero.
+     A proportional ceiling keeps them in scale with the rest of the card. */
+  font-size:clamp(1.4rem,4.6vw,3.4rem)!important;
   white-space:nowrap!important;
   text-shadow:0 1px 4px rgba(0,0,0,0.4)!important;
 }

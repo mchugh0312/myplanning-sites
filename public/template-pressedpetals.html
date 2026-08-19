@@ -282,6 +282,10 @@ body.hydrating{visibility:hidden;}
 
 /* ── OTHER EVENTS (offwhite bg) ───────────────────────────── */
 .other-events{background:var(--offwhite);position:relative;overflow:visible;}
+/* Things to Do is a single block of copy rather than the two event cards this
+   section normally holds, so it needs the centring the cards would have given
+   it. Scoped to .ttd-body so the real Other Events cards are untouched. */
+.other-event-detail.ttd-body{text-align:center;max-width:620px;margin:0 auto;}
 .other-events-inner{padding:5rem 4rem;}
 /* Flower: vertically centred, extreme right */
 .flower-mid-right{
@@ -1071,8 +1075,10 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
      Reuses this template's own classes so it inherits the type and
      colour rather than introducing a new treatment. -->
 <div class="other-events" id="things-to-do" style="display:none">
+  <div class="other-events-inner">
   <h2 class="section-title">Things to Do</h2>
-  <div class="other-event-detail" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+  <div class="other-event-detail ttd-body" id="thingsToDoText">Visit La Jolla Cove for the coastline, walk the Torrey Pines reserve, or spend an evening in the Gaslamp Quarter. Ask us for recommendations.</div>
+  </div>
 </div>
 
 <!-- REGISTRY: plain olive strip, script title only -->
