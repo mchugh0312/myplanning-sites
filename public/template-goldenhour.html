@@ -765,7 +765,7 @@ function hydrateTemplate(d){
       var wParts=wSource.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'||SPLIT||')
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
       function makeWCard(html){
-        var nm=html.match(/^<strong>([^<]+)<\/strong>/i);
+        var nm=html.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
         var title=nm?nm[1]:'';
         var rest=nm?html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():html;
         var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -804,7 +804,7 @@ function hydrateTemplate(d){
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
       if(!evParts.length)evParts=[d.events_info];
       evParts.forEach(function(part){
-        var nm=part.match(/^<strong>([^<]+)<\/strong>/i);
+        var nm=part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
         var evName=nm?nm[1]:'';
         var rest=nm?part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():part;
         var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);

@@ -1345,7 +1345,7 @@ function hydrateTemplate(d) {
             col.className = 'event-card-primary';
             if (_i >= 2) col.style.gridColumn = '1/-1';
             // First line = event name (bold/strong), rest = details, last em = dress code
-            var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName = nameMatch ? nameMatch[1] : '';
             var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -1402,7 +1402,7 @@ function hydrateTemplate(d) {
           .map(function(p){ return p.trim(); })
           .filter(function(p){ return p.length > 3; });
         list.innerHTML = oParts.map(function(part){
-          var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+          var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
           var eventName  = nameMatch ? nameMatch[1] : '';
           var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
           var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);

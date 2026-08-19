@@ -1681,7 +1681,7 @@ function parseHtmlBlocks(html){
     .map(function(p){ return p.trim(); })
     .filter(function(p){ return p.length > 3; });
   return parts.map(function(part){
-    var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+    var nameMatch = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
     var name = nameMatch ? nameMatch[1] : '';
     var rest = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'') : part;
     // Strip remaining tags except <br> for line splitting

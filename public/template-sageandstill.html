@@ -1477,7 +1477,7 @@ function hydrateTemplate(d) {
             card.className = 'weekend-event';
 
             // First <strong>...</strong> = event name
-            var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName = nameMatch ? nameMatch[1] : '';
             var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
 

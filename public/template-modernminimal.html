@@ -1327,7 +1327,7 @@ function hydrateTemplate(d){
           // past the second reuse the last icon rather than reading past the
           // end of the array.
           wParts.forEach(function(part, idx){
-            var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName = nameMatch ? nameMatch[1] : '';
             var rest = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);

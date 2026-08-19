@@ -1093,7 +1093,7 @@ function hydrateTemplate(d) {
         if (wParts.length >= 2) {
           var _extraHTML = '';
           [leftHTML, rightHTML] = wParts.slice(0, 2).map(function(part) {
-            var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -1104,7 +1104,7 @@ function hydrateTemplate(d) {
           // The pair plus the candelabra between them is the design, so a third
           // block and beyond go underneath, full width, instead of being cut.
           wParts.slice(2).forEach(function(part) {
-            var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -1196,7 +1196,7 @@ function hydrateTemplate(d) {
             var photoUrl  = imgMatch ? imgMatch[1] : '';
             if (imgMatch) part = part.replace(imgMatch[0], '').replace(/^(<br\s*\/?>\s*)+/i, '');
             // Event name: first <strong>
-            var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             // Dress code: <em>…</em> at the end, OR a final line containing
