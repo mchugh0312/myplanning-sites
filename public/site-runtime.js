@@ -1375,10 +1375,23 @@
   }
 
   // ── Coming soon / not found ──────────────────────────────────────────────
+  /* The mark that replaces the star, and the MyPlanning.ai wordmark that
+     replaces the plain-text footer. Both are real assets rather than glyphs, so
+     the Coming Soon page reads as part of the brand instead of an emoji sitting
+     on the couple's palette. The screen is already themed from CFG.palette and
+     CFG.fonts, so it picks up whichever template they chose. */
+  var MP_SCREEN_MARK  = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6491148d-4db6-4305-8aa0-59ca6abc0430.png';
+  var MP_SCREEN_BRAND = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png';
+
+  var MP_SCREEN_BRAND_CSS =
+    '.mp-mark{height:26px;width:auto;display:block;margin:0 auto 14px}' +
+    '.mp-foot-brand{height:20px;width:auto;display:block;margin:0 auto;opacity:0.6}';
+
   function renderComingSoon(coupleNames, isoDate) {
     var dateLine = fmtDate(isoDate);
     screenShell(
-      '<p class="mp-eyebrow">\u2728 Coming soon</p>' +
+      '<img class="mp-mark" src="' + MP_SCREEN_MARK + '" alt="">' +
+      '<p class="mp-eyebrow">Coming soon</p>' +
       '<h1 class="mp-display">' + esc(coupleNames || 'Coming soon') + '</h1>' +
       (dateLine ? '<p class="mp-date">' + esc(dateLine) + '</p>' : '') +
       '<div class="mp-rule"></div>' +
@@ -1386,7 +1399,9 @@
         (coupleNames ? esc(coupleNames) + ' are putting the finishing touches on their wedding website. ' : 'The hosts are putting the finishing touches on their wedding website. ') +
         'Please check back soon.' +
       '</p>' +
-      '<div class="mp-foot">myplanning.ai</div>'
+      '<div class="mp-foot"><img class="mp-foot-brand" src="' + MP_SCREEN_BRAND +
+        '" alt="MyPlanning.ai"></div>',
+      MP_SCREEN_BRAND_CSS
     );
   }
 
