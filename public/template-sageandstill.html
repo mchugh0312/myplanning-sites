@@ -456,6 +456,12 @@ body.hydrating{visibility:hidden;}
   line-height:1.85;
   padding:0 0.2rem;
 }
+
+/* Things to Do borrows .faq-answer for its type and colour, but that class is
+   an ACCORDION body here: max-height:0 until a .faq-item gets .open. Outside a
+   FAQ item nothing ever opens it, so the section rendered its title and then
+   nothing at all. Scoped to this section so the FAQ accordion is untouched. */
+#things-to-do .faq-answer{max-height:none;overflow:visible;padding:0 0.2rem;}
 .faq-item.open .faq-answer{
   max-height:500px;
   padding:0 0.2rem 1.2rem;
