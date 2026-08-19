@@ -340,6 +340,12 @@ img{max-width:100%;display:block;}
 .gallery-lb-counter{position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);font-family:var(--serif);font-size:0.75rem;letter-spacing:0.08em;color:rgba(249,247,245,0.5);}
 
 /* ── REGISTRY — offwhite bg, just the title ──────────────────── */
+/* MP-327. The registry link is an inline-block <a>, so it sat at the left of
+   this wrapper while the wrapper itself was centred by the flex parent. Centre
+   the wrapper's inline content and the link lands in the middle. Doing it here
+   rather than forcing display:block on the link keeps its hover underline the
+   width of the words. */
+.registry-section > div{text-align:center;}
 .registry-section{
   background:var(--offwhite);
   padding:4rem 2rem;
@@ -350,11 +356,6 @@ img{max-width:100%;display:block;}
   border-bottom:1px solid var(--black);
 }
 .registry-title{
-  /* MP-327. This is an <a>, so it was an inline box sitting at the left of its
-     wrapper: text-align:center below centred the text INSIDE the link, not the
-     link itself, and the wrapper is only as wide as the registry body under it.
-     As a block it fills that wrapper and the centring applies. */
-  display:block;
   font-family:var(--script);
   font-size:clamp(2.2rem,5vw,3.5rem);
   color:var(--black);

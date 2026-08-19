@@ -935,7 +935,10 @@
       var c = document.getElementById(ids[i]);
       if (c && (c.offsetParent || getComputedStyle(c).display !== 'none')) el = c;
     }
-    if (!el) return;
+    /* A section with no content stays hidden even when switched on, and a
+       section already hidden has no box to outline. Say what happened anyway,
+       or the toggle looks broken — which is what Other Events looked like. */
+    if (!el) { _floatSectionNote(label, on); return; }
 
     var box = el.getBoundingClientRect();
     var top = box.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
@@ -975,6 +978,30 @@
     setTimeout(function () {
       mark.style.opacity = '0';
       setTimeout(function () { if (mark.parentNode) mark.parentNode.removeChild(mark); }, 220);
+    }, 1600);
+  }
+
+  function _floatSectionNote(label, on) {
+    var old = document.querySelectorAll('[data-mp-section-mark]');
+    for (var j = 0; j < old.length; j++) old[j].parentNode.removeChild(old[j]);
+
+    var tag = document.createElement('div');
+    tag.setAttribute('data-mp-section-mark', '1');
+    tag.textContent = (label || 'Section') + (on ? ' added' : ' removed') +
+                      (on ? ' \u2014 add content to see it' : '');
+    tag.style.cssText = [
+      'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
+      'font-family:"Open Sans",system-ui,sans-serif', 'font-size:12px', 'font-weight:600',
+      'letter-spacing:0.04em', 'padding:7px 14px', 'border-radius:999px',
+      'color:#FFFFFF', 'background:' + (on ? '#4B5244' : '#C0892A'),
+      'box-shadow:0 2px 12px rgba(0,0,0,0.22)', 'pointer-events:none',
+      'z-index:2147483000', 'opacity:0', 'transition:opacity 180ms ease'
+    ].join(';');
+    document.body.appendChild(tag);
+    requestAnimationFrame(function () { tag.style.opacity = '1'; });
+    setTimeout(function () {
+      tag.style.opacity = '0';
+      setTimeout(function () { if (tag.parentNode) tag.parentNode.removeChild(tag); }, 220);
     }, 1600);
   }
 
@@ -1072,19 +1099,51 @@
     '#navLinks', '#menuLinks'
   ].join(',');
 
+  /* Hide reversibly: remember the inline display we found, so switching Save
+     the Date back off restores exactly what was there — including sections the
+     couple had already toggled off themselves, which must stay off. */
+  function _stdHide(el) {
+    if (!el || el.getAttribute('data-mp-std-hidden') !== null) return;
+    el.setAttribute('data-mp-std-hidden', el.style.display || '');
+    el.style.display = 'none';
+  }
+
+  function _stdRemoveBlocks() {
+    try {
+      var blocks = document.querySelectorAll('.mp-std-top,.mp-std-bottom');
+      for (var i = 0; i < blocks.length; i++) blocks[i].parentNode.removeChild(blocks[i]);
+      var st = document.getElementById('mp-std-css');
+      if (st && st.parentNode) st.parentNode.removeChild(st);
+    } catch (e) {}
+  }
+
+  function clearSaveTheDate() {
+    _stdRemoveBlocks();
+    try {
+      var hidden = document.querySelectorAll('[data-mp-std-hidden]');
+      for (var i = 0; i < hidden.length; i++) {
+        hidden[i].style.display = hidden[i].getAttribute('data-mp-std-hidden') || '';
+        hidden[i].removeAttribute('data-mp-std-hidden');
+      }
+    } catch (e) {}
+  }
+
   function applySaveTheDate(d) {
     // 1. Hide every section below the hero. RSVP, registry, travel and the rest
     //    stay configured in the editor — they're simply not served to guests.
+    /* Rebuild rather than bail out, so re-running with new data replaces the
+       announcement instead of stacking a second one on top of it. */
+    _stdRemoveBlocks();
+
     (CFG.stdHideIds || []).forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.style.display = 'none';
+      _stdHide(document.getElementById(id));
     });
 
     // 2. Remove navigation, including the shared mobile drawer. With every
     //    target hidden, menu links would be dead ends.
     try {
       document.querySelectorAll(STD_NAV_SELECTORS + ',.mp-mnav-btn,.mp-mnav-panel,.mp-mnav-scrim')
-        .forEach(function (el) { el.style.display = 'none'; });
+        .forEach(_stdHide);
     } catch (e) {}
 
     // 2b. The template's own footer repeats the couple's names and the date,
@@ -1097,13 +1156,13 @@
         var el = document.getElementById(id);
         if (!el) return;
         var band = el.closest ? el.closest('footer:not(.mp-brand-footer), .site-footer, #siteFooter') : null;
-        (band || el).style.display = 'none';
+        _stdHide(band || el);
       });
     } catch (e) {}
 
     var hero = document.getElementById(CFG.heroId) ||
                document.querySelector('.hero, .hero-section');
-    if (!hero || document.querySelector('.mp-std-top')) return;
+    if (!hero) return;
 
     var dateLine = fmtDate(d.celebration_date);
     var location = (d.celebration_location || '').trim();
@@ -1137,14 +1196,15 @@
     var shadow = heroHasImage ? '0 2px 18px rgba(0,0,0,0.55)' : 'none';
 
     var style = document.createElement('style');
+    style.id = 'mp-std-css';
     style.textContent =
       '.mp-std-top,.mp-std-bottom{position:absolute;left:50%;transform:translateX(-50%);' +
         'width:min(92%,680px);text-align:center;z-index:8;pointer-events:none;' +
         'color:' + inkColor + ';text-shadow:' + shadow + '}' +
       '.mp-std-top{top:7%}' +
       '.mp-std-bottom{bottom:6%}' +
-      '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.34em;text-transform:uppercase;margin:0;' +
-        'font-weight:500}' +
+      '.mp-std-eyebrow{font-size:1.05rem;letter-spacing:0.3em;text-transform:uppercase;margin:0;' +
+        'font-weight:700}' +
       '.mp-std-names{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
       '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:10px 0 0;' +
         'color:' + inkColor + ';text-shadow:' + shadow + '}' +
@@ -1154,7 +1214,7 @@
       '.mp-std-top .mp-std-eyebrow + .mp-std-meta{margin-top:12px}' +
       '@media(max-width:640px){' +
         '.mp-std-top{top:5%}.mp-std-bottom{bottom:5%}' +
-        '.mp-std-eyebrow{font-size:0.7rem;letter-spacing:0.26em}' +
+        '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.22em}' +
         '.mp-std-meta{font-size:0.76rem;letter-spacing:0.15em}' +
         '.mp-std-note{font-size:0.78rem}}';
     document.head.appendChild(style);
@@ -1193,14 +1253,17 @@
   function _stdOwnTextRects(hero) {
     var rects = [];
     try {
-      var nodes = hero.querySelectorAll('h1,h2,h3,h4,h5,p,span,figcaption,li,time');
+      var nodes = hero.querySelectorAll('h1,h2,h3,h4,h5,p,span,div,figcaption,li,time,svg');
       for (var i = 0; i < nodes.length; i++) {
         var el = nodes[i];
         if (el.closest && el.closest('.mp-std-top,.mp-std-bottom')) continue;
         if (!(el.textContent || '').trim()) continue;
         /* Skip wrappers: only measure the element that actually holds the text,
            or a container would report a rect covering the whole hero. */
-        if (el.querySelector && el.querySelector('h1,h2,h3,h4,h5,p,span,li,time')) continue;
+        /* Skip wrappers, but never an <svg>: its children are its own text. */
+        var tag = (el.tagName || '').toLowerCase();
+        if (tag !== 'svg' && el.querySelector &&
+            el.querySelector('h1,h2,h3,h4,h5,p,span,div,li,time,svg')) continue;
         var r = el.getBoundingClientRect();
         if (r.width > 0 && r.height > 0) rects.push(r);
       }
@@ -2262,7 +2325,13 @@
     //    hero — photo, type and colours — rather than a generic card. It is
     //    skipped in the editor (no slug): the mode governs what guests see, not
     //    what the couple can build and preview.
+    /* Deliberately NOT in the editor preview. The preview is there to show the
+       couple the site they are building; Save the Date hides almost all of it,
+       which makes the panel look broken while they are still editing sections
+       they cannot see. clearSaveTheDate still runs so that switching the mode
+       off on the live site restores everything it hid. */
     if (!_isPreview && isSaveTheDate(d)) applySaveTheDate(d);
+    else clearSaveTheDate();
 
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
@@ -2426,6 +2495,7 @@
     config: CFG,
     hydrate: hydrate,
     applySaveTheDate: applySaveTheDate,
+    clearSaveTheDate: clearSaveTheDate,
     wireRegistryLinks: wireRegistryLinks,
     hydrateRegistryPreview: hydrateRegistryPreview,
     hydrateThingsToDo: hydrateThingsToDo,
