@@ -917,6 +917,67 @@
     return false;
   }
 
+  /* ── MP-315: MARK WHAT A TOGGLE JUST DID ───────────────────────────────────
+     Switching a section ON scrolls to it, which explains itself. Switching one
+     OFF leaves nothing to scroll to: the page silently gets shorter, possibly
+     off screen, and the couple cannot tell whether they hit the right switch.
+
+     So capture where the section IS at the moment the message arrives — the
+     editor sends this before the hydrate that hides it — and leave a dashed
+     outline with its name in that spot for a moment. Transient on purpose: a
+     permanent label would sit on top of the design in the one place meant to
+     show the couple what their guests see. */
+  function markSection(key, label, on) {
+    var ids = SECTION_ANCHORS[key];
+    if (!ids) return;
+    var el = null;
+    for (var i = 0; i < ids.length && !el; i++) {
+      var c = document.getElementById(ids[i]);
+      if (c && (c.offsetParent || getComputedStyle(c).display !== 'none')) el = c;
+    }
+    if (!el) return;
+
+    var box = el.getBoundingClientRect();
+    var top = box.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+
+    var mark = document.createElement('div');
+    mark.setAttribute('data-mp-section-mark', '1');
+    mark.style.cssText = [
+      'position:absolute',
+      'left:0', 'right:0',
+      'top:' + Math.round(top) + 'px',
+      'height:' + Math.max(64, Math.round(box.height)) + 'px',
+      'border:2px dashed ' + (on ? '#4B5244' : '#C0892A'),
+      'border-radius:10px',
+      'background:' + (on ? 'rgba(75,82,68,0.08)' : 'rgba(192,137,42,0.10)'),
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'pointer-events:none', 'z-index:2147483000',
+      'opacity:0', 'transition:opacity 180ms ease'
+    ].join(';');
+
+    var tag = document.createElement('span');
+    tag.textContent = (label || 'Section') + (on ? ' added' : ' removed');
+    tag.style.cssText = [
+      'font-family:"Open Sans",system-ui,sans-serif', 'font-size:12px', 'font-weight:600',
+      'letter-spacing:0.04em', 'padding:5px 12px', 'border-radius:999px',
+      'color:#FFFFFF', 'background:' + (on ? '#4B5244' : '#C0892A'),
+      'box-shadow:0 2px 10px rgba(0,0,0,0.18)'
+    ].join(';');
+    mark.appendChild(tag);
+
+    /* Previous marks go first, or a run of quick toggles stacks them up. */
+    var old = document.querySelectorAll('[data-mp-section-mark]');
+    for (var j = 0; j < old.length; j++) old[j].parentNode.removeChild(old[j]);
+    document.body.appendChild(mark);
+
+    try { window.scrollTo({ top: Math.max(0, top - 60), behavior: 'smooth' }); } catch (e) {}
+    requestAnimationFrame(function () { mark.style.opacity = '1'; });
+    setTimeout(function () {
+      mark.style.opacity = '0';
+      setTimeout(function () { if (mark.parentNode) mark.parentNode.removeChild(mark); }, 220);
+    }, 1600);
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -2267,6 +2328,17 @@
         if (e.data.type === 'HYDRATE_TEMPLATE') {
           got = true;
           settle(e.data.payload);
+          return;
+        }
+        if (e.data.type === 'MP_SECTION_CHANGE') {
+          var sk = e.data.section, sl = e.data.label, so = e.data.on;
+          /* Measure before the hydrate that follows hides it. */
+          if (!so) { try { markSection(sk, sl, false); } catch (err) {} }
+          else {
+            /* Switched on: it may not be in the DOM yet, so wait for the
+               payload to land before marking. */
+            setTimeout(function () { try { markSection(sk, sl, true); } catch (err) {} }, 260);
+          }
           return;
         }
         if (e.data.type === 'MP_SCROLL_TO') {
