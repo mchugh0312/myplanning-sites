@@ -2262,6 +2262,31 @@
      couples — reusing that one would have withheld the ack from them. */
   var _previewSampleOnly = false;
 
+  /* One line per preview frame, at the moment it becomes visible, saying how it
+     got there. Console output from an iframe appears in the parent's console,
+     so this is readable from the editor page without selecting frames.
+     Preview only — a guest's site never logs. */
+  var _mpT0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  var _mpMark = {};
+  function mpMark(name) {
+    if (!_isPreview) return;
+    var t = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (_mpMark[name] === undefined) _mpMark[name] = Math.round(t - _mpT0);
+  }
+  function mpTimeline() {
+    if (!_isPreview) return;
+    var who = (window.MP_TEMPLATE_ID || 'template') +
+              (_params.get('thumbnail') === '1' ? ' thumb' : ' preview');
+    try {
+      console.log('[mp] ' + who +
+        '  asked@' + (_mpMark.asked === undefined ? '-' : _mpMark.asked) +
+        '  payload@' + (_mpMark.payload === undefined ? '-' : _mpMark.payload) +
+        '  hydrated@' + (_mpMark.hydrated === undefined ? '-' : _mpMark.hydrated) +
+        '  visible@' + (_mpMark.visible === undefined ? '-' : _mpMark.visible) +
+        (_previewSampleOnly ? '  <-- SAMPLE DATA, no editor reply' : ''));
+    } catch (e) {}
+  }
+
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
@@ -2272,6 +2297,8 @@
     // NOT after the sample-data fallback. The editor uses this to decide when a
     // frame is worth showing, and a frame full of the template's stock couple is
     // exactly what it is trying to avoid showing.
+    mpMark('visible');
+    mpTimeline();
     if (_isPreview && !_previewSampleOnly) {
       try { parent.postMessage({ type: 'TEMPLATE_HYDRATED' }, '*'); } catch (err) {}
     }
@@ -2502,10 +2529,13 @@
       // long before load, so the editor can answer before the fallback below
       // has any chance to fire. The editor also still sends on load, which
       // covers a frame that was already up when the listener was attached.
+      mpMark('asked');
       try { parent.postMessage({ type: 'MP_PREVIEW_READY' }, '*'); } catch (err) {}
 
       var settle = function (payload, isPlaceholder) {
         _previewSampleOnly = !!isPlaceholder;
+        mpMark(isPlaceholder ? 'fallback' : 'payload');
+        mpMark('hydrated');
         try { hydrate(payload); }
         finally {
           // Safety net for a hydrate that threw before reaching its own reveal.
