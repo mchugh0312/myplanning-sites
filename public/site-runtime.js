@@ -2261,15 +2261,24 @@
           return;
         }
         if (e.data.type === 'MP_SCROLL_TO') {
-          /* One frame's grace: a scroll asked for in the same tick as a toggle
-             would run before the section had been shown. */
+          /* A scroll asked for in the same tick as a toggle would run before the
+             section had been shown, and a scroll asked for while the payload is
+             still in flight would run before it exists at all. Retry for a
+             short while rather than firing once and missing. */
           var key = e.data.section;
+          var tries = 0;
+          var attempt = function () {
+            var done = false;
+            try { done = scrollToSection(key); } catch (err) {}
+            if (!done && ++tries < 12) setTimeout(attempt, 120);
+            else if (window.MP_DEBUG) {
+              console.log('[site-runtime] scroll to ' + key + (done ? ' ok' : ' failed: no visible anchor'));
+            }
+          };
           if (window.requestAnimationFrame) {
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () { try { scrollToSection(key); } catch (err) {} });
-            });
+            requestAnimationFrame(function () { requestAnimationFrame(attempt); });
           } else {
-            setTimeout(function () { try { scrollToSection(key); } catch (err) {} }, 32);
+            setTimeout(attempt, 32);
           }
         }
       });
