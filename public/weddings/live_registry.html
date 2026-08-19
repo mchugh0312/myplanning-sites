@@ -371,6 +371,13 @@
 .modal-card.sage .m-form label{color:#fff;}
 .modal-card.sage .m-form input,.modal-card.sage .m-form textarea{border-color:#fff;}
 .modal-card.sage .m-img{background:#fff;border-radius:3px;padding:6px;}
+
+/* Payment rail chooser on the contribute modal. */
+.rail-row{display:flex;gap:8px;flex-wrap:wrap}
+.rail-opt{flex:1 1 150px;display:flex;align-items:flex-start;gap:8px;padding:10px 12px;
+  border:1px solid #EDE8E3;border-radius:10px;cursor:pointer;background:#fff;font-size:13px}
+.rail-opt input{margin-top:2px}
+.rail-opt .rail-sub{display:block;color:var(--muted);font-size:11px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -1452,10 +1459,18 @@ function openFund(id){
 
   let body="";
   if(stripeOk){
-    body = '<div class="field"><label>Your contribution ($)</label><input type="number" id="g-amt" min="'+(min/100)+'" step="1" value="'+Math.max(25,Math.round(min/100))+'"></div>'
+    body = '<div class="field"><label>Your contribution ($)</label><input type="number" id="g-amt" min="'+(min/100)+'" step="1" oninput="updateFeeLine()" value="'+Math.max(25,Math.round(min/100))+'"></div>'
       + '<div class="row2"><div class="field"><label>Your name</label><input type="text" id="g-name"></div><div class="field"><label>Email</label><input type="email" id="g-email"></div></div>'
       + '<div class="field"><label>A note to the couple <span style="color:var(--muted);font-style:normal">(optional)</span></label><textarea id="g-note" placeholder="Wishing you both a lifetime of happiness…"></textarea></div>'
       + '<label class="check"><input type="checkbox" id="g-anon"> Keep my gift anonymous</label>'
+      + '<div class="field"><label>How would you like to pay?</label>'
+      +   '<div class="rail-row">'
+      +     '<label class="rail-opt"><input type="radio" name="g-rail" value="card" checked onchange="updateFeeLine()"> '
+      +       '<span><strong>Card</strong><span class="rail-sub">Instant</span></span></label>'
+      +     '<label class="rail-opt"><input type="radio" name="g-rail" value="ach" onchange="updateFeeLine()"> '
+      +       '<span><strong>Bank transfer</strong><span class="rail-sub">Lower fee, takes a few days</span></span></label>'
+      +   '</div></div>'
+      + '<div class="hint" id="g-fee-line"></div>'
       + '<button class="mbtn primary" id="g-submit" onclick="submitContribution()">Contribute '+fmt(min)+'+ via Stripe →</button>'
       + '<div class="hint">Secure checkout via Stripe. Your gift goes straight to the couple.</div>';
   } else if(anyHandle){
@@ -1478,6 +1493,42 @@ function openFund(id){
     + '</div>';
   openModal("fund");
 }
+/* Mirrors gross_up() in main.py. Shown BEFORE checkout so the fee is never a
+   surprise on Stripe's page; the server recomputes it and is authoritative. */
+function grossUp(giftCents, rail){
+  const g = Math.max(0, Math.round(giftCents||0));
+  if(!g) return { gift:0, fee:0, total:0 };
+  let total;
+  if(rail === "ach"){
+    total = Math.ceil(g / (1 - 0.008));
+    if(total - g > 500) total = g + 500;      // $5 cap
+  } else {
+    total = Math.ceil((g + 30) / (1 - 0.029));
+  }
+  return { gift:g, fee: total - g, total:total };
+}
+
+function selectedRail(){
+  const r = document.querySelector('input[name="g-rail"]:checked');
+  return r ? r.value : "card";
+}
+
+function updateFeeLine(){
+  const line = el("g-fee-line"); if(!line) return;
+  const it = state.activeItem || {};
+  const min = it.min_contribution_cents || 2500;
+  const dollars = parseFloat(el("g-amt") ? el("g-amt").value : "0") || 0;
+  const cents = Math.round(dollars*100);
+  if(cents < 1){ line.textContent = ""; return; }
+  const rail = selectedRail();
+  const f = grossUp(cents, rail);
+  line.innerHTML = "The couple receives <strong>" + fmt(f.gift) + "</strong>. "
+    + "You'll be charged " + fmt(f.total) + ", which includes a "
+    + fmt(f.fee) + " " + (rail === "ach" ? "bank transfer" : "card") + " processing fee. "
+    + "MyPlanning doesn't charge or keep any part of it."
+    + (rail === "ach" ? " Bank transfers take a few days to clear." : "");
+}
+
 async function submitContribution(){
   const it=state.activeItem; if(!it) return;
   const min = it.min_contribution_cents || 2500;
@@ -1496,6 +1547,7 @@ async function submitContribution(){
     const res=await fetch(RENDER_API+"/public/registry/"+state.registryId+"/checkout",{
       method:"POST", headers:{"Content-Type":"application/json"},
       body:JSON.stringify({ item_id:it.id, guest_name:name, guest_email:email, amount_cents, quantity:1,
+        payment_rail:selectedRail(),
         gift_note:note||null, is_anonymous:anon, success_url:ret+sep+"contribution=success", cancel_url:ret+sep+"contribution=cancel" }),
     });
     if(!res.ok) throw new Error(await errText(res));
