@@ -468,7 +468,7 @@
     var input = rsvpEl('rsvpNameInput');
     if (input && json.name) input.value = json.name;
 
-    setStatus('ok', '\u2713 Found you on the list \u2014 ' + _rsvpState.matchedName);
+    setStatus('ok', '\u2713 Found you on the list. ' + _rsvpState.matchedName);
 
     var disambig = rsvpEl('rsvpDisambig');
     if (disambig) { disambig.style.display = 'none'; disambig.innerHTML = ''; }
@@ -508,11 +508,11 @@
         if (json.found === true) {
           applyFoundGuest(json, name);
         } else if (json.ambiguous) {
-          rejectGuest('ambiguous', 'Multiple matches \u2014 please pick yours below');
+          rejectGuest('ambiguous', 'Multiple matches. Please pick yours below');
           showAmbiguousMatches(json.matches || []);
         } else {
           rejectGuest('unknown',
-            "We couldn't find your name on the guest list. RSVPs are by invitation only \u2014 " +
+            "We couldn't find your name on the guest list. RSVPs are by invitation only. " +
             'please contact the couple if you believe this is a mistake.');
         }
       })
@@ -552,7 +552,7 @@
       'border-radius:6px;padding:0.55rem 0.7rem;margin:0.5rem 0 0.6rem;' +
       'font-family:inherit;font-size:0.8rem;display:block;';
     wrap.innerHTML = '<div style="margin-bottom:0.4rem;font-size:0.72rem;opacity:0.7">' +
-      'We found a few matches \u2014 please pick yours:</div>';
+      'We found a few matches. Please pick yours:</div>';
 
     matches.forEach(function (m) {
       var btn = document.createElement('button');
@@ -602,7 +602,7 @@
 
     var party = (json.party_name || '').trim();
     var count = members.length + ' other ' + (members.length === 1 ? 'person' : 'people');
-    label.textContent = party ? 'Your household \u2014 ' + party + ' (' + count + ')' : 'Your household (' + count + ')';
+    label.textContent = party ? 'Your household: ' + party + ' (' + count + ')' : 'Your household (' + count + ')';
 
     list.innerHTML = '';
     members.forEach(function (m, idx) {
@@ -822,7 +822,7 @@
       var answers = rsvpEl('rsvpAnswers');
       if (answers) answers.style.display = 'none';
     }).catch(function (err) {
-      alert('Sorry \u2014 ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
+      alert('Sorry, ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
       btn.disabled = false;
       btn.textContent = 'Send My RSVP';
     });
@@ -988,7 +988,7 @@
     var tag = document.createElement('div');
     tag.setAttribute('data-mp-section-mark', '1');
     tag.textContent = (label || 'Section') + (on ? ' added' : ' removed') +
-                      (on ? ' \u2014 add content to see it' : '');
+                      (on ? ', add content to see it' : '');
     tag.style.cssText = [
       'position:fixed', 'top:16px', 'left:50%', 'transform:translateX(-50%)',
       'font-family:"Open Sans",system-ui,sans-serif', 'font-size:12px', 'font-weight:600',
@@ -1250,7 +1250,7 @@
     // MP-309.
     _scheduleStdDeoverlap(hero, [top, bottom]);
 
-    try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}
+    try { document.title = (d.couple_names || 'Our Wedding') + ': Save the Date'; } catch (e) {}
   }
 
   function _stdOwnTextRects(hero) {
@@ -1329,7 +1329,7 @@
       '<div class="mp-pw">' +
         '<input id="mpPwInput" type="password" placeholder="Password" autocomplete="current-password">' +
         '<button id="mpPwBtn" type="button">Enter</button>' +
-        '<div id="mpPwError">Incorrect password \u2014 please try again.</div>' +
+        '<div id="mpPwError">Incorrect password. Please try again.</div>' +
       '</div>' +
       '<div class="mp-foot">myplanning.ai</div>',
       '.mp-pw{display:flex;flex-direction:column;gap:12px;max-width:300px;margin:26px auto 0}' +
