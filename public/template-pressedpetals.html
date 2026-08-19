@@ -1004,7 +1004,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 
 <!-- ACCOMMODATIONS: olive -->
 <div class="accommodations" id="accommodations">
-  <div class="accom-section-inner accom-split">
+  <div class="accom-section-inner">
     <div class="accom-col" id="accomList">
       <div class="accom-col-title">Hotel</div>
       <div class="accom-name">Hyatt Regency La Jolla At Aventine</div>
@@ -1014,7 +1014,14 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
       </div>
       <a class="accom-btn" id="accomBtn" href="#" target="_blank">Book Now</a>
     </div>
-    <div class="accom-divider"></div>
+  </div>
+</div>
+
+<!-- TRAVEL: its own band, same olive treatment as Accommodations above. It used
+     to be a second column in that band, which left the page with no
+     #travel-section for the menu or the section order to point at. -->
+<div class="accommodations" id="travel-section">
+  <div class="accom-section-inner">
     <div class="accom-col" id="travelList">
       <div class="accom-col-title">Flights</div>
       <div class="accom-name">San Diego International Airport</div>
@@ -1530,32 +1537,21 @@ function hydrateTemplate(d) {
   // One section with two columns; Travel used to be its own block further down
   // the page.
   const _travelCol = document.getElementById('travelList');
-  if (_travelCol && menu.travel && d.travel_info) {
+  var _travelSec = document.getElementById('travel-section');
+  if (_travelCol && d.travel_info) {
     var _trUrl = _mpBookUrl(d.travel_info, d.travel_url);
     _travelCol.innerHTML =
       '<div class="accom-col-title">Flights</div>' +
       '<div class="accom-address">' + d.travel_info + '</div>' +
       '<a class="accom-btn" href="' + (_trUrl || '#') + '"' +
         (_trUrl ? ' target="_blank" rel="noopener"' : '') + '>Book Now</a>';
-  } else if (_travelCol && !menu.travel) {
-    _travelCol.style.display = 'none';
-    var _div = document.querySelector('.accom-divider');
-    if (_div) _div.style.display = 'none';
   }
+  // Its own band now, so it stands or falls on its own toggle rather than
+  // sharing the accommodations one.
+  if (_travelSec) _travelSec.style.display = menu.travel ? '' : 'none';
 
-  // The whole band hides only when neither column has anything to say.
   var _accomSec = document.getElementById('accommodations');
-  if (_accomSec) {
-    var _hasAccom = !!(menu.accommodations);
-    var _hasTravel = !!(menu.travel);
-    _accomSec.style.display = (_hasAccom || _hasTravel) ? '' : 'none';
-    if (!_hasAccom) {
-      var _ac = document.getElementById('accomList');
-      if (_ac) _ac.style.display = 'none';
-      var _d2 = document.querySelector('.accom-divider');
-      if (_d2) _d2.style.display = 'none';
-    }
-  }
+  if (_accomSec) _accomSec.style.display = menu.accommodations ? '' : 'none';
 
   // ── Old registry strip — now used as the main registry section ────────
   const oldRegistry = document.getElementById('registry');

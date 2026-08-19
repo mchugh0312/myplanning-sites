@@ -1519,6 +1519,33 @@
     '.registry-buy-btn', '.registry-link'
   ].join(',');
 
+  /* An in-page anchor (#travel-section) is navigation and stays. A link with no
+     href at all, or href="#", is a button whose URL was never filled in. */
+  var DEAD_CTA_SKIP = '.mp-brand-footer, nav, .top-nav, .menu-drawer, .menu-overlay, .mp-mnav-panel';
+
+  function hideDeadCtas() {
+    try {
+      var links = document.querySelectorAll('a');
+      for (var i = 0; i < links.length; i++) {
+        var a = links[i];
+        if (a.closest && a.closest(DEAD_CTA_SKIP)) continue;
+        if (a.classList && a.classList.contains('mp-registry-fallback')) continue;
+        var href = (a.getAttribute('href') || '').trim();
+        if (href && href !== '#') continue;          /* has somewhere to go */
+        if (href === '#' && a.getAttribute('onclick')) continue;  /* scripted */
+        /* Hide the button, and the wrapper if the button is all it holds, so no
+           empty frame or stray padding is left behind. */
+        var target = a;
+        var parent = a.parentElement;
+        if (parent && parent.children.length === 1 &&
+            !(parent.textContent || '').replace(a.textContent || '', '').trim()) {
+          target = parent;
+        }
+        target.style.display = 'none';
+      }
+    } catch (e) {}
+  }
+
   function wireRegistryLinks(d) {
     // The editor preview receives a real slug in its payload, but navigating
     // the preview iframe to the live registry isn't what a couple expects from
@@ -2538,6 +2565,13 @@
        off on the live site restores everything it hid. */
     if (!_isPreview && isSaveTheDate(d)) applySaveTheDate(d);
     else clearSaveTheDate();
+
+    // A Book Now with no link behind it is a broken button, and the booking link
+    // is optional by design. Templates ship the button in their markup and only
+    // some of them check the URL, so it is swept here instead: any call to
+    // action still pointing at nothing after hydration is hidden. Runs across
+    // every template, so no template needs its own guard. MP-336.
+    hideDeadCtas();
 
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
