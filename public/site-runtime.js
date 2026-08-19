@@ -2251,13 +2251,23 @@
     setTimeout(finish, 2500);
   }
 
+  /* True only while the preview is showing the template's OWN sample payload
+     because no editor answered. Distinct from MP_SHOWING_PLACEHOLDERS, which
+     means "a section fell back to sample copy" and is true for many real
+     couples — reusing that one would have withheld the ack from them. */
+  var _previewSampleOnly = false;
+
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
     // Told here rather than at the call sites, so every path that reveals also
     // acks — the editor lifts its placeholder at the same moment the page
     // becomes worth looking at, not a beat earlier.
-    if (_isPreview) {
+    //
+    // NOT after the sample-data fallback. The editor uses this to decide when a
+    // frame is worth showing, and a frame full of the template's stock couple is
+    // exactly what it is trying to avoid showing.
+    if (_isPreview && !_previewSampleOnly) {
       try { parent.postMessage({ type: 'TEMPLATE_HYDRATED' }, '*'); } catch (err) {}
     }
   }
@@ -2478,7 +2488,15 @@
       // In a finally block on purpose: if hydrate throws we still reveal, so a
       // bad payload shows a sample-data page rather than a permanently blank one.
       var got = false;
-      var settle = function (payload) {
+
+      // Ask for the payload NOW. This runs while the document is still parsing,
+      // long before load, so the editor can answer before the fallback below
+      // has any chance to fire. The editor also still sends on load, which
+      // covers a frame that was already up when the listener was attached.
+      try { parent.postMessage({ type: 'MP_PREVIEW_READY' }, '*'); } catch (err) {}
+
+      var settle = function (payload, isPlaceholder) {
+        _previewSampleOnly = !!isPlaceholder;
         try { hydrate(payload); }
         finally {
           // Safety net for a hydrate that threw before reaching its own reveal.
@@ -2526,9 +2544,13 @@
           }
         }
       });
+      // Longer than 800ms: that was routinely beaten by the editor's
+      // load-then-post round trip once there were eleven frames on a page, and
+      // losing the race meant showing sample data. This is a backstop for a
+      // template opened with no editor at all, not part of the normal path.
       setTimeout(function () {
-        if (!got) settle(window.SAMPLE_DATA || {});
-      }, 800);
+        if (!got) settle(window.SAMPLE_DATA || {}, true);
+      }, 2500);
       return;
     }
 
