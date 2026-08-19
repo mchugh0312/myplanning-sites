@@ -836,6 +836,52 @@
   ========================================================================== */
   var CURSIVE_FONTS = ['Dancing Script', 'Pacifico', 'Great Vibes', 'Sacramento', 'Allura', 'Parisienne'];
 
+  /* ── COLOUR CONTROLS ────────────────────────────────────────────────────────
+     The editor offers Background, Accent and Text. Applying them was left to
+     each template and had drifted badly:
+
+       * Four templates (Regal Boho, Sage and Still, Vintage Love Story,
+         Whimsical Romance) read the values and did nothing with them, so those
+         controls were inert — change a colour, nothing happens, before or after
+         saving.
+       * The six that did apply them had Background and Accent the wrong way
+         round: primary_color (labelled Background) was wired to the template's
+         BRAND colour, and accent_color to the page ground.
+
+     Applied here instead, once, using the variable names the runtime already
+     knows: footerVars.bg is each template's page ground and footerVars.ink its
+     text colour. Templates keep their own handling; this runs after
+     hydrateTemplate so it wins, and setting nothing when a value is empty means
+     the template's own palette still shows through. */
+  var TEMPLATE_COLOR_VARS = {
+    pressedpetals:       { bg: '--offwhite', accent: '--olive', ink: '--text' },
+    heirloombloom:       { bg: '--offwhite', accent: '--berry', ink: '--text' },
+    blacktietimeless:    { bg: '--offwhite', accent: '--black', ink: '--text' },
+    goldenhour:          { bg: '--white', accent: '--blue', ink: '--dark' },
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--text' },
+    modernminimal:       { bg: '--ivory', accent: '--blue', ink: '--text' },
+    whimsicalromance:    { bg: '--ivory', accent: '--rose', ink: '--burgundy' },
+    coastalchic:         { bg: '--ivory', accent: '--navy', ink: '--text' },
+    vintagelovestory:    { bg: '--ivory', accent: '--brown', ink: '--text' },
+    regalboho:           { bg: '--ivory', accent: '--beige', ink: '--text' },
+  };
+
+  function applyCustomColors(d) {
+    var c = d && d.customization;
+    if (!c) return;
+    var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+    var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color], [v.ink, c.text_color]];
+    try {
+      var root = document.documentElement.style;
+      for (var i = 0; i < pairs.length; i++) {
+        var name = pairs[i][0], val = pairs[i][1];
+        if (!name) continue;
+        if (val) root.setProperty(name, val);
+        else root.removeProperty(name);   /* cleared: back to the design */
+      }
+    } catch (e) {}
+  }
+
   function applyCustomFont(fontName) {
     if (!fontName) return;
     var isCursive = CURSIVE_FONTS.some(function (f) { return fontName.indexOf(f) !== -1; });
@@ -2016,12 +2062,22 @@
     }
 
     // 3. Custom CSS + font, then hand off to the template's own layout code.
+    //
+    //    Reuse one element. hydrate() runs again on EVERY payload the editor
+    //    posts, so appending appended a fresh <style> per keystroke; a long
+    //    editing session left hundreds in the head for the browser to cascade
+    //    on each repaint, which is a slow preview for no reason.
     if (d.custom_css) {
-      var style = document.createElement('style');
-      style.textContent = d.custom_css;
-      document.head.appendChild(style);
+      var style = document.getElementById('mp-custom-css');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'mp-custom-css';
+        document.head.appendChild(style);
+      }
+      if (style.textContent !== d.custom_css) style.textContent = d.custom_css;
     }
     applyCustomFont(d.custom_font);
+    applyCustomColors(d);
 
     // Toggling a section on should show something. Templates gate most sections
     // on BOTH the menu toggle and the content field, so a couple who switches
