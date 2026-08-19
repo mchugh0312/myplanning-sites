@@ -58,10 +58,14 @@ body.thumbnail-mode .hero-section{
   height:66.67vw!important;min-height:0!important;
   display:block!important;
   /* Composite all 3 images as a single horizontal background strip */
-  background-image:
+  /* MP-322. These three were hard-coded sample URLs carrying !important, and
+     the real hero columns are hidden here, so a couple's own photographs never
+     reached the template card. The custom property is set by hydrate when they
+     have photos; these remain the fallback when they don't. */
+  background-image: var(--mp-thumb-hero,
     url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2d42c296-b268-4811-870c-0fd04f5cd929.png'),
     url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png'),
-    url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/3617ec8d-4bb0-4eea-91ee-ae1ef7ab1002.png')!important;
+    url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/3617ec8d-4bb0-4eea-91ee-ae1ef7ab1002.png'))!important;
   background-size:33.33% 100%, 33.33% 100%, 33.33% 100%!important;
   background-position:0% center, 50% center, 100% center!important;
   background-repeat:no-repeat, no-repeat, no-repeat!important;
@@ -664,6 +668,16 @@ function hydrateTemplate(d){
   ['heroCol1','heroCol2','heroCol3'].forEach(function(id,i){
     if(_heroUrls[i]&&el(id))el(id).style.backgroundImage="url('"+_heroUrls[i]+"')";
   });
+
+  // The template card composites the same three images into one background
+  // strip. Feed it from the list the columns use, or the selector keeps showing
+  // stock art. A short list repeats its last image rather than leaving a gap.
+  var _heroSec=el('home');
+  if(_heroSec&&_heroUrls.length){
+    _heroSec.style.setProperty('--mp-thumb-hero',[0,1,2].map(function(i){
+      return "url('"+(_heroUrls[i]||_heroUrls[_heroUrls.length-1])+"')";
+    }).join(','));
+  }
 
   // The menu's left panel mirrors the first hero image.
   var _menuPhoto=el('menuPhoto');

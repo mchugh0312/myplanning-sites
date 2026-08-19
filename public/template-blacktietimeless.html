@@ -350,6 +350,11 @@ img{max-width:100%;display:block;}
   border-bottom:1px solid var(--black);
 }
 .registry-title{
+  /* MP-327. This is an <a>, so it was an inline box sitting at the left of its
+     wrapper: text-align:center below centred the text INSIDE the link, not the
+     link itself, and the wrapper is only as wide as the registry body under it.
+     As a block it fills that wrapper and the centring applies. */
+  display:block;
   font-family:var(--script);
   font-size:clamp(2.2rem,5vw,3.5rem);
   color:var(--black);

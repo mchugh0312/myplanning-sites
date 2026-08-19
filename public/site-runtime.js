@@ -929,6 +929,20 @@
         .forEach(function (el) { el.style.display = 'none'; });
     } catch (e) {}
 
+    // 2b. The template's own footer repeats the couple's names and the date,
+    //     which the announcement above already carries, so in Save the Date
+    //     mode it reads as the same information twice. No template lists its
+    //     footer in stdHideIds, so hide it here. The MyPlanning.ai brand footer
+    //     is appended to <body> separately and is untouched. MP-311.
+    try {
+      ['footerNames', 'footerCouple', 'footerDate'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var band = el.closest ? el.closest('footer:not(.mp-brand-footer), .site-footer, #siteFooter') : null;
+        (band || el).style.display = 'none';
+      });
+    } catch (e) {}
+
     var hero = document.getElementById(CFG.heroId) ||
                document.querySelector('.hero, .hero-section');
     if (!hero || document.querySelector('.mp-std-top')) return;
@@ -940,7 +954,8 @@
     var namesEl = CFG.heroNamesId ? document.getElementById(CFG.heroNamesId) : null;
     var heroHasDate = !!hero.querySelector('#heroDate, .hero-date');
     var firstName = (d.partner_1 || names.split('&')[0] || '').trim();
-    var heroHasNames = !!firstName && (hero.textContent || '').indexOf(firstName) !== -1;
+    var _heroText = (hero.textContent || '').toLowerCase();
+    var heroHasNames = !!firstName && _heroText.indexOf(firstName.toLowerCase()) !== -1;
 
     // ── Colour ───────────────────────────────────────────────────────────
     // Inherit the colour of the hero's own name text. That element is designed
@@ -1006,7 +1021,77 @@
     bottom.innerHTML = '<p class="mp-std-note">Formal invitation to follow</p>';
     hero.appendChild(bottom);
 
+    // The two blocks above are positioned over the hero, which is the intended
+    // look. On templates whose hero already carries type near the top or bottom
+    // they landed on top of it. Rather than guess a safe offset per template,
+    // measure after layout and, only where they actually collide, drop the
+    // block out of the overlay into normal flow above or below the hero.
+    // MP-309.
+    _scheduleStdDeoverlap(hero, [top, bottom]);
+
     try { document.title = (d.couple_names || 'Our Wedding') + ' \u2014 Save the Date'; } catch (e) {}
+  }
+
+  function _stdOwnTextRects(hero) {
+    var rects = [];
+    try {
+      var nodes = hero.querySelectorAll('h1,h2,h3,h4,h5,p,span,figcaption,li,time');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (el.closest && el.closest('.mp-std-top,.mp-std-bottom')) continue;
+        if (!(el.textContent || '').trim()) continue;
+        /* Skip wrappers: only measure the element that actually holds the text,
+           or a container would report a rect covering the whole hero. */
+        if (el.querySelector && el.querySelector('h1,h2,h3,h4,h5,p,span,li,time')) continue;
+        var r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rects.push(r);
+      }
+    } catch (e) {}
+    return rects;
+  }
+
+  function _stdDeoverlap(hero, blocks) {
+    if (!hero || !hero.parentNode) return;
+    var own = _stdOwnTextRects(hero);
+    if (!own.length) return;
+    for (var i = 0; i < blocks.length; i++) {
+      var b = blocks[i];
+      if (!b || b.getAttribute('data-mp-std-flow') === '1') continue;
+      var r = b.getBoundingClientRect();
+      var hit = false;
+      for (var j = 0; j < own.length; j++) {
+        var o = own[j];
+        if (!(r.right < o.left || r.left > o.right || r.bottom < o.top || r.top > o.bottom)) {
+          hit = true; break;
+        }
+      }
+      if (!hit) continue;
+      b.setAttribute('data-mp-std-flow', '1');
+      b.style.position   = 'static';
+      b.style.transform  = 'none';
+      b.style.width      = 'auto';
+      b.style.padding    = '20px 16px';
+      /* Out of the hero it no longer sits on the photograph, so the hero's ink
+         and the drop shadow would be wrong: use the page's own ink. */
+      b.style.color      = CFG.palette.ink;
+      b.style.textShadow = 'none';
+      if ((b.className || '').indexOf('mp-std-top') !== -1) {
+        hero.parentNode.insertBefore(b, hero);
+      } else {
+        hero.parentNode.insertBefore(b, hero.nextSibling);
+      }
+    }
+  }
+
+  function _scheduleStdDeoverlap(hero, blocks) {
+    var run = function () { try { _stdDeoverlap(hero, blocks); } catch (e) {} };
+    if (window.requestAnimationFrame) {
+      requestAnimationFrame(function () { requestAnimationFrame(run); });
+    } else { setTimeout(run, 0); }
+    /* Display faces change the metrics, so a block that cleared the hero's type
+       with the fallback face can collide once the real one lands. */
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); } catch (e) {}
+    setTimeout(run, 500);
   }
 
   // ── Password gate (with a working input — the old screen had none) ───────

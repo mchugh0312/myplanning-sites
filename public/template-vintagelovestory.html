@@ -1890,6 +1890,25 @@ function hydrateTemplate(d) {
 }
   }
 
+  // ── Our Story photographs ────────────────────────────────────────────
+  // MP-320. These three were fixed sample images in the markup that nothing
+  // ever wrote to, so the section stayed on stock photography however many
+  // pictures the couple uploaded. Selected by CSS rather than by id so no
+  // markup changes and any future fourth slot is picked up automatically.
+  // Slots beyond the supplied photos keep their sample, which is better than
+  // an empty frame.
+  try {
+    var _storyPool = (d.gallery_images || []).map(function (g) {
+      return typeof g === 'string' ? g : (g && g.url) || '';
+    }).filter(Boolean);
+    if (d.hero_image && _storyPool.indexOf(d.hero_image) === -1) _storyPool.push(d.hero_image);
+    if (_storyPool.length) {
+      document.querySelectorAll('#storyPhotos img').forEach(function (img, i) {
+        if (_storyPool[i]) img.src = _storyPool[i];
+      });
+    }
+  } catch (e) {}
+
   // ── Gallery ──────────────────────────────────────────────────────────
   const gallerySection = document.getElementById('gallery');
   if (gallerySection) {
