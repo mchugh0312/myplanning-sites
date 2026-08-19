@@ -673,12 +673,22 @@ function hydrateTemplate(d){
   });
 
   // The template card composites the same three images into one background
-  // strip. Feed it from the list the columns use, or the selector keeps showing
-  // stock art. A short list repeats its last image rather than leaving a gap.
+  // strip. Feed it from the list the columns use, per slot, so the card shows
+  // exactly what the columns above show.
+  //
+  // An unfilled slot keeps ITS OWN sample, matching the columns, which only
+  // replace the slots they have a photograph for. Repeating the last upload to
+  // pad the strip made one uploaded photo appear three times on the card while
+  // the live hero showed it once.
+  var _heroSamples=[
+    "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2d42c296-b268-4811-870c-0fd04f5cd929.png",
+    "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/89d6c221-6968-4779-ba69-a28ce2592e5e.png",
+    "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/3617ec8d-4bb0-4eea-91ee-ae1ef7ab1002.png"
+  ];
   var _heroSec=el('home');
   if(_heroSec&&_heroUrls.length){
     _heroSec.style.setProperty('--mp-thumb-hero',[0,1,2].map(function(i){
-      return "url('"+(_heroUrls[i]||_heroUrls[_heroUrls.length-1])+"')";
+      return "url('"+(_heroUrls[i]||_heroSamples[i])+"')";
     }).join(','));
   }
 

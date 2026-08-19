@@ -2254,6 +2254,12 @@
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
+    // Told here rather than at the call sites, so every path that reveals also
+    // acks — the editor lifts its placeholder at the same moment the page
+    // becomes worth looking at, not a beat earlier.
+    if (_isPreview) {
+      try { parent.postMessage({ type: 'TEMPLATE_HYDRATED' }, '*'); } catch (err) {}
+    }
   }
 
   /* ==========================================================================
@@ -2423,11 +2429,10 @@
     hydrateRegistryPreview(d);
     renderBrandFooter();
 
-    // The editor preview has its own placeholder covering the frame until the
-    // block says so, and delaying here would hold back the TEMPLATE_HYDRATED
-    // ack it waits for. Only the live site needs the image wait.
-    if (_isPreview) reveal();
-    else revealWhenHeroReady();
+    // Both paths wait for the hero. The preview needs it as much as the live
+    // site: its placeholder lifts on the ack, and the ack now comes from
+    // reveal(), so it waits for the photograph too.
+    revealWhenHeroReady();
   }
 
   /* ==========================================================================
@@ -2476,8 +2481,9 @@
       var settle = function (payload) {
         try { hydrate(payload); }
         finally {
+          // Safety net for a hydrate that threw before reaching its own reveal.
+          // reveal() sends the ack, and repeat calls are harmless.
           reveal();
-          try { parent.postMessage({ type: 'TEMPLATE_HYDRATED' }, '*'); } catch (err) {}
         }
       };
       window.addEventListener('message', function (e) {
