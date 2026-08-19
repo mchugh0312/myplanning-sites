@@ -1323,7 +1323,10 @@ function hydrateTemplate(d){
             'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9723a277-927a-432e-90a3-2e77afec42f3.svg',
             'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/0e88714c-8ed6-4d94-be6b-afaa377772c6.svg'
           ];
-          wParts.slice(0,2).forEach(function(part, idx){
+          // Every block, not just the first two — see Pressed Petals. Blocks
+          // past the second reuse the last icon rather than reading past the
+          // end of the array.
+          wParts.forEach(function(part, idx){
             var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
             var eventName = nameMatch ? nameMatch[1] : '';
             var rest = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'') : part;
@@ -1333,7 +1336,7 @@ function hydrateTemplate(d){
 
             var html =
               '<div class="event-block">' +
-                '<div class="event-icon"><img src="' + icons[idx] + '" alt=""></div>' +
+                '<div class="event-icon"><img src="' + (icons[idx] || icons[icons.length - 1]) + '" alt=""></div>' +
                 (eventName ? '<div class="event-name">' + eventName + '</div>' : '') +
                 (detail    ? '<div class="event-detail">' + detail + '</div>' : '') +
                 (dressCode ? '<span class="event-dress"><em>' + dressCode + '</em></span>' : '') +

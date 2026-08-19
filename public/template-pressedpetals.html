@@ -1339,9 +1339,15 @@ function hydrateTemplate(d) {
                                     .filter(function(p) { return p.length > 3; });
         if (wParts.length >= 2) {
           // Two-column layout: Ceremony left, Reception right
-          wParts.slice(0, 2).forEach(function(part) {
+          // Every block, not just the first two. A couple who adds a third
+          // event under Ceremony and Reception had it silently dropped: the
+          // text was in the editor, saved to the record, and never rendered.
+          // The layout is two columns, so a third and beyond take their own
+          // full-width row rather than crowding the pair.
+          wParts.forEach(function(part, _i) {
             var col = document.createElement('div');
             col.className = 'event-card-primary';
+            if (_i >= 2) col.style.gridColumn = '1/-1';
             // First line = event name (bold/strong), rest = details, last em = dress code
             var nameMatch = part.match(/^<strong>([^<]+)<\/strong>/i);
             var eventName = nameMatch ? nameMatch[1] : '';

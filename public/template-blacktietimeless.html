@@ -1092,6 +1092,7 @@ function hydrateTemplate(d) {
                               .map(function(p) { return p.trim(); })
                               .filter(function(p) { return p.length > 3; });
         if (wParts.length >= 2) {
+          var _extraHTML = '';
           [leftHTML, rightHTML] = wParts.slice(0, 2).map(function(part) {
             var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
             var eventName  = nameMatch ? nameMatch[1] : '';
@@ -1100,6 +1101,18 @@ function hydrateTemplate(d) {
             var dressCode  = dressMatch ? dressMatch[1] : '';
             var detail     = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
             return buildCard(eventName, detail, dressCode);
+          });
+          // The pair plus the candelabra between them is the design, so a third
+          // block and beyond go underneath, full width, instead of being cut.
+          wParts.slice(2).forEach(function(part) {
+            var nameMatch  = part.match(/^<strong>([^<]+)<\/strong>/i);
+            var eventName  = nameMatch ? nameMatch[1] : '';
+            var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
+            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
+            var dressCode  = dressMatch ? dressMatch[1] : '';
+            var detail     = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
+            _extraHTML += '<div style="grid-column:1/-1">' +
+              buildCard(eventName, detail, dressCode) + '</div>';
           });
         } else {
           // Fallback: single full-width block — span all three columns.
@@ -1122,7 +1135,7 @@ function hydrateTemplate(d) {
       if (leftHTML && rightHTML) {
         grid.innerHTML = leftHTML +
           '<img class="wedding-candelabra" src="' + candelabraSrc + '" alt="">' +
-          rightHTML;
+          rightHTML + (typeof _extraHTML === 'string' ? _extraHTML : '');
       } else if (leftHTML || rightHTML) {
         // One card: keep the chandelier as the section's divider rather than
         // dropping it, which is what made the motif disappear.

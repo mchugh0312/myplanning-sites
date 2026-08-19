@@ -1859,6 +1859,11 @@
     var menu = d.menu_config || {};
     var body = document.getElementById('thingsToDoText');
     var content = d.things_to_do && String(d.things_to_do).trim();
+    // Emptied on purpose: clear the sample sitting in the markup rather than
+    // leaving it on screen.
+    if (body && d.things_to_do !== undefined && d.things_to_do !== null && !content) {
+      body.innerHTML = '';
+    }
 
     section.style.display = menu.things_to_do ? '' : 'none';
     if (!menu.things_to_do) return;
@@ -2371,8 +2376,12 @@
         Object.keys(FIELD_FOR).forEach(function (toggle) {
           var field = FIELD_FOR[toggle];
           var on = d.menu_config[toggle];
-          var empty = !d[field] || !String(d[field]).trim();
-          if (on && empty && SAMPLE[field]) {
+          // Only when the field is ABSENT. An empty string is a decision the
+          // couple made with the Clear button, and substituting sample copy over
+          // it made Clear look broken: the editor emptied and the site did not.
+          // The editor warns them a switched-on empty section will render blank.
+          var never = d[field] === undefined || d[field] === null;
+          if (on && never && SAMPLE[field]) {
             d[field] = SAMPLE[field];
             window.MP_SHOWING_PLACEHOLDERS = true;
           }
@@ -2513,6 +2522,12 @@
         }
         if (e.data.type === 'MP_SECTION_CHANGE') {
           var sk = e.data.section, sl = e.data.label, so = e.data.on;
+          // A menu-only toggle changes the navigation, not the page, so there
+          // is nothing on screen to outline.
+          if (e.data.noteOnly) {
+            try { _floatSectionNote(sl, so); } catch (err) {}
+            return;
+          }
           /* Measure before the hydrate that follows hides it. */
           if (!so) { try { markSection(sk, sl, false); } catch (err) {} }
           else {
