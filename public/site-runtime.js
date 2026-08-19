@@ -866,6 +866,48 @@
     regalboho:           { bg: '--ivory', accent: '--beige', ink: '--text' },
   };
 
+  /* ── SCROLL TO A SECTION ON REQUEST ────────────────────────────────────────
+     The editor asks the preview to bring a section into view when the couple
+     toggles it or starts typing into it, so they can see the thing they are
+     editing without hunting for it.
+
+     Section anchors differ per template — the same section is #need-to-know in
+     one, #ntk in another and #faq-section in a third — so the editor sends a
+     SEMANTIC key and the resolution lives here, where template knowledge
+     belongs. Candidates are tried in order; missing sections are simply
+     ignored, because three templates have no separate accommodations anchor. */
+  var SECTION_ANCHORS = {
+    home:           ['hero', 'home'],
+    story:          ['our-story', 'story'],
+    wedding:        ['events-primary', 'wedding', 'event-schedule', 'event-details', 'weekend', 'itinerary'],
+    other_events:   ['other-events', 'events'],
+    accommodations: ['accommodations'],
+    travel:         ['travel-section', 'travel', 'travel-standalone'],
+    faqs:           ['need-to-know', 'ntk', 'faq-section'],
+    things_to_do:   ['things-to-do'],
+    gallery:        ['gallery'],
+    registry:       ['registry-section', 'registry', 'registry-wrap'],
+    rsvp:           ['rsvp']
+  };
+
+  function scrollToSection(key) {
+    var ids = SECTION_ANCHORS[key];
+    if (!ids) return false;
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      /* A section that is toggled off is display:none and has no box, so
+         scrolling to it would land nowhere. Skip to the next candidate. */
+      if (!el || !el.offsetParent && getComputedStyle(el).display === 'none') continue;
+      try {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        el.scrollIntoView();
+      }
+      return true;
+    }
+    return false;
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -2212,9 +2254,23 @@
         }
       };
       window.addEventListener('message', function (e) {
-        if (e.data && e.data.type === 'HYDRATE_TEMPLATE') {
+        if (!e.data) return;
+        if (e.data.type === 'HYDRATE_TEMPLATE') {
           got = true;
           settle(e.data.payload);
+          return;
+        }
+        if (e.data.type === 'MP_SCROLL_TO') {
+          /* One frame's grace: a scroll asked for in the same tick as a toggle
+             would run before the section had been shown. */
+          var key = e.data.section;
+          if (window.requestAnimationFrame) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () { try { scrollToSection(key); } catch (err) {} });
+            });
+          } else {
+            setTimeout(function () { try { scrollToSection(key); } catch (err) {} }, 32);
+          }
         }
       });
       setTimeout(function () {
@@ -2284,6 +2340,7 @@
     hydrateRegistryPreview: hydrateRegistryPreview,
     hydrateThingsToDo: hydrateThingsToDo,
     fitCoupleNames: fitCoupleNames,
+    scrollToSection: scrollToSection,
     buildMobileNav: buildMobileNav,
     renderBrandFooter: renderBrandFooter,
     renderComingSoon: renderComingSoon,
