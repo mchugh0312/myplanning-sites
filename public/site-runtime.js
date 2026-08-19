@@ -1059,8 +1059,11 @@
     } catch (e) { return String(iso); }
   }
 
-  function screenShell(inner, extraCss) {
-    var p = CFG.palette;
+  function screenShell(inner, extraCss, theme) {
+    // Defaults to the couple's template, but a screen can hand in its own —
+    // Coming Soon and Not Found use the product's palette instead.
+    var p = (theme && theme.palette) || CFG.palette;
+    var f = (theme && theme.fonts) || CFG.fonts;
     document.body.className = '';
     document.body.innerHTML =
       '<style>' +
@@ -1069,17 +1072,17 @@
       'body{margin:0;background:' + p.bg + '}' +
       '.mp-screen *{box-sizing:border-box}' +
       '.mp-inner{max-width:560px;width:100%}' +
-      '.mp-display{font-family:' + CFG.fonts.display + ';font-weight:400;line-height:1.1;margin:0;' +
+      '.mp-display{font-family:' + f.display + ';font-weight:400;line-height:1.1;margin:0;' +
         'font-size:clamp(2.6rem,8vw,4.4rem);color:' + p.ink + '}' +
-      '.mp-body{font-family:' + CFG.fonts.body + ';font-size:1rem;line-height:1.7;opacity:0.85;margin:0 auto;max-width:440px}' +
-      '.mp-eyebrow{font-family:' + CFG.fonts.body + ';font-size:0.72rem;letter-spacing:0.22em;' +
+      '.mp-body{font-family:' + f.body + ';font-size:1rem;line-height:1.7;opacity:0.85;margin:0 auto;max-width:440px}' +
+      '.mp-eyebrow{font-family:' + f.body + ';font-size:0.72rem;letter-spacing:0.22em;' +
         'text-transform:uppercase;opacity:0.7;margin:0 0 18px}' +
-      '.mp-date{font-family:' + CFG.fonts.body + ';font-size:0.95rem;letter-spacing:0.16em;' +
+      '.mp-date{font-family:' + f.body + ';font-size:0.95rem;letter-spacing:0.16em;' +
         'text-transform:uppercase;margin:18px 0 0;opacity:0.9}' +
       '.mp-rule{width:80px;height:1px;background:' + p.rule + ';margin:26px auto}' +
       '.mp-hero{width:100%;max-width:420px;aspect-ratio:4/5;object-fit:cover;margin:0 auto 30px;display:block}' +
       '.mp-foot{margin-top:44px;padding-top:20px;border-top:1px solid ' + p.rule + ';' +
-        'font-family:' + CFG.fonts.body + ';font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.5}' +
+        'font-family:' + f.body + ';font-size:0.66rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.5}' +
       (extraCss || '') +
       '</style>' +
       '<div class="mp-screen"><div class="mp-inner">' + inner + '</div></div>';
@@ -1383,6 +1386,18 @@
   var MP_SCREEN_MARK  = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/6491148d-4db6-4305-8aa0-59ca6abc0430.png';
   var MP_SCREEN_BRAND = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png';
 
+  /* Coming Soon is deliberately NOT themed from the chosen template. A couple in
+     Draft is very often still switching templates, so borrowing the current one
+     makes the page look like a decision they have not made. It uses the
+     MyPlanning.ai palette instead, the same values index.html paints its loading
+     screen with, so it reads as the product rather than a half-built site.
+     The password screen still follows the template: by then the site exists and
+     the guest is being shown that couple's site. */
+  var MP_BRAND_THEME = {
+    palette: { bg: '#f9f7f5', ink: '#1f211d', rule: 'rgba(141,136,99,0.28)' },
+    fonts:   { display: "'Instrument Serif',serif", body: "'Open Sans',system-ui,sans-serif" }
+  };
+
   var MP_SCREEN_BRAND_CSS =
     '.mp-mark{height:26px;width:auto;display:block;margin:0 auto 14px}' +
     '.mp-foot-brand{height:20px;width:auto;display:block;margin:0 auto;opacity:0.6}';
@@ -1401,7 +1416,8 @@
       '</p>' +
       '<div class="mp-foot"><img class="mp-foot-brand" src="' + MP_SCREEN_BRAND +
         '" alt="MyPlanning.ai"></div>',
-      MP_SCREEN_BRAND_CSS
+      MP_SCREEN_BRAND_CSS,
+      MP_BRAND_THEME
     );
   }
 
@@ -1412,7 +1428,10 @@
       '<div class="mp-rule"></div>' +
       '<p class="mp-body">The link you followed may be incorrect, or the website may have moved. ' +
       'Please double-check the address with your hosts.</p>' +
-      '<div class="mp-foot">myplanning.ai</div>'
+      '<div class="mp-foot"><img class="mp-foot-brand" src="' + MP_SCREEN_BRAND +
+        '" alt="MyPlanning.ai"></div>',
+      MP_SCREEN_BRAND_CSS,
+      MP_BRAND_THEME
     );
   }
 
