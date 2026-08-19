@@ -461,7 +461,13 @@ body.hydrating{visibility:hidden;}
    an ACCORDION body here: max-height:0 until a .faq-item gets .open. Outside a
    FAQ item nothing ever opens it, so the section rendered its title and then
    nothing at all. Scoped to this section so the FAQ accordion is untouched. */
-#things-to-do .faq-answer{max-height:none;overflow:visible;padding:0 0.2rem;}
+#things-to-do .faq-answer{
+  max-height:none;overflow:visible;padding:0 0.2rem;
+  /* The FAQ list is left-aligned because it is a list of questions.
+     Things to Do is one block of copy under a centred title, so it takes
+     the centring the title already has. */
+  text-align:center;max-width:640px;margin:0 auto;
+}
 .faq-item.open .faq-answer{
   max-height:500px;
   padding:0 0.2rem 1.2rem;
