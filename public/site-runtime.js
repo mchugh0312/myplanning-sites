@@ -342,7 +342,25 @@
   function renderEventBlocks() {
     var list = rsvpEl('rsvpEventList');
     if (!list) return;
-    list.innerHTML = _rsvpState.events.map(function (ev) {
+
+    // Only the events this guest was invited to. The couple already decides who
+    // is invited to what, and the form was offering all of them to everyone, so
+    // a guest could answer for a dinner they were never asked to. MP-344.
+    //
+    // An EMPTY invitation list means "not recorded", not "invited to nothing":
+    // older guests, imported rows, anyone added before events existed. Showing
+    // them everything is the safe reading — a guest who cannot answer at all is
+    // a worse failure than one offered an event too many.
+    var invited = _rsvpState.invitedEventIds;
+    var events = (invited && invited.length)
+      ? _rsvpState.events.filter(function (ev) { return invited.indexOf(String(ev.id)) !== -1; })
+      : _rsvpState.events;
+
+    // If the filter leaves nothing, the ids did not line up with the events on
+    // this celebration. Fall back rather than show a guest an empty form.
+    if (!events.length) events = _rsvpState.events;
+
+    list.innerHTML = events.map(function (ev) {
       return '' +
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
           '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
@@ -501,6 +519,8 @@
     _rsvpState.matchedName = json.name || displayName || '';
     _rsvpState.plusOneAllowed = !!json.plus_one_allowed;
     _rsvpState.householdMembers = Array.isArray(json.household_members) ? json.household_members : [];
+    _rsvpState.invitedEventIds = Array.isArray(json.invited_event_ids)
+      ? json.invited_event_ids.map(String) : [];
 
     var input = rsvpEl('rsvpNameInput');
     if (input && json.name) input.value = json.name;
