@@ -1374,26 +1374,58 @@
 
   var _fontScaleTimer = null;
 
+  function _scaleNodes(nodes, scale) {
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.closest && el.closest('.mp-brand-footer')) continue;
+      /* The template's own size, remembered once, so repeated passes scale from
+         the original rather than compounding. */
+      if (!el.hasAttribute('data-mp-base-size')) {
+        el.setAttribute('data-mp-base-size', parseFloat(getComputedStyle(el).fontSize) || 0);
+      }
+      var base = parseFloat(el.getAttribute('data-mp-base-size')) || 0;
+      if (!base) continue;
+      if (!scale || scale === 1) el.style.removeProperty('font-size');
+      else el.style.fontSize = (base * scale).toFixed(2) + 'px';
+    }
+  }
+
+  /* One section's own face and size, overriding the site-wide roles. Applied as
+     inline styles rather than injected CSS: the templates set type through
+     their own variables and class rules, and a scoped stylesheet would have to
+     out-specify all of them. */
+  function applySectionFonts(settings) {
+    var sections = (settings && settings.sections) || {};
+    Object.keys(sections).forEach(function (key) {
+      var cfg = sections[key] || {};
+      if (!cfg.font && !cfg.size) return;
+      var ids = SECTION_ANCHORS[key];
+      if (!ids) return;
+      var sec = null;
+      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      if (!sec) return;
+
+      var nodes = sec.querySelectorAll(
+        'h1,h2,h3,h4,p,li,span,div,[class*="-title"],[class*="-answer"],[class*="-detail"],[class*="-address"]');
+      if (cfg.font) {
+        for (var j = 0; j < nodes.length; j++) {
+          /* Only elements that actually carry text, or a wrapper would set the
+             face for children that have their own. */
+          if (!nodes[j].querySelector || nodes[j].querySelector('h1,h2,h3,h4,p,li')) continue;
+          nodes[j].style.fontFamily = "'" + cfg.font + "',serif";
+        }
+      }
+      if (cfg.size) _scaleNodes(nodes, FONT_ROLE_SCALES[cfg.size]);
+    });
+  }
+
   function applyRoleSizes(settings) {
     var roles = ['heading', 'body', 'menu'];
     roles.forEach(function (role) {
       var cfg = settings[role] || {};
       var scale = FONT_ROLE_SCALES[cfg.size];
       var nodes = _roleTargets(role);
-      for (var i = 0; i < nodes.length; i++) {
-        var el = nodes[i];
-        if (el.closest && el.closest('.mp-brand-footer')) continue;
-        /* Remember the template's own size once, so repeated passes scale from
-           the original rather than compounding. */
-        if (!el.hasAttribute('data-mp-base-size')) {
-          el.setAttribute('data-mp-base-size',
-            parseFloat(getComputedStyle(el).fontSize) || 0);
-        }
-        var base = parseFloat(el.getAttribute('data-mp-base-size')) || 0;
-        if (!base) continue;
-        if (!scale || scale === 1) el.style.removeProperty('font-size');
-        else el.style.fontSize = (base * scale).toFixed(2) + 'px';
-      }
+      _scaleNodes(nodes, scale);
     });
   }
 
@@ -1408,6 +1440,10 @@
       body: CFG.bodyVar,
       menu: CFG.bodyVar,   /* templates rarely give the menu its own variable */
     };
+    Object.keys(settings.sections || {}).forEach(function (k) {
+      var f = settings.sections[k] && settings.sections[k].font;
+      if (f) families.push(f);
+    });
     ['heading', 'body', 'menu'].forEach(function (role) {
       var cfg = settings[role] || {};
       if (!cfg.font) return;
@@ -1422,7 +1458,11 @@
     if (families.length) loadGoogleFonts(families);
 
     /* After layout, and again on resize, because clamp() is viewport-dependent. */
-    var run = function () { try { applyRoleSizes(settings); } catch (e) {} };
+    /* Sections last, so a section's own choice wins over the site-wide role. */
+    var run = function () {
+      try { applyRoleSizes(settings); } catch (e) {}
+      try { applySectionFonts(settings); } catch (e) {}
+    };
     if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(run); });
     else setTimeout(run, 0);
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); } catch (e) {}
