@@ -332,31 +332,37 @@ body.hydrating{visibility:hidden;}
    anchor and menu link, laid out as a pair rather than stacked. The rule
    between them is the one the wedding cards use. */
 .accommodations{position:relative}
-/* Side by side at every width, which is the design. They are two separate
-   sections so each keeps its own anchor, menu link and editable heading, but
-   they read as one band with a rule down the middle. */
-.accommodations#accommodations,
-.accommodations#travel-section{
-  display:inline-block;vertical-align:top;width:50%;box-sizing:border-box;
+/* Hotels and Flights: one band, two columns, a rule between them. They stay two
+   SECTIONS so each keeps its own anchor, menu link and editable heading; the
+   wrapper only lays them out.
+
+   Flex rather than inline-block, so the columns are the same height. With
+   inline-block the shorter one stopped early and the page showed through
+   underneath as a white strip. */
+.accom-pair{
+  background:var(--olive);
+  display:flex;align-items:stretch;
+  position:relative;
+}
+.accom-pair > .accommodations{
+  flex:1 1 0;min-width:0;background:transparent;
   padding-left:2.5rem;padding-right:2.5rem;
 }
-.accommodations#travel-section::before{
-  content:'';position:absolute;left:0;top:12%;bottom:12%;width:1px;
-  background:rgba(255,255,255,0.32);
+/* The same hairline the wedding cards use, at the same inset and opacity. */
+.accom-pair::before{
+  content:'';position:absolute;left:50%;top:6%;bottom:6%;
+  width:1px;transform:translateX(-50%);
+  background:rgba(255,255,255,0.45);
+  pointer-events:none;
 }
-/* The band is one colour across both, so the seam between two inline-blocks
-   must not show. */
-.accommodations#accommodations{margin-right:-4px}
-
 @media(max-width:640px){
-  /* Two columns of address text are unreadable on a phone, so the pair narrows
-     its padding first and the rule becomes a horizontal one between them. */
-  .accommodations#accommodations,
-  .accommodations#travel-section{
-    padding-left:1.1rem;padding-right:1.1rem;
-  }
-  .accommodations#travel-section::before{
-    left:12%;right:12%;top:0;bottom:auto;width:auto;height:1px;
+  /* Two columns of address text do not work on a phone, so the pair stacks and
+     the rule turns horizontal, exactly as the wedding cards do. */
+  .accom-pair{display:block}
+  .accom-pair > .accommodations{padding-left:1.1rem;padding-right:1.1rem}
+  .accom-pair::before{
+    left:18%;right:18%;top:50%;bottom:auto;
+    width:auto;height:1px;transform:translateY(-50%);
   }
 }
 /* Hotel | Flights side by side, divided by a hairline with dotted ends, the
@@ -1061,6 +1067,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   </div>
 </div>
 
+<div class="accom-pair">
 <!-- ACCOMMODATIONS: olive -->
 <div class="accommodations" id="accommodations">
   <div class="accom-section-inner">
@@ -1088,6 +1095,8 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
         Approximately 20 minutes from the venue by car.<br>
         Uber and Lyft are readily available.
       </div>
+</div>
+
       <a class="accom-btn" id="travelBtn" href="#" target="_blank">Book Now</a>
     </div>
   </div>

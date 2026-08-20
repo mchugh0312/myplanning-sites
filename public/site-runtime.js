@@ -1977,7 +1977,13 @@
       for (var i = 0; i < links.length; i++) {
         var a = links[i];
         if (a.closest && a.closest(DEAD_CTA_SKIP)) continue;
+        // The registry title and button are wired above and are never dead;
+        // skip them by name as well as by class, so ordering can never take
+        // them out again.
         if (a.classList && a.classList.contains('mp-registry-fallback')) continue;
+        if (a.id === 'registryCta' || a.id === 'registryBtn' || a.id === 'registryLink') continue;
+        if (a.className && /registry/i.test(String(a.className))) continue;
+        if (a.closest && a.closest('#registry-section, #registry, .registry-section')) continue;
         var href = (a.getAttribute('href') || '').trim();
         if (href && href !== '#') continue;          /* has somewhere to go */
         if (href === '#' && a.getAttribute('onclick')) continue;  /* scripted */
@@ -3068,18 +3074,21 @@
     if (!_isPreview && isSaveTheDate(d)) applySaveTheDate(d);
     else clearSaveTheDate();
 
-    // A Book Now with no link behind it is a broken button, and the booking link
-    // is optional by design. Templates ship the button in their markup and only
-    // some of them check the URL, so it is swept here instead: any call to
-    // action still pointing at nothing after hydration is hidden. Runs across
-    // every template, so no template needs its own guard. MP-336.
-    hideDeadCtas();
-
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
     hydrateThingsToDo(d);
     hydrateRegistryPreview(d);
     renderBrandFooter();
+
+    // A Book Now with no link behind it is a broken button, and the booking link
+    // is optional by design, so any call to action still pointing at nothing is
+    // hidden. MP-336.
+    //
+    // AFTER the registry is wired, not before. The registry title ships as
+    // href="#" and only becomes a real link in wireRegistryLinks — running the
+    // sweep first hid the couple's registry link on every template, leaving a
+    // menu entry pointing at an empty section.
+    hideDeadCtas();
 
     // Both paths wait for the hero. The preview needs it as much as the live
     // site: its placeholder lifts on the ack, and the ack now comes from
