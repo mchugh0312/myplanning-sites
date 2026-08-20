@@ -1107,6 +1107,49 @@
     return el;
   }
 
+  /* ── TITLES DO NOT NEED TO BE BOLD ─────────────────────────────────────────
+     Templates read the first line of each block as that card's name and render
+     it in their own display face — the script on Pressed Petals, condensed caps
+     on Modern Minimal. They recognise it by its being wrapped in <strong>.
+
+     The couple is told "the first line of each event becomes its title", which
+     says nothing about bold. So deleting the supplied title and typing their
+     own, or pasting one in, produced a line that looked like body copy — and no
+     font picker would have fixed it, because the template applies the face and
+     was simply not being asked to.
+
+     Marking it here makes the promise true however the line was written, and no
+     template has to change. */
+  var TITLED_FIELDS = ['weddings_info', 'events_info', 'faqs'];
+
+  function markFirstLineAsTitle(html) {
+    if (!html || typeof html !== 'string') return html;
+    /* Split on the blank line between cards, keeping the separators so the
+       value is rebuilt exactly as it was written. */
+    var parts = html.split(/((?:<br\s*\/?>\s*){2,})/i);
+    for (var i = 0; i < parts.length; i += 2) {
+      var block = parts[i];
+      if (!block || !block.trim()) continue;
+      if (/^\s*<(?:strong|b)\b/i.test(block)) continue;      /* already marked */
+
+      var m = /^([\s\S]*?)(<br\s*\/?>)([\s\S]*)$/i.exec(block);
+      var first = m ? m[1] : block;
+      var rest  = m ? m[2] + m[3] : '';
+      if (!first.replace(/<[^>]*>/g, '').trim()) continue;     /* nothing to mark */
+
+      parts[i] = '<strong>' + first + '</strong>' + rest;
+    }
+    return parts.join('');
+  }
+
+  function markTitles(d) {
+    if (!d) return;
+    for (var i = 0; i < TITLED_FIELDS.length; i++) {
+      var f = TITLED_FIELDS[i];
+      if (typeof d[f] === 'string' && d[f]) d[f] = markFirstLineAsTitle(d[f]);
+    }
+  }
+
   function applySectionHeadings(d) {
     var map = d && d.section_headings;
     if (!map) return;
@@ -2723,6 +2766,11 @@
     } catch (e) {}
 
     window.MP_SHOWING_PLACEHOLDERS = window.MP_SHOWING_PLACEHOLDERS || false;
+
+    // Before the template reads it: a first line the couple typed or pasted is
+    // as much a title as one that arrived already in bold.
+    try { markTitles(d); } catch (e) {}
+
     try {
       if (typeof window.hydrateTemplate === 'function') window.hydrateTemplate(d);
     } catch (err) {
