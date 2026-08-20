@@ -1071,6 +1071,153 @@
     });
   }
 
+  /* ── GALLERY CAROUSEL ──────────────────────────────────────────────────────
+     Every template renders its photographs into #galleryGrid, so this replaces
+     that grid's contents and leaves the surrounding section, heading and
+     background exactly as the template drew them.
+
+     Three per view on a desktop, one on a phone. Photographs are contained
+     rather than cropped, so a portrait shot is not cut into a square. */
+  var GALLERY_PER_VIEW_DESKTOP = 3;
+  var _galleryState = null;
+
+  function buildGalleryCarousel(urls) {
+    var grid = document.getElementById('galleryGrid');
+    if (!grid || !urls || !urls.length) return;
+
+    var perView = function () {
+      return window.innerWidth < 768 ? 1 : GALLERY_PER_VIEW_DESKTOP;
+    };
+
+    grid.innerHTML = '';
+    grid.removeAttribute('style');
+    grid.className = (grid.className || '') + ' mp-gal';
+
+    var style = document.getElementById('mp-gal-css');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'mp-gal-css';
+      style.textContent =
+        '.mp-gal{display:block!important;grid-template-columns:none!important;position:relative}' +
+        '.mp-gal-view{overflow:hidden;width:100%}' +
+        '.mp-gal-track{display:flex;transition:transform .38s ease;will-change:transform}' +
+        '.mp-gal-cell{flex:0 0 auto;padding:0 6px;box-sizing:border-box}' +
+        '.mp-gal-frame{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,0.05);' +
+          'border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}' +
+        '.mp-gal-frame img{width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}' +
+        '.mp-gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;' +
+          'border-radius:50%;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:18px;' +
+          'line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}' +
+        '.mp-gal-nav[disabled]{opacity:0.25;cursor:default}' +
+        '.mp-gal-prev{left:-6px}.mp-gal-next{right:-6px}' +
+        '.mp-gal-dots{display:flex;gap:6px;justify-content:center;margin-top:14px}' +
+        '.mp-gal-dot{width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;' +
+          'background:currentColor;opacity:0.28}' +
+        '.mp-gal-dot.is-on{opacity:0.9}' +
+        '@media(prefers-reduced-motion:reduce){.mp-gal-track{transition:none}}';
+      document.head.appendChild(style);
+    }
+
+    var view = document.createElement('div');
+    view.className = 'mp-gal-view';
+    var track = document.createElement('div');
+    track.className = 'mp-gal-track';
+
+    urls.forEach(function (url, i) {
+      var cell = document.createElement('div');
+      cell.className = 'mp-gal-cell';
+      var frame = document.createElement('div');
+      frame.className = 'mp-gal-frame';
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = '';
+      img.loading = 'lazy';
+      /* Templates that ship a lightbox already expose openLightbox(i). Use it
+         where it exists rather than building a second one. */
+      img.addEventListener('click', function () {
+        try {
+          if (typeof window.openGalleryLightbox === 'function') window.openGalleryLightbox(i);
+          else if (typeof window.openLightbox === 'function') window.openLightbox(i);
+        } catch (e) {}
+      });
+      frame.appendChild(img);
+      cell.appendChild(frame);
+      track.appendChild(cell);
+    });
+
+    view.appendChild(track);
+    grid.appendChild(view);
+
+    var prev = document.createElement('button');
+    prev.className = 'mp-gal-nav mp-gal-prev';
+    prev.setAttribute('aria-label', 'Previous photographs');
+    prev.innerHTML = '&#8249;';
+    var next = document.createElement('button');
+    next.className = 'mp-gal-nav mp-gal-next';
+    next.setAttribute('aria-label', 'Next photographs');
+    next.innerHTML = '&#8250;';
+    grid.appendChild(prev);
+    grid.appendChild(next);
+
+    var dots = document.createElement('div');
+    dots.className = 'mp-gal-dots';
+    grid.appendChild(dots);
+
+    var page = 0;
+    var render = function () {
+      var per = perView();
+      var pages = Math.max(1, Math.ceil(urls.length / per));
+      if (page > pages - 1) page = pages - 1;
+      if (page < 0) page = 0;
+
+      var cells = track.querySelectorAll('.mp-gal-cell');
+      for (var i = 0; i < cells.length; i++) cells[i].style.width = (100 / per) + '%';
+      track.style.transform = 'translateX(' + (-page * 100) + '%)';
+
+      prev.disabled = page === 0;
+      next.disabled = page >= pages - 1;
+      /* One page fits everything: chevrons and dots would be furniture. */
+      var many = pages > 1;
+      prev.style.display = many ? '' : 'none';
+      next.style.display = many ? '' : 'none';
+
+      dots.innerHTML = '';
+      if (many) {
+        for (var p = 0; p < pages; p++) {
+          (function (n) {
+            var dot = document.createElement('button');
+            dot.className = 'mp-gal-dot' + (n === page ? ' is-on' : '');
+            dot.setAttribute('aria-label', 'Photographs ' + (n + 1) + ' of ' + pages);
+            dot.addEventListener('click', function () { page = n; render(); });
+            dots.appendChild(dot);
+          })(p);
+        }
+      }
+    };
+
+    prev.addEventListener('click', function () { page--; render(); });
+    next.addEventListener('click', function () { page++; render(); });
+
+    /* Swipe, because a phone shows one photograph at a time. */
+    var x0 = null;
+    view.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    view.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) { page += dx < 0 ? 1 : -1; render(); }
+      x0 = null;
+    }, { passive: true });
+
+    if (_galleryState && _galleryState.onResize) {
+      window.removeEventListener('resize', _galleryState.onResize);
+    }
+    var onResize = function () { render(); };
+    window.addEventListener('resize', onResize);
+    _galleryState = { onResize: onResize };
+
+    render();
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -2520,6 +2667,15 @@
     // labels rather than the template's originals.
     applySectionHeadings(d);
 
+    // After the template has drawn its own grid, so this replaces it rather
+    // than racing it.
+    try {
+      var _gal = (d.gallery_images || []).map(function (g) {
+        return typeof g === 'string' ? g : (g && g.url) || '';
+      }).filter(Boolean);
+      if (_gal.length) buildGalleryCarousel(_gal);
+    } catch (e) {}
+
     // The template has just written the couple's real names over the sample
     // ones. Anything longer than the sample can overflow, so check now.
     scheduleNameFit();
@@ -2704,8 +2860,19 @@
     }
 
     // Live site. index.html hands the payload over in sessionStorage to avoid a
-    // second round-trip. We deliberately KEEP the key (rather than deleting it)
-    // so a refresh on a password-protected site doesn't dead-end at the gate.
+    // second round-trip. The key is KEPT rather than deleted so a refresh on a
+    // password-protected site doesn't dead-end at the gate.
+    //
+    // But it was kept for the whole browser session, so once a tab had loaded a
+    // site, every later visit in that tab replayed the same payload. A couple
+    // who changed their fonts or colours and saved then went to look at the live
+    // site and saw the old ones, apparently forever — the changes had saved
+    // correctly and were simply never fetched again. MP-354.
+    //
+    // The handoff is only useful for the moment right after index.html fetched
+    // it, so it now expires: fresh enough to skip the duplicate round-trip,
+    // stale enough that a later visit asks the server again.
+    var STASH_MAX_AGE_MS = 60000;
     var key = 'weddingData_' + _liveSlug;
     var stashed = null;
     try { stashed = sessionStorage.getItem(key); } catch (e) {}
@@ -2713,6 +2880,11 @@
     if (stashed) {
       try {
         var parsed = JSON.parse(stashed);
+        var stampedAt = Number(parsed && parsed._mpStashedAt) || 0;
+        if (!stampedAt || (Date.now() - stampedAt) > STASH_MAX_AGE_MS) {
+          try { sessionStorage.removeItem(key); } catch (e2) {}
+          throw new Error('stale');
+        }
         hydrate(parsed);
         if (window.location.search.indexOf('slug=') !== -1) {
           try { window.history.replaceState({}, parsed.couple_names || '', '/' + _liveSlug); } catch (e) {}
@@ -2733,7 +2905,10 @@
       })
       .then(function (d) {
         if (!d.password_required && !d.not_published) {
-          try { sessionStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
+          try {
+            d._mpStashedAt = Date.now();
+            sessionStorage.setItem(key, JSON.stringify(d));
+          } catch (e) {}
         }
         hydrate(d);
       })

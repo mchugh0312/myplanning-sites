@@ -667,7 +667,12 @@ function hydrateTemplate(d){
   var _galleryUrls=(d.gallery_images||[]).map(function(g){
     return typeof g==='string'?g:(g.url||'');
   }).filter(Boolean);
-  var _heroUrls=(d.hero_image?[d.hero_image]:[]).concat(_galleryUrls);
+  // The three columns come from the HOMEPAGE set now, not the gallery. They
+  // used to borrow gallery photos, which is why a couple could not put a
+  // picture in the gallery without it appearing across the top of the page.
+  var _heroUrls=(Array.isArray(d.hero_images)&&d.hero_images.length)
+    ? d.hero_images.slice()
+    : (d.hero_image?[d.hero_image]:[]);
   ['heroCol1','heroCol2','heroCol3'].forEach(function(id,i){
     if(_heroUrls[i]&&el(id))el(id).style.backgroundImage="url('"+_heroUrls[i]+"')";
   });
