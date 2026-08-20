@@ -1030,6 +1030,33 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 /* Name size is not capped in thumbnail mode: the card renders at 1100px, so
    a 3rem cap showed type far smaller than the live site's. */
 </style>
+<script>
+/* Live visits arrive with ?slug= or a slug in the path. Without this the
+   template's own sample photographs paint first and are then replaced by the
+   couple's, which reads as the site loading twice. Hold the page back until the
+   runtime says it has hydrated.
+
+   Runs in the head, because /site-runtime.js loads at the foot of the body —
+   by then the first paint has already happened, which is why hiding it there
+   did nothing. The timer is a safety net: if the runtime never runs at all, the
+   page still appears rather than staying blank. */
+(function () {
+  try {
+    var first = location.pathname.replace(/^\/+/, '').split('/')[0];
+    var isLive = /slug=/.test(location.search) ||
+                 (first && !/^template-[a-z]+\.html$/i.test(first));
+    if (!isLive) return;                     /* editor previews paint normally */
+    var s = document.createElement('style');
+    s.id = 'mp-veil';
+    s.textContent = 'html{visibility:hidden}';
+    document.head.appendChild(s);
+    setTimeout(function () {
+      var e = document.getElementById('mp-veil');
+      if (e && e.parentNode) e.parentNode.removeChild(e);
+    }, 4000);
+  } catch (e) {}
+})();
+</script>
 </head>
 <body class="hydrating">
 

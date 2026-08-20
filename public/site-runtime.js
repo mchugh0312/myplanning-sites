@@ -1569,6 +1569,11 @@
   }
 
   function screenShell(inner, extraCss, theme) {
+    // Every one of these replaces the page: the password gate, Coming Soon, not
+    // found, the error screen. They must lift the veil too, or a couple whose
+    // site is unpublished or password-protected would stare at a blank page
+    // until the safety timer fired.
+    liftVeil();
     // Defaults to the couple's template, but a screen can hand in its own —
     // Coming Soon and Not Found use the product's palette instead.
     var p = (theme && theme.palette) || CFG.palette;
@@ -2823,9 +2828,47 @@
     } catch (e) {}
   }
 
+  /* Lift the veil the template's head script put up. Called once the real
+     content is in place, so the couple's photographs are the first thing that
+     paints rather than the samples. */
+  /* A link a couple added inside their own words. Templates style their
+     navigation but say nothing about these, so on the published site they
+     inherited the surrounding text and looked like ordinary copy: nothing to
+     click, no hint that anything was there.
+
+     Underlined, in the template's own colour rather than browser blue, with a
+     pointer cursor and the address on hover. */
+  function styleContentLinks() {
+    if (document.getElementById('mp-content-links')) return;
+    var s = document.createElement('style');
+    s.id = 'mp-content-links';
+    s.textContent =
+      '.section a[href]:not([class]), .section-inner a[href]:not([class]),' +
+      '[id$="Text"] a[href]:not([class]), [id$="List"] a[href]:not([class]),' +
+      '[id$="Content"] a[href]:not([class]), [id$="Info"] a[href]:not([class]) {' +
+        'color:inherit;text-decoration:underline;text-underline-offset:3px;' +
+        'text-decoration-thickness:1px;cursor:pointer;' +
+      '}' +
+      '.section a[href]:not([class]):hover, .section-inner a[href]:not([class]):hover {' +
+        'text-decoration-thickness:2px;' +
+      '}';
+    document.head.appendChild(s);
+  }
+
+  function liftVeil() {
+    try {
+      var v = document.getElementById('mp-veil');
+      if (v && v.parentNode) v.parentNode.removeChild(v);
+    } catch (e) {}
+  }
+
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
+    // The live page is held hidden by a script in the template's head until
+    // this moment, so the couple's photographs are the first thing painted.
+    styleContentLinks();
+    liftVeil();
     // Told here rather than at the call sites, so every path that reveals also
     // acks — the editor lifts its placeholder at the same moment the page
     // becomes worth looking at, not a beat earlier.

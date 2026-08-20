@@ -327,6 +327,38 @@ body.hydrating{visibility:hidden;}
 /* ── ACCOMMODATIONS (olive bg) ────────────────────────────── */
 .accommodations{background:var(--olive);padding:5rem 4rem;text-align:center;position:relative;}
 .accom-section-inner{max-width:680px;margin:0 auto;}
+
+/* Hotels and Flights, side by side. Two separate sections so each keeps its own
+   anchor and menu link, laid out as a pair rather than stacked. The rule
+   between them is the one the wedding cards use. */
+.accommodations{position:relative}
+/* Side by side at every width, which is the design. They are two separate
+   sections so each keeps its own anchor, menu link and editable heading, but
+   they read as one band with a rule down the middle. */
+.accommodations#accommodations,
+.accommodations#travel-section{
+  display:inline-block;vertical-align:top;width:50%;box-sizing:border-box;
+  padding-left:2.5rem;padding-right:2.5rem;
+}
+.accommodations#travel-section::before{
+  content:'';position:absolute;left:0;top:12%;bottom:12%;width:1px;
+  background:rgba(255,255,255,0.32);
+}
+/* The band is one colour across both, so the seam between two inline-blocks
+   must not show. */
+.accommodations#accommodations{margin-right:-4px}
+
+@media(max-width:640px){
+  /* Two columns of address text are unreadable on a phone, so the pair narrows
+     its padding first and the rule becomes a horizontal one between them. */
+  .accommodations#accommodations,
+  .accommodations#travel-section{
+    padding-left:1.1rem;padding-right:1.1rem;
+  }
+  .accommodations#travel-section::before{
+    left:12%;right:12%;top:0;bottom:auto;width:auto;height:1px;
+  }
+}
 /* Hotel | Flights side by side, divided by a hairline with dotted ends, the
    same treatment as the event cards above. */
 .accom-split{
@@ -885,6 +917,33 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   }
 }
 </style>
+<script>
+/* Live visits arrive with ?slug= or a slug in the path. Without this the
+   template's own sample photographs paint first and are then replaced by the
+   couple's, which reads as the site loading twice. Hold the page back until the
+   runtime says it has hydrated.
+
+   Runs in the head, because /site-runtime.js loads at the foot of the body —
+   by then the first paint has already happened, which is why hiding it there
+   did nothing. The timer is a safety net: if the runtime never runs at all, the
+   page still appears rather than staying blank. */
+(function () {
+  try {
+    var first = location.pathname.replace(/^\/+/, '').split('/')[0];
+    var isLive = /slug=/.test(location.search) ||
+                 (first && !/^template-[a-z]+\.html$/i.test(first));
+    if (!isLive) return;                     /* editor previews paint normally */
+    var s = document.createElement('style');
+    s.id = 'mp-veil';
+    s.textContent = 'html{visibility:hidden}';
+    document.head.appendChild(s);
+    setTimeout(function () {
+      var e = document.getElementById('mp-veil');
+      if (e && e.parentNode) e.parentNode.removeChild(e);
+    }, 4000);
+  } catch (e) {}
+})();
+</script>
 </head>
 <body class="hydrating">
 

@@ -981,6 +981,33 @@ body.thumbnail-mode .hero{
 /* Optional: speed up thumbnail rendering by skipping smooth-scroll behaviours */
 body.thumbnail-mode{scroll-behavior:auto;}
 </style>
+<script>
+/* Live visits arrive with ?slug= or a slug in the path. Without this the
+   template's own sample photographs paint first and are then replaced by the
+   couple's, which reads as the site loading twice. Hold the page back until the
+   runtime says it has hydrated.
+
+   Runs in the head, because /site-runtime.js loads at the foot of the body —
+   by then the first paint has already happened, which is why hiding it there
+   did nothing. The timer is a safety net: if the runtime never runs at all, the
+   page still appears rather than staying blank. */
+(function () {
+  try {
+    var first = location.pathname.replace(/^\/+/, '').split('/')[0];
+    var isLive = /slug=/.test(location.search) ||
+                 (first && !/^template-[a-z]+\.html$/i.test(first));
+    if (!isLive) return;                     /* editor previews paint normally */
+    var s = document.createElement('style');
+    s.id = 'mp-veil';
+    s.textContent = 'html{visibility:hidden}';
+    document.head.appendChild(s);
+    setTimeout(function () {
+      var e = document.getElementById('mp-veil');
+      if (e && e.parentNode) e.parentNode.removeChild(e);
+    }, 4000);
+  } catch (e) {}
+})();
+</script>
 </head>
 <body class="hydrating">
 
