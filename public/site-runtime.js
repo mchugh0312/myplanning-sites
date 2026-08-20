@@ -3184,7 +3184,15 @@
       try {
         var parsed = JSON.parse(stashed);
         var stampedAt = Number(parsed && parsed._mpStashedAt) || 0;
-        if (!stampedAt || (Date.now() - stampedAt) > STASH_MAX_AGE_MS) {
+
+        // No stamp means index.html has just handed this over, one redirect ago.
+        // That payload is fresh by definition and is exactly the round-trip the
+        // handoff exists to save — my expiry check was discarding it, so every
+        // visit refetched and the address stayed on the template file. Use it,
+        // then delete the key so it can never be replayed later.
+        if (!stampedAt) {
+          try { sessionStorage.removeItem(key); } catch (e2) {}
+        } else if ((Date.now() - stampedAt) > STASH_MAX_AGE_MS) {
           try { sessionStorage.removeItem(key); } catch (e2) {}
           throw new Error('stale');
         }
@@ -3214,6 +3222,13 @@
           } catch (e) {}
         }
         hydrate(d);
+        // Same tidy-up as the handoff path. Without it the address stayed on
+        // the template file, which is what the couple sees and shares.
+        if (window.location.search.indexOf('slug=') !== -1) {
+          try {
+            window.history.replaceState({}, d.couple_names || '', '/' + _liveSlug);
+          } catch (e) {}
+        }
       })
       .catch(function () { renderNotFound(); });
   }
