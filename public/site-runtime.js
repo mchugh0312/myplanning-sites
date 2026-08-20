@@ -1130,14 +1130,19 @@
     for (var i = 0; i < parts.length; i += 2) {
       var block = parts[i];
       if (!block || !block.trim()) continue;
-      if (/^\s*<(?:strong|b)\b/i.test(block)) continue;      /* already marked */
-
       var m = /^([\s\S]*?)(<br\s*\/?>)([\s\S]*)$/i.exec(block);
       var first = m ? m[1] : block;
       var rest  = m ? m[2] + m[3] : '';
       if (!first.replace(/<[^>]*>/g, '').trim()) continue;     /* nothing to mark */
 
-      parts[i] = '<strong>' + first + '</strong>' + rest;
+      /* The WHOLE first line is the title, not just the part that happens to be
+         bold. Bolding one word of "Welcome Cocktails" used to make "Welcome"
+         the title and push "Cocktails" into the details, splitting a line that
+         reads as one. Strip any bold inside the line and wrap the lot. */
+      var bare = first.replace(/<\/?(?:strong|b)\b[^>]*>/gi, '');
+      if (!bare.replace(/<[^>]*>/g, '').trim()) continue;
+
+      parts[i] = '<strong>' + bare + '</strong>' + rest;
     }
     return parts.join('');
   }
@@ -1343,17 +1348,134 @@
     } catch (e) {}
   }
 
-  function applyCustomFont(fontName) {
-    if (!fontName) return;
-    var isCursive = CURSIVE_FONTS.some(function (f) { return fontName.indexOf(f) !== -1; });
+  /* ── FONTS BY ROLE ─────────────────────────────────────────────────────────
+     Headings, body and menu are set separately. The face is applied through the
+     template's own CSS variables, so it lands wherever that template already
+     uses that variable.
 
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=' +
-      encodeURIComponent(fontName).replace(/%20/g, '+') + ':wght@300;400;500;600;700&display=swap';
-    document.head.appendChild(link);
+     Size is harder: templates set type with clamp() and rem, so a plain CSS
+     override would throw away the fluid scale that keeps them readable at every
+     width. Instead each element is MEASURED and its computed size multiplied,
+     which preserves the template's proportions whatever the viewport, and is
+     redone on resize because clamp() depends on it. */
+  var FONT_ROLE_SCALES = { small: 0.9, medium: 1, large: 1.15, 'very-large': 1.3 };
+
+  function _roleTargets(role) {
+    if (role === 'menu') {
+      return document.querySelectorAll(
+        '.top-nav a, nav a, .menu-drawer a, .mp-mnav-panel a');
+    }
+    if (role === 'heading') {
+      return document.querySelectorAll(
+        'h1, h2, h3, [class*="-title"], [class*="Title"], .oval-title');
+    }
+    return document.querySelectorAll('p, li, .story-body, [class*="-answer"], [class*="-detail"], [class*="-address"]');
+  }
+
+  var _fontScaleTimer = null;
+
+  function applyRoleSizes(settings) {
+    var roles = ['heading', 'body', 'menu'];
+    roles.forEach(function (role) {
+      var cfg = settings[role] || {};
+      var scale = FONT_ROLE_SCALES[cfg.size];
+      var nodes = _roleTargets(role);
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (el.closest && el.closest('.mp-brand-footer')) continue;
+        /* Remember the template's own size once, so repeated passes scale from
+           the original rather than compounding. */
+        if (!el.hasAttribute('data-mp-base-size')) {
+          el.setAttribute('data-mp-base-size',
+            parseFloat(getComputedStyle(el).fontSize) || 0);
+        }
+        var base = parseFloat(el.getAttribute('data-mp-base-size')) || 0;
+        if (!base) continue;
+        if (!scale || scale === 1) el.style.removeProperty('font-size');
+        else el.style.fontSize = (base * scale).toFixed(2) + 'px';
+      }
+    });
+  }
+
+  function applyFontSettings(d) {
+    var settings = (d && d.font_settings) || null;
+    if (!settings || !Object.keys(settings).length) return false;
 
     var root = document.documentElement.style;
+    var families = [];
+    var roleVar = {
+      heading: CFG.displayVar || CFG.scriptVar,
+      body: CFG.bodyVar,
+      menu: CFG.bodyVar,   /* templates rarely give the menu its own variable */
+    };
+    ['heading', 'body', 'menu'].forEach(function (role) {
+      var cfg = settings[role] || {};
+      if (!cfg.font) return;
+      families.push(cfg.font);
+      var v = roleVar[role];
+      /* Menu shares the body variable in most templates; only set it when the
+         body has not already claimed it, or one would silently win. */
+      if (role === 'menu' && settings.body && settings.body.font) return;
+      if (v) root.setProperty(v, "'" + cfg.font + "',serif");
+    });
+
+    if (families.length) loadGoogleFonts(families);
+
+    /* After layout, and again on resize, because clamp() is viewport-dependent. */
+    var run = function () { try { applyRoleSizes(settings); } catch (e) {} };
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(run); });
+    else setTimeout(run, 0);
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); } catch (e) {}
+    if (_fontScaleTimer) window.removeEventListener('resize', _fontScaleTimer);
+    _fontScaleTimer = function () { clearTimeout(_fontScaleTimer._t); _fontScaleTimer._t = setTimeout(run, 150); };
+    window.addEventListener('resize', _fontScaleTimer);
+    return true;
+  }
+
+  function loadGoogleFonts(names) {
+    var id = 'mp-role-fonts';
+    var link = document.getElementById(id);
+    if (!link) {
+      link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    link.href = 'https://fonts.googleapis.com/css2?' +
+      names.map(function (n) {
+        return 'family=' + encodeURIComponent(n).replace(/%20/g, '+') + ':wght@300;400;500;600;700';
+      }).join('&') + '&display=swap';
+  }
+
+  function applyCustomFont(fontName) {
+    var root = document.documentElement.style;
+
+    // Clearing has to actively undo, not quietly do nothing. "Reset to template
+    // default" sends an empty value, and returning early left the previous font
+    // on the page — so the button looked broken.
+    if (!fontName) {
+      [CFG.scriptVar, CFG.displayVar, CFG.bodyVar].forEach(function (v) {
+        if (v) { try { root.removeProperty(v); } catch (e) {} }
+      });
+      var stale = document.getElementById('mp-custom-font');
+      if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
+      return;
+    }
+
+    var isCursive = CURSIVE_FONTS.some(function (f) { return fontName.indexOf(f) !== -1; });
+
+    // One element, reused. hydrate() runs on every payload the editor posts, so
+    // appending added a stylesheet link per keystroke.
+    var link = document.getElementById('mp-custom-font');
+    if (!link) {
+      link = document.createElement('link');
+      link.id = 'mp-custom-font';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    link.href = 'https://fonts.googleapis.com/css2?family=' +
+      encodeURIComponent(fontName).replace(/%20/g, '+') + ':wght@300;400;500;600;700&display=swap';
+
     var stack = "'" + fontName + "'," + (isCursive ? 'cursive' : 'serif');
 
     if (isCursive) {
@@ -2732,7 +2854,9 @@
       }
       if (style.textContent !== d.custom_css) style.textContent = d.custom_css;
     }
-    applyCustomFont(d.custom_font);
+    // Per-role settings win. custom_font is the older single choice and stays
+    // as the fallback so couples who made one keep it.
+    if (!applyFontSettings(d)) applyCustomFont(d.custom_font);
     applyCustomColors(d);
 
     // Toggling a section on should show something. Templates gate most sections
