@@ -1456,7 +1456,12 @@
     var root = document.documentElement.style;
     var families = [];
     var roleVar = {
-      heading: CFG.displayVar || CFG.scriptVar,
+      // scriptVar FIRST. On half the templates displayVar is the same variable
+      // as bodyVar — Pressed Petals sets both to --serif — so writing the
+      // heading face there changed the body copy and left the headings alone,
+      // which is exactly what it looked like. The decorative face these
+      // templates use for section titles is scriptVar.
+      heading: CFG.scriptVar || CFG.displayVar,
       body: CFG.bodyVar,
       menu: CFG.bodyVar,   /* templates rarely give the menu its own variable */
     };
