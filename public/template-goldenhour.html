@@ -697,6 +697,19 @@ function hydrateTemplate(d){
     }).join(','));
   }
 
+  // Hotels and Flights each show a photograph, and nothing ever wrote to them,
+  // so both stayed on the template's samples however many pictures the couple
+  // uploaded. MP-358. Fed from the gallery, then the homepage set: their
+  // gallery is where the scene-setting shots live, and the hero is already on
+  // screen above. A slot with nothing to fill it keeps its sample rather than
+  // going blank.
+  var _sectionPool=_galleryUrls.concat(_heroUrls).filter(Boolean);
+  [['accomPhoto',0],['travelPhoto',1]].forEach(function(pair){
+    var _el=el(pair[0]);
+    var _src=_sectionPool[pair[1]]||_sectionPool[0];
+    if(_el&&_src) _el.src=_src;
+  });
+
   // The menu's left panel mirrors the first hero image.
   var _menuPhoto=el('menuPhoto');
   if(_menuPhoto){

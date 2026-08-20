@@ -796,11 +796,17 @@
         return { ok: false, json: {} };
       });
     })).then(function (results) {
+      // One request is sent PER EVENT, and each reports how many PEOPLE it
+      // recorded — the same people every time. Adding them up told a couple of
+      // two who answered for two events that four RSVPs had been recorded.
+      // The party size is the largest single answer, not the sum. MP-342.
       var anyOk = false, failMsg = null, total = 0;
       results.forEach(function (r) {
         if (r.ok) {
           anyOk = true;
-          if (r.json && typeof r.json.total === 'number') total += r.json.total;
+          if (r.json && typeof r.json.total === 'number' && r.json.total > total) {
+            total = r.json.total;
+          }
         } else if (!failMsg) {
           failMsg = (r.json && r.json.detail) || null;
         }
