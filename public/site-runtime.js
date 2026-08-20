@@ -462,6 +462,39 @@
     el.textContent = text;
   }
 
+  /* A way back from a wrong fuzzy match. Rendered next to the status message
+     rather than inside it, so the message stays plain text. MP-346. */
+  function renderNotYouLink(matchedName) {
+    var status = rsvpEl('rsvpStatus');
+    if (!status || !status.parentNode) return;
+    var existing = document.getElementById('mpNotYou');
+    if (existing) existing.parentNode.removeChild(existing);
+
+    var wrap = document.createElement('div');
+    wrap.id = 'mpNotYou';
+    wrap.style.cssText = 'margin:0.35rem 0 0.2rem;font-size:0.82rem;opacity:0.85';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Not ' + (matchedName || 'you') + '? Search again';
+    btn.style.cssText =
+      'background:none;border:none;padding:0;font:inherit;color:inherit;' +
+      'text-decoration:underline;cursor:pointer';
+    btn.addEventListener('click', function () {
+      _rsvpState.guestId = '';
+      _rsvpState.matchedName = '';
+      _rsvpState.householdMembers = [];
+      var input = rsvpEl('rsvpNameInput');
+      if (input) { input.value = ''; input.focus(); }
+      clearHousehold();
+      var form = rsvpEl('rsvpFormFields');
+      if (form) form.classList.remove('visible');
+      setStatus('', '');
+      wrap.parentNode && wrap.parentNode.removeChild(wrap);
+    });
+    wrap.appendChild(btn);
+    status.parentNode.insertBefore(wrap, status.nextSibling);
+  }
+
   /* ── Guest lookup ─────────────────────────────────────────────────────── */
   function applyFoundGuest(json, displayName) {
     _rsvpState.guestId = json.guest_id || '';
@@ -472,7 +505,28 @@
     var input = rsvpEl('rsvpNameInput');
     if (input && json.name) input.value = json.name;
 
-    setStatus('ok', '\u2713 Found you on the list. ' + _rsvpState.matchedName);
+    // MP-346. The lookup is fuzzy: "ash" finds "Ashley Smith". With similar
+    // names in a family that can quietly be the wrong person, and the guest has
+    // no way back. Say who was matched and offer a way out of it.
+    var prev = json.previous_rsvp;
+    if (prev && prev.status) {
+      // MP-343. Answering again is allowed — plans change — but it should be a
+      // decision, not something done in ignorance of the first reply.
+      var when = '';
+      try {
+        if (prev.submitted_at) {
+          var dt = new Date(prev.submitted_at);
+          if (!isNaN(dt)) when = ' on ' + fmtDate(prev.submitted_at);
+        }
+      } catch (e) {}
+      setStatus('ok',
+        '\u2713 ' + _rsvpState.matchedName + ', you have already replied' + when + ': ' +
+        prev.status + (prev.meal ? ' (' + prev.meal + ')' : '') +
+        '. Answering again will replace that.');
+    } else {
+      setStatus('ok', '\u2713 Found you on the list. ' + _rsvpState.matchedName);
+    }
+    renderNotYouLink(_rsvpState.matchedName);
 
     var disambig = rsvpEl('rsvpDisambig');
     if (disambig) { disambig.style.display = 'none'; disambig.innerHTML = ''; }
