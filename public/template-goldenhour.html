@@ -703,7 +703,11 @@ function hydrateTemplate(d){
   // gallery is where the scene-setting shots live, and the hero is already on
   // screen above. A slot with nothing to fill it keeps its sample rather than
   // going blank.
-  var _sectionPool=_galleryUrls.concat(_heroUrls).filter(Boolean);
+  // Website Photos, in the order the couple arranged them: the hero is first,
+  // so these slots take the ones after it. Gallery photos are NOT used here —
+  // uploading to the gallery was pulling pictures onto the rest of the site,
+  // which is exactly the mixing the two sets were split up to stop.
+  var _sectionPool=_heroUrls.slice(1).concat(_heroUrls).filter(Boolean);
   [['accomPhoto',0],['travelPhoto',1]].forEach(function(pair){
     var _el=el(pair[0]);
     var _src=_sectionPool[pair[1]]||_sectionPool[0];
