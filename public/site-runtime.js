@@ -1175,6 +1175,30 @@
     }
   }
 
+  /* Tell the editor what each section is ACTUALLY called on the page. Without
+     this the Content tab showed its own generic label — "Our Registry" — while
+     the site said "See Our Registry", and nothing had gone wrong; they were
+     simply two different pieces of text. */
+  function reportSectionHeadings() {
+    if (!_isPreview) return;
+    try {
+      var out = {};
+      Object.keys(SECTION_ANCHORS).forEach(function (key) {
+        if (key === 'home') return;               /* the hero is the names */
+        var ids = SECTION_ANCHORS[key];
+        for (var i = 0; i < ids.length; i++) {
+          var sec = document.getElementById(ids[i]);
+          if (!sec) continue;
+          var node = _headingNode(sec);
+          var text = node && (node.textContent || '').trim();
+          if (text) out[key] = text;
+          break;
+        }
+      });
+      parent.postMessage({ type: 'MP_SECTION_HEADINGS', headings: out }, '*');
+    } catch (e) {}
+  }
+
   function applySectionHeadings(d) {
     var map = d && d.section_headings;
     if (!map) return;
@@ -1997,6 +2021,27 @@
         }
         target.style.display = 'none';
       }
+    } catch (e) {}
+  }
+
+  /* The registry title is an inline <a> in most templates, because for a long
+     time it was the only thing in the section. Now that a couple can write copy
+     underneath it, the two need to read as a heading and a paragraph rather
+     than as one run of text. Set centrally so every template behaves alike. */
+  function layOutRegistry() {
+    try {
+      var info = document.getElementById('registryInfo') ||
+                 document.getElementById('registryText');
+      if (!info) return;
+      var hasCopy = !!(info.textContent || '').trim();
+      var title = document.getElementById('registryCta') ||
+                  document.querySelector('.registry-title, .registry-cta');
+      if (title && hasCopy) {
+        title.style.display = 'block';
+        title.style.marginBottom = '0.2rem';
+      }
+      info.style.display = hasCopy ? 'block' : 'none';
+      if (hasCopy && !info.style.marginTop) info.style.marginTop = '1.2rem';
     } catch (e) {}
   }
 
@@ -3028,6 +3073,9 @@
       if (_gal.length) buildGalleryCarousel(_gal);
     } catch (e) {}
 
+    // After any rename, so the editor is told what the page ends up saying.
+    reportSectionHeadings();
+
     // The template has just written the couple's real names over the sample
     // ones. Anything longer than the sample can overflow, so check now.
     scheduleNameFit();
@@ -3088,6 +3136,7 @@
     // href="#" and only becomes a real link in wireRegistryLinks — running the
     // sweep first hid the couple's registry link on every template, leaving a
     // menu entry pointing at an empty section.
+    layOutRegistry();
     hideDeadCtas();
 
     // Both paths wait for the hero. The preview needs it as much as the live
