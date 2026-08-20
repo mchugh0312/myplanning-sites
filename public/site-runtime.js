@@ -316,7 +316,10 @@
         '</div>' +
         '<div class="extra-guests-list" id="rsvpExtraGuests"></div>' +
         '<button type="button" class="rsvp-add-guest" id="rsvpAddGuestBtn" ' +
-          'onclick="addExtraGuest(this)" style="display:none">+ Add Invited Guest</button>' +
+          'onclick="addExtraGuest(this)" ' +
+          // Spacing lives here rather than in ten stylesheets. A top margin
+          // only, so nothing below it moves. MP-347.
+          'style="display:none;margin-top:0.9rem">+ Add Invited Guest</button>' +
         '<div class="rsvp-field-row full" style="margin-bottom:0.75rem">' +
           '<input class="rsvp-text-input" type="email" id="rsvpEmail" ' +
             'placeholder="Email address (required) *" data-field="email" required ' +
@@ -444,14 +447,15 @@
     var white = { r: 255, g: 255, b: 255 }, ink = { r: 26, g: 26, b: 26 };
     var onDark = contrastRatio(white, bg) >= contrastRatio(ink, bg);
     var colour = onDark ? '#ffffff' : '#1a1a1a';
-    var band = onDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.05)';
+    var band = onDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.09)';
     // The semantic colour survives on the left border, where contrast matters
     // less, so "found you" still reads differently from an error.
     var border = s.border;
 
     el.style.cssText = [
       'font-family:inherit', 'font-size:0.9rem', 'line-height:1.45',
-      'padding:0.5rem 0.8rem', 'margin:0.6rem 0 0.2rem',
+      'font-weight:600',
+      'padding:0.6rem 0.9rem', 'margin:0.6rem 0 0.2rem',
       'border-left:3px solid ' + border, 'border-radius:4px',
       'background:' + band, 'color:' + colour, 'display:block'
     ].join(';');
@@ -614,14 +618,13 @@
         '<div class="rsvp-household-name">' + esc(m.name || '(household member)') +
           (m.is_primary ? '<span class="rsvp-household-name-primary-tag">primary contact</span>' : '') +
         '</div>' +
-        '<div class="rsvp-household-controls three-up">' +
+        '<div class="rsvp-household-controls">' +
           '<select class="rsvp-select" data-h-field="attending">' +
             '<option value="">Attending?</option>' +
             '<option value="yes">Yes</option>' +
             '<option value="no">Cannot make it</option>' +
             '<option value="maybe">Not sure</option>' +
           '</select>' +
-          '<select class="rsvp-select" data-h-field="meal">' + mealOptionsHtml(m.meal_preference) + '</select>' +
           '<select class="rsvp-select" data-h-field="entree">' +
             '<option value="">Entree (optional)</option>' + entreeOptionsHtml() +
           '</select>' +
@@ -738,6 +741,9 @@
         var att = hr.querySelector('[data-h-field="attending"]');
         var attending = att ? (att.value || '').trim() : '';
         if (!attending) return; // unanswered rows leave existing RSVPs untouched
+        // No longer rendered: the guest is not asked for a meal preference, so
+        // the household is not either. Any value already on the record stays as
+        // the planner set it rather than being blanked by an RSVP.
         var meal = hr.querySelector('[data-h-field="meal"]');
         var entree = hr.querySelector('[data-h-field="entree"]');
         householdRsvps.push({
