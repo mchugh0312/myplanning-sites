@@ -35,7 +35,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Ballet&display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Goudy';src:url('/fonts/GOUDYOLDSTYLEREGULARScript.woff2') format('woff2'),url('/fonts/GOUDYOLDSTYLEREGULARScript.woff') format('woff');font-display:swap;}
+/* Goudy Old Style was never supplied and the files 404'd, so the body text of
+   this template fell back to a system serif. Sorts Mill Goudy is the same
+   design, is in the font archive, and is on Google Fonts as a safety net. */
+@font-face{font-family:'Goudy';src:url('/fonts/SORTSMILLGOUDYRegular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:'Goudy';src:url('/fonts/SORTSMILLGOUDYItalic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap;}
 
 :root{
   --black:   #1c2120;
