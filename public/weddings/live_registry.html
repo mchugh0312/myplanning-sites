@@ -673,6 +673,7 @@ function buildThings(){
       amount: fund?(Number(it.goal_amount_cents)||0):(Number(it.price_cents)||0),
       fcat: fund?"":(it.category||""),
       mostWanted:!!it.is_most_wanted, group:!!it.is_group_gift,
+      hasTracking:!!it.has_tracking,
       sort: it.sort_order==null?9999:it.sort_order,
     });
   });
@@ -733,6 +734,19 @@ function clearAllFilters(){
   state.filters.cats.clear(); state.filters.price.clear();
   state.filters.status="all"; state.filters.search=""; render();
 }
+/* MP-392: a link saved without a scheme resolves relative to this page, which
+   is why "Purchase" and "See More Details" both 404ed. Add the scheme back at
+   render time so existing rows work without a data migration. Anything that is
+   not http or https is dropped rather than rendered. */
+function safeUrl(raw){
+  const s = String(raw||"").trim();
+  if(!s) return "";
+  if(/^https?:\/\//i.test(s)) return s;
+  if(/^[a-z][a-z0-9+.-]*:/i.test(s)) return "";   // mailto:, javascript:, etc.
+  if(/^\/\//.test(s)) return "https:"+s;
+  return "https://"+s.replace(/^\/+/, "");
+}
+
 function isPurchased(t){
   if(t.kind!=="gift") return false;
   const req = (t.raw && t.raw.quantity_requested) || 1;
@@ -913,7 +927,9 @@ function renderCard(t){
     const bought = isPurchased(t);
     cta = '<div class="cta-row col">'
         + (bought
-            ? '<button class="cta solid" onclick="event.stopPropagation();openAddTracking(\''+t.id+'\')">Add tracking &rarr;</button>'
+            ? (t.hasTracking
+                ? '<button class="cta out" onclick="event.stopPropagation();openAddTracking(\''+t.id+'\')">Update tracking &rarr;</button>'
+                : '<button class="cta solid" onclick="event.stopPropagation();openAddTracking(\''+t.id+'\')">Add tracking &rarr;</button>')
             : '<button class="cta solid" onclick="event.stopPropagation();openHow(\''+t.id+'\')">Purchase &rarr;</button>')
         + (bought
             ? '<span class="ipurch done">✓ Purchased, thank you!</span>'
@@ -1171,8 +1187,9 @@ function openHow(id){
   const t = id ? state.things.find(x=>x.id===id) : null;
   state.howItem = t ? t.id : null;
   const ship = shipBlockHtml();
-  const buy = (t && t.raw && t.raw.source_url)
-    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(t.raw.source_url)+'" onclick="afterBuyClicked()">'+(retailerName(t.raw.source_url) ? ("Head to "+esc(retailerName(t.raw.source_url))) : "Continue to the retailer")+' &rarr;</a>'
+  const buyUrl = t && t.raw ? safeUrl(t.raw.source_url) : "";
+  const buy = buyUrl
+    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'" onclick="afterBuyClicked()">'+(retailerName(buyUrl) ? ("Head to "+esc(retailerName(buyUrl))) : "Continue to the retailer")+' &rarr;</a>'
     : '<button class="m-cta solid" onclick="closeFlow()">Got it</button>';
   showFlow(
       '<h3 class="serif m-title">How This Works</h3>'
@@ -1319,7 +1336,8 @@ function openDetail(id){
   const it=(state.data.items||[]).find(x=>x.id===id); if(!it) return;
   state.activeItem=it;
   const img=it.image_url||"";
-  const buy = it.source_url ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(it.source_url)+'">Buy this gift →</a>' : "";
+  const buyUrl = safeUrl(it.source_url);
+  const buy = buyUrl ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'">Buy this gift →</a>' : "";
   // MP-400: a gift already fully purchased must not still offer a buy link and
   // a second "mark as purchased" prompt.
   const done = isPurchased({ kind: "gift", raw: it });
@@ -1333,8 +1351,8 @@ function openDetail(id){
     +   (it.couple_note?'<div class="m-note">“'+esc(it.couple_note)+'”</div>':"")
     +   (done
           ? '<div class="m-done">This one has already been purchased. Thank you.</div>'
-          : '<div class="m-actions">'+buy+'<button class="cta '+(it.source_url?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>')
-    +   (done ? "" : '<div class="hint">'+(it.source_url?"Buy it anywhere you like, then let the couple know so it's marked off the list.":"Found it elsewhere? Buy it, then mark it purchased so it comes off the list.")+'</div>')
+          : '<div class="m-actions">'+buy+'<button class="cta '+(buyUrl?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>')
+    +   (done ? "" : '<div class="hint">'+(buyUrl?"Buy it anywhere you like, then let the couple know so it's marked off the list.":"Found it elsewhere? Buy it, then mark it purchased so it comes off the list.")+'</div>')
     + '</div>';
   openModal("detail");
 }
