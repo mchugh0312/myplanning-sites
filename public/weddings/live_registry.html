@@ -417,9 +417,9 @@ const GROUPS = [
 
 const PRICE_BUCKETS = [
   {id:"under50", label:"Under $50",  test:c=>c<5000},
-  {id:"50-100",  label:"$50–$100",   test:c=>c>=5000&&c<10000},
-  {id:"100-250", label:"$100–$250",  test:c=>c>=10000&&c<25000},
-  {id:"250-500", label:"$250–$500",  test:c=>c>=25000&&c<50000},
+  {id:"50-100",  label:"$50 to $100",   test:c=>c>=5000&&c<10000},
+  {id:"100-250", label:"$100 to $250",  test:c=>c>=10000&&c<25000},
+  {id:"250-500", label:"$250 to $500",  test:c=>c>=25000&&c<50000},
   {id:"over500", label:"$500+",      test:c=>c>=50000},
 ];
 const SORT_OPTIONS = [
@@ -1506,7 +1506,7 @@ function openFund(id){
       + (handles.cashapp?'<a class="pay-opt" target="_blank" rel="noopener" href="https://cash.app/$'+encodeURIComponent(handles.cashapp)+'">Cash App<span style="color:var(--muted)">$'+esc(handles.cashapp)+'</span></a>':"")
       + '</div>';
   } else {
-    body = '<div class="hint">The couple hasn\'t finished setting up gifting yet. Please check back soon.</div>';
+    body = '<div class="hint">'+esc(coupleLabel())+' have not connected a bank account to receive cash gifts yet. Please check back soon.</div>';
   }
 
   el("fund-modal").innerHTML =
