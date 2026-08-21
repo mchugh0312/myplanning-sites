@@ -829,29 +829,58 @@
       });
     }
 
-    var payloads = [];
+    /* MP-352 / MP-349. This built one payload PER EVENT and fired them all at
+       /rsvp through Promise.all. Every one of them wrote the guest's single
+       RSVP Status field, so a guest who accepted the ceremony and declined the
+       dinner ended up with whichever request happened to land last — a race,
+       and seating is downstream of that field.
+
+       One request now carries every answer, which removes the race and is a
+       prerequisite for per-event storage: N parallel read-modify-writes against
+       one JSON field would lose answers outright rather than merely reorder
+       them.
+
+       event_id is the Events Masterlist record id. It was already sitting in
+       the DOM (buildRsvpBlocks writes data-event-id) and was simply never sent
+       — the old payload identified the event by its LABEL, which breaks the
+       moment a couple renames an event. The label still rides along so the
+       backend can fall back to name resolution for an event with no id. */
+    var events = [];
     document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(function (block) {
       var attendingEl = block.querySelector('[data-field="attending"]');
       var attending = attendingEl ? (attendingEl.value || '').trim() : '';
       if (!attending) return;   // unanswered events aren't submitted
       var entreeEl = block.querySelector('[data-field="entree"]');
       var labelEl = block.querySelector('.rsvp-event-label');
-      payloads.push({
-        slug: slug,
-        guest_name: name.trim(),
-        guest_id: _rsvpState.guestId,
-        attending: attending,
-        meal_preference: '',
-        entree_choice: entreeEl ? (entreeEl.value || '') : '',
-        email: email,
-        dietary_notes: dietary,
-        message: message,
+      events.push({
+        event_id: block.getAttribute('data-event-id') || '',
         event_name: labelEl ? labelEl.textContent : '',
-        plus_one: false,
-        extra_guests: [],
-        household_rsvps: []
+        attending: attending,
+        entree_choice: entreeEl ? (entreeEl.value || '') : ''
       });
     });
+
+    /* The first answer is mirrored onto the top-level fields so a backend that
+       has not been redeployed yet still records something sane rather than
+       rejecting the request outright. Deploy order is backend first, so this
+       should never be exercised — it is here because the two are separate
+       deploys and the guest is the one who pays for a mismatch. */
+    var payloads = events.length ? [{
+      slug: slug,
+      guest_name: name.trim(),
+      guest_id: _rsvpState.guestId,
+      attending: events[0].attending,
+      meal_preference: '',
+      entree_choice: events[0].entree_choice,
+      email: email,
+      dietary_notes: dietary,
+      message: message,
+      event_name: events[0].event_name,
+      events: events,
+      plus_one: false,
+      extra_guests: [],
+      household_rsvps: []
+    }] : [];
 
     if (!payloads.length) {
       alert('Please let us know whether you can attend at least one event.');
@@ -876,10 +905,12 @@
         return { ok: false, json: {} };
       });
     })).then(function (results) {
-      // One request is sent PER EVENT, and each reports how many PEOPLE it
-      // recorded — the same people every time. Adding them up told a couple of
-      // two who answered for two events that four RSVPs had been recorded.
-      // The party size is the largest single answer, not the sum. MP-342.
+      // One request now, carrying every event (see the payload build above), so
+      // there is a single result. The max-not-sum rule is kept because the
+      // response still reports how many PEOPLE were recorded, and a couple of
+      // two answering for two events must not be told four RSVPs landed —
+      // MP-342. Left as a loop so an older cached bundle that still posts one
+      // request per event is reported correctly too.
       var anyOk = false, failMsg = null, total = 0;
       results.forEach(function (r) {
         if (r.ok) {
