@@ -710,7 +710,7 @@ function quickFiltersHtml(count){
 
   const catOpts   = [["", "All categories"]].concat(cats.map(c=>[c, c]));
   const priceOpts = [["", "Any price"]].concat(PRICE_BUCKETS.map(b=>[b.id, b.label]));
-  const statOpts  = [["all","All gifts"],["pending","Still needed"],["purchased","Purchased"]];
+  const statOpts  = [["all","All gifts"],["pending","Still needed"],["purchased","Purchased"],["preferred","Couple Preferred"]];
   const sortOpts  = SORT_OPTIONS.map(o=>[o.value, o.label]);
 
   const active = f.cats.size + f.price.size + (f.status!=="all"?1:0);
@@ -753,6 +753,7 @@ function passesFilters(t){
   const st = state.filters.status || "all";
   if(st==="purchased" && !isPurchased(t)) return false;
   if(st==="pending"   &&  isPurchased(t)) return false;
+  if(st==="preferred" && !t.mostWanted)   return false;
   return true;
 }
 
