@@ -216,13 +216,15 @@
   /* ==========================================================================
      RSVP STATE
      ========================================================================== */
-  window._rsvpEntreeOptions = [
-    { value: 'Chicken', label: 'Chicken' },
-    { value: 'Fish', label: 'Fish' },
-    { value: 'Vegetarian', label: 'Vegetarian' },
-    { value: 'Vegan', label: 'Vegan' },
-    { value: 'Kids Meal', label: 'Kids Meal' }
-  ];
+  /* MP-340. This shipped with Chicken/Fish/Vegetarian/Vegan/Kids Meal baked in,
+     so every wedding asked guests to pick an entree whether or not the couple
+     was serving a plated meal — and recorded answers to a question nobody
+     asked. Empty by default now: no list, no question. */
+  window._rsvpEntreeOptions = [];
+  /* Per-event lists, keyed by Events Masterlist record id. Absent means "use
+     the wedding-wide list"; present but empty means "this event serves no
+     meal". The two are deliberately different. */
+  window._rsvpEntreeByEvent = {};
 
   var MEAL_OPTIONS = [
     { v: '', l: 'Meal type' },
@@ -241,8 +243,20 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  function entreeOptionsHtml() {
-    return window._rsvpEntreeOptions.map(function (o) {
+  /* The list that applies to one event: its own if it has one, otherwise the
+     wedding-wide list. Returns [] when neither offers anything, which the
+     caller reads as "do not render the control at all". */
+  function entreeOptionsFor(eventId) {
+    var byEvent = window._rsvpEntreeByEvent || {};
+    var own = eventId != null ? byEvent[String(eventId)] : null;
+    var list = Array.isArray(own) ? own : (window._rsvpEntreeOptions || []);
+    return list.map(function (o) {
+      return (o && typeof o === 'object') ? o : { value: String(o), label: String(o) };
+    }).filter(function (o) { return o.value; });
+  }
+
+  function entreeOptionsHtml(eventId) {
+    return entreeOptionsFor(eventId).map(function (o) {
       return '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>';
     }).join('');
   }
@@ -372,9 +386,14 @@
                 '<option value="no">Cannot make it</option>' +
                 '<option value="maybe">Not sure yet</option>' +
               '</select>' +
-              '<select class="rsvp-select" data-field="entree">' +
-                '<option value="">Your entr\u00e9e choice</option>' + entreeOptionsHtml() +
-              '</select>' +
+              /* No entrees for this event means no meal is served at it, so the
+                 control is omitted rather than rendered empty. submitRSVP reads
+                 the select defensively and sends '' when it is absent. */
+              (entreeOptionsFor(ev.id).length
+                ? '<select class="rsvp-select" data-field="entree">' +
+                    '<option value="">Your entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                  '</select>'
+                : '') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -699,9 +718,14 @@
             '<option value="no">Cannot make it</option>' +
             '<option value="maybe">Not sure</option>' +
           '</select>' +
-          '<select class="rsvp-select" data-h-field="entree">' +
-            '<option value="">Entree (optional)</option>' + entreeOptionsHtml() +
-          '</select>' +
+          /* Wedding-wide list here, not per-event: a household row is one
+             answer for the whole invitation, not per event. Omitted when the
+             couple offers no entrees at all. */
+          (entreeOptionsFor(null).length
+            ? '<select class="rsvp-select" data-h-field="entree">' +
+                '<option value="">Entree (optional)</option>' + entreeOptionsHtml() +
+              '</select>'
+            : '') +
         '</div>';
       list.appendChild(row);
     });
@@ -762,13 +786,15 @@
     mealSel.dataset.role = 'plus-one-meal';
     mealSel.innerHTML = mealOptionsHtml('');
 
-    var entreeSel = document.createElement('select');
-    entreeSel.className = 'rsvp-select';
-    entreeSel.dataset.role = 'plus-one-entree';
-    entreeSel.innerHTML = '<option value="">Entree (optional)</option>' + entreeOptionsHtml();
-
     controls.appendChild(mealSel);
-    controls.appendChild(entreeSel);
+    // Same rule as the event blocks: no entrees configured, no control.
+    if (entreeOptionsFor(null).length) {
+      var entreeSel = document.createElement('select');
+      entreeSel.className = 'rsvp-select';
+      entreeSel.dataset.role = 'plus-one-entree';
+      entreeSel.innerHTML = '<option value="">Entree (optional)</option>' + entreeOptionsHtml();
+      controls.appendChild(entreeSel);
+    }
     row.appendChild(controls);
 
     list.appendChild(row);
@@ -3023,6 +3049,9 @@
     d.couple_names = coupleNames(d);
 
     // 2. RSVP entree options must be set before the template builds its blocks.
+    if (d.rsvp_config && d.rsvp_config.entreesByEvent && typeof d.rsvp_config.entreesByEvent === 'object') {
+      window._rsvpEntreeByEvent = d.rsvp_config.entreesByEvent;
+    }
     if (d.rsvp_config && Array.isArray(d.rsvp_config.entrees) && d.rsvp_config.entrees.length) {
       window._rsvpEntreeOptions = d.rsvp_config.entrees
         .filter(Boolean)
