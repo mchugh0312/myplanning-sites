@@ -1462,17 +1462,22 @@ function submitTracking(id, shipOverride, confirmed){
    guest picks rather than us guessing. The name and number are already held in
    state, so answering finishes the save without retyping anything. */
 function askCarrier(id, stored, provided, message){
+  /* Handlers are attached in JS, not written into onclick attributes. Building
+     them as strings meant JSON.stringify's double quotes closed the attribute
+     early and the button did nothing at all; escaping quotes by hand would work
+     until a carrier name contains one. This has no escaping to get wrong. */
   showFlow(
       '<h3 class="serif m-title">Which carrier?</h3>'
     + '<p class="m-body" style="text-align:center">'+esc(message||"")+'</p>'
     + '<div class="m-actions col">'
-    +   '<button class="m-cta dark" onclick="submitTracking('+JSON.stringify(id)+', '+JSON.stringify(provided)+', true)">'
-    +     'Use '+esc(provided)+'</button>'
-    +   '<button class="m-cta" onclick="submitTracking('+JSON.stringify(id)+', '+JSON.stringify(stored)+', true)">'
-    +     'Keep '+esc(stored)+'</button>'
+    +   '<button class="m-cta dark" id="ck-use">Use '+esc(provided)+'</button>'
+    +   '<button class="m-cta" id="ck-keep">Keep '+esc(stored)+'</button>'
     + '</div>',
     "sage"
   );
+  const use = el("ck-use"), keep = el("ck-keep");
+  if(use)  use.onclick  = function(){ submitTracking(id, provided, true); };
+  if(keep) keep.onclick = function(){ submitTracking(id, stored, true); };
 }
 
 function openOffline(id){
