@@ -143,6 +143,8 @@
   .m-desc{font-size:13.5px;line-height:1.6;color:var(--olive);margin:10px 0}
   .m-note{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--olive);font-style:italic;margin:12px 0}
   .m-actions{display:flex;gap:10px;margin-top:14px}
+  .m-done{margin-top:14px;padding:10px 12px;border-radius:8px;background:rgba(75,82,68,.08);
+          color:var(--olive);font-size:13px;text-align:center}
   .m-actions .cta{padding:13px 0;font-size:14px;border-radius:999px}
   .field{margin-top:12px}
   .field label{display:block;font-family:"Instrument Serif",serif;font-size:14px;margin-bottom:5px}
@@ -238,13 +240,13 @@
 .m-x{position:absolute;top:12px;right:12px;background:transparent;border:none;cursor:pointer;color:#8C7D6E;}
 .m-title{text-align:center;font-size:22px;font-weight:400;margin:0 0 14px;}
 .m-body{text-align:center;font-size:12.5px;line-height:1.75;color:#4B5244;margin:0 0 12px;}
-.m-img{display:block;width:96px;height:96px;object-fit:contain;margin:6px auto 10px;}
+.modal-card .m-img{display:block;width:96px;height:96px;object-fit:contain;margin:6px auto 10px;}
 .m-prod{text-align:center;margin-bottom:14px;}
 .m-brand{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#8C7D6E;}
 .m-name{font-size:13px;color:#121212;margin-top:2px;}
-.m-price{font-family:"Instrument Serif",serif;font-size:15px;margin-top:2px;}
-.m-actions{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
-.m-actions.col{flex-direction:column;align-items:center;}
+.modal-card .m-price{font-family:"Instrument Serif",serif;font-size:15px;margin-top:2px;}
+.modal-card .m-actions{display:flex;justify-content:center;gap:8px;margin-bottom:18px;}
+.modal-card .m-actions.col{flex-direction:column;align-items:center;}
 .m-cta{border-radius:999px;font-size:12px;font-weight:600;height:34px;padding:0 22px;cursor:pointer;
   border:none;display:inline-flex;align-items:center;justify-content:center;min-width:190px;}
 .m-cta.solid{background:#A9BDC4;color:#fff;}
@@ -847,7 +849,7 @@ function renderExternalLinks(){
   if(!cards) return "";
   return '<section class="ext-wrap"><div class="wrap">'
     + '<div class="ext-head"><div class="eyebrow">Also Registered At</div>'
-    +   '<p>We are also registered at the stores below \u2014 tap through to shop those gifts there.</p></div>'
+    +   '<p>We are also registered at the stores below.</p></div>'
     + '<div class="ext-grid">'+cards+'</div>'
     + '</div></section>';
 }
@@ -1317,6 +1319,9 @@ function openDetail(id){
   state.activeItem=it;
   const img=it.image_url||"";
   const buy = it.source_url ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(it.source_url)+'">Buy this gift →</a>' : "";
+  // MP-400: a gift already fully purchased must not still offer a buy link and
+  // a second "mark as purchased" prompt.
+  const done = isPurchased({ kind: "gift", raw: it });
   el("detail-modal").innerHTML =
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'detail\')">✕</button></div>'
     + '<div class="m-pad">'
@@ -1325,8 +1330,10 @@ function openDetail(id){
     +   '<div class="m-price">'+fmt(it.price_cents||0)+'</div>'
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
     +   (it.couple_note?'<div class="m-note">“'+esc(it.couple_note)+'”</div>':"")
-    +   '<div class="m-actions">'+buy+'<button class="cta '+(it.source_url?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>'
-    +   '<div class="hint">'+(it.source_url?"Buy it anywhere you like, then let the couple know so it's marked off the list.":"Found it elsewhere? Buy it, then mark it purchased so it comes off the list.")+'</div>'
+    +   (done
+          ? '<div class="m-done">This one has already been purchased. Thank you.</div>'
+          : '<div class="m-actions">'+buy+'<button class="cta '+(it.source_url?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>')
+    +   (done ? "" : '<div class="hint">'+(it.source_url?"Buy it anywhere you like, then let the couple know so it's marked off the list.":"Found it elsewhere? Buy it, then mark it purchased so it comes off the list.")+'</div>')
     + '</div>';
   openModal("detail");
 }
