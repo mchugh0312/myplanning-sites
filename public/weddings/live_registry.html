@@ -574,7 +574,14 @@ function initSkin(){
   //   a registry with no site at all  -> the MyPlanning palette in :root
   // The last one needs no work: leaving the variables alone IS the brand theme.
   // Only mark the body so the type rules know which way round we are.
-  if (!state.slug) { document.body.classList.add("brandskin"); return; }
+  // No slug YET is not the same as no website: on a preview the slug arrives
+  // with the payload a moment later, and load() calls back in. Only commit to
+  // the brand theme once there is nothing left to wait for.
+  if (!state.slug) {
+    if (!state.preview) document.body.classList.add("brandskin");
+    return;
+  }
+  document.body.classList.remove("brandskin");
 
   const stashed = readStashedSite(state.slug);
   if (stashed) { applySkin(skinFor(stashed)); return; }
@@ -683,6 +690,20 @@ async function load(){
     if(data.password_required) return renderGate(data.title||"Our Registry", data.password_invalid);
     state.data = data;
     if(!state.registryId && data.registry) state.registryId = data.registry.id;
+    // Preview opens by id, so the slug is not in the path. The payload has it,
+    // which is what lets the preview match the live page instead of always
+    // falling back to the MyPlanning theme.
+    if(state.preview && !state.slug){
+      const slug = data.registry && data.registry.website_slug;
+      if(slug){
+        state.slug = slug;      // now initSkin can find the template
+        initSkin();
+      } else {
+        // No website at all: the MyPlanning theme IS the answer here, and
+        // initSkin deliberately withholds it on a preview until we know.
+        document.body.classList.add("brandskin");
+      }
+    }
     buildThings();
     render();
   }catch(e){ renderNotice("We couldn't load this registry.","Please refresh the page or try again in a moment."); }
