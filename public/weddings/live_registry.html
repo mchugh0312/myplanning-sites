@@ -1449,7 +1449,14 @@ function submitTracking(id, shipOverride, confirmed){
         throw new Error((d && d.message) || d || "Couldn't save that");
       });
     })
-   .then(function(){ closeFlow(); toastPreview("Thank you! Tracking saved."); })
+   .then(function(){
+      closeFlow();
+      toastPreview("Thank you! Tracking saved.");
+      // Refresh so the card stops offering "Add tracking" straight away. The
+      // visibility handler only fires on returning to the tab, which is why
+      // this looked stale until you switched away and back.
+      load();
+    })
    .catch(function(e){
       if(e && e.message === "__asked__") return;   // the question is on screen
       const b=el("tk-submit");
