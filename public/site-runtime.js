@@ -3349,7 +3349,23 @@
   window.clearHousehold = clearHousehold;
   window.showAmbiguousMatches = showAmbiguousMatches;
   window.applyCustomFont = applyCustomFont;
-  window._reveal = reveal;
+  /* Deliberately NOT `reveal`. Eight templates end hydrateTemplate with
+     _reveal(), and hydrateTemplate is called from hydrate() at the top — so
+     binding this to reveal() lifted the veil mid-hydrate and defeated the whole
+     MP-310 hero wait below. It also fired TEMPLATE_HYDRATED early, which made
+     the editor drop its placeholder while the photograph was still arriving,
+     and it ran before layOutRegistry/hideDeadCtas, so a dead CTA got a frame of
+     screen time. Golden Hour and Heirloom Bloom don't call it, which is exactly
+     why those two were the only templates not flashing.
+
+     hydrate() always finishes with revealWhenHeroReady(), including when
+     hydrateTemplate throws (its call is wrapped), so the template's call is
+     redundant rather than load-bearing and is safe to ignore. The head-script
+     timer still backstops a runtime that never runs at all.
+
+     Kept as a function, not deleted: the templates call it, and an undefined
+     _reveal would throw at the end of every hydrate. */
+  window._reveal = function () { /* intentionally a no-op — see above */ };
   window.MP = {
     config: CFG,
     hydrate: hydrate,
