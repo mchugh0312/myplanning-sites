@@ -639,7 +639,29 @@ function renderBrandFooter(){
   renderBrandFooter(); // same footer as the wedding sites
   loadShipMethods();   // carrier list for the tracking forms
   load();
+
+  /* MP-379: the preview loaded once, so a couple who added a gift in the
+     dashboard tab came back here, saw the old list, and reasonably concluded
+     nothing had saved. Reload when this tab is looked at again. Throttled, and
+     skipped while a modal is open so a refresh cannot pull the ground out from
+     under something being filled in. */
+  if (state.preview) {
+    document.addEventListener("visibilitychange", refreshPreviewOnReturn);
+    window.addEventListener("focus", refreshPreviewOnReturn);
+    window.addEventListener("pageshow", function(e){ if (e.persisted) refreshPreviewOnReturn(); });
+  }
 })();
+
+var _lastPreviewReload = Date.now();
+function refreshPreviewOnReturn(){
+  if (!state.preview || document.hidden) return;
+  // A modal, the drawer or a flow being open all mean "do not reload now".
+  if (document.querySelector(".scrim.open, .m-scrim.open, .modal-card.open")) return;
+  const now = Date.now();
+  if (now - _lastPreviewReload < 2500) return;
+  _lastPreviewReload = now;
+  load();
+}
 function cleanParam(k){ const u=new URL(location.href); u.searchParams.delete(k); history.replaceState({},"",u); }
 function showBanner(msg,kind){ const b=el("banner"); b.textContent=msg; b.className="banner "+kind+" show"; setTimeout(()=>b.classList.remove("show"),5200); }
 
@@ -651,8 +673,11 @@ async function load(){
     const qp=[];
     if(state.preview) qp.push("preview=1");
     if(state.password) qp.push("password="+encodeURIComponent(state.password));
+    // Cache-bust in preview only. Guests should keep the benefit of caching;
+    // the couple checking their own edits must not.
+    if(state.preview) qp.push("_="+Date.now());
     if(qp.length) url += "?"+qp.join("&");
-    const res = await fetch(url);
+    const res = await fetch(url, state.preview ? { cache: "no-store" } : undefined);
     const data = await res.json();
     if(data.error==="not_published") return renderNotice("This registry isn't published yet.","Check back soon. The couple is still putting it together.");
     if(data.password_required) return renderGate(data.title||"Our Registry", data.password_invalid);
@@ -1395,28 +1420,59 @@ function openAddTracking(id){
   );
 }
 
-function submitTracking(id){
-  const name=(el("tk-name").value||"").trim();
-  const num =(el("tk-num").value||"").trim();
-  const ship=(el("tk-ship")||{}).value||"";
+function submitTracking(id, shipOverride, confirmed){
+  const name=(el("tk-name")||{}).value ? el("tk-name").value.trim() : (state.tkName||"");
+  const num =(el("tk-num") ||{}).value ? el("tk-num").value.trim()  : (state.tkNum||"");
+  const ship= shipOverride !== undefined ? shipOverride : (((el("tk-ship")||{}).value)||"");
   if(!name){ toastPreview("Add the name you used", true); return; }
   if(!num){  toastPreview("Add a tracking number", true); return; }
-  const btn=el("tk-submit"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…';
+  // Remembered so the carrier question can resubmit after the form is replaced.
+  state.tkName = name; state.tkNum = num;
+
+  const btn=el("tk-submit");
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Saving…'; }
   fetch(RENDER_API+"/registry/tracking/update",{
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ registry_id: state.registryId, item_id: id,
-                           guest_name: name, tracking_number: num, shipping_method: ship })
+                           guest_name: name, tracking_number: num, shipping_method: ship,
+                           shipping_method_confirmed: !!confirmed })
   }).then(function(r){
       if(r.ok) return r.json();
       return r.json().catch(function(){ return {}; }).then(function(j){
-        throw new Error(j.detail || "Couldn't save that");
+        const d = j.detail;
+        // MP-403: the carrier saved with the purchase disagrees with this one.
+        // Ask rather than guessing which the guest meant.
+        if(d && d.conflict === "shipping_method"){
+          askCarrier(id, d.stored, d.provided, d.message);
+          throw new Error("__asked__");
+        }
+        throw new Error((d && d.message) || d || "Couldn't save that");
       });
     })
    .then(function(){ closeFlow(); toastPreview("Thank you! Tracking saved."); })
    .catch(function(e){
-      btn.disabled=false; btn.innerHTML="Save tracking";
-      toastPreview(e.message || "Couldn't save that", true);
+      if(e && e.message === "__asked__") return;   // the question is on screen
+      const b=el("tk-submit");
+      if(b){ b.disabled=false; b.innerHTML="Save tracking"; }
+      toastPreview((e && e.message) || "Couldn't save that", true);
     });
+}
+
+/* MP-403: which carrier is right? Only ever two options, both named, so the
+   guest picks rather than us guessing. The name and number are already held in
+   state, so answering finishes the save without retyping anything. */
+function askCarrier(id, stored, provided, message){
+  showFlow(
+      '<h3 class="serif m-title">Which carrier?</h3>'
+    + '<p class="m-body" style="text-align:center">'+esc(message||"")+'</p>'
+    + '<div class="m-actions col">'
+    +   '<button class="m-cta dark" onclick="submitTracking('+JSON.stringify(id)+', '+JSON.stringify(provided)+', true)">'
+    +     'Use '+esc(provided)+'</button>'
+    +   '<button class="m-cta" onclick="submitTracking('+JSON.stringify(id)+', '+JSON.stringify(stored)+', true)">'
+    +     'Keep '+esc(stored)+'</button>'
+    + '</div>',
+    "sage"
+  );
 }
 
 function openOffline(id){
