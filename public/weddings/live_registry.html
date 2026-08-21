@@ -113,6 +113,15 @@
   .card .body{text-align:center;margin-top:9px;padding:0 12px}
   .card .src{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
   .card .ttl{font-size:13px;color:var(--ink);line-height:1.3;margin-bottom:3px;min-height:34px}
+  /* MP-391: which colour and size this card is. Without it, two sizes of one
+     sheet set are two identical cards at different prices. min-height keeps
+     cards level whether or not a gift has options. */
+  .variant{display:flex;align-items:center;justify-content:center;gap:5px;
+           font-size:11.5px;color:var(--muted);margin-bottom:4px;min-height:16px}
+  .m-variant{display:flex;align-items:center;justify-content:center;gap:6px;
+             font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+  .vdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;
+        border:1px solid rgba(0,0,0,.15);display:inline-block}
   .card .price{font-family:"Instrument Serif",serif;font-size:16px}
   .card .sub{font-size:11px;color:var(--olive);margin-top:2px}
   .progress{height:5px;border-radius:999px;background:rgba(255,255,255,.55);overflow:hidden;margin:8px 2px 0}
@@ -709,6 +718,26 @@ async function load(){
   }catch(e){ renderNotice("We couldn't load this registry.","Please refresh the page or try again in a moment."); }
 }
 
+/* The chosen variant, written the way a guest reads it: "Slate Blue · Queen".
+   Returns "" when the gift has no options, so nothing is added to a plain item. */
+function variantLabel(it){
+  const parts = [];
+  if(it && it.selected_color) parts.push(String(it.selected_color));
+  if(it && it.selected_size)  parts.push(String(it.selected_size));
+  return parts.join(" \u00b7 ");
+}
+
+/* A colour chip in front of the label, when the catalogue gave us a hex. Guests
+   pick out a colour far faster than they read one. */
+function variantHtml(it, cls){
+  const label = variantLabel(it);
+  if(!label) return "";
+  const hex = it && it.variant_color_hex ? String(it.variant_color_hex) : "";
+  const dot = /^#[0-9a-f]{3,8}$/i.test(hex)
+    ? '<span class="vdot" style="background:'+esc(hex)+'"></span>' : "";
+  return '<div class="'+(cls||"variant")+'">'+dot+esc(label)+'</div>';
+}
+
 function buildThings(){
   const things=[];
   (state.data.items||[]).forEach(it=>{
@@ -1026,6 +1055,9 @@ function renderCard(t){
     ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)+'</div>' : '';
 
   const brandLine = (t.raw && t.raw.source) ? '<div class="brand">'+esc(t.raw.source)+'</div>' : '';
+  // Sits directly under the title, which is where two near-identical gifts are
+  // compared.
+  const variantLine = t.kind === "gift" ? variantHtml(t.raw) : "";
 
   return '<div class="card'+(canDrag?' draggable':'')+'"'+dragAttrs+'>'
     + handle
@@ -1037,6 +1069,7 @@ function renderCard(t){
     +   '</div>'
     +   '<div class="body">'+brandLine
     +     '<div class="ttl">'+esc(t.title)+'</div>'
+    +     variantLine
     +     (hidesAmount(t)?'':'<div class="price">'+fmt(t.amount)+'</div>')
     +     note
     +   '</div>'
@@ -1392,6 +1425,7 @@ function openDetail(id){
     + '<div class="m-pad">'
     +   (it.source?'<div class="m-sub">'+esc(it.source)+'</div>':"")
     +   '<h3 class="serif">'+esc(it.title)+'</h3>'
+    +   variantHtml(it, "m-variant")
     +   '<div class="m-price">'+fmt(it.price_cents||0)+'</div>'
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
     +   (it.couple_note?'<div class="m-note">“'+esc(it.couple_note)+'”</div>':"")
