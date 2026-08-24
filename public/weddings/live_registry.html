@@ -1151,18 +1151,6 @@ function renderCard(t){
     ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)
       +'<span class="q close">&rdquo;</span></div>' : '';
 
-  /* MP-415. A gift added by pasting a link is stored with source "Universal
-     URL", which is our plumbing showing through: a guest wants to know the shop.
-     Derive it from the link, which this page already does for the "Head to …"
-     button, and only fall back to the stored value when there is no link to
-     read. */
-  const brandOf = (raw) => {
-    const stored = (raw && raw.source) ? String(raw.source) : "";
-    const generic = /^(universal url|universal|custom|other|link)$/i.test(stored.trim());
-    if (stored && !generic) return stored;
-    const fromUrl = raw ? retailerName(raw.source_url) : "";
-    return fromUrl || (generic ? "" : stored);
-  };
   const brandName = brandOf(t.raw);
   const brandLine = brandName ? '<div class="brand">'+esc(brandName)+'</div>' : '';
   // Sits directly under the title, which is where two near-identical gifts are
@@ -1372,6 +1360,23 @@ function retailerName(url){
   }catch(e){ return ""; }
 }
 
+/* MP-415. A gift added by pasting a link is stored with source "Universal URL",
+   which is our plumbing showing through: a guest wants to know the shop. Derive
+   it from the link, the way the "Head to …" button already does, and fall back
+   to the stored value only when there is no link to read.
+
+   Module scope, because the source is printed in THREE places — the card, the
+   purchase modal and the detail modal — and I fixed only the card the first
+   time. One rule, one place, or the next surface added will print the raw value
+   again. */
+function brandOf(raw){
+  const stored = (raw && raw.source) ? String(raw.source) : "";
+  const generic = /^(universal url|universal|custom|other|link)$/i.test(stored.trim());
+  if (stored && !generic) return stored;
+  const fromUrl = raw ? retailerName(raw.source_url) : "";
+  return fromUrl || (generic ? "" : stored);
+}
+
 function openHow(id){
   const t = id ? state.things.find(x=>x.id===id) : null;
   state.howItem = t ? t.id : null;
@@ -1403,7 +1408,7 @@ function openDidPurchase(id){
   showFlow(
       '<h3 class="serif m-title">Did You Purchase This?</h3>'
     + img
-    + '<div class="m-prod"><div class="m-brand">'+esc(t.raw && t.raw.source ? t.raw.source : "")+'</div>'
+    + '<div class="m-prod"><div class="m-brand">'+esc(brandOf(t.raw))+'</div>'
     +   '<div class="m-name">'+esc(t.title)+'</div>'
     +   '<div class="m-price">'+fmt(t.amount)+'</div></div>'
     + '<div class="m-actions col">'
@@ -1533,7 +1538,7 @@ function openDetail(id){
   el("detail-modal").innerHTML =
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'detail\')">✕</button></div>'
     + '<div class="m-pad">'
-    +   (it.source?'<div class="m-sub">'+esc(it.source)+'</div>':"")
+    +   ((brandOf(it))?'<div class="m-sub">'+esc(brandOf(it))+'</div>':"")
     +   '<h3 class="serif">'+esc(it.title)+'</h3>'
     +   variantHtml(it, "m-variant")
     +   '<div class="m-price">'+fmt(it.price_cents||0)+'</div>'
