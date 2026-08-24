@@ -384,6 +384,19 @@
    to the left of both rather than between them. */
 .qf-line2 .qf-count{margin-left:auto;}
 .qf-sortwrap{position:relative;flex:0 0 auto;}
+
+/* Desktop puts all of it on ONE line: the three filters take the space that is
+   left, the count and the pill sit at the right end. The markup stays two rows
+   and the WRAPPER becomes the flex row, so the phone layout below is unchanged
+   and neither has to know about the other. */
+@media(min-width:640px){
+  .qf .wrap{display:flex;align-items:center;gap:16px;}
+  .qf-line{flex:1 1 auto;min-width:0;}
+  .qf-line2{flex:0 0 auto;margin-top:0;}
+  /* The wrapper already pushes this group right; a second auto margin here
+     would only add slack between the count and the pill. */
+  .qf-line2 .qf-count{margin-left:0;}
+}
 .qf-sort{display:flex;align-items:center;justify-content:center;width:32px;height:32px;
   border-radius:999px;background:#fff;border:1px solid var(--border);cursor:pointer;padding:0;}
 .qf-sort:hover{opacity:.9;}
