@@ -302,6 +302,14 @@
 .mp-bf-links a:hover{text-decoration:underline}
 .mp-bf-copy{font-family:"Open Sans",system-ui,-apple-system,sans-serif;font-size:11px;
   line-height:1.6;color:var(--ink);opacity:0.8;margin:0}
+/* Affiliate disclosure. Sits above the copyright, separated by the same hairline
+   the app footer uses, so it reads as a legal note rather than as another link.
+   Unconditional here: every page this file serves is a registry, and a guest
+   clicking through to buy a gift is exactly who the disclosure is for. */
+.mp-bf-note{font-family:"Open Sans",system-ui,-apple-system,sans-serif;font-size:11px;
+  line-height:1.6;color:var(--ink);opacity:0.7;margin:0 auto 12px;max-width:760px;
+  padding-top:14px;border-top:1px solid var(--line)}
+@media(max-width:640px){ .mp-bf-note{font-size:10.5px;padding-top:12px} }
 @media(max-width:640px){
   .mp-bf-inner{padding:24px 16px 20px}
   .mp-bf-logo img{height:38px}
@@ -617,6 +625,13 @@ function initSkin(){
    caught by the /:slug rewrite in vercel.json. */
 const BRAND_BASE = "https://www.myplanning.ai";
 const BRAND_LOGO = "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8815fd0e-bd66-4add-8c28-b9ec1e2509e3.png";
+/* Word for word the same disclosure the app footer carries. Kept identical on
+   purpose: two versions of a legal line that drift apart is worse than one line
+   in two places. If the wording changes, it changes in both. */
+const BRAND_AFFILIATE_NOTE =
+  "Some product or service links may be affiliate links. Purchases made through " +
+  "those links may earn us a commission or may otherwise benefit us.";
+
 const BRAND_LINKS = [
   { label:"About Us",                href:"/about-us" },
   { label:"Get In Touch",            href:"/get-in-touch" },
@@ -636,6 +651,7 @@ function renderBrandFooter(){
     '<div class="mp-bf-inner">' +
       '<a class="mp-bf-logo" href="' + BRAND_BASE + '/"><img src="' + BRAND_LOGO + '" alt="MyPlanning.ai"></a>' +
       '<ul class="mp-bf-links">' + links + "</ul>" +
+      '<p class="mp-bf-note">' + BRAND_AFFILIATE_NOTE + "</p>" +
       '<p class="mp-bf-copy">Copyright \u00a9 ' + new Date().getFullYear() +
         " MyPlanning.ai, Inc. All rights reserved. Patent Pending.</p>" +
     "</div>" +
