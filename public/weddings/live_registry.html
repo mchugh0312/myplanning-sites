@@ -252,6 +252,7 @@
   padding:26px 22px 0;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);}
 .m-x{position:absolute;top:12px;right:12px;background:transparent;border:none;cursor:pointer;color:#8C7D6E;}
 .m-title{text-align:center;font-size:22px;font-weight:400;margin:0 0 14px;}
+.nowrap{white-space:nowrap;}
 .m-body{text-align:center;font-size:12.5px;line-height:1.75;color:#4B5244;margin:0 0 12px;}
 .modal-card .m-img{display:block;width:96px;height:96px;object-fit:contain;margin:6px auto 10px;}
 .m-prod{text-align:center;margin-bottom:14px;}
@@ -1428,8 +1429,20 @@ function openHow(id){
     : '<button class="m-cta solid" onclick="closeFlow()">Got it</button>';
   showFlow(
       '<h3 class="serif m-title">How This Works</h3>'
-    + '<p class="m-body">Follow the link below to<br>the retailer to purchase the item.</p>'
-    + '<p class="m-body">Then, return to this page and mark<br><b>&ldquo;I Purchased This Item&rdquo;</b> so '+esc(coupleLabel())+'<br>don\'t receive the same gift twice.</p>'
+    /* MP-446. The line breaks were hand-placed for one particular width, so a
+       long couple name — "Elizabeth Bennet & Fitzwilliam Darcy" — got a line to
+       itself and "don't receive the same gift twice" was orphaned below it. Let
+       the text wrap where it needs to instead. The one break kept is the
+       paragraph split, which is a real pause in the instructions.
+
+       The quoted label and the names are wrapped in nowrap so neither is ever
+       split across lines, which is the thing the manual breaks were really
+       protecting. */
+    + '<p class="m-body">Follow the link below to the retailer to purchase the item.</p>'
+    + '<p class="m-body">Then, return to this page and mark '
+    +   '<b class="nowrap">&ldquo;I Purchased This Item&rdquo;</b> so '
+    +   '<span class="nowrap">'+esc(coupleLabel())+'</span> '
+    +   'don\'t receive the same gift twice.</p>'
     + '<div class="m-actions">'+buy+'</div>'
     + ship
   );
