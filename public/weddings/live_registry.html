@@ -231,6 +231,10 @@
 .cnote{margin-top:8px;font-size:11.5px;line-height:1.5;color:#4B5244;font-style:italic;
   background:#F4F1EC;border-radius:6px;padding:7px 9px;text-align:left;}
 .cnote .q{font-family:"Instrument Serif",serif;font-size:15px;margin-right:2px;}
+/* MP-419. The opening mark had a 2px right margin and no closing mark at all,
+   which read as a space after the quote and no quote at the end. The closing
+   one mirrors it. */
+.cnote .q.close{margin-right:0;margin-left:2px;}
 .cta-row.col{flex-direction:column;gap:7px;align-items:stretch;}
 .ipurch{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#8C7D6E;cursor:pointer;}
 .ipurch input{accent-color:#4B5244;cursor:pointer;}
@@ -373,7 +377,23 @@
 .fsel select{border:none;outline:none;background:transparent;font-family:"Open Sans";font-size:12.5px;
   color:var(--ink);cursor:pointer;padding:2px 4px;flex:1 1 auto;width:100%;}
 .qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
-@media(max-width:640px){ .fsel select{max-width:120px;} .qf-count{margin-left:0;width:100%;} }
+/* MP-414. On a phone the four filter pills wrapped one per row, each stretched
+   by flex:1 1 auto to the full width, with the select capped at 120px. The
+   label sat left, the select sat next to it, and the rest of the pill was empty
+   air, so the control read as floating in the middle of an over-long bar.
+
+   Two per row, each pill sized to half the line, and the select fills what is
+   left of it with its text against the right edge beside the chevron. */
+@media(max-width:640px){
+  .qf .wrap{padding:10px 14px;}
+  .qf-line{gap:8px;}
+  .fsel{flex:1 1 calc(50% - 4px);min-width:0;padding:5px 8px 5px 12px;}
+  .fsel select{max-width:none;width:100%;text-align:right;text-align-last:right;
+    padding:2px 0 2px 4px;}
+  .fsel-lbl{font-size:10.5px;}
+  /* Count last, on its own line, so it never splits a pair of pills. */
+  .qf-count{margin-left:0;width:100%;order:9;text-align:center;}
+}
 
 .card .brand{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
 .card .body{text-align:center;padding:10px 12px 0;flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;}
@@ -1070,9 +1090,23 @@ function renderCard(t){
 
   // The couple's note, wherever they've written one.
   const note = t.raw && t.raw.couple_note
-    ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)+'</div>' : '';
+    ? '<div class="cnote"><span class="q">&ldquo;</span>'+esc(t.raw.couple_note)
+      +'<span class="q close">&rdquo;</span></div>' : '';
 
-  const brandLine = (t.raw && t.raw.source) ? '<div class="brand">'+esc(t.raw.source)+'</div>' : '';
+  /* MP-415. A gift added by pasting a link is stored with source "Universal
+     URL", which is our plumbing showing through: a guest wants to know the shop.
+     Derive it from the link, which this page already does for the "Head to …"
+     button, and only fall back to the stored value when there is no link to
+     read. */
+  const brandOf = (raw) => {
+    const stored = (raw && raw.source) ? String(raw.source) : "";
+    const generic = /^(universal url|universal|custom|other|link)$/i.test(stored.trim());
+    if (stored && !generic) return stored;
+    const fromUrl = raw ? retailerName(raw.source_url) : "";
+    return fromUrl || (generic ? "" : stored);
+  };
+  const brandName = brandOf(t.raw);
+  const brandLine = brandName ? '<div class="brand">'+esc(brandName)+'</div>' : '';
   // Sits directly under the title, which is where two near-identical gifts are
   // compared.
   const variantLine = t.kind === "gift" ? variantHtml(t.raw) : "";
@@ -1618,7 +1652,17 @@ function openFund(id){
   state.activeItem=it;
   const r=state.data.registry||{};
   const stripeOk = r.has_stripe_connect && r.stripe_active;
-  const handles = r.payment_handles||{};
+  /* MP-418. Settings shows "@yourname" as the example, so couples type the
+     symbol, and this page adds its own: "@@yourname", and a Venmo URL with a
+     stray @ in it that does not resolve. Strip whatever they typed and let the
+     page own the prefix. Done here rather than only at the input, because the
+     handles already saved with a symbol have to render correctly too. */
+  const bareHandle = (v) => String(v||"").trim().replace(/^[@$]+/,"");
+  const handles = (function(){
+    const h = r.payment_handles||{};
+    return { venmo: bareHandle(h.venmo), paypal: bareHandle(h.paypal),
+             cashapp: bareHandle(h.cashapp) };
+  })();
   const anyHandle = handles.paypal||handles.venmo||handles.cashapp;
   const img = it.image_url || CASHFUND_BG;
   const amount = isFund(it)?(it.goal_amount_cents||0):(it.price_cents||0);
