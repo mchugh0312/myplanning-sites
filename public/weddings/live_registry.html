@@ -721,7 +721,23 @@ function renderBrandFooter(){
   const m = location.pathname.match(/\/([^\/]+)\/registry\/?$/);
   if (m && m[1] && m[1]!=="preview") state.slug = decodeURIComponent(m[1]);
   state.registryId = params.get("id");
+  /* MP-445. preview=1 bypasses the published, visibility AND password gates on
+     the server, and turns on the drag handles here. It was read from the URL and
+     left there, which makes the URL a durable key: open Preview as Guest on a
+     phone, and every later visit to that address is still a preview — no
+     password prompt, drag handles on show. That is the report exactly, and the
+     two symptoms are one cause.
+
+     The flag is read once and the parameter is then stripped from the address
+     bar, so a reload, a bookmark or a link sent to somebody else is an ordinary
+     guest visit. The couple gets a preview by pressing the button, which is the
+     deliberate act; nothing else grants one.
+
+     NOT the whole story: anyone who types ?preview=1 against a known registry id
+     still sees an unpublished registry. main.py says as much and calls for a
+     signed token. This closes the accidental route, not the deliberate one. */
   state.preview = params.get("preview")==="1" || params.get("preview")==="true";
+  if (state.preview) { try { cleanParam("preview"); } catch(e){} }
   const c = params.get("contribution");
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
   else if (c==="cancel"){ showBanner("No worries, your checkout was cancelled.","info"); cleanParam("contribution"); }
@@ -752,6 +768,15 @@ function refreshPreviewOnReturn(){
   _lastPreviewReload = now;
   load();
 }
+/* Coarse pointer with no hover: a phone or tablet. Read once — it does not
+   change while the page is open, short of a keyboard being attached. */
+const IS_TOUCH = (function(){
+  try {
+    return window.matchMedia("(hover: none) and (pointer: coarse)").matches
+      || ("ontouchstart" in window && !window.matchMedia("(pointer: fine)").matches);
+  } catch(e) { return false; }
+})();
+
 function cleanParam(k){ const u=new URL(location.href); u.searchParams.delete(k); history.replaceState({},"",u); }
 function showBanner(msg,kind){ const b=el("banner"); b.textContent=msg; b.className="banner "+kind+" show"; setTimeout(()=>b.classList.remove("show"),5200); }
 
@@ -1131,7 +1156,10 @@ function renderCard(t){
 
   // Preview mode: the couple can drag gifts/funds to reorder them. Experiences
   // live in a separate table that bulk-sort doesn't cover, so they stay fixed.
-  const canDrag = state.preview;   // all cards reorderable
+  /* Reorder is HTML5 drag-and-drop, which a touch screen does not fire at all:
+     the handle was an invitation to do something that cannot be done there, and
+     on the guest preview it read as clutter. Shown where dragging works. */
+  const canDrag = state.preview && !IS_TOUCH;
   const dragAttrs = canDrag
     ? ' draggable="true" data-id="'+t.id+'" data-kind="'+t.kind+'"'
       + ' ondragstart="dragStart(event)" ondragover="dragOver(event)"'
