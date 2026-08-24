@@ -370,9 +370,27 @@
 .qf{background:#F9F7F5;border-bottom:1px solid var(--border);}
 .qf .wrap{max-width:1180px;margin:0 auto;padding:12px 20px;}
 .qf-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+/* Three filters share the row equally: flex-basis 0 with grow 1 means each is
+   sized by the space available rather than by its longest option, so "All
+   categories" and "Any price" come out the same width. min-width:0 lets them
+   shrink; without it the select's intrinsic width sets a floor and the row
+   goes ragged again. */
 .fsel{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);
-  border-radius:999px;padding:5px 6px 5px 14px;flex:1 1 auto;min-width:150px;}
-.qf-line .qf-count ~ .fsel{flex:0 0 auto;min-width:0;}
+  border-radius:999px;padding:5px 6px 5px 14px;flex:1 1 0;min-width:0;}
+/* Second line: count on the left, sort pill hard right. */
+.qf-line2{display:flex;align-items:center;gap:10px;margin-top:8px;}
+.qf-line2 .qf-count{margin-left:0;}
+.qf-sortwrap{position:relative;flex:0 0 auto;margin-left:auto;}
+.qf-sort{display:flex;align-items:center;justify-content:center;width:32px;height:32px;
+  border-radius:999px;background:#fff;border:1px solid var(--border);cursor:pointer;padding:0;}
+.qf-sort:hover{opacity:.9;}
+.qf-sortmenu{position:absolute;right:0;top:38px;z-index:40;background:#fff;
+  border:1px solid var(--line);border-radius:10px;min-width:190px;overflow:hidden;
+  box-shadow:0 10px 28px rgba(0,0,0,.12);}
+.qf-sortmenu button{display:block;width:100%;text-align:left;padding:10px 14px;font-size:12.5px;
+  background:transparent;border:none;cursor:pointer;color:var(--ink);font-family:"Open Sans";}
+.qf-sortmenu button.on{color:var(--olive);font-weight:700;}
+.qf-sortmenu button:hover{background:#F9F7F5;}
 .fsel-lbl{font-size:11px;letter-spacing:.02em;color:var(--muted);white-space:nowrap;}
 .fsel select{border:none;outline:none;background:transparent;font-family:"Open Sans";font-size:12.5px;
   color:var(--ink);cursor:pointer;padding:2px 4px;flex:1 1 auto;width:100%;}
@@ -384,15 +402,17 @@
 
    Two per row, each pill sized to half the line, and the select fills what is
    left of it with its text against the right edge beside the chevron. */
+/* MP-414. On a phone the three filters stay on ONE line and stay equal: the
+   label is dropped (the selected value already says what it is, and "All
+   categories" is its own label) and the type comes down a point. Nothing wraps,
+   so nothing can end up a different size from its neighbour. */
 @media(max-width:640px){
-  .qf .wrap{padding:10px 14px;}
-  .qf-line{gap:8px;}
-  .fsel{flex:1 1 calc(50% - 4px);min-width:0;padding:5px 8px 5px 12px;}
-  .fsel select{max-width:none;width:100%;text-align:right;text-align-last:right;
-    padding:2px 0 2px 4px;}
-  .fsel-lbl{font-size:10.5px;}
-  /* Count last, on its own line, so it never splits a pair of pills. */
-  .qf-count{margin-left:0;width:100%;order:9;text-align:center;}
+  .qf .wrap{padding:10px 12px;}
+  .qf-line{gap:6px;flex-wrap:nowrap;}
+  .fsel{padding:4px 6px 4px 10px;gap:0;}
+  .fsel-lbl{display:none;}
+  .fsel select{font-size:11.5px;padding:2px 0;width:100%;}
+  .qf-line2{margin-top:7px;}
 }
 
 .card .brand{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
@@ -829,15 +849,50 @@ function quickFiltersHtml(count){
 
   const active = f.cats.size + f.price.size + (f.status!=="all"?1:0);
 
-  return '<div class="qf"><div class="wrap"><div class="qf-line">'
-    + sel("f-cat",   "Category", [...f.cats][0]  || "", catOpts,   "pickCat(this.value)")
-    + sel("f-price", "Price",    [...f.price][0] || "", priceOpts, "pickPrice(this.value)")
-    + sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
-    + (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
-    + '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
-    + sel("f-sort",  "Sort",     f.sort, sortOpts, "setSort(this.value)")
-    + '</div></div></div>';
+  /* Two lines. The three filters share the first one equally; the count and the
+     sort pill sit on the second, sort hard right.
+
+     Sort is a pill with a menu rather than a fourth <select>, matching the shop
+     and track blocks: same 32px circle, same icon, same drop panel. It was the
+     odd one out here, and on a phone a fourth control on the row is what made
+     the sizes go ragged. */
+  const sortMenu = state.sortOpen
+    ? '<div class="qf-sortmenu">'
+      + sortOpts.map(o =>
+          '<button class="'+(String(o[0])===String(f.sort)?"on":"")+'"'
+          + ' onclick="setSort(\''+esc(String(o[0]))+'\')">'+esc(o[1])+'</button>').join("")
+      + '</div>'
+    : '';
+
+  return '<div class="qf"><div class="wrap">'
+    + '<div class="qf-line">'
+    +   sel("f-cat",   "Category", [...f.cats][0]  || "", catOpts,   "pickCat(this.value)")
+    +   sel("f-price", "Price",    [...f.price][0] || "", priceOpts, "pickPrice(this.value)")
+    +   sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
+    + '</div>'
+    + '<div class="qf-line2">'
+    +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
+    +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
+    +   '<span class="qf-sortwrap">'
+    +     '<button class="qf-sort" aria-label="Sort" title="Sort" onclick="toggleSort(event)">'
+    +       '<svg width="16" height="16" viewBox="0 0 18 18" fill="none">'
+    +         '<polyline points="3,7 6,4 9,7" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
+    +         '<line x1="6" y1="5" x2="6" y2="14" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/>'
+    +         '<polyline points="9,11 12,14 15,11" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
+    +         '<line x1="12" y1="4" x2="12" y2="13" stroke="#4B5244" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/>'
+    +       '</svg>'
+    +     '</button>'
+    +     sortMenu
+    +   '</span>'
+    + '</div>'
+    + '</div></div>';
 }
+
+/* toggleSort, setSort and the close-on-outside-click listener already exist
+   further down this file — the sort pill was built here once and then replaced
+   by a <select>. The markup above uses them rather than declaring a second set:
+   two `function toggleSort` in one script is legal and silently keeps the last
+   one, which is exactly the kind of thing that bites six months later. */
 
 /* Single-select helpers (the dropdowns replace multi-select chips). */
 function pickCat(v){ state.filters.cats.clear(); if(v) state.filters.cats.add(v); render(); }
