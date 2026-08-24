@@ -379,8 +379,11 @@
   border-radius:999px;padding:5px 6px 5px 14px;flex:1 1 0;min-width:0;}
 /* Second line: count on the left, sort pill hard right. */
 .qf-line2{display:flex;align-items:center;gap:10px;margin-top:8px;}
-.qf-line2 .qf-count{margin-left:0;}
-.qf-sortwrap{position:relative;flex:0 0 auto;margin-left:auto;}
+/* Count immediately before the pill, the pair pushed right together: the
+   auto margin sits on the COUNT now, not on the sort wrapper, so the gap opens
+   to the left of both rather than between them. */
+.qf-line2 .qf-count{margin-left:auto;}
+.qf-sortwrap{position:relative;flex:0 0 auto;}
 .qf-sort{display:flex;align-items:center;justify-content:center;width:32px;height:32px;
   border-radius:999px;background:#fff;border:1px solid var(--border);cursor:pointer;padding:0;}
 .qf-sort:hover{opacity:.9;}
@@ -871,8 +874,8 @@ function quickFiltersHtml(count){
     +   sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
     + '</div>'
     + '<div class="qf-line2">'
-    +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
     +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
+    +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
     +   '<span class="qf-sortwrap">'
     +     '<button class="qf-sort" aria-label="Sort" title="Sort" onclick="toggleSort(event)">'
     +       '<svg width="16" height="16" viewBox="0 0 18 18" fill="none">'
