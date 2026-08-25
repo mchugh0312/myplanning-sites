@@ -299,9 +299,83 @@
     });
   }
 
+  /* Which events a given person may answer for.
+     `invited` is that person's Events Invited ids. An EMPTY list means "not
+     recorded", not "invited to nothing" — see renderEventBlocks below for the
+     full reasoning. This lives in one function because the primary guest and
+     every household member have to read that rule the same way; when it was
+     inline in renderEventBlocks only, household members had no rule at all. */
+  function eventsForInvitation(invited) {
+    var all = _rsvpState.events || [];
+    var list = (invited && invited.length)
+      ? all.filter(function (ev) { return invited.indexOf(String(ev.id)) !== -1; })
+      : all;
+    // If the filter leaves nothing, the ids did not line up with the events on
+    // this celebration. Fall back rather than show a person an empty form.
+    return list.length ? list : all;
+  }
+
+  /* Entree is a question you only ask someone who is coming.
+     `scope` is ONE answer block — a `.rsvp-event-block` for the primary guest or
+     a `.rsvp-household-event` for a household member. It must be the per-event
+     block and not the whole household row, or querySelector would find the first
+     event's controls for every event.
+
+     Clearing the value on the way out matters as much as hiding it: a guest who
+     picks the salmon, changes their mind about attending and submits would
+     otherwise send a stale entree for an event they just declined, and the
+     backend's "only overwrite when non-empty" rule would faithfully store it. */
+  function applyEntreeGate(scope) {
+    if (!scope || !scope.querySelector) return;
+    var entree = scope.querySelector('[data-field="entree"],[data-h-field="entree"]');
+    if (!entree) return;                     // no menu for this event; nothing to gate
+    var att = scope.querySelector('[data-field="attending"],[data-h-field="attending"]');
+    var show = !!att && (att.value || '').trim() === 'yes';
+
+    entree.style.display = show ? '' : 'none';
+    if (!show) entree.value = '';
+
+    /* Hiding a grid child leaves its column empty, so the attending select would
+       sit at half width with a gap beside it. Collapse the parent to one column
+       — but ONLY when it really is a grid: `.rsvp-field-row` is flex in Black Tie
+       Timeless and neither grid nor flex in Regal Boho and Vintage Love Story, and
+       writing grid-template-columns onto those does nothing good. The empty string
+       hands the column count back to the stylesheet rather than guessing at it. */
+    var wrap = entree.parentNode;
+    if (wrap && wrap.style) {
+      var disp = '';
+      try { disp = window.getComputedStyle(wrap).display; } catch (e) {}
+      wrap.style.gridTemplateColumns =
+        (!show && (disp === 'grid' || disp === 'inline-grid')) ? '1fr' : '';
+    }
+  }
+
+  /* One delegated listener rather than an inline onchange per control. The
+     household rows are rebuilt on every lookup and the event blocks are written
+     with innerHTML, so anything bound per-element has to be rebound each time;
+     delegation covers rows that do not exist yet. */
+  var _entreeGateBound = false;
+  function bindEntreeGate() {
+    if (_entreeGateBound) return;
+    _entreeGateBound = true;
+    document.addEventListener('change', function (e) {
+      var t = e.target;
+      if (!t || !t.getAttribute) return;
+      if (t.getAttribute('data-field') !== 'attending' &&
+          t.getAttribute('data-h-field') !== 'attending') return;
+      var scope = t.closest
+        ? t.closest('.rsvp-event-block,.rsvp-household-event')
+        : null;
+      applyEntreeGate(scope);
+      checkShowSubmit();
+    });
+  }
+
   function buildRsvpBlocks(events) {
     var container = document.getElementById('rsvpBlocks');
     if (!container) return;
+
+    bindEntreeGate();
 
     _rsvpState.events = (events || []).slice();
     _rsvpState.guestId = '';
@@ -365,14 +439,7 @@
     // older guests, imported rows, anyone added before events existed. Showing
     // them everything is the safe reading — a guest who cannot answer at all is
     // a worse failure than one offered an event too many.
-    var invited = _rsvpState.invitedEventIds;
-    var events = (invited && invited.length)
-      ? _rsvpState.events.filter(function (ev) { return invited.indexOf(String(ev.id)) !== -1; })
-      : _rsvpState.events;
-
-    // If the filter leaves nothing, the ids did not line up with the events on
-    // this celebration. Fall back rather than show a guest an empty form.
-    if (!events.length) events = _rsvpState.events;
+    var events = eventsForInvitation(_rsvpState.invitedEventIds);
 
     list.innerHTML = events.map(function (ev) {
       return '' +
@@ -398,6 +465,12 @@
           '</div>' +
         '</div>';
     }).join('');
+
+    /* Nobody has answered yet, so every entree starts hidden. Running the gate
+       here rather than rendering the select with display:none also collapses the
+       grid column on first paint, so the attending select is full width from the
+       start instead of snapping wider on the first change event. */
+    list.querySelectorAll('.rsvp-event-block').forEach(applyEntreeGate);
   }
 
   function onNameInput(input) {
@@ -707,27 +780,50 @@
       row.className = 'rsvp-household-row';
       row.dataset.guestId = m.guest_id;
       row.dataset.memberIdx = String(idx);
+      /* Each member answers for their OWN invitation, not the primary's. A
+         child invited to the ceremony but not the adults-only dinner must not
+         be offered the dinner, and before the lookup started returning
+         `invited_event_ids` per member the form had no way to know that. */
+      var memberEvents = eventsForInvitation(
+        Array.isArray(m.invited_event_ids) ? m.invited_event_ids.map(String) : []
+      );
+
       row.innerHTML =
         '<div class="rsvp-household-name">' + esc(m.name || '(household member)') +
           (m.is_primary ? '<span class="rsvp-household-name-primary-tag">primary contact</span>' : '') +
         '</div>' +
-        '<div class="rsvp-household-controls">' +
-          '<select class="rsvp-select" data-h-field="attending">' +
-            '<option value="">Attending?</option>' +
-            '<option value="yes">Yes</option>' +
-            '<option value="no">Cannot make it</option>' +
-            '<option value="maybe">Not sure</option>' +
-          '</select>' +
-          /* Wedding-wide list here, not per-event: a household row is one
-             answer for the whole invitation, not per event. Omitted when the
-             couple offers no entrees at all. */
-          (entreeOptionsFor(null).length
-            ? '<select class="rsvp-select" data-h-field="entree">' +
-                '<option value="">Entree (optional)</option>' + entreeOptionsHtml() +
-              '</select>'
-            : '') +
-        '</div>';
+        memberEvents.map(function (ev) {
+          /* Per-event menu, with the wedding-wide list as the fallback inside
+             entreeOptionsFor. This row used to call entreeOptionsFor(null),
+             which reads ONLY the wedding-wide list — so a couple who set menus
+             per event and no default menu showed household members no entree
+             control at all while the primary guest saw one. */
+          var hasEntree = entreeOptionsFor(ev.id).length > 0;
+          return '' +
+            '<div class="rsvp-household-event" data-event-id="' + esc(ev.id) + '">' +
+              /* Styled inline rather than in ten stylesheets, the same way the
+                 MP-347 spacing was handled. The class is here so a template can
+                 take it over later without a runtime change. */
+              '<div class="rsvp-household-event-label" ' +
+                'style="font-size:0.72rem;letter-spacing:0.04em;text-transform:uppercase;' +
+                'opacity:0.75;margin-bottom:0.3rem">' + esc(titleCase(ev.label)) + '</div>' +
+              '<div class="rsvp-household-controls">' +
+                '<select class="rsvp-select" data-h-field="attending">' +
+                  '<option value="">Attending?</option>' +
+                  '<option value="yes">Yes</option>' +
+                  '<option value="no">Cannot make it</option>' +
+                  '<option value="maybe">Not sure</option>' +
+                '</select>' +
+                (hasEntree
+                  ? '<select class="rsvp-select" data-h-field="entree">' +
+                      '<option value="">Your entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                    '</select>'
+                  : '') +
+              '</div>' +
+            '</div>';
+        }).join('');
       list.appendChild(row);
+      row.querySelectorAll('.rsvp-household-event').forEach(applyEntreeGate);
     });
     section.classList.add('visible');
   }
@@ -838,19 +934,41 @@
       hList.querySelectorAll('.rsvp-household-row').forEach(function (hr) {
         var gid = hr.dataset.guestId || '';
         if (!gid) return;
-        var att = hr.querySelector('[data-h-field="attending"]');
-        var attending = att ? (att.value || '').trim() : '';
-        if (!attending) return; // unanswered rows leave existing RSVPs untouched
+
+        /* One answer per event this member was invited to, mirroring the
+           primary guest's `events` array. Unanswered events are dropped, not
+           sent blank: the backend merges into fkrGs and an event that was never
+           answered must leave whatever is already stored alone. */
+        var hEvents = [];
+        hr.querySelectorAll('.rsvp-household-event').forEach(function (blk) {
+          var a = blk.querySelector('[data-h-field="attending"]');
+          var v = a ? (a.value || '').trim() : '';
+          if (!v) return;
+          var e = blk.querySelector('[data-h-field="entree"]');
+          var lab = blk.querySelector('.rsvp-household-event-label');
+          hEvents.push({
+            event_id: blk.getAttribute('data-event-id') || '',
+            event_name: lab ? lab.textContent : '',
+            attending: v,
+            entree_choice: e ? (e.value || '') : ''
+          });
+        });
+        if (!hEvents.length) return; // member left entirely blank — untouched
+
         // No longer rendered: the guest is not asked for a meal preference, so
         // the household is not either. Any value already on the record stays as
         // the planner set it rather than being blanked by an RSVP.
         var meal = hr.querySelector('[data-h-field="meal"]');
-        var entree = hr.querySelector('[data-h-field="entree"]');
+        /* The flat attending/entree fields are the first answer, kept only so a
+           backend that has not been redeployed yet still records something sane.
+           Same reasoning as the primary payload below — the two are separate
+           deploys and the guest is the one who pays for a mismatch. */
         householdRsvps.push({
           guest_id: gid,
-          attending: attending,
+          attending: hEvents[0].attending,
           meal_preference: meal ? (meal.value || '') : '',
-          entree_choice: entree ? (entree.value || '') : ''
+          entree_choice: hEvents[0].entree_choice,
+          events: hEvents
         });
       });
     }
