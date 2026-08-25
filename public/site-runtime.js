@@ -3260,12 +3260,41 @@
         _previewSampleOnly = !!isPlaceholder;
         mpMark(isPlaceholder ? 'fallback' : 'payload');
         mpMark('hydrated');
-        try { hydrate(payload); }
-        finally {
-          // Safety net for a hydrate that threw before reaching its own reveal.
-          // reveal() sends the ack, and repeat calls are harmless.
+        /* MP-310 (preview/thumbnails). This was:
+             try { hydrate(payload); } finally { reveal(); }
+           and that finally is the preview's copy of the window._reveal bug that
+           was just fixed for live. hydrate() ENDS with revealWhenHeroReady(),
+           which returns immediately having only registered load handlers — so
+           the synchronous reveal() straight after it removed body.hydrating
+           before the couple's photograph had arrived. That is the flash.
+
+           Worth being explicit, because I had this wrong at first: the preview
+           is NOT uncovered. body.hydrating {visibility:hidden} lives in every
+           template's head <style> and applies here exactly as on live; only the
+           extra #mp-veil element is live-only. Nothing needed adding. The cover
+           was being lifted too early.
+
+           reveal() now runs only on the paths that would otherwise leave a
+           permanently blank frame — a hydrate that threw, or a payload hydrate()
+           refuses (`if (!d) return`, which reveals nothing). A hydrate that
+           succeeded already reveals through revealWhenHeroReady(), which caps
+           its own wait at 2.5s so a slow or broken photograph cannot hang it.
+
+           The gate screens (password, Coming Soon, not found) reveal themselves
+           via screenShell -> liftVeil + body.className = '', so their early
+           returns out of hydrate() are already covered. */
+        try {
+          if (!payload) reveal();
+          else hydrate(payload);
+        } catch (err) {
+          try { console.warn('[site-runtime] preview hydrate failed:', err); } catch (e) {}
           reveal();
         }
+        /* Last-resort backstop. revealWhenHeroReady always settles within 2.5s,
+           and the template's own timer only removes #mp-veil — it does not clear
+           body.hydrating — so this is the only thing standing between an
+           unforeseen stall and a frame the editor never gets to show. */
+        setTimeout(reveal, 6000);
       };
       window.addEventListener('message', function (e) {
         if (!e.data) return;
