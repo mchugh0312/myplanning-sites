@@ -815,8 +815,12 @@
                   '<option value="maybe">Not sure</option>' +
                 '</select>' +
                 (hasEntree
+                  /* "Your entree choice" is right on the primary block, where
+                     the person reading it is the person choosing. On a
+                     household row the dish belongs to whoever is named above
+                     it, so the possessive is simply wrong there. */
                   ? '<select class="rsvp-select" data-h-field="entree">' +
-                      '<option value="">Your entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                      '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
                     '</select>'
                   : '') +
               '</div>' +

@@ -654,13 +654,18 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   color:var(--olive);background:rgba(141,136,99,0.12);
   padding:1px 6px;border-radius:999px;letter-spacing:0.02em;
 }
+/* Household selects deliberately carry NO font-size of their own.
+   They used to be a size smaller than the main RSVP controls, from when a
+   household row was one compact line per person. Household members now
+   answer per event with the same controls the primary guest gets, so a
+   smaller face just read as a rendering fault. Inherit `.rsvp-select`. */
 .rsvp-household-controls{
   display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
 }
 .rsvp-household-controls.three-up{
   grid-template-columns:1fr 1fr 1fr;
 }
-.rsvp-household-controls .rsvp-select{font-size:0.78rem;}
+
 @media (max-width:560px){
   .rsvp-household-controls,
   .rsvp-household-controls.three-up{grid-template-columns:1fr;}
