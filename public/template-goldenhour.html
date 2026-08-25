@@ -274,6 +274,9 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   border-top:1px solid rgba(50,52,75,0.15);
   margin-top:1rem;padding-top:1rem;
   display:none;
+  /* Close the group as well as open it: without this the
+     last member card sat flush against the field below. */
+  margin-bottom:1.1rem;padding-bottom:0.25rem;
 }
 .rsvp-household.visible{display:block;}
 .rsvp-household-label{

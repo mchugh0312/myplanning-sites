@@ -624,6 +624,9 @@ body.hydrating{visibility:hidden;}
   border-top:1px solid rgba(255,255,255,0.2);
   margin-top:1.2rem;padding-top:1.2rem;
   display:none;
+  /* Close the group as well as open it: without this the
+     last member card sat flush against the field below. */
+  margin-bottom:1.1rem;padding-bottom:0.25rem;
 }
 .rsvp-household.visible{display:block;}
 .rsvp-household-label{
