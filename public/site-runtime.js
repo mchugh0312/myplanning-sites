@@ -931,7 +931,25 @@
                   : '') +
               '</div>' +
             '</div>';
-        }).join('');
+        }).join('') +
+        /* Dietary needs belong to a PERSON, not to whoever filled the form in.
+           There used to be one dietary box for the whole submission, so a guest
+           answering for their household typed "ash is vegetarian" into a field
+           that saved onto their own row - and the caterer read it against the
+           wrong name, or against five names if it had been copied across.
+           `dietary_notes` is already accepted per household row by the backend
+           (build_guest_fields takes each row's own notes), so this only needed
+           somewhere to type it.
+
+           Shown for every member, including one invited to nothing: allergies
+           are worth recording whether or not that person is coming to anything
+           yet. Placeholder names the person so it is unambiguous whose box it
+           is when four are stacked. */
+        '<div class="rsvp-household-dietary" style="margin-top:0.45rem">' +
+          '<textarea class="rsvp-textarea" rows="1" data-h-field="dietary" ' +
+            'placeholder="' + esc('Allergies or dietary needs for ' + (m.name || 'this guest') + '?') + '" ' +
+            'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>' +
+        '</div>';
       list.appendChild(row);
       row.querySelectorAll('.rsvp-household-event').forEach(applyEntreeGate);
     });
@@ -1063,6 +1081,16 @@
             entree_choice: e ? (e.value || '') : ''
           });
         });
+        var hDietaryEl = hr.querySelector('[data-h-field="dietary"]');
+        var hDietary = hDietaryEl ? (hDietaryEl.value || '').trim() : '';
+
+        /* Still requires an event answer before this member is sent at all.
+           A dietary note on its own is NOT enough, and deliberately so: the
+           backend derives a member's RSVP status from `h.attending or
+           data.attending`, so a row carrying only a note would inherit the
+           SUBMITTER's answer and record a reply that member never gave. That
+           inheritance has to go before a note-only row can be accepted; until
+           then, dropping the note is the lesser harm of the two. */
         if (!hEvents.length) return; // member left entirely blank — untouched
 
         // No longer rendered: the guest is not asked for a meal preference, so
@@ -1078,6 +1106,7 @@
           attending: hEvents[0].attending,
           meal_preference: meal ? (meal.value || '') : '',
           entree_choice: hEvents[0].entree_choice,
+          dietary_notes: hDietary,
           events: hEvents
         });
       });
