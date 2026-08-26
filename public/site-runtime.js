@@ -456,6 +456,33 @@
     }
   }
 
+  /* Dietary needs are only worth asking of someone who is coming.
+     Same principle as the entree gate one level up, but scoped to the whole
+     household ROW rather than one event block: a person has ONE set of
+     allergies, not one per event, so the box appears once they are attending
+     ANYTHING and disappears when they are attending nothing.
+
+     That also covers the case that prompted this - a member invited to no
+     events has no attending control at all, so there is never a "yes", and they
+     are never asked what they cannot eat at a wedding they are not going to. */
+  function applyDietaryGate(row) {
+    if (!row || !row.querySelector) return;
+    var box = row.querySelector('.rsvp-household-dietary');
+    if (!box) return;
+    var coming = false;
+    row.querySelectorAll('[data-h-field="attending"]').forEach(function (a) {
+      if ((a.value || '').trim() === 'yes') coming = true;
+    });
+    box.style.display = coming ? '' : 'none';
+    if (!coming) {
+      var t = box.querySelector('[data-h-field="dietary"]');
+      /* Clear on the way out, for the same reason the entree gate does: a note
+         typed before changing the answer to "no" would otherwise still be sent
+         and saved against someone who is not attending. */
+      if (t) t.value = '';
+    }
+  }
+
   /* One delegated listener rather than an inline onchange per control. The
      household rows are rebuilt on every lookup and the event blocks are written
      with innerHTML, so anything bound per-element has to be rebound each time;
@@ -473,6 +500,7 @@
         ? t.closest('.rsvp-event-block,.rsvp-household-event')
         : null;
       applyEntreeGate(scope);
+      applyDietaryGate(t.closest ? t.closest('.rsvp-household-row') : null);
       checkShowSubmit();
     });
   }
@@ -951,6 +979,7 @@
             'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>' +
         '</div>';
       list.appendChild(row);
+      applyDietaryGate(row);
       row.querySelectorAll('.rsvp-household-event').forEach(applyEntreeGate);
     });
     section.classList.add('visible');
@@ -1082,7 +1111,13 @@
           });
         });
         var hDietaryEl = hr.querySelector('[data-h-field="dietary"]');
-        var hDietary = hDietaryEl ? (hDietaryEl.value || '').trim() : '';
+        /* Derived from the answers, not just read off the box. The gate hides
+           and clears the field when someone stops attending, but a value set
+           without firing a change event (or a race between the two) would
+           otherwise still be submitted for a person who is not coming. Decide
+           it here from the same answers the backend will see. */
+        var hComing = hEvents.some(function (e) { return e.attending === 'yes'; });
+        var hDietary = (hComing && hDietaryEl) ? (hDietaryEl.value || '').trim() : '';
 
         /* Still requires an event answer before this member is sent at all.
            A dietary note on its own is NOT enough, and deliberately so: the
