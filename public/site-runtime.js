@@ -892,7 +892,7 @@
       var entreeSel = document.createElement('select');
       entreeSel.className = 'rsvp-select';
       entreeSel.dataset.role = 'plus-one-entree';
-      entreeSel.innerHTML = '<option value="">Entree (optional)</option>' + entreeOptionsHtml();
+      entreeSel.innerHTML = '<option value="">Entr\u00e9e (optional)</option>' + entreeOptionsHtml();
       controls.appendChild(entreeSel);
     }
     row.appendChild(controls);
