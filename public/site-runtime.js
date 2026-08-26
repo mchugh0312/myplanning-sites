@@ -1090,8 +1090,25 @@
 
     var name = (rsvpEl('rsvpNameInput') || {}).value || '';
     var email = ((rsvpEl('rsvpEmail') || {}).value || '').trim();
-    if (!_rsvpState.guestId || !name.trim() || !email || email.indexOf('@') < 1) {
-      rsvpNotice('Please enter your name as it appears on the invitation, and your email address.');
+    /* One message used to cover four different failures - no name, no match on
+       the list, no email, malformed email - so a guest who had already been
+       found by name and simply left the email blank was told to enter their
+       name as it appears on the invitation. They would go back and retype a
+       name that was never the problem. Say which one it is. */
+    if (!name.trim()) {
+      rsvpNotice('Please enter your name as it appears on the invitation.');
+      return;
+    }
+    if (!_rsvpState.guestId) {
+      rsvpNotice('Please pick your name from the list so we know which invitation is yours.');
+      return;
+    }
+    if (!email) {
+      rsvpNotice('Please add your email address so the couple can reach you.');
+      return;
+    }
+    if (email.indexOf('@') < 1 || email.indexOf('.', email.indexOf('@')) < 0) {
+      rsvpNotice('That email address does not look quite right - please check it.');
       return;
     }
 
