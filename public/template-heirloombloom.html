@@ -576,16 +576,17 @@ a.registry-title:hover{border-bottom-color:currentColor;}
    They used to be a size smaller than the main RSVP controls, from when a
    household row was one compact line per person. Household members now
    answer per event with the same controls the primary guest gets, so a
-   smaller face just read as a rendering fault. Inherit `.rsvp-select`. */
+   smaller face just read as a rendering fault. Inherit `.rsvp-select`.
+   The same applies to padding: the override also cut the left inset (as far
+   as 0.2rem against a 1.4rem base in Heirloom Bloom), which put placeholder
+   text hard against the border. Inherit that too. */
 .rsvp-household-controls{
   display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
 }
 .rsvp-household-controls.three-up{
   grid-template-columns:1fr 1fr 1fr;
 }
-.rsvp-household-controls .rsvp-select{
-  padding:0.45rem 0.2rem;
-}
+
 @media (max-width:560px){
   .rsvp-household-controls,
   .rsvp-household-controls.three-up{grid-template-columns:1fr;}

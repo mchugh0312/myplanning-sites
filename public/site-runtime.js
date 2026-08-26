@@ -305,13 +305,30 @@
      full reasoning. This lives in one function because the primary guest and
      every household member have to read that rule the same way; when it was
      inline in renderEventBlocks only, household members had no rule at all. */
+  /* `invited` is the person's own invitation list. An EMPTY list now means
+     exactly that - invited to nothing - and they are asked nothing.
+
+     This used to fall back to every event on the celebration, twice over: once
+     when the list was empty and again when the filter matched nothing. That
+     turned "we have no record of inviting this person" into "invite them to
+     everything", so household members nobody had invited were shown a full set
+     of questions and could record answers for events they were not going to.
+     The guest list then had RSVP rows with no matching invitation behind them,
+     which is the mess this reverts.
+
+     The second fallback goes too. Ids that do not line up with this
+     celebration's events are a data problem, and answering on that person's
+     behalf for all of them is not a safer failure than asking nothing. */
   function eventsForInvitation(invited) {
     var all = _rsvpState.events || [];
-    var list = (invited && invited.length)
-      ? all.filter(function (ev) { return invited.indexOf(String(ev.id)) !== -1; })
-      : all;
-    // If the filter leaves nothing, the ids did not line up with the events on
-    // this celebration. Fall back rather than show a person an empty form.
+    // No invitation list at all: invited to nothing, asked nothing.
+    if (!invited || !invited.length) return [];
+    var list = all.filter(function (ev) { return invited.indexOf(String(ev.id)) !== -1; });
+    /* A NON-empty list that resolves to nothing is a different situation: this
+       person was invited to something, and the ids just do not line up with the
+       events this page knows about. Showing them everything is wrong, but so is
+       showing them nothing - they would silently lose the ability to reply.
+       Keep the old behaviour for that case only. */
     return list.length ? list : all;
   }
 
@@ -328,12 +345,21 @@
   function applyEntreeGate(scope) {
     if (!scope || !scope.querySelector) return;
     var entree = scope.querySelector('[data-field="entree"],[data-h-field="entree"]');
-    if (!entree) return;                     // no menu for this event; nothing to gate
     var att = scope.querySelector('[data-field="attending"],[data-h-field="attending"]');
-    var show = !!att && (att.value || '').trim() === 'yes';
+    if (!att) return;
+    /* An event with NO menu used to return here before the column collapse
+       below ever ran, so its attending select kept the stylesheet's two-column
+       track and sat at half width - next to an event that DID have a menu and
+       had been collapsed to full width, which looked like a rendering fault.
+       Width should say something about the answer, not about whether the
+       couple happened to set a menu. So: full width whenever there is no
+       entree control to show, and half only while one is actually visible. */
+    var show = !!entree && (att.value || '').trim() === 'yes';
 
-    entree.style.display = show ? '' : 'none';
-    if (!show) entree.value = '';
+    if (entree) {
+      entree.style.display = show ? '' : 'none';
+      if (!show) entree.value = '';
+    }
 
     /* Hiding a grid child leaves its column empty, so the attending select would
        sit at half width with a gap beside it. Collapse the parent to one column
@@ -341,7 +367,7 @@
        Timeless and neither grid nor flex in Regal Boho and Vintage Love Story, and
        writing grid-template-columns onto those does nothing good. The empty string
        hands the column count back to the stylesheet rather than guessing at it. */
-    var wrap = entree.parentNode;
+    var wrap = (entree && entree.parentNode) || att.parentNode;
     if (wrap && wrap.style) {
       var disp = '';
       try { disp = window.getComputedStyle(wrap).display; } catch (e) {}
@@ -1076,7 +1102,11 @@
       if (successEl) {
         if (total > 1) {
           var msgEl = successEl.querySelector('.rsvp-success-msg');
-          var text = "Thank you! We've recorded RSVPs for " + total + ' people.';
+          /* Not "RSVPs". Every template sets this line in the same display
+             face as the "Rsvp Please" heading, and four capitals in a row is
+             close to unreadable in a script face - which is exactly why the
+             heading is not capitalised either. Match the heading. */
+          var text = "Thank you! We've recorded Rsvps for " + total + ' people.';
           if (msgEl) msgEl.textContent = text;
           else successEl.textContent = text;
         }

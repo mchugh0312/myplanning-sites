@@ -737,7 +737,10 @@ body.hydrating{visibility:hidden;}
    They used to be a size smaller than the main RSVP controls, from when a
    household row was one compact line per person. Household members now
    answer per event with the same controls the primary guest gets, so a
-   smaller face just read as a rendering fault. Inherit `.rsvp-select`. */
+   smaller face just read as a rendering fault. Inherit `.rsvp-select`.
+   The same applies to padding: the override also cut the left inset (as far
+   as 0.2rem against a 1.4rem base in Heirloom Bloom), which put placeholder
+   text hard against the border. Inherit that too. */
 .rsvp-household-controls{
   display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;
 }
@@ -745,7 +748,6 @@ body.hydrating{visibility:hidden;}
   grid-template-columns:1fr 1fr 1fr;
 }
 .rsvp-household-controls .rsvp-select{
-  padding:0.55rem 0.85rem;
   border:none;
 }
 @media (max-width:560px){
