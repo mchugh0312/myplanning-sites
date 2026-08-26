@@ -483,6 +483,28 @@
     }
   }
 
+  /* The submitter's own dietary box, under the same rule as the household
+     ones: only asked of someone who is coming.
+
+     The household boxes were gated first and this was left behind, so a guest
+     whose party members were invited but who was not invited themselves got no
+     attending question and a dietary question anyway - the one stale leftover
+     of the old "one dietary box for the whole submission" design. */
+  function applyPrimaryDietaryGate() {
+    var box = document.querySelector('.rsvp-dietary-row');
+    if (!box) return;
+    var coming = false;
+    document.querySelectorAll(
+      '#rsvpEventList .rsvp-event-block [data-field="attending"]').forEach(function (a) {
+      if ((a.value || '').trim() === 'yes') coming = true;
+    });
+    box.style.display = coming ? '' : 'none';
+    if (!coming) {
+      var t = document.getElementById('rsvpDietary');
+      if (t) t.value = '';
+    }
+  }
+
   /* One delegated listener rather than an inline onchange per control. The
      household rows are rebuilt on every lookup and the event blocks are written
      with innerHTML, so anything bound per-element has to be rebound each time;
@@ -501,6 +523,7 @@
         : null;
       applyEntreeGate(scope);
       applyDietaryGate(t.closest ? t.closest('.rsvp-household-row') : null);
+      applyPrimaryDietaryGate();
       checkShowSubmit();
     });
   }
@@ -547,7 +570,7 @@
             'placeholder="Email address (required) *" data-field="email" required ' +
             'oninput="checkShowSubmit()">' +
         '</div>' +
-        '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
+        '<div class="rsvp-field-row full rsvp-dietary-row" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" id="rsvpDietary" ' +
             'placeholder="Allergies or dietary requirements?"></textarea>' +
         '</div>' +
@@ -605,6 +628,11 @@
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
     list.querySelectorAll('.rsvp-event-block').forEach(applyEntreeGate);
+    /* Same reasoning for the dietary box: nobody has answered yet, so it starts
+       hidden rather than appearing and then vanishing on the first change. It
+       also covers the case with no blocks at all - a guest invited to nothing
+       never sees it. */
+    applyPrimaryDietaryGate();
   }
 
   function onNameInput(input) {
@@ -1177,6 +1205,14 @@
         entree_choice: entreeEl ? (entreeEl.value || '') : ''
       });
     });
+
+    /* Derived from the answers, not just read off the box - the same reasoning
+       as the household equivalent. The gate hides and clears the field, but a
+       value set without firing a change event would otherwise still be sent,
+       putting a dietary requirement on the row of someone who is not coming.
+       Decided here, after `events` is built, because that is where the answers
+       are. */
+    if (!events.some(function (e) { return e.attending === 'yes'; })) dietary = '';
 
     /* The first answer is mirrored onto the top-level fields so a backend that
        has not been redeployed yet still records something sane rather than
