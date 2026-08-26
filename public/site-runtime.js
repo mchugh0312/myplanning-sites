@@ -342,6 +342,86 @@
      picks the salmon, changes their mind about attending and submits would
      otherwise send a stale entree for an event they just declined, and the
      backend's "only overwrite when non-empty" rule would faithfully store it. */
+  /* A themed replacement for alert().
+     A guest filling this in should feel they are on the couple's website, and
+     a Chrome dialog saying "weddings.myplanning.ai says" breaks that harder
+     than any styling choice on the page. It also reads as an error from the
+     product rather than a note from the couple.
+
+     Built from the template's own tokens: it borrows the computed colours and
+     fonts off `.rsvp-select` and the RSVP section, so every template themes it
+     without ten stylesheet edits and without this file knowing any palette.
+     Falls back to alert() if there is nothing to borrow from - a guest must
+     never be blocked by a dialog that failed to render. */
+  function rsvpNotice(message) {
+    var host = document.getElementById('rsvp') ||
+               document.querySelector('.rsvp-section,#rsvpBlocks');
+    if (!host || !document.body) { alert(message); return; }
+
+    var probe = document.querySelector('.rsvp-select,.rsvp-text-input') || host;
+    var cs;
+    try { cs = window.getComputedStyle(probe); } catch (e) { alert(message); return; }
+    var hostCs;
+    try { hostCs = window.getComputedStyle(host); } catch (e) { hostCs = cs; }
+
+    var old = document.querySelector('.rsvp-notice-overlay');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+
+    var ov = document.createElement('div');
+    ov.className = 'rsvp-notice-overlay';
+    ov.setAttribute('role', 'alertdialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;' +
+      'align-items:center;justify-content:center;padding:1.25rem;' +
+      'background:rgba(0,0,0,0.45)';
+
+    var box = document.createElement('div');
+    box.className = 'rsvp-notice';
+    box.style.cssText = 'max-width:26rem;width:100%;padding:1.5rem 1.5rem 1.25rem;' +
+      'text-align:center;border-radius:' + (cs.borderRadius || '12px') + ';' +
+      'background:' + (cs.backgroundColor || '#fff') + ';' +
+      'color:' + (cs.color || '#222') + ';' +
+      'font-family:' + (cs.fontFamily || 'inherit') + ';' +
+      'font-size:' + (cs.fontSize || '1rem') + ';' +
+      'box-shadow:0 12px 40px rgba(0,0,0,0.3)';
+
+    var p = document.createElement('p');
+    p.className = 'rsvp-notice-msg';
+    p.textContent = message;
+    p.style.cssText = 'margin:0 0 1.15rem;line-height:1.5';
+
+    var ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'rsvp-notice-ok';
+    ok.textContent = 'OK';
+    /* The submit button is the closest thing to a themed CTA on the page, so
+       borrow its colours rather than inventing a blue one. */
+    var sub = document.getElementById('rsvpSubmit') ||
+              document.querySelector('.rsvp-submit,button[type="submit"]');
+    var sc = null;
+    try { sc = sub ? window.getComputedStyle(sub) : null; } catch (e) {}
+    ok.style.cssText = 'cursor:pointer;border:none;padding:0.6rem 2rem;' +
+      'border-radius:' + ((sc && sc.borderRadius) || '999px') + ';' +
+      'background:' + ((sc && sc.backgroundColor) || (hostCs && hostCs.color) || '#333') + ';' +
+      'color:' + ((sc && sc.color) || (hostCs && hostCs.backgroundColor) || '#fff') + ';' +
+      'font-family:' + ((sc && sc.fontFamily) || cs.fontFamily || 'inherit') + ';' +
+      'font-size:' + ((sc && sc.fontSize) || cs.fontSize || '1rem') + ';' +
+      'letter-spacing:' + ((sc && sc.letterSpacing) || 'normal');
+
+    function close() {
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape' || e.key === 'Enter') close(); }
+    ok.addEventListener('click', close);
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', onKey);
+
+    box.appendChild(p); box.appendChild(ok); ov.appendChild(box);
+    document.body.appendChild(ov);
+    try { ok.focus(); } catch (e) {}
+  }
+
   function applyEntreeGate(scope) {
     if (!scope || !scope.querySelector) return;
     var entree = scope.querySelector('[data-field="entree"],[data-h-field="entree"]');
@@ -929,14 +1009,14 @@
 
   /* ── Submit ───────────────────────────────────────────────────────────── */
   function submitRSVP() {
-    if (_isPreview) { alert('RSVP is disabled in preview mode.'); return; }
+    if (_isPreview) { rsvpNotice('RSVP is disabled in preview mode.'); return; }
     var btn = document.getElementById('rsvpSubmitBtn');
     if (!btn) return;
 
     var name = (rsvpEl('rsvpNameInput') || {}).value || '';
     var email = ((rsvpEl('rsvpEmail') || {}).value || '').trim();
     if (!_rsvpState.guestId || !name.trim() || !email || email.indexOf('@') < 1) {
-      alert('Please enter your name as it appears on the invitation, and your email address.');
+      rsvpNotice('Please enter your name as it appears on the invitation, and your email address.');
       return;
     }
 
@@ -1039,25 +1119,38 @@
        rejecting the request outright. Deploy order is backend first, so this
        should never be exercised — it is here because the two are separate
        deploys and the guest is the one who pays for a mismatch. */
-    var payloads = events.length ? [{
+    /* `events.length === 0` is no longer a reason to refuse the submission.
+       Since an empty invitation list stopped meaning "invited to everything",
+       a guest the couple has not yet invited to anything sees no event
+       questions at all - and the old "at least one event" check then made the
+       form impossible to complete. They could not answer, and could not send.
+       They still have things worth sending: their email, dietary requirements
+       and a message for the couple. So the payload is built either way and the
+       check below only fires when there ARE questions and none were answered. */
+    var payloads = [{
       slug: slug,
       guest_name: name.trim(),
       guest_id: _rsvpState.guestId,
-      attending: events[0].attending,
+      attending: events.length ? events[0].attending : '',
       meal_preference: '',
-      entree_choice: events[0].entree_choice,
+      entree_choice: events.length ? events[0].entree_choice : '',
       email: email,
       dietary_notes: dietary,
       message: message,
-      event_name: events[0].event_name,
+      event_name: events.length ? events[0].event_name : '',
       events: events,
       plus_one: false,
       extra_guests: [],
       household_rsvps: []
-    }] : [];
+    }];
 
-    if (!payloads.length) {
-      alert('Please let us know whether you can attend at least one event.');
+    /* Only nag when there was something to answer. `askedCount` counts the
+       questions actually on the page for this guest, so someone with no
+       invitation is never told to answer questions they were never shown. */
+    var askedCount = document.querySelectorAll(
+      '#rsvpEventList .rsvp-event-block [data-field="attending"]').length;
+    if (askedCount > 0 && !events.length && !householdRsvps.length) {
+      rsvpNotice('Please let us know whether you can attend at least one event.');
       btn.disabled = false;
       btn.textContent = 'Send My RSVP';
       return;
@@ -1117,7 +1210,7 @@
       var answers = rsvpEl('rsvpAnswers');
       if (answers) answers.style.display = 'none';
     }).catch(function (err) {
-      alert('Sorry, ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
+      rsvpNotice('Sorry, ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
       btn.disabled = false;
       btn.textContent = 'Send My RSVP';
     });
