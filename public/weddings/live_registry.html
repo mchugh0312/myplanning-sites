@@ -1419,6 +1419,20 @@ function brandOf(raw){
   return fromUrl || (generic ? "" : stored);
 }
 
+/* MP-402. A cash fund carries both `description` and `couple_note`, and every
+   surface that creates one writes the SAME text into both: the Cash Funds block
+   sends its note as each, and the picks page does the same. So the modal printed
+   the sentence, then printed it again inside quotation marks.
+
+   Fixed here rather than at the writers: whatever those blocks do, and whatever
+   is already stored, a guest should never be shown the same sentence twice.
+   Compared on the trimmed text, since one copy picked up a trailing space. */
+function distinctNote(desc, note){
+  const d = String(desc||"").trim(), n = String(note||"").trim();
+  if (!n) return "";
+  return n === d ? "" : n;
+}
+
 function openHow(id){
   const t = id ? state.things.find(x=>x.id===id) : null;
   state.howItem = t ? t.id : null;
@@ -1597,7 +1611,8 @@ function openDetail(id){
     +   variantHtml(it, "m-variant")
     +   '<div class="m-price">'+fmt(it.price_cents||0)+'</div>'
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
-    +   (it.couple_note?'<div class="m-note">“'+esc(it.couple_note)+'”</div>':"")
+    +   (distinctNote(it.description, it.couple_note)
+          ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
     +   (done
           ? '<div class="m-done">This one has already been purchased. Thank you.</div>'
           : '<div class="m-actions">'+buy+'<button class="cta '+(buyUrl?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>')
@@ -1816,7 +1831,8 @@ function openFund(id){
     + '<div class="m-pad"><div class="m-sub">Cash fund</div><h3 class="serif">'+esc(it.title)+'</h3>'
     +   '<div class="m-price">'+fmt(amount)+' <span style="font-size:13px;color:var(--muted);font-family:\'Open Sans\'">goal</span></div>'
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
-    +   (it.couple_note?'<div class="m-note">“'+esc(it.couple_note)+'”</div>':"")
+    +   (distinctNote(it.description, it.couple_note)
+          ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
     +   body
     + '</div>';
   openModal("fund");
