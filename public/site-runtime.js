@@ -592,7 +592,20 @@
 
     bindEntreeGate();
 
-    _rsvpState.events = (events || []).slice();
+    /* Chronological. The list arrives in whatever order its source produced,
+       so a guest could be asked about the reception before the ceremony.
+       sort_order is the couple's own Event Sequence; date is the sensible
+       fallback, and name only breaks a tie. */
+    _rsvpState.events = (events || []).slice().sort(function (a, b) {
+      var sa = (a && a.sort_order != null) ? Number(a.sort_order) : null;
+      var sb = (b && b.sort_order != null) ? Number(b.sort_order) : null;
+      if (sa != null && sb != null && sa !== sb) return sa - sb;
+      if (sa != null && sb == null) return -1;
+      if (sa == null && sb != null) return 1;
+      var da = String((a && a.date) || ''), db = String((b && b.date) || '');
+      if (da !== db) return da < db ? -1 : 1;
+      return String((a && a.label) || '').localeCompare(String((b && b.label) || ''));
+    });
     _rsvpState.guestId = '';
     _rsvpState.matchedName = '';
     _rsvpState.plusOneAllowed = false;
