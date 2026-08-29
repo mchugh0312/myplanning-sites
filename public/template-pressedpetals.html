@@ -160,6 +160,43 @@ body.hydrating{visibility:hidden;}
 /* Banner proportions from the design (~1.9:1), so the event details sit
    within the first screen rather than below a full-height photo. */
 .hero{position:relative;height:100vh;min-height:560px;overflow:hidden;}
+
+/* ── SAVE THE DATE ─────────────────────────────────────────────────────────
+   Save the Date is not a separate screen: it is this template's own hero with
+   every section below it hidden by the runtime, plus the .mp-std-top and
+   .mp-std-bottom blocks it appends over the photograph.
+
+   Nothing marks the mode on <body> — there is no class for it, unlike
+   thumbnail-mode — so the mode is detected here by the presence of those two
+   blocks. Keyed off body, not .hero, on purpose: the runtime's de-overlap pass
+   (_stdDeoverlap) can pull a colliding block OUT of the hero and re-insert it
+   as a sibling, at which point `.hero:has(.mp-std-top)` would stop matching
+   mid-render and the hero would snap back to its short height. As a child of
+   body it matches either way. Both blocks are named because de-overlap can
+   move one without the other.
+
+   Why it is needed: the phone breakpoint sets height:65vw;min-height:320px,
+   which is right for the normal site because sections follow the hero. In Save
+   the Date nothing follows it, so the announcement sat in the top third of the
+   screen with the viewport empty below the brand footer (MP-470).
+
+   100svh rather than 100vh: on mobile browsers 100vh is the viewport with the
+   address bar retracted, so it overflows by the height of the bar and puts a
+   scrollbar on a page that should be exactly one screen. svh is the small
+   viewport height, which is what actually fills the phone.
+
+   Specificity is (0,2,1) — body + :has() + .hero — so this beats the plain
+   `.hero` rules inside the media queries below without !important and without
+   depending on source order. */
+body:has(.mp-std-top) .hero,
+body:has(.mp-std-bottom) .hero{
+  height:100svh;
+  min-height:520px;
+}
+@supports not (height:100svh){
+  body:has(.mp-std-top) .hero,
+  body:has(.mp-std-bottom) .hero{height:100vh;}
+}
 .hero-image{position:absolute;inset:0;}
 .hero-image img{width:100%;height:100%;object-fit:cover;display:block;}
 .hero-gradient{
@@ -192,20 +229,35 @@ body.hydrating{visibility:hidden;}
 }
 .events-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:900px;margin:0 auto;}
 /* Divider between the two event cards: a hairline with three small dots at
-   each end, per the design — it was a plain rule. */
-.events-grid{position:relative;}
-.events-grid::before{
+   each end, per the design — it was a plain rule.
+
+   Drawn on the SECOND card's leading edge, not on .events-grid. As a
+   pseudo-element of the grid it was positioned at left:50%, top:6%, bottom:6%
+   of the WHOLE grid, so it had no relationship to the cards at all. Two
+   consequences, both reported: a third event takes a full-width row
+   (grid-column:1/-1, set in hydrateTemplate) and the line ran straight down
+   through the middle of its text (MP-472); and once the cards stacked on a
+   phone the same line lay across 50% of the entire stack, cutting through
+   whichever card happened to sit there (MP-486).
+
+   Anchored to card two it spans exactly the row those two cards share, and it
+   cannot exist when there is no second card to separate — a single event no
+   longer gets a divider down the middle of it either.
+
+   Scoped with `.events-grid >` because .other-event-card reuses
+   .event-card-primary in the off-white section below. */
+.events-grid > .event-card-primary:nth-child(2)::before{
   content:'';
   position:absolute;
-  left:50%;top:6%;bottom:6%;
+  left:0;top:8%;bottom:8%;
   width:1px;
   transform:translateX(-50%);
   background:rgba(255,255,255,0.45);
 }
-.events-grid::after{
+.events-grid > .event-card-primary:nth-child(2)::after{
   content:'';
   position:absolute;
-  left:50%;top:6%;bottom:6%;
+  left:0;top:8%;bottom:8%;
   width:5px;
   transform:translateX(-50%);
   background-image:
@@ -222,14 +274,27 @@ body.hydrating{visibility:hidden;}
 @media(max-width:768px){
 
   /* Cards stack, so the divider lies down — dots and all, rather than becoming
-     a plain rule. */
-  .events-grid::before{
-    left:18%;right:18%;top:50%;bottom:auto;
-    width:auto;height:1px;transform:translateY(-50%);
+     a plain rule. It now sits on the TOP edge of every card after the first,
+     so each stacked event is separated from the one above it. Selector
+     specificity matches the desktop rule above (two classes plus one
+     pseudo-class), and this block comes later, so it wins without !important. */
+  .events-grid > .event-card-primary:not(:first-child)::before{
+    content:'';
+    position:absolute;
+    left:18%;right:18%;top:0;bottom:auto;
+    width:auto;height:1px;
+    transform:translateY(-50%);
+    background:rgba(255,255,255,0.45);
   }
-  .events-grid::after{
-    left:18%;right:18%;top:50%;bottom:auto;
-    width:auto;height:5px;transform:translateY(-50%);
+  .events-grid > .event-card-primary:not(:first-child)::after{
+    content:'';
+    position:absolute;
+    left:18%;right:18%;top:0;bottom:auto;
+    width:auto;height:5px;
+    transform:translateY(-50%);
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px),
+      radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px);
     background-size:7px 5px, 7px 5px;
     background-position:left center, right center;
     background-repeat:repeat-x, repeat-x;
@@ -238,11 +303,13 @@ body.hydrating{visibility:hidden;}
   }
 }
 .event-card-primary{padding:2.5rem 3rem;text-align:center;position:relative;}
-/* FIX 3: Vertical designer separator — taller, refined */
-.event-card-primary:first-child::after{
-  content:'';position:absolute;right:0;top:8%;bottom:8%;
-  width:1px;background:rgba(255,255,255,0.35);
-}
+/* The old `FIX 3` separator lived here as `.event-card-primary:first-child::after`
+   — right:0, a 1px white hairline. It drew the same line as the dotted divider
+   above, one pixel away and at a different opacity, so the two overlapped. It
+   was also unscoped, so the first .other-event-card in the off-white section
+   below drew a white hairline down its right edge too — invisible on off-white,
+   but there. Removed; the divider is now the .events-grid rule above, which is
+   scoped to the wedding cards and anchored to the card it separates. */
 /* FIX 3: Event name larger, bold */
 .event-card-name{
   font-family:var(--script);
@@ -347,12 +414,31 @@ body.hydrating{visibility:hidden;}
   flex:1 1 0;min-width:0;background:transparent;
   padding-left:2.5rem;padding-right:2.5rem;
 }
-/* The same hairline the wedding cards use, at the same inset and opacity. */
+/* The same hairline the wedding cards use, at the same inset and opacity —
+   including the three dots at each end. The dots were missing here: only the
+   ::before hairline existed, so Hotel | Flights got a plain rule while the
+   events section got the dotted one. The `.accom-divider` rules further down
+   DO draw dots, but nothing in this template carries that class — they are dead
+   CSS from an earlier `.accom-split` layout and were never what rendered here.
+   Kept at this section's own 6% inset rather than the events section's 8%. */
 .accom-pair::before{
   content:'';position:absolute;left:50%;top:6%;bottom:6%;
   width:1px;transform:translateX(-50%);
   background:rgba(255,255,255,0.45);
   pointer-events:none;
+}
+.accom-pair::after{
+  content:'';position:absolute;left:50%;top:6%;bottom:6%;
+  width:5px;transform:translateX(-50%);
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px),
+    radial-gradient(circle, rgba(255,255,255,0.95) 1.6px, transparent 1.7px);
+  background-size:5px 7px, 5px 7px;
+  background-position:top center, bottom center;
+  background-repeat:repeat-y, repeat-y;
+  -webkit-mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+  mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
 }
 @media(max-width:640px){
   /* Two columns of address text do not work on a phone, so the pair stacks and
@@ -362,6 +448,15 @@ body.hydrating{visibility:hidden;}
   .accom-pair::before{
     left:18%;right:18%;top:50%;bottom:auto;
     width:auto;height:1px;transform:translateY(-50%);
+  }
+  .accom-pair::after{
+    left:18%;right:18%;top:50%;bottom:auto;
+    width:auto;height:5px;transform:translateY(-50%);
+    background-size:7px 5px, 7px 5px;
+    background-position:left center, right center;
+    background-repeat:repeat-x, repeat-x;
+    -webkit-mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
+    mask-image:linear-gradient(to right, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
   }
 }
 /* Hotel | Flights side by side, divided by a hairline with dotted ends, the
@@ -832,7 +927,6 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   .hero{height:65vw;min-height:320px}
   .hero-couple-name{font-size:clamp(2.5rem,10vw,4rem)}
   .events-grid{grid-template-columns:1fr}
-  .event-card-primary:first-child::after{display:none}
   .event-card-primary{padding:2rem 1.5rem}
   .events-primary,.accommodations,.rsvp-section{padding:3.5rem 1.5rem}
   .other-events-inner{padding:3.5rem 1.5rem}
