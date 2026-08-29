@@ -1480,7 +1480,36 @@
       ? titleCase(primaryName) + "'s Plus One"
       : 'Your plus one';
 
+    /* Remember what the guest has already answered. renderEventBlocks
+       rewrites the whole list, so without this their Yes and their dish are
+       wiped, and since the plus-one rows only show for events the guest is
+       attending, nothing would appear at all. */
+    var answers = {};
+    document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(function (b) {
+      var id = b.getAttribute('data-event-id') || '';
+      var att = b.querySelector('[data-field="attending"]');
+      var ent = b.querySelector('[data-field="entree"]');
+      answers[id] = {
+        attending: att ? att.value : '',
+        entree: ent ? ent.value : '',
+      };
+    });
+
     renderEventBlocks();
+
+    document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(function (b) {
+      var id = b.getAttribute('data-event-id') || '';
+      var prev = answers[id];
+      if (!prev) return;
+      var att = b.querySelector('[data-field="attending"]');
+      var ent = b.querySelector('[data-field="entree"]');
+      if (att && prev.attending) att.value = prev.attending;
+      if (ent && prev.entree) ent.value = prev.entree;
+      applyEntreeGate(b);
+    });
+    applyPrimaryDietaryGate();
+    checkShowSubmit();
+
     if (btn) btn.style.display = 'none';
   }
 
