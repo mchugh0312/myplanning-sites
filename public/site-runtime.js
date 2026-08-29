@@ -878,6 +878,10 @@
 
   /* ── Guest lookup ─────────────────────────────────────────────────────── */
   function applyFoundGuest(json, displayName) {
+    // Who we were replying as before this call, so the personal fields can be
+    // cleared when it is somebody else. Read before the assignment below,
+    // which would otherwise make every comparison look like a match.
+    var previousGuestId = _rsvpState.guestId || '';
     _rsvpState.guestId = json.guest_id || '';
     _rsvpState.matchedName = json.name || displayName || '';
     _rsvpState.plusOneAllowed = !!json.plus_one_allowed;
@@ -920,6 +924,18 @@
        else forced a re-render. They already have one, so there is nothing to
        add: showing the button let a couple create a second, and removing the
        row from the form re-enabled it. */
+    /* Clear the fields that belong to the PERSON, not the form. Changing who
+       you are replying as used to keep the previous guest's email, so it
+       would have been saved against whoever was picked second. */
+    if (previousGuestId && previousGuestId !== (json && json.guest_id)) {
+      ['rsvpEmail', 'rsvpDietary', 'rsvpMessage'].forEach(function (id) {
+        var el = rsvpEl(id);
+        if (el) el.value = (id === 'rsvpEmail' && json && json.email) ? json.email : '';
+      });
+      var pd = document.querySelector('[data-p-field="dietary"]');
+      if (pd) pd.value = '';
+    }
+
     var existingPlusOne = (Array.isArray(json && json.household_members) ? json.household_members : [])
       .filter(function (m) { return m && m.is_plus_one; })[0] || null;
     _rsvpState.existingPlusOne = existingPlusOne;
@@ -1106,18 +1122,24 @@
                     '</select>'
                   : '') +
               '</div>' +
-              /* This member's own plus-one, if they are allowed one and have
-                 added them. Same shape as the primary's row: attendance
-                 follows the member, so only the dish is asked. */
+              /* This member's own plus-one. Same row the primary's plus-one
+                 gets: their own answer and their own dish, so naming somebody
+                 actually asks something rather than just recording a name. */
               '<div class="rsvp-hh-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
-                'style="display:none;margin-top:0.4rem">' +
-                '<div class="rsvp-hh-plus-one-label" style="font-size:0.68rem;letter-spacing:0.04em;' +
-                  'text-transform:uppercase;opacity:0.7;margin-bottom:0.25rem"></div>' +
-                (hasEntree
-                  ? '<select class="rsvp-select" data-hp-field="entree">' +
-                      '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
-                    '</select>'
-                  : '<div style="font-size:0.76rem;opacity:0.7">No meal is served at this event.</div>') +
+                'style="display:none;margin-top:0.5rem">' +
+                '<div class="rsvp-household-event-label rsvp-hh-plus-one-label"></div>' +
+                '<div class="rsvp-field-row">' +
+                  '<select class="rsvp-select" data-hp-field="attending">' +
+                    '<option value="yes">Yes</option>' +
+                    '<option value="no">Cannot make it</option>' +
+                    '<option value="maybe">Not sure yet</option>' +
+                  '</select>' +
+                  (hasEntree
+                    ? '<select class="rsvp-select" data-hp-field="entree">' +
+                        '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                      '</select>'
+                    : '') +
+                '</div>' +
               '</div>' +
             '</div>';
         }).join('') +
@@ -1139,12 +1161,19 @@
            clearing it removes them again. */
         (m.plus_one_allowed
           ? '<div class="rsvp-hh-plus-one" style="margin-top:0.5rem">' +
-              '<button type="button" class="rsvp-add-guest-btn" data-h-field="add-plus-one" ' +
-                'style="font-size:0.8rem">+ Add invited guest for ' + esc(m.name || 'this guest') + '</button>' +
+              '<button type="button" class="rsvp-add-guest" data-h-field="add-plus-one">' +
+                '+ Add invited guest for ' + esc(m.name || 'this guest') +
+              '</button>' +
               '<div class="rsvp-hh-plus-one-entry" style="display:none;margin-top:0.4rem">' +
                 '<input type="text" class="rsvp-text-input" data-h-field="plus-one-name" ' +
                   'placeholder="' + esc('Name of ' + (m.name || 'their') + "'s guest") + '" ' +
                   'style="width:100%;box-sizing:border-box" />' +
+                /* Their allergies, like everyone else on the form. Shown only
+                   once they have been named and are coming to something. */
+                '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
+                  'data-h-field="plus-one-dietary" style="display:none;margin-top:0.4rem;' +
+                  'width:100%;box-sizing:border-box;resize:vertical" ' +
+                  'placeholder="Allergies or dietary requirements for their guest?"></textarea>' +
               '</div>' +
             '</div>'
           : '') +
@@ -1176,12 +1205,33 @@
             var show = !!nm && coming;
             pr.style.display = show ? '' : 'none';
             var lab = pr.querySelector('.rsvp-hh-plus-one-label');
-            if (lab) lab.textContent = nm ? nm + ' \u00b7 attending with them' : '';
-            if (!show) {
-              var sel = pr.querySelector('[data-hp-field="entree"]');
-              if (sel) sel.value = '';
+            if (lab) lab.textContent = nm || '';
+            var pAtt = pr.querySelector('[data-hp-field="attending"]');
+            var sel = pr.querySelector('[data-hp-field="entree"]');
+            // The dish follows their own answer, not the member's.
+            var pv = pAtt ? (pAtt.value || '').trim() : 'yes';
+            if (sel) {
+              var selShow = show && (pv === 'yes' || pv === 'maybe');
+              sel.style.display = selShow ? '' : 'none';
+              if (!selShow) sel.value = '';
             }
+            if (!show && pAtt) pAtt.value = 'yes';
           });
+
+          /* One dietary box for this plus-one, shown once they are named and
+             coming to at least one event. */
+          var hpDiet = hpWrap.querySelector('.rsvp-hh-plus-one-dietary');
+          if (hpDiet) {
+            var anyComing = false;
+            row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
+              if (pr.style.display === 'none') return;
+              var a = pr.querySelector('[data-hp-field="attending"]');
+              var v = a ? (a.value || '').trim() : 'yes';
+              if (v === 'yes' || v === 'maybe') anyComing = true;
+            });
+            hpDiet.style.display = (nm && anyComing) ? '' : 'none';
+            if (!nm || !anyComing) hpDiet.value = '';
+          }
         };
 
         if (hpBtn) hpBtn.addEventListener('click', function () {
@@ -1190,6 +1240,12 @@
           if (hpName) hpName.focus();
         });
         if (hpName) hpName.addEventListener('input', syncHouseholdPlusOne);
+        // Their own attending answer re-runs the sync, so choosing "cannot
+        // make it" hides their dish and their dietary box.
+        row.addEventListener('change', function (e) {
+          var t = e.target;
+          if (t && t.dataset && t.dataset.hpField === 'attending') syncHouseholdPlusOne();
+        });
         row.addEventListener('change', function (e) {
           var t = e.target;
           if (t && t.dataset && t.dataset.hField === 'attending') syncHouseholdPlusOne();
@@ -1452,17 +1508,21 @@
           hr.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
             if (pr.style.display === 'none') return;
             var sel = pr.querySelector('[data-hp-field="entree"]');
+            var att = pr.querySelector('[data-hp-field="attending"]');
             hpEvents.push({
               event_id: pr.getAttribute('data-event-id') || '',
+              attending: att ? ((att.value || '').trim() || 'yes') : 'yes',
               entree: sel ? (sel.value || '').trim() : '',
             });
           });
           if (hpEvents.length) {
+            var hpDietEl = hr.querySelector('[data-h-field="plus-one-dietary"]');
             extraGuests.push({
               name: hpName,
               meal: '',
               entree: hpEvents[0].entree,
               events: hpEvents,
+              dietary_notes: hpDietEl ? (hpDietEl.value || '').trim() : '',
               // Whose guest this is, so the backend joins them to the right
               // person's party rather than the guest filling in the form.
               host_guest_id: gid,
