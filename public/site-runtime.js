@@ -1033,6 +1033,19 @@
                     '</select>'
                   : '') +
               '</div>' +
+              /* This member's own plus-one, if they are allowed one and have
+                 added them. Same shape as the primary's row: attendance
+                 follows the member, so only the dish is asked. */
+              '<div class="rsvp-hh-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
+                'style="display:none;margin-top:0.4rem">' +
+                '<div class="rsvp-hh-plus-one-label" style="font-size:0.68rem;letter-spacing:0.04em;' +
+                  'text-transform:uppercase;opacity:0.7;margin-bottom:0.25rem"></div>' +
+                (hasEntree
+                  ? '<select class="rsvp-select" data-hp-field="entree">' +
+                      '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                    '</select>'
+                  : '<div style="font-size:0.76rem;opacity:0.7">No meal is served at this event.</div>') +
+              '</div>' +
             '</div>';
         }).join('') +
         /* Dietary needs belong to a PERSON, not to whoever filled the form in.
@@ -1048,6 +1061,20 @@
            are worth recording whether or not that person is coming to anything
            yet. Placeholder names the person so it is unambiguous whose box it
            is when four are stacked. */
+        /* Only for a member the couple allowed a plus-one. Typing a name
+           reveals their entree row under each event this member attends;
+           clearing it removes them again. */
+        (m.plus_one_allowed
+          ? '<div class="rsvp-hh-plus-one" style="margin-top:0.5rem">' +
+              '<button type="button" class="rsvp-add-guest-btn" data-h-field="add-plus-one" ' +
+                'style="font-size:0.8rem">+ Add invited guest for ' + esc(m.name || 'this guest') + '</button>' +
+              '<div class="rsvp-hh-plus-one-entry" style="display:none;margin-top:0.4rem">' +
+                '<input type="text" class="rsvp-text-input" data-h-field="plus-one-name" ' +
+                  'placeholder="' + esc('Name of ' + (m.name || 'their') + "'s guest") + '" ' +
+                  'style="width:100%;box-sizing:border-box" />' +
+              '</div>' +
+            '</div>'
+          : '') +
         '<div class="rsvp-household-dietary" style="margin-top:0.45rem">' +
           '<textarea class="rsvp-textarea" rows="1" data-h-field="dietary" ' +
             'placeholder="' + esc('Allergies or dietary needs for ' + (m.name || 'this guest') + '?') + '" ' +
@@ -1056,6 +1083,46 @@
       list.appendChild(row);
       applyDietaryGate(row);
       row.querySelectorAll('.rsvp-household-event').forEach(applyEntreeGate);
+
+      /* Wiring for this member's own plus-one. The rows already exist in the
+         markup and start hidden; naming somebody reveals them, and they still
+         only show for events this member is actually attending. */
+      var hpWrap = row.querySelector('.rsvp-hh-plus-one');
+      if (hpWrap) {
+        var hpBtn = hpWrap.querySelector('[data-h-field="add-plus-one"]');
+        var hpEntry = hpWrap.querySelector('.rsvp-hh-plus-one-entry');
+        var hpName = hpWrap.querySelector('[data-h-field="plus-one-name"]');
+
+        var syncHouseholdPlusOne = function () {
+          var nm = hpName ? (hpName.value || '').trim() : '';
+          row.querySelectorAll('.rsvp-household-event').forEach(function (blk) {
+            var pr = blk.querySelector('.rsvp-hh-plus-one-row');
+            if (!pr) return;
+            var att = blk.querySelector('[data-h-field="attending"]');
+            var coming = att && (att.value || '').trim() === 'yes';
+            var show = !!nm && coming;
+            pr.style.display = show ? '' : 'none';
+            var lab = pr.querySelector('.rsvp-hh-plus-one-label');
+            if (lab) lab.textContent = nm ? nm + ' \u00b7 attending with them' : '';
+            if (!show) {
+              var sel = pr.querySelector('[data-hp-field="entree"]');
+              if (sel) sel.value = '';
+            }
+          });
+        };
+
+        if (hpBtn) hpBtn.addEventListener('click', function () {
+          if (hpEntry) hpEntry.style.display = '';
+          hpBtn.style.display = 'none';
+          if (hpName) hpName.focus();
+        });
+        if (hpName) hpName.addEventListener('input', syncHouseholdPlusOne);
+        row.addEventListener('change', function (e) {
+          var t = e.target;
+          if (t && t.dataset && t.dataset.hField === 'attending') syncHouseholdPlusOne();
+        });
+        syncHouseholdPlusOne();
+      }
     });
     section.classList.add('visible');
   }
@@ -1284,6 +1351,35 @@
             entree_choice: e ? (e.value || '') : ''
           });
         });
+        /* This member's own plus-one. Sent as an extra guest, the same way the
+           primary's is, so one code path on the backend creates both. Their
+           events follow the member's yes answers: a plus-one is not invited
+           separately and comes to whatever the person bringing them attends. */
+        var hpNameEl = hr.querySelector('[data-h-field="plus-one-name"]');
+        var hpName = hpNameEl ? (hpNameEl.value || '').trim() : '';
+        if (hpName) {
+          var hpEvents = [];
+          hr.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
+            if (pr.style.display === 'none') return;
+            var sel = pr.querySelector('[data-hp-field="entree"]');
+            hpEvents.push({
+              event_id: pr.getAttribute('data-event-id') || '',
+              entree: sel ? (sel.value || '').trim() : '',
+            });
+          });
+          if (hpEvents.length) {
+            extraGuests.push({
+              name: hpName,
+              meal: '',
+              entree: hpEvents[0].entree,
+              events: hpEvents,
+              // Whose guest this is, so the backend joins them to the right
+              // person's party rather than the guest filling in the form.
+              host_guest_id: gid,
+            });
+          }
+        }
+
         var hDietaryEl = hr.querySelector('[data-h-field="dietary"]');
         /* Derived from the answers, not just read off the box. The gate hides
            and clears the field when someone stops attending, but a value set
