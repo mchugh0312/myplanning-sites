@@ -1026,7 +1026,7 @@
     /* Clear the fields that belong to the PERSON, not the form. Changing who
        you are replying as used to keep the previous guest's email, so it
        would have been saved against whoever was picked second. */
-    if (previousGuestId && previousGuestId !== (json && json.guest_id)) {
+    if (previousGuestId !== (json && json.guest_id)) {
       ['rsvpEmail', 'rsvpDietary', 'rsvpMessage'].forEach(function (id) {
         var el = rsvpEl(id);
         if (el) el.value = (id === 'rsvpEmail' && json && json.email) ? json.email : '';
@@ -1466,120 +1466,24 @@
 
   /* ── Plus one ─────────────────────────────────────────────────────────── */
   function addExtraGuest(btn) {
-    var list = rsvpEl('rsvpExtraGuests');
-    if (!list || list.children.length > 0) return; // one plus-one only
-
+    /* Adding a plus-one now goes through exactly the same path as one that
+       already exists: a row under each event the guest is attending, the name
+       editable in place on those rows, and a dietary box with the others.
+       This used to build its own card at the bottom of the form instead, with
+       a name box, a meal select and its own set of event blocks, so adding
+       somebody looked nothing like coming back to edit them. */
     var primaryInput = rsvpEl('rsvpNameInput');
     var primaryName = primaryInput ? (primaryInput.value || '').trim() : '';
-    var defaultName = primaryName ? titleCase(primaryName) + "'s Plus One" : '';
 
-    var row = document.createElement('div');
-    row.className = 'extra-guest-row';
+    _rsvpState.existingPlusOne = { guest_id: '', name: '' };
+    _rsvpState.plusOneName = primaryName
+      ? titleCase(primaryName) + "'s Plus One"
+      : 'Your plus one';
 
-    var nameRow = document.createElement('div');
-    nameRow.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;margin-bottom:0.4rem';
-
-    var nameInput = document.createElement('input');
-    nameInput.className = 'rsvp-text-input';
-    nameInput.type = 'text';
-    nameInput.value = defaultName;
-    nameInput.placeholder = 'Enter invited guest name';
-    nameInput.dataset.role = 'plus-one-name';
-    // While untouched the name follows the primary guest's, so the seating
-    // chart never ends up with "Unnamed".
-    nameInput.dataset.isDefault = '1';
-    nameInput.addEventListener('input', function () { nameInput.dataset.isDefault = '0'; });
-    if (primaryInput) {
-      primaryInput.addEventListener('input', function () {
-        if (nameInput.dataset.isDefault === '1') {
-          var n = (primaryInput.value || '').trim();
-          nameInput.value = n ? titleCase(n) + "'s Plus One" : '';
-        }
-      });
-    }
-
-    var removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'rsvp-remove-btn';
-    removeBtn.textContent = '\u00d7';
-    removeBtn.setAttribute('aria-label', 'Remove plus one');
-    removeBtn.onclick = function () { row.remove(); btn.style.display = ''; };
-
-    nameRow.appendChild(nameInput);
-    nameRow.appendChild(removeBtn);
-    row.appendChild(nameRow);
-
-    // Meal type is a property of the person, not the event, so it is asked
-    // once.
-    var controls = document.createElement('div');
-    controls.className = 'rsvp-field-row';
-    controls.style.cssText = 'display:grid;grid-template-columns:1fr;gap:0.5rem';
-
-    var mealSel = document.createElement('select');
-    mealSel.className = 'rsvp-select';
-    mealSel.dataset.role = 'plus-one-meal';
-    mealSel.innerHTML = mealOptionsHtml('');
-    controls.appendChild(mealSel);
-    row.appendChild(controls);
-
-    /* One block per event, the same shape household members get.
-       A plus-one is not invited separately, so their attendance follows the
-       guest bringing them and is shown read-only rather than asked again.
-       The entree is theirs to choose: they eat at every event the primary
-       attends, and asking once meant a two-event wedding recorded one dish
-       and guessed at the other. */
-    var perEvent = document.createElement('div');
-    perEvent.className = 'plus-one-events';
-    perEvent.style.cssText = 'margin-top:0.5rem';
-    row.appendChild(perEvent);
-
-    function primaryAnswerFor(evId) {
-      var blk = document.querySelector('.rsvp-event-block[data-event-id="' + evId + '"]');
-      var sel = blk && blk.querySelector('[data-field="attending"]');
-      return sel ? (sel.value || '') : '';
-    }
-
-    function renderPlusOneEvents() {
-      var evs = _rsvpState.events || [];
-      perEvent.innerHTML = evs.map(function (ev) {
-        var ans = primaryAnswerFor(ev.id);
-        // Nothing to ask about an event the primary has not answered, or is
-        // not going to. Showing an entree control there invites a choice
-        // that will never be served.
-        if (ans !== 'yes') return '';
-        var hasEntree = entreeOptionsFor(ev.id).length > 0;
-        return '' +
-          '<div class="plus-one-event" data-event-id="' + esc(ev.id) + '" style="margin-top:0.6rem">' +
-            '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
-            /* Two controls, matching the primary's row above, with attendance
-               shown and disabled: a plus-one comes with whoever brought them. */
-            '<div class="rsvp-field-row">' +
-              '<select class="rsvp-select" disabled aria-label="Attending with you">' +
-                '<option>Attending</option>' +
-              '</select>' +
-              (hasEntree
-                ? '<select class="rsvp-select" data-p-field="entree">' +
-                    '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
-                  '</select>'
-                : '') +
-            '</div>' +
-          '</div>';
-      }).join('');
-    }
-
-    renderPlusOneEvents();
-    /* The primary can change their answers after adding a plus-one, so the
-       blocks have to follow. Listening on the form rather than each select
-       keeps this working when event blocks are re-rendered. */
-    var rsvpForm = rsvpEl('rsvpEventsList') || document;
-    rsvpForm.addEventListener('change', function (e) {
-      var t = e.target;
-      if (t && t.dataset && t.dataset.field === 'attending') renderPlusOneEvents();
-    });
-
-    list.appendChild(row);
-    btn.style.display = 'none';
+    renderEventBlocks();
+    if (btn) btn.style.display = 'none';
   }
+
 
   /* ── Submit ───────────────────────────────────────────────────────────── */
   function submitRSVP() {
@@ -1621,38 +1525,14 @@
     // Plus-one and household answers ride along with the first event so they're
     // recorded once rather than duplicated per event.
     var extraGuests = [];
-    var plusOneRow = document.querySelector('#rsvpExtraGuests .extra-guest-row');
-    if (plusOneRow) {
-      var pn = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
-      var pm = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
-
-      /* One entree per event now, because a plus-one eats at every event the
-         guest bringing them attends. `entree` still carries the first answer
-         so nothing downstream that reads a single value breaks. */
-      var pEvents = [];
-      plusOneRow.querySelectorAll('.plus-one-event').forEach(function (blk) {
-        var sel = blk.querySelector('[data-p-field="entree"]');
-        // Recorded whether or not a dish was chosen. Dropping the event for a
-        // blank entree left the plus-one looking uninvited to it.
-        pEvents.push({
-          event_id: blk.dataset.eventId || '',
-          entree: sel ? (sel.value || '').trim() : '',
-        });
-      });
-      var pe = pEvents.length ? pEvents[0].entree : '';
-
-      if (pn.trim()) extraGuests.push({
-        name: pn.trim(), meal: pm, entree: pe,
-        events: pEvents,
-      });
-    }
+    /* A plus-one added on this visit and one that already existed are now the
+       same thing: both answer on the event rows, so both are read below. The
+       separate card this used to build no longer exists. */
 
     /* An existing plus-one answers inside the event blocks, so their choices
        are gathered from there. Without this, editing a reply lost them:
        the extras list above only ever holds a plus-one added on this visit. */
-    var addedPlusOneThisVisit = !!document.querySelector(
-      '#rsvpExtraGuests .extra-guest-row [data-role="plus-one-name"]');
-    if (!addedPlusOneThisVisit && _rsvpState.existingPlusOne) {
+    if (_rsvpState.existingPlusOne) {
       var pEvents2 = [];
       document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
         if (r.style.display === 'none') return;      // guest is not attending this one
