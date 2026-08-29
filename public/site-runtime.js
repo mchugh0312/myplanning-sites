@@ -986,8 +986,32 @@
     // single cut-off picks badly, so compare both and take the better.
     var white = { r: 255, g: 255, b: 255 }, ink = { r: 26, g: 26, b: 26 };
     var onDark = contrastRatio(white, bg) >= contrastRatio(ink, bg);
-    var colour = onDark ? '#ffffff' : '#1a1a1a';
-    var band = onDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.09)';
+
+    /* The text sits on the banner's own band, which is a translucent wash of
+       whatever is behind it, so the pair that matters is text-against-band,
+       not text-against-page. Measuring against the page passed on an olive
+       or sage section while the wash actually landed close to the text and
+       the message went muddy.
+       Deepen the wash until the real pair clears 4.5:1. This text is 0.9rem,
+       below the large-text size, so 4.5 is the bar rather than 3. */
+    var wash = onDark ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
+    var colour = onDark ? white : ink;
+    var alpha = onDark ? 0.22 : 0.09;
+    var blended = bg;
+    for (var step = 0; step < 12; step++) {
+      blended = {
+        r: wash.r * alpha + bg.r * (1 - alpha),
+        g: wash.g * alpha + bg.g * (1 - alpha),
+        b: wash.b * alpha + bg.b * (1 - alpha)
+      };
+      if (contrastRatio(colour, blended) >= 4.5) break;
+      alpha = Math.min(0.92, alpha + 0.08);
+    }
+    // Last resort on a stubborn mid-tone: go to the extreme.
+    if (contrastRatio(colour, blended) < 4.5) colour = onDark ? white : { r: 0, g: 0, b: 0 };
+
+    var colourCss = 'rgb(' + Math.round(colour.r) + ',' + Math.round(colour.g) + ',' + Math.round(colour.b) + ')';
+    var band = 'rgba(' + wash.r + ',' + wash.g + ',' + wash.b + ',' + alpha.toFixed(2) + ')';
     // The semantic colour survives on the left border, where contrast matters
     // less, so "found you" still reads differently from an error.
     var border = s.border;
@@ -997,7 +1021,7 @@
       'font-weight:600',
       'padding:0.6rem 0.9rem', 'margin:0.6rem 0 0.2rem',
       'border-left:3px solid ' + border, 'border-radius:4px',
-      'background:' + band, 'color:' + colour, 'display:block'
+      'background:' + band, 'color:' + colourCss, 'display:block'
     ].join(';');
     el.textContent = text;
   }
@@ -2334,7 +2358,7 @@
         '.mp-gal-view{overflow:hidden;width:100%}' +
         '.mp-gal-track{display:flex;transition:transform .38s ease;will-change:transform}' +
         '.mp-gal-cell{flex:0 0 auto;padding:0 6px;box-sizing:border-box}' +
-        '.mp-gal-frame{width:100%;aspect-ratio:4/3;background:rgba(0,0,0,0.05);' +
+        '.mp-gal-frame{width:100%;aspect-ratio:4/3;background:transparent;' +
           'border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}' +
         '.mp-gal-frame img{width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}' +
         '.mp-gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;' +
