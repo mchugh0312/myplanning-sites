@@ -771,6 +771,10 @@
        here rather than rendering the select with display:none also collapses the
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
+    // Name the dietary label to match the event rows on first paint too, not
+    // only when the name is edited.
+    if (_rsvpCommitPlusOneName) _rsvpCommitPlusOneName(_rsvpState.plusOneName);
+
     list.querySelectorAll('.rsvp-event-block').forEach(applyEntreeGate);
     /* Same reasoning for the dietary box: nobody has answered yet, so it starts
        hidden rather than appearing and then vanishing on the first change. It
@@ -915,20 +919,58 @@
      on every answer, so a listener bound to each pencil would be lost; this
      survives, and it renames on every row at once rather than per event. */
   var _plusOneRenameBound = false;
+  var _rsvpCommitPlusOneName = null;
   function bindPlusOneRename() {
     if (_plusOneRenameBound) return;
     _plusOneRenameBound = true;
+    function commitPlusOneName(value) {
+      _rsvpState.plusOneName = (value || '').trim() || 'Your plus one';
+      // Every event row, and the dietary label, name the same person.
+      document.querySelectorAll('.rsvp-plus-one-label .p-name').forEach(function (el) {
+        el.textContent = _rsvpState.plusOneName;
+      });
+      var dl = document.querySelector('.rsvp-plus-one-dietary label');
+      if (dl) {
+        dl.textContent = (_rsvpState.plusOneName === 'Your plus one'
+          ? 'Your plus one\u2019s'
+          : _rsvpState.plusOneName + '\u2019s') + ' dietary needs';
+      }
+    }
+    _rsvpCommitPlusOneName = commitPlusOneName;
+
     document.addEventListener('click', function (e) {
       var t = e.target;
       if (!t || !t.getAttribute || t.getAttribute('data-p-field') !== 'edit-name') return;
       e.preventDefault();
-      var current = _rsvpState.plusOneName || 'Your plus one';
-      var next = window.prompt('What is your plus one called?', current === 'Your plus one' ? '' : current);
-      if (next === null) return;                 // cancelled
-      next = (next || '').trim();
-      _rsvpState.plusOneName = next || 'Your plus one';
-      document.querySelectorAll('.rsvp-plus-one-label .p-name').forEach(function (el) {
-        el.textContent = _rsvpState.plusOneName;
+      var label = t.closest ? t.closest('.rsvp-plus-one-label') : null;
+      var span = label && label.querySelector('.p-name');
+      if (!span) return;
+
+      // Swap the name for a box in place. A browser prompt looks nothing
+      // like the form and some browsers suppress it outright.
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'rsvp-text-input';
+      input.value = _rsvpState.plusOneName === 'Your plus one' ? '' : _rsvpState.plusOneName;
+      input.placeholder = 'Their name';
+      input.style.cssText = 'max-width:14rem;text-align:center';
+      span.style.display = 'none';
+      t.style.display = 'none';
+      label.insertBefore(input, span);
+      input.focus();
+      input.select();
+
+      var done = function () {
+        if (!input.parentNode) return;
+        commitPlusOneName(input.value);
+        input.remove();
+        span.style.display = '';
+        t.style.display = '';
+      };
+      input.addEventListener('blur', done);
+      input.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); done(); }
+        if (ev.key === 'Escape') { input.value = _rsvpState.plusOneName; done(); }
       });
     });
   }
@@ -1312,9 +1354,31 @@
                 pen.addEventListener('click', function (e) {
                   e.preventDefault();
                   if (!hpName) return;
-                  hpName.style.display = '';
-                  hpName.focus();
-                  hpName.select();
+                  var box = document.createElement('input');
+                  box.type = 'text';
+                  box.className = 'rsvp-text-input';
+                  box.value = hpName.value || '';
+                  box.placeholder = 'Their name';
+                  box.style.cssText = 'max-width:14rem';
+                  txt.style.display = 'none';
+                  pen.style.display = 'none';
+                  lab.insertBefore(box, txt);
+                  box.focus();
+                  box.select();
+
+                  var finish = function () {
+                    if (!box.parentNode) return;
+                    hpName.value = (box.value || '').trim();
+                    box.remove();
+                    txt.style.display = '';
+                    pen.style.display = '';
+                    syncHouseholdPlusOne();
+                  };
+                  box.addEventListener('blur', finish);
+                  box.addEventListener('keydown', function (ev) {
+                    if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
+                    if (ev.key === 'Escape') { box.value = hpName.value; finish(); }
+                  });
                 });
                 lab.appendChild(pen);
               }
@@ -1343,6 +1407,12 @@
              coming to at least one event. */
           var hpDiet = row.querySelector('.rsvp-hh-plus-one-dietary');
           var hpDietWrap = row.querySelector('.rsvp-hh-plus-one-dietary-wrap');
+          // Name them here too. "Their guest's dietary needs" beside a box
+          // labelled with a real name elsewhere reads as a different person.
+          var hpDietLab = hpDietWrap && hpDietWrap.querySelector('label');
+          if (hpDietLab) {
+            hpDietLab.textContent = (nm ? nm + '\u2019s' : 'Their guest\u2019s') + ' dietary needs';
+          }
           if (hpDiet) {
             var anyComing = false;
             row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
@@ -1371,11 +1441,13 @@
         // The pencil swaps the name for an editable box, and back again when
         // they are done, so correcting it is possible without being required.
 
-        if (hpName) hpName.addEventListener('blur', function () {
+        // hpName is now only a value holder: it is what gets submitted, and
+        // editing happens on the label. Kept permanently hidden so the card
+        // never shows two name boxes.
+        if (hpName) hpName.addEventListener('change', function () {
           if (!(hpName.value || '').trim()) {
             hpName.value = titleCase(m.name || 'Their') + "'s Plus One";
           }
-          hpName.style.display = 'none';
           syncHouseholdPlusOne();
         });
         if (hpName) hpName.addEventListener('input', syncHouseholdPlusOne);
@@ -1578,7 +1650,9 @@
     /* An existing plus-one answers inside the event blocks, so their choices
        are gathered from there. Without this, editing a reply lost them:
        the extras list above only ever holds a plus-one added on this visit. */
-    if (!extraGuests.length && _rsvpState.existingPlusOne) {
+    var addedPlusOneThisVisit = !!document.querySelector(
+      '#rsvpExtraGuests .extra-guest-row [data-role="plus-one-name"]');
+    if (!addedPlusOneThisVisit && _rsvpState.existingPlusOne) {
       var pEvents2 = [];
       document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
         if (r.style.display === 'none') return;      // guest is not attending this one
