@@ -452,13 +452,14 @@
       var pAtt = pRow.querySelector('[data-p-field="attending"]');
       var pSel = pRow.querySelector('[data-p-field="entree"]');
       // The plus-one's dish follows their own answer, not the primary's.
-      var pComing = !pAtt || (pAtt.value || '').trim() === 'yes';
+      var pAnswer = pAtt ? (pAtt.value || '').trim() : 'yes';
+      var pComing = !pAtt || pAnswer === 'yes' || pAnswer === 'maybe';
       if (pSel) {
         var pShow = attendingYes && pComing;
         pSel.style.display = pShow ? '' : 'none';
         if (!pShow) pSel.value = '';
       }
-      if (!attendingYes && pAtt) pAtt.value = 'yes';   // reset for next time
+      if (!attendingYes && pAtt) pAtt.value = 'yes';   // back to the default
 
       /* Collapse the row to one column when the dish is not shown, the same
          way the primary's row does. Without it the "Attending" box sat at
@@ -478,11 +479,19 @@
          who is not attending. */
       var pdBox = document.querySelector('.rsvp-plus-one-dietary');
       if (pdBox) {
-        var comingAnywhere = false;
-        document.querySelectorAll('#rsvpEventList .rsvp-event-block [data-field="attending"]')
-          .forEach(function (a) { if ((a.value || '').trim() === 'yes') comingAnywhere = true; });
-        pdBox.style.display = comingAnywhere ? '' : 'none';
-        if (!comingAnywhere) {
+        /* THEIR answers, not the primary's. Asking about a guest's allergies
+           after saying they cannot make it is the sort of thing that makes a
+           form feel like it is not listening. A "not sure yet" still counts:
+           they may well come, and the answer is worth having in advance. */
+        var pComingAnywhere = false;
+        document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
+          if (r.style.display === 'none') return;   // primary not attending this event
+          var a = r.querySelector('[data-p-field="attending"]');
+          var v = a ? (a.value || '').trim() : 'yes';
+          if (v === 'yes' || v === 'maybe') pComingAnywhere = true;
+        });
+        pdBox.style.display = pComingAnywhere ? '' : 'none';
+        if (!pComingAnywhere) {
           var pdT = pdBox.querySelector('[data-p-field="dietary"]');
           if (pdT) pdT.value = '';
         }
@@ -659,11 +668,7 @@
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
           '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
           '<div class="rsvp-expanded visible">' +
-            /* Named only when a plus-one row follows, so the two rows can be
-               told apart. On its own the row plainly belongs to the reader. */
-            (_rsvpState.existingPlusOne
-              ? '<div class="rsvp-event-label rsvp-you-label">You</div>'
-              : '') +
+
             '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
               '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
                 '<option value="">Do you plan to attend?</option>' +
@@ -698,8 +703,9 @@
                      say so. */
                   '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
                     '<select class="rsvp-select" data-p-field="attending" aria-label="Is your plus one attending?">' +
-                      '<option value="yes">Attending</option>' +
-                      '<option value="no">Not attending</option>' +
+                      '<option value="yes">Yes</option>' +
+                      '<option value="no">Cannot make it</option>' +
+                      '<option value="maybe">Not sure yet</option>' +
                     '</select>' +
                     (entreeOptionsFor(ev.id).length
                       ? '<select class="rsvp-select" data-p-field="entree">' +
