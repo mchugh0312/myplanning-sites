@@ -556,6 +556,10 @@
       if ((a.value || '').trim() === 'yes') coming = true;
     });
     box.style.display = coming ? '' : 'none';
+    // The block wraps both dietary rows, so it has to open as well or the
+    // labelled boxes stay hidden inside it.
+    var block = document.getElementById('rsvpDietaryBlock');
+    if (block) block.style.display = coming ? '' : 'none';
     if (!coming) {
       var t = document.getElementById('rsvpDietary');
       if (t) t.value = '';
@@ -591,6 +595,7 @@
     if (!container) return;
 
     bindEntreeGate();
+    bindPlusOneRename();
 
     /* Chronological. The list arrives in whatever order its source produced,
        so a guest could be asked about the reception before the ceremony.
@@ -626,6 +631,23 @@
       // ── Step 2: revealed once the guest is found ────────────────────────
       '<div class="rsvp-answers" id="rsvpAnswers" style="display:none">' +
         '<div id="rsvpEventList"></div>' +
+        /* Dietary needs for the person replying and their plus-one, here
+           rather than below the household. They were at the very bottom, so
+           the form asked about you, then everyone else, then came back to
+           you. Each is labelled: an unlabelled box gives no clue whose
+           allergies you are typing once you start. */
+        '<div class="rsvp-dietary-block" id="rsvpDietaryBlock" style="display:none">' +
+          '<div class="rsvp-field-row full rsvp-dietary-row" style="margin-bottom:0.5rem">' +
+            '<label class="rsvp-event-label" for="rsvpDietary" style="display:block">Your dietary needs</label>' +
+            '<textarea class="rsvp-textarea" rows="2" id="rsvpDietary" ' +
+              'placeholder="Allergies or dietary requirements?"></textarea>' +
+          '</div>' +
+          '<div class="rsvp-field-row full rsvp-plus-one-dietary" style="margin-bottom:0.5rem;display:none">' +
+            '<label class="rsvp-event-label" style="display:block">Your plus one\'s dietary needs</label>' +
+            '<textarea class="rsvp-textarea" rows="2" data-p-field="dietary" ' +
+              'placeholder="Allergies or dietary requirements?"></textarea>' +
+          '</div>' +
+        '</div>' +
         '<div class="rsvp-household" id="rsvpHousehold">' +
           '<div class="rsvp-household-label" id="rsvpHouseholdLabel"></div>' +
           '<div class="rsvp-household-list" id="rsvpHouseholdList"></div>' +
@@ -644,14 +666,7 @@
         /* Dietary needs, one row per person, after the events. Yours first,
            then your plus-one's: asking about a guest's allergies before your
            own read as an ordering mistake. */
-        '<div class="rsvp-field-row full rsvp-dietary-row" style="margin-bottom:0.5rem">' +
-          '<textarea class="rsvp-textarea" rows="2" id="rsvpDietary" ' +
-            'placeholder="Allergies or dietary requirements?"></textarea>' +
-        '</div>' +
-        '<div class="rsvp-field-row full rsvp-plus-one-dietary" style="margin-bottom:0.5rem;display:none">' +
-          '<textarea class="rsvp-textarea" rows="2" data-p-field="dietary" ' +
-            'placeholder="Allergies or dietary requirements for your plus one?"></textarea>' +
-        '</div>' +
+
         '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" id="rsvpMessage" ' +
             'placeholder="Message for the couple (optional)"></textarea>' +
@@ -716,12 +731,26 @@
                   /* "Your plus one", not their full name: the person reading
                      this is the one bringing them. Household members keep
                      their names, because there the reader is not that person. */
-                  '<div class="rsvp-event-label rsvp-plus-one-label">Your plus one</div>' +
+                  '<div class="rsvp-event-label rsvp-plus-one-label" ' +
+                    'style="display:flex;align-items:center;justify-content:center;gap:0.35rem">' +
+                    '<span class="p-name">' + esc(_rsvpState.plusOneName || 'Your plus one') + '</span>' +
+                    '<button type="button" data-p-field="edit-name" title="Change this name" ' +
+                      'style="background:none;border:none;cursor:pointer;opacity:0.7;padding:0;font-size:0.85rem">' +
+                      '\u270e' +
+                    '</button>' +
+                  '</div>' +
                   /* Answerable, not fixed. A plus-one can come to the
                      reception and skip the ceremony, and there was no way to
                      say so. */
-                  '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
-                    '<select class="rsvp-select" data-p-field="attending" aria-label="Is your plus one attending?">' +
+                  /* No dish at this event means one control, so the row is
+                     rendered without the two-column class rather than being
+                     collapsed afterwards: setting gridTemplateColumns does
+                     nothing when the theme lays this out with flex, which is
+                     why it stayed at half width. */
+                  '<div class="' + (entreeOptionsFor(ev.id).length ? 'rsvp-field-row' : 'rsvp-field-row full') +
+                    '" style="margin-bottom:0.6rem">' +
+                    '<select class="rsvp-select" data-p-field="attending" aria-label="Is your plus one attending?" ' +
+                      (entreeOptionsFor(ev.id).length ? '' : 'style="width:100%"') + '>' +
                       '<option value="yes">Yes</option>' +
                       '<option value="no">Cannot make it</option>' +
                       '<option value="maybe">Not sure yet</option>' +
@@ -882,6 +911,28 @@
     status.parentNode.insertBefore(wrap, status.nextSibling);
   }
 
+  /* One delegated handler for the plus-one pencil. The event rows are rebuilt
+     on every answer, so a listener bound to each pencil would be lost; this
+     survives, and it renames on every row at once rather than per event. */
+  var _plusOneRenameBound = false;
+  function bindPlusOneRename() {
+    if (_plusOneRenameBound) return;
+    _plusOneRenameBound = true;
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.getAttribute || t.getAttribute('data-p-field') !== 'edit-name') return;
+      e.preventDefault();
+      var current = _rsvpState.plusOneName || 'Your plus one';
+      var next = window.prompt('What is your plus one called?', current === 'Your plus one' ? '' : current);
+      if (next === null) return;                 // cancelled
+      next = (next || '').trim();
+      _rsvpState.plusOneName = next || 'Your plus one';
+      document.querySelectorAll('.rsvp-plus-one-label .p-name').forEach(function (el) {
+        el.textContent = _rsvpState.plusOneName;
+      });
+    });
+  }
+
   /* ── Guest lookup ─────────────────────────────────────────────────────── */
   function applyFoundGuest(json, displayName) {
     // Who we were replying as before this call, so the personal fields can be
@@ -945,6 +996,9 @@
     var existingPlusOne = (Array.isArray(json && json.household_members) ? json.household_members : [])
       .filter(function (m) { return m && m.is_plus_one; })[0] || null;
     _rsvpState.existingPlusOne = existingPlusOne;
+    // One name across every event row, defaulting to the neutral phrase.
+    _rsvpState.plusOneName = _rsvpState.plusOneName ||
+      (existingPlusOne && existingPlusOne.name) || 'Your plus one';
 
     renderEventBlocks();
     renderHousehold(json);
@@ -1133,7 +1187,8 @@
                  actually asks something rather than just recording a name. */
               '<div class="rsvp-hh-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
                 'style="display:none;margin-top:0.5rem">' +
-                '<div class="rsvp-household-event-label rsvp-hh-plus-one-label"></div>' +
+                '<div class="rsvp-household-event-label rsvp-hh-plus-one-label" ' +
+                  'style="display:flex;align-items:center;gap:0.35rem"></div>' +
                 '<div class="rsvp-field-row">' +
                   '<select class="rsvp-select" data-hp-field="attending">' +
                     '<option value="yes">Yes</option>' +
@@ -1171,17 +1226,6 @@
                 '+ Add invited guest for ' + esc(m.name || 'this guest') +
               '</button>' +
               '<div class="rsvp-hh-plus-one-entry" style="display:none;margin-top:0.4rem">' +
-                /* The name is filled in for them. Shown as text with a pencil
-                   rather than an empty box, because requiring it to be typed
-                   before anything else appeared made the whole section look
-                   broken. */
-                '<div class="rsvp-hh-plus-one-name-row" style="display:flex;align-items:center;gap:0.4rem">' +
-                  '<span class="rsvp-hh-plus-one-display" style="font-size:0.9rem"></span>' +
-                  '<button type="button" data-h-field="edit-plus-one-name" title="Change this name" ' +
-                    'style="background:none;border:none;cursor:pointer;opacity:0.7;padding:0;font-size:0.85rem">' +
-                    '\u270e' +
-                  '</button>' +
-                '</div>' +
                 '<input type="text" class="rsvp-text-input" data-h-field="plus-one-name" ' +
                   'placeholder="' + esc('Name of ' + (m.name || 'their') + "'s guest") + '" ' +
                   'style="display:none;width:100%;box-sizing:border-box;margin-top:0.35rem" />' +
@@ -1222,8 +1266,7 @@
         var hpName = hpWrap.querySelector('[data-h-field="plus-one-name"]');
         // Declared here, above syncHouseholdPlusOne, because it closes over
         // them.
-        var hpDisplay = hpWrap.querySelector('.rsvp-hh-plus-one-display');
-        var hpEdit = hpWrap.querySelector('[data-h-field="edit-plus-one-name"]');
+
 
         var syncHouseholdPlusOne = function () {
           var nm = hpName ? (hpName.value || '').trim() : '';
@@ -1244,7 +1287,29 @@
             var show = !!nm && coming;
             pr.style.display = show ? '' : 'none';
             var lab = pr.querySelector('.rsvp-hh-plus-one-label');
-            if (lab) lab.textContent = nm || '';
+            if (lab) {
+              var txt = lab.querySelector('.hp-name');
+              if (!txt) {
+                lab.textContent = '';
+                txt = document.createElement('span');
+                txt.className = 'hp-name';
+                lab.appendChild(txt);
+                var pen = document.createElement('button');
+                pen.type = 'button';
+                pen.title = 'Change this name';
+                pen.textContent = '\u270e';
+                pen.style.cssText = 'background:none;border:none;cursor:pointer;opacity:0.7;padding:0;font-size:0.85rem';
+                pen.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  if (!hpName) return;
+                  hpName.style.display = '';
+                  hpName.focus();
+                  hpName.select();
+                });
+                lab.appendChild(pen);
+              }
+              txt.textContent = nm || '';
+            }
             var pAtt = pr.querySelector('[data-hp-field="attending"]');
             var sel = pr.querySelector('[data-hp-field="entree"]');
             // The dish follows their own answer, not the member's.
@@ -1261,7 +1326,6 @@
           row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
             if (pr.style.display !== 'none') anyRowVisible = true;
           });
-          if (hpDisplay) hpDisplay.textContent = nm;
           var hint = hpWrap.querySelector('.rsvp-hh-plus-one-hint');
           if (hint) hint.style.display = (nm && !anyRowVisible) ? '' : 'none';
 
@@ -1295,12 +1359,7 @@
 
         // The pencil swaps the name for an editable box, and back again when
         // they are done, so correcting it is possible without being required.
-        if (hpEdit) hpEdit.addEventListener('click', function () {
-          if (!hpName) return;
-          var editing = hpName.style.display !== 'none';
-          hpName.style.display = editing ? 'none' : '';
-          if (!editing) { hpName.focus(); hpName.select(); }
-        });
+
         if (hpName) hpName.addEventListener('blur', function () {
           if (!(hpName.value || '').trim()) {
             hpName.value = titleCase(m.name || 'Their') + "'s Plus One";
@@ -1525,7 +1584,9 @@
       if (pEvents2.length) {
         var pDietEl = document.querySelector('[data-p-field="dietary"]');
         extraGuests.push({
-          name: _rsvpState.existingPlusOne.name || '',
+          name: _rsvpState.plusOneName && _rsvpState.plusOneName !== 'Your plus one'
+            ? _rsvpState.plusOneName
+            : (_rsvpState.existingPlusOne.name || ''),
           meal: _rsvpState.existingPlusOne.meal_preference || '',
           entree: pEvents2[0].entree,
           events: pEvents2,
