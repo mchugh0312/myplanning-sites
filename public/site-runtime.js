@@ -1216,9 +1216,24 @@
     var list = rsvpEl('rsvpHouseholdList');
     if (!section || !label || !list) return;
 
-    var members = (Array.isArray(json && json.household_members) ? json.household_members : [])
+    var all = Array.isArray(json && json.household_members) ? json.household_members : [];
+
+    /* Whose plus-one is whose. The list is filtered below to remove them, and
+       without this index a member's own saved guest was simply lost: their
+       card offered to add one however many they already had, while the person
+       replying got theirs back. */
+    var plusOneByHost = {};
+    all.forEach(function (m) {
+      if (m && m.is_plus_one && m.plus_one_for) plusOneByHost[String(m.plus_one_for)] = m;
+    });
+
+    var members = all
       .filter(function (m) { return m && m.guest_id && m.guest_id !== json.guest_id; })
-      .filter(function (m) { return !m.is_plus_one; });
+      .filter(function (m) { return !m.is_plus_one; })
+      .map(function (m) {
+        var mine = plusOneByHost[String(m.guest_id)];
+        return mine ? Object.assign({}, m, { existingPlusOne: mine }) : m;
+      });
     if (!members.length) { clearHousehold(); return; }
 
     var party = (json.party_name || '').trim();
@@ -1316,11 +1331,15 @@
            clearing it removes them again. */
         (m.plus_one_allowed
           ? '<div class="rsvp-hh-plus-one" style="margin-top:0.5rem">' +
-              '<button type="button" class="rsvp-add-guest" data-h-field="add-plus-one">' +
-                '+ Add invited guest for ' + esc(m.name || 'this guest') +
-              '</button>' +
-              '<div class="rsvp-hh-plus-one-entry" style="display:none;margin-top:0.4rem">' +
+              (m.existingPlusOne
+                ? ''      // already have one; their rows are filled in below
+                : '<button type="button" class="rsvp-add-guest" data-h-field="add-plus-one">' +
+                    '+ Add invited guest for ' + esc(m.name || 'this guest') +
+                  '</button>') +
+              '<div class="rsvp-hh-plus-one-entry" style="' +
+                (m.existingPlusOne ? '' : 'display:none;') + 'margin-top:0.4rem">' +
                 '<input type="text" class="rsvp-text-input" data-h-field="plus-one-name" ' +
+                  'value="' + esc((m.existingPlusOne && m.existingPlusOne.name) || '') + '" ' +
                   'placeholder="' + esc('Name of ' + (m.name || 'their') + "'s guest") + '" ' +
                   'style="display:none;width:100%;box-sizing:border-box;margin-top:0.35rem" />' +
                 /* Their guest cannot come to an event the member is not
@@ -1361,6 +1380,12 @@
       /* Wiring for this member's own plus-one. The rows already exist in the
          markup and start hidden; naming somebody reveals them, and they still
          only show for events this member is actually attending. */
+      if (m.existingPlusOne && m.existingPlusOne.guest_id) {
+        // Read back on submit, so an edited name updates this record rather
+        // than creating a second guest.
+        row.setAttribute('data-plus-one-id', String(m.existingPlusOne.guest_id));
+      }
+
       var hpWrap = row.querySelector('.rsvp-hh-plus-one');
       if (hpWrap) {
         var hpBtn = hpWrap.querySelector('[data-h-field="add-plus-one"]');
@@ -1690,8 +1715,10 @@
           });
           if (hpEvents.length) {
             var hpDietEl = hr.querySelector('[data-h-field="plus-one-dietary"]');
+            var hpExisting = hr.getAttribute('data-plus-one-id') || '';
             extraGuests.push({
               name: hpName,
+              guest_id: hpExisting,
               meal: '',
               entree: hpEvents[0].entree,
               events: hpEvents,
