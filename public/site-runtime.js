@@ -452,6 +452,22 @@
         var pSel = pRow.querySelector('[data-p-field="entree"]');
         if (pSel) pSel.value = '';
       }
+
+      /* The dietary box belongs to the person, so it follows whether they are
+         coming to ANYTHING rather than to this event. Cleared when they are
+         not, so a note typed and then withdrawn is not saved against someone
+         who is not attending. */
+      var pdBox = document.querySelector('#rsvpEventList .rsvp-plus-one-dietary');
+      if (pdBox) {
+        var comingAnywhere = false;
+        document.querySelectorAll('#rsvpEventList .rsvp-event-block [data-field="attending"]')
+          .forEach(function (a) { if ((a.value || '').trim() === 'yes') comingAnywhere = true; });
+        pdBox.style.display = comingAnywhere ? '' : 'none';
+        if (!comingAnywhere) {
+          var pdT = pdBox.querySelector('[data-p-field="dietary"]');
+          if (pdT) pdT.value = '';
+        }
+      }
     }
 
     /* Hiding a grid child leaves its column empty, so the attending select would
@@ -640,18 +656,24 @@
             (_rsvpState.existingPlusOne
               ? '<div class="rsvp-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
                   'data-guest-id="' + esc(_rsvpState.existingPlusOne.guest_id || '') + '" ' +
-                  'style="margin-top:0.5rem">' +
-                  '<div class="rsvp-plus-one-label" style="font-size:0.72rem;letter-spacing:0.04em;' +
-                    'text-transform:uppercase;opacity:0.75;margin-bottom:0.3rem">' +
+                  'style="margin-top:0.6rem">' +
+                  /* Same treatment as the event title above it: the old
+                     uppercase grey caption was unreadable on a dark page. */
+                  '<div class="rsvp-event-label rsvp-plus-one-label">' +
                     esc(_rsvpState.existingPlusOne.name || 'Your plus one') +
-                    '<span style="text-transform:none;letter-spacing:0;opacity:0.8"> \u00b7 attending with you</span>' +
                   '</div>' +
-                  '<div class="rsvp-field-row">' +
+                  /* Two controls, matching the row above, so the columns line
+                     up. Attendance is shown and disabled: a plus-one comes
+                     with the person bringing them and is not asked separately. */
+                  '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
+                    '<select class="rsvp-select" disabled aria-label="Attending with you">' +
+                      '<option>Attending</option>' +
+                    '</select>' +
                     (entreeOptionsFor(ev.id).length
                       ? '<select class="rsvp-select" data-p-field="entree">' +
                           '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
                         '</select>'
-                      : '<div style="font-size:0.78rem;opacity:0.7">No meal is served at this event.</div>') +
+                      : '') +
                   '</div>' +
                 '</div>'
               : '') +
@@ -663,6 +685,22 @@
        here rather than rendering the select with display:none also collapses the
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
+    /* One dietary box for the plus-one, after the events. Their allergies
+       belong to them, not to an event, and there was previously nowhere to
+       record them at all: the couple could name a guest and choose a dish
+       but not say they cannot eat nuts. */
+    if (_rsvpState.existingPlusOne) {
+      var pdWrap = document.createElement('div');
+      pdWrap.className = 'rsvp-plus-one-dietary';
+      pdWrap.style.cssText = 'margin-top:0.6rem;display:none';
+      pdWrap.innerHTML =
+        '<textarea class="rsvp-textarea" rows="1" data-p-field="dietary" ' +
+          'placeholder="' + esc('Allergies or dietary needs for ' +
+            (_rsvpState.existingPlusOne.name || 'your guest') + '?') + '" ' +
+          'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>';
+      list.appendChild(pdWrap);
+    }
+
     list.querySelectorAll('.rsvp-event-block').forEach(applyEntreeGate);
     /* Same reasoning for the dietary box: nobody has answered yet, so it starts
        hidden rather than appearing and then vanishing on the first change. It
@@ -1212,17 +1250,20 @@
         if (ans !== 'yes') return '';
         var hasEntree = entreeOptionsFor(ev.id).length > 0;
         return '' +
-          '<div class="plus-one-event" data-event-id="' + esc(ev.id) + '" style="margin-top:0.45rem">' +
-            '<div class="plus-one-event-label" style="font-size:0.72rem;letter-spacing:0.04em;' +
-              'text-transform:uppercase;opacity:0.75;margin-bottom:0.3rem">' +
-              esc(titleCase(ev.label)) +
-              '<span style="text-transform:none;letter-spacing:0;opacity:0.8"> \u00b7 attending with you</span>' +
+          '<div class="plus-one-event" data-event-id="' + esc(ev.id) + '" style="margin-top:0.6rem">' +
+            '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
+            /* Two controls, matching the primary's row above, with attendance
+               shown and disabled: a plus-one comes with whoever brought them. */
+            '<div class="rsvp-field-row">' +
+              '<select class="rsvp-select" disabled aria-label="Attending with you">' +
+                '<option>Attending</option>' +
+              '</select>' +
+              (hasEntree
+                ? '<select class="rsvp-select" data-p-field="entree">' +
+                    '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                  '</select>'
+                : '') +
             '</div>' +
-            (hasEntree
-              ? '<select class="rsvp-select" data-p-field="entree">' +
-                  '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
-                '</select>'
-              : '<div style="font-size:0.78rem;opacity:0.7">No meal is served at this event.</div>') +
           '</div>';
       }).join('');
     }
@@ -1292,9 +1333,12 @@
       var pEvents = [];
       plusOneRow.querySelectorAll('.plus-one-event').forEach(function (blk) {
         var sel = blk.querySelector('[data-p-field="entree"]');
-        var val = sel ? (sel.value || '').trim() : '';
-        if (!val) return;
-        pEvents.push({ event_id: blk.dataset.eventId || '', entree: val });
+        // Recorded whether or not a dish was chosen. Dropping the event for a
+        // blank entree left the plus-one looking uninvited to it.
+        pEvents.push({
+          event_id: blk.dataset.eventId || '',
+          entree: sel ? (sel.value || '').trim() : '',
+        });
       });
       var pe = pEvents.length ? pEvents[0].entree : '';
 
@@ -1312,16 +1356,23 @@
       document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
         if (r.style.display === 'none') return;      // guest is not attending this one
         var sel = r.querySelector('[data-p-field="entree"]');
-        var val = sel ? (sel.value || '').trim() : '';
-        if (!val) return;
-        pEvents2.push({ event_id: r.dataset.eventId || '', entree: val });
+        pEvents2.push({
+          event_id: r.dataset.eventId || '',
+          entree: sel ? (sel.value || '').trim() : '',
+        });
       });
       if (pEvents2.length) {
+        var pDietEl = document.querySelector('#rsvpEventList [data-p-field="dietary"]');
         extraGuests.push({
           name: _rsvpState.existingPlusOne.name || '',
           meal: _rsvpState.existingPlusOne.meal_preference || '',
           entree: pEvents2[0].entree,
           events: pEvents2,
+          dietary_notes: pDietEl ? (pDietEl.value || '').trim() : '',
+          // Update THIS record rather than matching on name. The name is
+          // derived from the primary's, so any change to it created a second
+          // plus-one instead of updating the first.
+          guest_id: _rsvpState.existingPlusOne.guest_id || '',
         });
       }
     }
