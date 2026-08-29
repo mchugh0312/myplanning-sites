@@ -937,17 +937,19 @@ function shiftLightbox(dir){_galleryIdx=(_galleryIdx+dir+_galleryUrls.length)%_g
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox();if(e.key==='ArrowLeft')shiftLightbox(-1);if(e.key==='ArrowRight')shiftLightbox(1);});
 document.addEventListener('click',function(e){var lb=document.getElementById('galleryLightbox');if(lb&&lb.classList.contains('open')&&e.target===lb)closeLightbox();});
 
-// Default entree options shown until /wedding-site/{slug} returns a custom
-// rsvp_config.entrees array. hydrateTemplate() rewrites this list when data
-// is loaded. Kept as a `var` so re-assignment from hydrateTemplate works.
-var _rsvpEntreeOptions = [
-  { value: 'Chicken', label: 'Chicken' },
-  { value: 'Fish',    label: 'Fish' },
-  { value: 'Beef',    label: 'Beef' },
-  { value: 'Vegetarian', label: 'Vegetarian' },
-  { value: 'Vegan',   label: 'Vegan' },
-  { value: 'Kids Meal', label: 'Kids Meal' },
-];
+// No default entree list. Empty means the couple has offered no choice, and
+// the site must then not ask for one: the old Chicken/Fish/Vegetarian default
+// put a menu in front of guests at weddings serving no plated meal, and
+// recorded answers to a question the couple never asked (MP-340). The backend
+// defaults rsvp_config.entrees to [] for the same reason, so an array here was
+// the last thing contradicting it. It also collapsed a distinction the data
+// model relies on — absent means fall back, empty means no meal is served.
+//
+// hydrateTemplate still assigns _rsvpEntreeOptions when the couple HAS set a
+// wedding-wide list. That assignment is deliberately undeclared, as in Heirloom
+// Bloom: it writes window._rsvpEntreeOptions, which is what the runtime reads.
+// Until then the runtime reads undefined, falls back to [], and renders no
+// entree control at all.
 
 
 
