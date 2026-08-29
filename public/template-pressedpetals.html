@@ -124,11 +124,10 @@ body.hydrating{visibility:hidden;}
   cursor:pointer;color:var(--text);opacity:0.45;line-height:1;
 }
 .menu-close:hover{opacity:1}
-/* FIX 8: Menu title in script */
-.menu-title{
-  font-family:var(--script);font-size:2.4rem;
-  color:var(--olive);margin-bottom:2.2rem;font-weight:400;
-}
+/* FIX 8 styled a "Menu" heading here (olive script, 2.4rem, 2.2rem margin
+   beneath). The heading was removed — it named what the links already showed —
+   so its rule goes with it. The links now start 2.2rem plus the heading's own
+   height higher in the drawer. */
 /* FIX 8: Links underline on hover/active, no bullet */
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
@@ -966,7 +965,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-title">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#hero"           onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#events-primary" onclick="handleMenuClick(this)">The Wedding</a></li>

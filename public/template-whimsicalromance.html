@@ -150,12 +150,10 @@ body.hydrating{visibility:hidden;}
 .menu-close::before{transform:rotate(45deg);}
 .menu-close::after{transform:rotate(-45deg);}
 .menu-close > *{display:none;} /* hide × text since we use lines */
-.menu-title{
-  font-family:var(--display);
-  font-size:clamp(1.9rem,3.2vw,2.5rem);
-  color:var(--burgundy);margin-bottom:1.2rem;
-  font-weight:400;
-}
+/* .menu-title styled the drawer's "Menu" heading (burgundy display face,
+   clamped 1.9–2.5rem, 1.2rem margin beneath). The heading was removed — the
+   links below are self-evidently the menu — so the rule goes with it. The links
+   now start 1.2rem plus the heading's height higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
   font-family:var(--body);
@@ -1074,7 +1072,6 @@ body.thumbnail-mode .home-block{min-height:0;}
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()" aria-label="Close menu"><span>×</span></button>
-    <div class="menu-title">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#hero"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#itinerary"        onclick="handleMenuClick(this)">Weekend Itinerary</a></li>

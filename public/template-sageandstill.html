@@ -126,12 +126,10 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);font-weight:300;
 }
 .menu-close:hover{opacity:1}
-.menu-title{
-  font-family:var(--display);
-  font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:0.18em;
-  color:var(--offwhite);margin-bottom:1.8rem;
-  font-weight:400;text-transform:uppercase;
-}
+/* .menu-title styled the drawer's "Menu" heading (offwhite display caps,
+   0.18em tracking, 1.8rem margin beneath). The heading was removed — it only
+   restated what the links below already are — so the rule goes with it. The
+   links now start 1.8rem plus the heading's height higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
   font-family:var(--sub);
@@ -1024,7 +1022,6 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-title">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#hero"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#weekend"          onclick="handleMenuClick(this)">The Wedding</a></li>

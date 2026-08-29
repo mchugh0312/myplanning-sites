@@ -86,9 +86,10 @@ img{max-width:100%;display:block;}
   font-size:1.5rem;color:rgba(74,58,61,0.55);line-height:1;
 }
 .menu-close:hover{color:var(--offwhite);}
-/* Larger than the links beneath it — at 1.8rem the script face read as
-   smaller than the 0.8rem uppercase links. */
-.menu-title{font-family:var(--script);font-size:clamp(2.6rem,4.4vw,3.6rem);color:var(--gold);margin-bottom:1.6rem;line-height:1;}
+/* .menu-title styled the drawer's "Menu" heading (gold script, clamped
+   2.6–3.6rem, 1.6rem margin beneath). The heading was removed — it labelled a
+   list of links as a menu — so the rule goes too rather than styling nothing.
+   The links now sit 1.6rem plus the heading's height higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:1.1rem;}
 .menu-links a{
   font-family:var(--serif);font-size:0.95rem;letter-spacing:0.1em;
@@ -780,7 +781,6 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-title">Menu</div>
     <ul class="menu-links" id="menuLinks">
       <li><a href="#hero"           onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#story"          onclick="handleMenuClick(this)">Our Story</a></li>

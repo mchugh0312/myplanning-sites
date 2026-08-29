@@ -785,7 +785,12 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-drawer">
     <button class="menu-close" onclick="closeMenu()">×</button>
-    <div class="menu-title" id="menuCoupleName" style="font-family:var(--script);font-size:clamp(2.4rem,4vw,3.4rem);color:var(--black);margin-bottom:1.6rem;line-height:1">Menu</div>
+    <!-- The visible "Menu" heading was removed: the links below it are self-
+         evidently a menu. This div also carried id="menuCoupleName", but nothing
+         ever wrote to it — it rendered the literal word "Menu", not the couple's
+         names. The runtime lists that id in fitCoupleNames() only to resize it,
+         and skips it when absent, so there is nothing to update in TEMPLATES.
+         The nav keeps aria-label="Menu", which the runtime sets on the panel. -->
     <ul class="menu-links" id="menuLinks">
       <li><a href="#home"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#our-story"        onclick="handleMenuClick(this)">Our Story</a></li>
