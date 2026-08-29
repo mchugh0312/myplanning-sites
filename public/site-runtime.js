@@ -477,6 +477,15 @@
          coming to ANYTHING rather than to this event. Cleared when they are
          not, so a note typed and then withdrawn is not saved against someone
          who is not attending. */
+      var poHintEl = document.querySelector('#rsvpEventList .rsvp-plus-one-hint');
+      if (poHintEl) {
+        var anyRow = false;
+        document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
+          if (r.style.display !== 'none') anyRow = true;
+        });
+        poHintEl.style.display = anyRow ? 'none' : '';
+      }
+
       var pdBox = document.querySelector('.rsvp-plus-one-dietary');
       if (pdBox) {
         /* THEIR answers, not the primary's. Asking about a guest's allergies
@@ -771,6 +780,17 @@
        here rather than rendering the select with display:none also collapses the
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
+    /* Their choices sit under each event the guest is attending, so before
+       any event is answered there is nothing to show. Saying so is the
+       difference between "not yet" and "broken". */
+    if (_rsvpState.existingPlusOne) {
+      var poHint = document.createElement('div');
+      poHint.className = 'rsvp-plus-one-hint';
+      poHint.style.cssText = 'display:none;font-size:0.85rem;opacity:0.8;text-align:center;margin-top:0.5rem';
+      poHint.textContent = 'Answer for yourself above, and your plus one\u2019s choices will appear under each event.';
+      list.appendChild(poHint);
+    }
+
     // Name the dietary label to match the event rows on first paint too, not
     // only when the name is edited.
     if (_rsvpCommitPlusOneName) _rsvpCommitPlusOneName(_rsvpState.plusOneName);
@@ -1505,8 +1525,10 @@
       var ent = b.querySelector('[data-field="entree"]');
       if (att && prev.attending) att.value = prev.attending;
       if (ent && prev.entree) ent.value = prev.entree;
-      applyEntreeGate(b);
     });
+    // Over every block, so the plus-one rows and the "answer above first"
+    // hint are resolved straight away rather than on the next change.
+    document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(applyEntreeGate);
     applyPrimaryDietaryGate();
     checkShowSubmit();
 
