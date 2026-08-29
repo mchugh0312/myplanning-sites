@@ -881,7 +881,13 @@
     // continue and no explanation — the form looked like it had no submit at
     // all. submitRSVP() still checks the email and says so if it's missing.
     var btn = document.getElementById('rsvpSubmitBtn');
-    if (btn) btn.style.display = _rsvpState.guestId ? 'block' : 'none';
+    if (btn) {
+      // Centred rather than plain `block`, which left it against the left
+      // edge of a full-width container.
+      btn.style.display = _rsvpState.guestId ? 'block' : 'none';
+      btn.style.marginLeft = 'auto';
+      btn.style.marginRight = 'auto';
+    }
   }
 
   /* ── Status banner ────────────────────────────────────────────────────── */
