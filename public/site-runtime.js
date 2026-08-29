@@ -434,11 +434,24 @@
        Width should say something about the answer, not about whether the
        couple happened to set a menu. So: full width whenever there is no
        entree control to show, and half only while one is actually visible. */
-    var show = !!entree && (att.value || '').trim() === 'yes';
+    var attendingYes = (att.value || '').trim() === 'yes';
+    var show = !!entree && attendingYes;
 
     if (entree) {
       entree.style.display = show ? '' : 'none';
       if (!show) entree.value = '';
+    }
+
+    /* The plus-one comes with this guest, so their row follows the same
+       answer. Cleared when hidden, so a dish chosen and then withdrawn is
+       not submitted for an event nobody is attending. */
+    var pRow = scope.querySelector ? scope.querySelector('.rsvp-plus-one-row') : null;
+    if (pRow) {
+      pRow.style.display = attendingYes ? '' : 'none';
+      if (!attendingYes) {
+        var pSel = pRow.querySelector('[data-p-field="entree"]');
+        if (pSel) pSel.value = '';
+      }
     }
 
     /* Hiding a grid child leaves its column empty, so the attending select would
@@ -619,6 +632,29 @@
                   '</select>'
                 : '') +
             '</div>' +
+            /* Second row, for a plus-one who already exists from an earlier
+               reply. Same event, directly beneath the guest's own answer, so
+               the two dishes for one event are chosen together. Attendance is
+               stated rather than asked: a plus-one is not invited separately
+               and follows whoever brought them. */
+            (_rsvpState.existingPlusOne
+              ? '<div class="rsvp-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
+                  'data-guest-id="' + esc(_rsvpState.existingPlusOne.guest_id || '') + '" ' +
+                  'style="margin-top:0.5rem">' +
+                  '<div class="rsvp-plus-one-label" style="font-size:0.72rem;letter-spacing:0.04em;' +
+                    'text-transform:uppercase;opacity:0.75;margin-bottom:0.3rem">' +
+                    esc(_rsvpState.existingPlusOne.name || 'Your plus one') +
+                    '<span style="text-transform:none;letter-spacing:0;opacity:0.8"> \u00b7 attending with you</span>' +
+                  '</div>' +
+                  '<div class="rsvp-field-row">' +
+                    (entreeOptionsFor(ev.id).length
+                      ? '<select class="rsvp-select" data-p-field="entree">' +
+                          '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                        '</select>'
+                      : '<div style="font-size:0.78rem;opacity:0.7">No meal is served at this event.</div>') +
+                  '</div>' +
+                '</div>'
+              : '') +
           '</div>' +
         '</div>';
     }).join('');
@@ -805,11 +841,21 @@
     var disambig = rsvpEl('rsvpDisambig');
     if (disambig) { disambig.style.display = 'none'; disambig.innerHTML = ''; }
 
+    /* An existing plus-one, brought over from a previous reply. Resolved
+       BEFORE the event blocks are drawn, because each block renders a row for
+       them; setting it afterwards meant the rows were missing until something
+       else forced a re-render. They already have one, so there is nothing to
+       add: showing the button let a couple create a second, and removing the
+       row from the form re-enabled it. */
+    var existingPlusOne = (Array.isArray(json && json.household_members) ? json.household_members : [])
+      .filter(function (m) { return m && m.is_plus_one; })[0] || null;
+    _rsvpState.existingPlusOne = existingPlusOne;
+
     renderEventBlocks();
     renderHousehold(json);
 
     var addBtn = rsvpEl('rsvpAddGuestBtn');
-    if (addBtn) addBtn.style.display = json.plus_one_allowed ? '' : 'none';
+    if (addBtn) addBtn.style.display = (json.plus_one_allowed && !existingPlusOne) ? '' : 'none';
     var extras = rsvpEl('rsvpExtraGuests');
     if (extras && !json.plus_one_allowed) extras.innerHTML = '';
 
@@ -929,7 +975,8 @@
     if (!section || !label || !list) return;
 
     var members = (Array.isArray(json && json.household_members) ? json.household_members : [])
-      .filter(function (m) { return m && m.guest_id && m.guest_id !== json.guest_id; });
+      .filter(function (m) { return m && m.guest_id && m.guest_id !== json.guest_id; })
+      .filter(function (m) { return !m.is_plus_one; });
     if (!members.length) { clearHousehold(); return; }
 
     var party = (json.party_name || '').trim();
@@ -1020,7 +1067,7 @@
 
     var primaryInput = rsvpEl('rsvpNameInput');
     var primaryName = primaryInput ? (primaryInput.value || '').trim() : '';
-    var defaultName = primaryName ? primaryName + "'s Plus One" : '';
+    var defaultName = primaryName ? titleCase(primaryName) + "'s Plus One" : '';
 
     var row = document.createElement('div');
     row.className = 'extra-guest-row';
@@ -1042,7 +1089,7 @@
       primaryInput.addEventListener('input', function () {
         if (nameInput.dataset.isDefault === '1') {
           var n = (primaryInput.value || '').trim();
-          nameInput.value = n ? n + "'s Plus One" : '';
+          nameInput.value = n ? titleCase(n) + "'s Plus One" : '';
         }
       });
     }
@@ -1188,6 +1235,28 @@
         name: pn.trim(), meal: pm, entree: pe,
         events: pEvents,
       });
+    }
+
+    /* An existing plus-one answers inside the event blocks, so their choices
+       are gathered from there. Without this, editing a reply lost them:
+       the extras list above only ever holds a plus-one added on this visit. */
+    if (!extraGuests.length && _rsvpState.existingPlusOne) {
+      var pEvents2 = [];
+      document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
+        if (r.style.display === 'none') return;      // guest is not attending this one
+        var sel = r.querySelector('[data-p-field="entree"]');
+        var val = sel ? (sel.value || '').trim() : '';
+        if (!val) return;
+        pEvents2.push({ event_id: r.dataset.eventId || '', entree: val });
+      });
+      if (pEvents2.length) {
+        extraGuests.push({
+          name: _rsvpState.existingPlusOne.name || '',
+          meal: _rsvpState.existingPlusOne.meal_preference || '',
+          entree: pEvents2[0].entree,
+          events: pEvents2,
+        });
+      }
     }
 
     var householdRsvps = [];
