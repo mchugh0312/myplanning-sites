@@ -608,6 +608,9 @@
       /* Event names head a section and stay centred. Every other label
          belongs to the control beneath it and reads better ranged left,
          which is how the household cards already do it. */
+      /* Event names head a section and stay centred. They were centred by
+         where they sat in the form, and moving them into the card lost it. */
+      '#rsvpBlocks .rsvp-event-block>.rsvp-event-label{text-align:center}',
       '#rsvpBlocks .rsvp-plus-one-label{justify-content:flex-start;text-align:left}',
       '#rsvpBlocks .rsvp-dietary-block label{text-align:left}',
       /* The person replying gets the same bounded card as each household
@@ -783,8 +786,9 @@
                      this is the one bringing them. Household members keep
                      their names, because there the reader is not that person. */
                   '<div class="rsvp-event-label rsvp-plus-one-label" ' +
-                    'style="display:flex;align-items:center;justify-content:center;gap:0.35rem">' +
-                    '<span class="p-name">' + esc(_rsvpState.plusOneName || 'Your plus one') + '</span>' +
+                    'style="display:flex;align-items:center;justify-content:flex-start;text-align:left;gap:0.35rem">' +
+                    '<span>Your plus one</span>' +
+                    '<span class="p-name" style="opacity:0.85"></span>' +
                     '<button type="button" data-p-field="edit-name" title="Change this name" ' +
                       'style="background:none;border:none;cursor:pointer;opacity:0.7;padding:0;font-size:0.85rem">' +
                       '\u270e' +
@@ -989,8 +993,9 @@
     function commitPlusOneName(value) {
       _rsvpState.plusOneName = (value || '').trim() || 'Your plus one';
       // Every event row, and the dietary label, name the same person.
+      var shown = _rsvpState.plusOneName === 'Your plus one' ? '' : ('\u00b7 ' + _rsvpState.plusOneName);
       document.querySelectorAll('.rsvp-plus-one-label .p-name').forEach(function (el) {
-        el.textContent = _rsvpState.plusOneName;
+        el.textContent = shown;
       });
       var dl = document.querySelector('.rsvp-plus-one-dietary label');
       if (dl) {
@@ -1478,7 +1483,8 @@
                 });
                 lab.appendChild(pen);
               }
-              txt.textContent = nm || '';
+              txt.textContent = (m.name ? m.name + '\u2019s guest' : 'Their guest') +
+                (nm ? ' \u00b7 ' + nm : '');
             }
             var pAtt = pr.querySelector('[data-hp-field="attending"]');
             var sel = pr.querySelector('[data-hp-field="entree"]');
