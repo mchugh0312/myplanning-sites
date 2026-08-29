@@ -1058,25 +1058,70 @@
     nameRow.appendChild(removeBtn);
     row.appendChild(nameRow);
 
+    // Meal type is a property of the person, not the event, so it is asked
+    // once.
     var controls = document.createElement('div');
     controls.className = 'rsvp-field-row';
-    controls.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:0.5rem';
+    controls.style.cssText = 'display:grid;grid-template-columns:1fr;gap:0.5rem';
 
     var mealSel = document.createElement('select');
     mealSel.className = 'rsvp-select';
     mealSel.dataset.role = 'plus-one-meal';
     mealSel.innerHTML = mealOptionsHtml('');
-
     controls.appendChild(mealSel);
-    // Same rule as the event blocks: no entrees configured, no control.
-    if (entreeOptionsFor(null).length) {
-      var entreeSel = document.createElement('select');
-      entreeSel.className = 'rsvp-select';
-      entreeSel.dataset.role = 'plus-one-entree';
-      entreeSel.innerHTML = '<option value="">Entr\u00e9e (optional)</option>' + entreeOptionsHtml();
-      controls.appendChild(entreeSel);
-    }
     row.appendChild(controls);
+
+    /* One block per event, the same shape household members get.
+       A plus-one is not invited separately, so their attendance follows the
+       guest bringing them and is shown read-only rather than asked again.
+       The entree is theirs to choose: they eat at every event the primary
+       attends, and asking once meant a two-event wedding recorded one dish
+       and guessed at the other. */
+    var perEvent = document.createElement('div');
+    perEvent.className = 'plus-one-events';
+    perEvent.style.cssText = 'margin-top:0.5rem';
+    row.appendChild(perEvent);
+
+    function primaryAnswerFor(evId) {
+      var blk = document.querySelector('.rsvp-event-block[data-event-id="' + evId + '"]');
+      var sel = blk && blk.querySelector('[data-field="attending"]');
+      return sel ? (sel.value || '') : '';
+    }
+
+    function renderPlusOneEvents() {
+      var evs = _rsvpState.events || [];
+      perEvent.innerHTML = evs.map(function (ev) {
+        var ans = primaryAnswerFor(ev.id);
+        // Nothing to ask about an event the primary has not answered, or is
+        // not going to. Showing an entree control there invites a choice
+        // that will never be served.
+        if (ans !== 'yes') return '';
+        var hasEntree = entreeOptionsFor(ev.id).length > 0;
+        return '' +
+          '<div class="plus-one-event" data-event-id="' + esc(ev.id) + '" style="margin-top:0.45rem">' +
+            '<div class="plus-one-event-label" style="font-size:0.72rem;letter-spacing:0.04em;' +
+              'text-transform:uppercase;opacity:0.75;margin-bottom:0.3rem">' +
+              esc(titleCase(ev.label)) +
+              '<span style="text-transform:none;letter-spacing:0;opacity:0.8"> \u00b7 attending with you</span>' +
+            '</div>' +
+            (hasEntree
+              ? '<select class="rsvp-select" data-p-field="entree">' +
+                  '<option value="">Entr\u00e9e choice</option>' + entreeOptionsHtml(ev.id) +
+                '</select>'
+              : '<div style="font-size:0.78rem;opacity:0.7">No meal is served at this event.</div>') +
+          '</div>';
+      }).join('');
+    }
+
+    renderPlusOneEvents();
+    /* The primary can change their answers after adding a plus-one, so the
+       blocks have to follow. Listening on the form rather than each select
+       keeps this working when event blocks are re-rendered. */
+    var rsvpForm = rsvpEl('rsvpEventsList') || document;
+    rsvpForm.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.dataset && t.dataset.field === 'attending') renderPlusOneEvents();
+    });
 
     list.appendChild(row);
     btn.style.display = 'none';
@@ -1126,8 +1171,23 @@
     if (plusOneRow) {
       var pn = (plusOneRow.querySelector('[data-role="plus-one-name"]') || {}).value || '';
       var pm = (plusOneRow.querySelector('[data-role="plus-one-meal"]') || {}).value || '';
-      var pe = (plusOneRow.querySelector('[data-role="plus-one-entree"]') || {}).value || '';
-      if (pn.trim()) extraGuests.push({ name: pn.trim(), meal: pm, entree: pe });
+
+      /* One entree per event now, because a plus-one eats at every event the
+         guest bringing them attends. `entree` still carries the first answer
+         so nothing downstream that reads a single value breaks. */
+      var pEvents = [];
+      plusOneRow.querySelectorAll('.plus-one-event').forEach(function (blk) {
+        var sel = blk.querySelector('[data-p-field="entree"]');
+        var val = sel ? (sel.value || '').trim() : '';
+        if (!val) return;
+        pEvents.push({ event_id: blk.dataset.eventId || '', entree: val });
+      });
+      var pe = pEvents.length ? pEvents[0].entree : '';
+
+      if (pn.trim()) extraGuests.push({
+        name: pn.trim(), meal: pm, entree: pe,
+        events: pEvents,
+      });
     }
 
     var householdRsvps = [];
