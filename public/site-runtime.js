@@ -605,6 +605,14 @@
       '#rsvpBlocks .rsvp-household-event:first-child .rsvp-household-event-label{margin-top:0}',
       '#rsvpBlocks .rsvp-household-event{margin-bottom:0.9rem}',
       '#rsvpBlocks .rsvp-plus-one-hint{margin-top:0.75rem}',
+      /* Event names head a section and stay centred. Every other label
+         belongs to the control beneath it and reads better ranged left,
+         which is how the household cards already do it. */
+      '#rsvpBlocks .rsvp-plus-one-label{justify-content:flex-start;text-align:left}',
+      '#rsvpBlocks .rsvp-dietary-block label{text-align:left}',
+      /* The person replying gets the same bounded card as each household
+         member, so it is obvious which answers belong to whom. */
+      '#rsvpBlocks .rsvp-you-row{margin-bottom:1.25rem}',
     ].join('\n');
     document.head.appendChild(st);
   }
@@ -736,7 +744,11 @@
     // a worse failure than one offered an event too many.
     var events = eventsForInvitation(_rsvpState.invitedEventIds);
 
-    list.innerHTML = events.map(function (ev) {
+    var youName = _rsvpState.matchedName || 'You';
+    list.innerHTML =
+      '<div class="rsvp-household-row rsvp-you-row">' +
+        '<div class="rsvp-household-name">' + esc(youName) + '</div>' +
+        events.map(function (ev) {
       return '' +
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
           '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
@@ -804,7 +816,8 @@
               : '') +
           '</div>' +
         '</div>';
-    }).join('');
+      }).join('') +
+      '</div>';
 
     /* Nobody has answered yet, so every entree starts hidden. Running the gate
        here rather than rendering the select with display:none also collapses the
@@ -1085,8 +1098,16 @@
       if (pd) pd.value = '';
     }
 
-    var existingPlusOne = (Array.isArray(json && json.household_members) ? json.household_members : [])
-      .filter(function (m) { return m && m.is_plus_one; })[0] || null;
+    var _members = Array.isArray(json && json.household_members) ? json.household_members : [];
+    var existingPlusOne =
+      // Theirs: the link names this guest as the host.
+      _members.filter(function (m) {
+        return m && m.is_plus_one && String(m.plus_one_for || '') === String(json.guest_id || '');
+      })[0]
+      // Older records have no link. Fall back to an unlinked plus-one only,
+      // never to one that belongs to somebody else.
+      || _members.filter(function (m) { return m && m.is_plus_one && !m.plus_one_for; })[0]
+      || null;
     _rsvpState.existingPlusOne = existingPlusOne;
     // One name across every event row, belonging to THIS guest. Written
     // unconditionally: keeping a previous value meant the name from the last
