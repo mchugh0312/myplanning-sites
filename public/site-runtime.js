@@ -827,6 +827,18 @@
        here rather than rendering the select with display:none also collapses the
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
+    /* Everything that belongs to the person replying goes inside their card:
+       the events above, then the button to add their plus-one, then their
+       dietary boxes. The button was rendered after the household list, which
+       put "add a guest for yourself" below everybody else. */
+    var youCard = list.querySelector('.rsvp-you-row');
+    if (youCard) {
+      var addBtnEl = rsvpEl('rsvpAddGuestBtn');
+      if (addBtnEl) youCard.appendChild(addBtnEl);
+      var dietBlock = rsvpEl('rsvpDietaryBlock');
+      if (dietBlock) youCard.appendChild(dietBlock);
+    }
+
     /* Their choices sit under each event the guest is attending, so before
        any event is answered there is nothing to show. Saying so is the
        difference between "not yet" and "broken". */
@@ -835,7 +847,12 @@
       poHint.className = 'rsvp-plus-one-hint';
       poHint.style.cssText = 'display:none;font-size:0.85rem;opacity:0.8;text-align:center;margin-top:0.5rem';
       poHint.textContent = 'Answer for yourself above, and your plus one\u2019s choices will appear under each event.';
-      list.appendChild(poHint);
+      // Before the add button and the dietary boxes, so it sits with the
+      // event rows it describes rather than at the foot of the card.
+      var card = list.querySelector('.rsvp-you-row') || list;
+      var anchor = card.querySelector('#rsvpAddGuestBtn, #rsvpDietaryBlock');
+      if (anchor) card.insertBefore(poHint, anchor);
+      else card.appendChild(poHint);
     }
 
     // Name the dietary label to match the event rows on first paint too, not
