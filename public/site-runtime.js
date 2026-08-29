@@ -656,7 +656,13 @@
           '<textarea class="rsvp-textarea" rows="2" id="rsvpMessage" ' +
             'placeholder="Message for the couple (optional)"></textarea>' +
         '</div>' +
-      '</div>';
+        '</div>' +
+                /* Their allergies, like everyone else on the form. Shown only
+                   once they have been named and are coming to something. */
+                '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
+                  'data-h-field="plus-one-dietary" style="display:none;margin-top:0.4rem;' +
+                  'width:100%;box-sizing:border-box;resize:vertical" ' +
+                  'placeholder="Allergies or dietary requirements for their guest?"></textarea>';
 
     checkShowSubmit();
   }
@@ -1165,15 +1171,26 @@
                 '+ Add invited guest for ' + esc(m.name || 'this guest') +
               '</button>' +
               '<div class="rsvp-hh-plus-one-entry" style="display:none;margin-top:0.4rem">' +
+                /* The name is filled in for them. Shown as text with a pencil
+                   rather than an empty box, because requiring it to be typed
+                   before anything else appeared made the whole section look
+                   broken. */
+                '<div class="rsvp-hh-plus-one-name-row" style="display:flex;align-items:center;gap:0.4rem">' +
+                  '<span class="rsvp-hh-plus-one-display" style="font-size:0.9rem"></span>' +
+                  '<button type="button" data-h-field="edit-plus-one-name" title="Change this name" ' +
+                    'style="background:none;border:none;cursor:pointer;opacity:0.7;padding:0;font-size:0.85rem">' +
+                    '\u270e' +
+                  '</button>' +
+                '</div>' +
                 '<input type="text" class="rsvp-text-input" data-h-field="plus-one-name" ' +
                   'placeholder="' + esc('Name of ' + (m.name || 'their') + "'s guest") + '" ' +
-                  'style="width:100%;box-sizing:border-box" />' +
-                /* Their allergies, like everyone else on the form. Shown only
-                   once they have been named and are coming to something. */
-                '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
-                  'data-h-field="plus-one-dietary" style="display:none;margin-top:0.4rem;' +
-                  'width:100%;box-sizing:border-box;resize:vertical" ' +
-                  'placeholder="Allergies or dietary requirements for their guest?"></textarea>' +
+                  'style="display:none;width:100%;box-sizing:border-box;margin-top:0.35rem" />' +
+                /* Their guest cannot come to an event the member is not
+                   attending, so the rows below appear as the member answers. */
+                '<div class="rsvp-hh-plus-one-hint" style="display:none;font-size:0.78rem;' +
+                  'opacity:0.75;margin-top:0.35rem">' +
+                  'Answer for ' + esc(m.name || 'them') + ' above, and their guest\'s choices will appear here.' +
+                '</div>' +
               '</div>' +
             '</div>'
           : '') +
@@ -1181,7 +1198,16 @@
           '<textarea class="rsvp-textarea" rows="1" data-h-field="dietary" ' +
             'placeholder="' + esc('Allergies or dietary needs for ' + (m.name || 'this guest') + '?') + '" ' +
             'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>' +
-        '</div>';
+        '</div>' +
+        /* Their guest's allergies, after the member's own. A guest's needs
+           listed above the person bringing them read as an ordering mistake,
+           the same way it did on the primary's section. */
+        (m.plus_one_allowed
+          ? '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
+              'data-h-field="plus-one-dietary" style="display:none;margin-top:0.45rem;' +
+              'width:100%;box-sizing:border-box;resize:vertical" ' +
+              'placeholder="Allergies or dietary requirements for their guest?"></textarea>'
+          : '');
       list.appendChild(row);
       applyDietaryGate(row);
       row.querySelectorAll('.rsvp-household-event').forEach(applyEntreeGate);
@@ -1194,9 +1220,22 @@
         var hpBtn = hpWrap.querySelector('[data-h-field="add-plus-one"]');
         var hpEntry = hpWrap.querySelector('.rsvp-hh-plus-one-entry');
         var hpName = hpWrap.querySelector('[data-h-field="plus-one-name"]');
+        // Declared here, above syncHouseholdPlusOne, because it closes over
+        // them.
+        var hpDisplay = hpWrap.querySelector('.rsvp-hh-plus-one-display');
+        var hpEdit = hpWrap.querySelector('[data-h-field="edit-plus-one-name"]');
 
         var syncHouseholdPlusOne = function () {
           var nm = hpName ? (hpName.value || '').trim() : '';
+          var _blocks = row.querySelectorAll('.rsvp-household-event').length;
+          var _rows = row.querySelectorAll('.rsvp-hh-plus-one-row').length;
+          var _yes = 0;
+          row.querySelectorAll('[data-h-field="attending"]').forEach(function (a) {
+            if ((a.value || '').trim() === 'yes') _yes += 1;
+          });
+          console.log('[RSVP] plus-one sync for "' + (m.name || '?') + '": name=' +
+            (nm ? '"' + nm + '"' : 'none') + ' eventBlocks=' + _blocks +
+            ' plusOneRows=' + _rows + ' memberAttending=' + _yes);
           row.querySelectorAll('.rsvp-household-event').forEach(function (blk) {
             var pr = blk.querySelector('.rsvp-hh-plus-one-row');
             if (!pr) return;
@@ -1218,9 +1257,17 @@
             if (!show && pAtt) pAtt.value = 'yes';
           });
 
+          var anyRowVisible = false;
+          row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
+            if (pr.style.display !== 'none') anyRowVisible = true;
+          });
+          if (hpDisplay) hpDisplay.textContent = nm;
+          var hint = hpWrap.querySelector('.rsvp-hh-plus-one-hint');
+          if (hint) hint.style.display = (nm && !anyRowVisible) ? '' : 'none';
+
           /* One dietary box for this plus-one, shown once they are named and
              coming to at least one event. */
-          var hpDiet = hpWrap.querySelector('.rsvp-hh-plus-one-dietary');
+          var hpDiet = row.querySelector('.rsvp-hh-plus-one-dietary');
           if (hpDiet) {
             var anyComing = false;
             row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
@@ -1237,19 +1284,38 @@
         if (hpBtn) hpBtn.addEventListener('click', function () {
           if (hpEntry) hpEntry.style.display = '';
           hpBtn.style.display = 'none';
-          if (hpName) hpName.focus();
+          // Fill in a sensible default so the controls appear immediately.
+          // Requiring a name first meant clicking the button appeared to do
+          // nothing but show an empty box.
+          if (hpName && !(hpName.value || '').trim()) {
+            hpName.value = titleCase(m.name || 'Their') + "'s Plus One";
+          }
+          syncHouseholdPlusOne();
+        });
+
+        // The pencil swaps the name for an editable box, and back again when
+        // they are done, so correcting it is possible without being required.
+        if (hpEdit) hpEdit.addEventListener('click', function () {
+          if (!hpName) return;
+          var editing = hpName.style.display !== 'none';
+          hpName.style.display = editing ? 'none' : '';
+          if (!editing) { hpName.focus(); hpName.select(); }
+        });
+        if (hpName) hpName.addEventListener('blur', function () {
+          if (!(hpName.value || '').trim()) {
+            hpName.value = titleCase(m.name || 'Their') + "'s Plus One";
+          }
+          hpName.style.display = 'none';
+          syncHouseholdPlusOne();
         });
         if (hpName) hpName.addEventListener('input', syncHouseholdPlusOne);
         // Their own attending answer re-runs the sync, so choosing "cannot
         // make it" hides their dish and their dietary box.
-        row.addEventListener('change', function (e) {
-          var t = e.target;
-          if (t && t.dataset && t.dataset.hpField === 'attending') syncHouseholdPlusOne();
-        });
-        row.addEventListener('change', function (e) {
-          var t = e.target;
-          if (t && t.dataset && t.dataset.hField === 'attending') syncHouseholdPlusOne();
-        });
+        // Any change in this member's card re-runs the sync. Two listeners
+        // matched specific field names before, which is easy to get subtly
+        // wrong and hard to see when it is.
+        row.addEventListener('change', syncHouseholdPlusOne);
+        row.addEventListener('input', syncHouseholdPlusOne);
         syncHouseholdPlusOne();
       }
     });
