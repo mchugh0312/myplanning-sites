@@ -996,9 +996,10 @@
     var existingPlusOne = (Array.isArray(json && json.household_members) ? json.household_members : [])
       .filter(function (m) { return m && m.is_plus_one; })[0] || null;
     _rsvpState.existingPlusOne = existingPlusOne;
-    // One name across every event row, defaulting to the neutral phrase.
-    _rsvpState.plusOneName = _rsvpState.plusOneName ||
-      (existingPlusOne && existingPlusOne.name) || 'Your plus one';
+    // One name across every event row, belonging to THIS guest. Written
+    // unconditionally: keeping a previous value meant the name from the last
+    // guest looked up stayed on screen under a different person's row.
+    _rsvpState.plusOneName = (existingPlusOne && existingPlusOne.name) || 'Your plus one';
 
     renderEventBlocks();
     renderHousehold(json);
@@ -1189,8 +1190,9 @@
                 'style="display:none;margin-top:0.5rem">' +
                 '<div class="rsvp-household-event-label rsvp-hh-plus-one-label" ' +
                   'style="display:flex;align-items:center;gap:0.35rem"></div>' +
-                '<div class="rsvp-field-row">' +
-                  '<select class="rsvp-select" data-hp-field="attending">' +
+                '<div class="' + (hasEntree ? 'rsvp-field-row' : 'rsvp-field-row full') + '">' +
+                  '<select class="rsvp-select" data-hp-field="attending"' +
+                    (hasEntree ? '' : ' style="width:100%"') + '>' +
                     '<option value="yes">Yes</option>' +
                     '<option value="no">Cannot make it</option>' +
                     '<option value="maybe">Not sure yet</option>' +
@@ -1239,6 +1241,9 @@
             '</div>'
           : '') +
         '<div class="rsvp-household-dietary" style="margin-top:0.45rem">' +
+          '<label class="rsvp-household-event-label" style="display:block;margin-bottom:0.25rem">' +
+            esc(m.name || 'This guest') + '\u2019s dietary needs' +
+          '</label>' +
           '<textarea class="rsvp-textarea" rows="1" data-h-field="dietary" ' +
             'placeholder="' + esc('Allergies or dietary needs for ' + (m.name || 'this guest') + '?') + '" ' +
             'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>' +
@@ -1247,10 +1252,15 @@
            listed above the person bringing them read as an ordering mistake,
            the same way it did on the primary's section. */
         (m.plus_one_allowed
-          ? '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
-              'data-h-field="plus-one-dietary" style="display:none;margin-top:0.45rem;' +
-              'width:100%;box-sizing:border-box;resize:vertical" ' +
-              'placeholder="Allergies or dietary requirements for their guest?"></textarea>'
+          ? '<div class="rsvp-hh-plus-one-dietary-wrap" style="display:none;margin-top:0.45rem">' +
+              '<label class="rsvp-household-event-label" style="display:block;margin-bottom:0.25rem">' +
+                'Their guest\u2019s dietary needs' +
+              '</label>' +
+              '<textarea class="rsvp-textarea rsvp-hh-plus-one-dietary" rows="2" ' +
+                'data-h-field="plus-one-dietary" ' +
+                'style="width:100%;box-sizing:border-box;resize:vertical" ' +
+                'placeholder="Allergies or dietary requirements?"></textarea>' +
+            '</div>'
           : '');
       list.appendChild(row);
       applyDietaryGate(row);
@@ -1332,6 +1342,7 @@
           /* One dietary box for this plus-one, shown once they are named and
              coming to at least one event. */
           var hpDiet = row.querySelector('.rsvp-hh-plus-one-dietary');
+          var hpDietWrap = row.querySelector('.rsvp-hh-plus-one-dietary-wrap');
           if (hpDiet) {
             var anyComing = false;
             row.querySelectorAll('.rsvp-hh-plus-one-row').forEach(function (pr) {
@@ -1340,7 +1351,7 @@
               var v = a ? (a.value || '').trim() : 'yes';
               if (v === 'yes' || v === 'maybe') anyComing = true;
             });
-            hpDiet.style.display = (nm && anyComing) ? '' : 'none';
+            if (hpDietWrap) hpDietWrap.style.display = (nm && anyComing) ? '' : 'none';
             if (!nm || !anyComing) hpDiet.value = '';
           }
         };
