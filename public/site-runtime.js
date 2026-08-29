@@ -1212,7 +1212,7 @@
         } else {
           rejectGuest('unknown',
             "We couldn't find your name on the guest list. RSVPs are by invitation only. " +
-            'please contact the couple if you believe this is a mistake.');
+            'Please contact the couple if you believe this is a mistake.');
         }
       })
       .catch(function () {
