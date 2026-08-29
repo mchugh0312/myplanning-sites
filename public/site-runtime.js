@@ -246,9 +246,39 @@
   /* The list that applies to one event: its own if it has one, otherwise the
      wedding-wide list. Returns [] when neither offers anything, which the
      caller reads as "do not render the control at all". */
+  var _entreeKeyWarned = false;
   function entreeOptionsFor(eventId) {
     var byEvent = window._rsvpEntreeByEvent || {};
     var own = eventId != null ? byEvent[String(eventId)] : null;
+
+    /* Called with no event at all. A template building its own RSVP markup
+       and calling entreeOptionsHtml() instead of entreeOptionsHtml(ev.id)
+       gets the wedding-wide list for every event, meal preferences included,
+       however carefully the per-event menus were set. */
+    if (!_entreeKeyWarned && eventId == null && Object.keys(byEvent).length) {
+      _entreeKeyWarned = true;
+      console.warn('[RSVP] Entree options were requested without an event, so every ' +
+        'event will show the wedding-wide list. The template should call ' +
+        'entreeOptionsHtml(ev.id) rather than entreeOptionsHtml().');
+    }
+
+    /* Falling back means this event has no menu of its own. That is normal,
+       but if NONE of the events match while menus do exist, the ids do not
+       line up and every event will show the wedding-wide list, meal
+       preferences included. Say so once. */
+    if (!_entreeKeyWarned && eventId != null && !Array.isArray(own)) {
+      var keys = Object.keys(byEvent);
+      if (keys.length) {
+        var evIds = (_rsvpState.events || []).map(function (e) { return String(e && e.id); });
+        if (!evIds.some(function (id) { return Object.prototype.hasOwnProperty.call(byEvent, id); })) {
+          _entreeKeyWarned = true;
+          console.warn('[RSVP] No event matches the saved entree menus, so every event ' +
+            'is falling back to the wedding-wide list.\n  menu keys: ' + JSON.stringify(keys) +
+            '\n  event ids: ' + JSON.stringify(evIds));
+        }
+      }
+    }
+
     var list = Array.isArray(own) ? own : (window._rsvpEntreeOptions || []);
     return list.map(function (o) {
       return (o && typeof o === 'object') ? o : { value: String(o), label: String(o) };
