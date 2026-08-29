@@ -580,6 +580,35 @@
      with innerHTML, so anything bound per-element has to be rebound each time;
      delegation covers rows that do not exist yet. */
   var _entreeGateBound = false;
+  /* Vertical rhythm for the RSVP form. Injected once rather than added to
+     every theme's stylesheet, and scoped to the form so nothing else moves.
+
+     The rule is: a label belongs to the control BELOW it. It was sitting
+     nearer the control above, which made "Your plus one" read as a caption
+     for the guest's own answer rather than a heading for the next one. */
+  var _rsvpSpacingInjected = false;
+  function injectRsvpSpacing() {
+    if (_rsvpSpacingInjected) return;
+    _rsvpSpacingInjected = true;
+    var st = document.createElement('style');
+    st.textContent = [
+      '#rsvpBlocks .rsvp-event-label{margin-top:1.25rem;margin-bottom:0.4rem;line-height:1.3}',
+      '#rsvpBlocks .rsvp-event-block:first-child .rsvp-event-label{margin-top:0}',
+      /* A plus-one row belongs with the answer above it, so it sits closer
+         than a new event does. */
+      '#rsvpBlocks .rsvp-plus-one-label{margin-top:0.85rem}',
+      '#rsvpBlocks .rsvp-field-row{margin-bottom:0}',
+      '#rsvpBlocks .rsvp-event-block{margin-bottom:1.35rem}',
+      '#rsvpBlocks .rsvp-dietary-block .rsvp-field-row{margin-bottom:0}',
+      '#rsvpBlocks .rsvp-dietary-block>div{margin-bottom:1.1rem}',
+      '#rsvpBlocks .rsvp-household-event-label{margin-top:0.9rem;margin-bottom:0.3rem}',
+      '#rsvpBlocks .rsvp-household-event:first-child .rsvp-household-event-label{margin-top:0}',
+      '#rsvpBlocks .rsvp-household-event{margin-bottom:0.9rem}',
+      '#rsvpBlocks .rsvp-plus-one-hint{margin-top:0.75rem}',
+    ].join('\n');
+    document.head.appendChild(st);
+  }
+
   function bindEntreeGate() {
     if (_entreeGateBound) return;
     _entreeGateBound = true;
@@ -605,6 +634,7 @@
 
     bindEntreeGate();
     bindPlusOneRename();
+    injectRsvpSpacing();
 
     /* Chronological. The list arrives in whatever order its source produced,
        so a guest could be asked about the reception before the ceremony.
