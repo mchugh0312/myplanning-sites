@@ -448,16 +448,35 @@
     var pRow = scope.querySelector ? scope.querySelector('.rsvp-plus-one-row') : null;
     if (pRow) {
       pRow.style.display = attendingYes ? '' : 'none';
-      if (!attendingYes) {
-        var pSel = pRow.querySelector('[data-p-field="entree"]');
-        if (pSel) pSel.value = '';
+
+      var pAtt = pRow.querySelector('[data-p-field="attending"]');
+      var pSel = pRow.querySelector('[data-p-field="entree"]');
+      // The plus-one's dish follows their own answer, not the primary's.
+      var pComing = !pAtt || (pAtt.value || '').trim() === 'yes';
+      if (pSel) {
+        var pShow = attendingYes && pComing;
+        pSel.style.display = pShow ? '' : 'none';
+        if (!pShow) pSel.value = '';
+      }
+      if (!attendingYes && pAtt) pAtt.value = 'yes';   // reset for next time
+
+      /* Collapse the row to one column when the dish is not shown, the same
+         way the primary's row does. Without it the "Attending" box sat at
+         half width with a gap beside it. */
+      var pWrap = pRow.querySelector('.rsvp-field-row');
+      if (pWrap && pWrap.style) {
+        var pDisp = '';
+        try { pDisp = window.getComputedStyle(pWrap).display; } catch (e) {}
+        var pHidden = !pSel || pSel.style.display === 'none';
+        pWrap.style.gridTemplateColumns =
+          (pHidden && (pDisp === 'grid' || pDisp === 'inline-grid')) ? '1fr' : '';
       }
 
       /* The dietary box belongs to the person, so it follows whether they are
          coming to ANYTHING rather than to this event. Cleared when they are
          not, so a note typed and then withdrawn is not saved against someone
          who is not attending. */
-      var pdBox = document.querySelector('#rsvpEventList .rsvp-plus-one-dietary');
+      var pdBox = document.querySelector('.rsvp-plus-one-dietary');
       if (pdBox) {
         var comingAnywhere = false;
         document.querySelectorAll('#rsvpEventList .rsvp-event-block [data-field="attending"]')
@@ -546,7 +565,8 @@
       var t = e.target;
       if (!t || !t.getAttribute) return;
       if (t.getAttribute('data-field') !== 'attending' &&
-          t.getAttribute('data-h-field') !== 'attending') return;
+          t.getAttribute('data-h-field') !== 'attending' &&
+          t.getAttribute('data-p-field') !== 'attending') return;
       var scope = t.closest
         ? t.closest('.rsvp-event-block,.rsvp-household-event')
         : null;
@@ -599,9 +619,16 @@
             'placeholder="Email address (required) *" data-field="email" required ' +
             'oninput="checkShowSubmit()">' +
         '</div>' +
+        /* Dietary needs, one row per person, after the events. Yours first,
+           then your plus-one's: asking about a guest's allergies before your
+           own read as an ordering mistake. */
         '<div class="rsvp-field-row full rsvp-dietary-row" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" id="rsvpDietary" ' +
             'placeholder="Allergies or dietary requirements?"></textarea>' +
+        '</div>' +
+        '<div class="rsvp-field-row full rsvp-plus-one-dietary" style="margin-bottom:0.5rem;display:none">' +
+          '<textarea class="rsvp-textarea" rows="2" data-p-field="dietary" ' +
+            'placeholder="Allergies or dietary requirements for your plus one?"></textarea>' +
         '</div>' +
         '<div class="rsvp-field-row full" style="margin-bottom:0.5rem">' +
           '<textarea class="rsvp-textarea" rows="2" id="rsvpMessage" ' +
@@ -632,6 +659,11 @@
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
           '<div class="rsvp-event-label">' + esc(titleCase(ev.label)) + '</div>' +
           '<div class="rsvp-expanded visible">' +
+            /* Named only when a plus-one row follows, so the two rows can be
+               told apart. On its own the row plainly belongs to the reader. */
+            (_rsvpState.existingPlusOne
+              ? '<div class="rsvp-event-label rsvp-you-label">You</div>'
+              : '') +
             '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
               '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
                 '<option value="">Do you plan to attend?</option>' +
@@ -657,17 +689,17 @@
               ? '<div class="rsvp-plus-one-row" data-event-id="' + esc(ev.id) + '" ' +
                   'data-guest-id="' + esc(_rsvpState.existingPlusOne.guest_id || '') + '" ' +
                   'style="margin-top:0.6rem">' +
-                  /* Same treatment as the event title above it: the old
-                     uppercase grey caption was unreadable on a dark page. */
-                  '<div class="rsvp-event-label rsvp-plus-one-label">' +
-                    esc(_rsvpState.existingPlusOne.name || 'Your plus one') +
-                  '</div>' +
-                  /* Two controls, matching the row above, so the columns line
-                     up. Attendance is shown and disabled: a plus-one comes
-                     with the person bringing them and is not asked separately. */
+                  /* "Your plus one", not their full name: the person reading
+                     this is the one bringing them. Household members keep
+                     their names, because there the reader is not that person. */
+                  '<div class="rsvp-event-label rsvp-plus-one-label">Your plus one</div>' +
+                  /* Answerable, not fixed. A plus-one can come to the
+                     reception and skip the ceremony, and there was no way to
+                     say so. */
                   '<div class="rsvp-field-row" style="margin-bottom:0.6rem">' +
-                    '<select class="rsvp-select" disabled aria-label="Attending with you">' +
-                      '<option>Attending</option>' +
+                    '<select class="rsvp-select" data-p-field="attending" aria-label="Is your plus one attending?">' +
+                      '<option value="yes">Attending</option>' +
+                      '<option value="no">Not attending</option>' +
                     '</select>' +
                     (entreeOptionsFor(ev.id).length
                       ? '<select class="rsvp-select" data-p-field="entree">' +
@@ -685,22 +717,6 @@
        here rather than rendering the select with display:none also collapses the
        grid column on first paint, so the attending select is full width from the
        start instead of snapping wider on the first change event. */
-    /* One dietary box for the plus-one, after the events. Their allergies
-       belong to them, not to an event, and there was previously nowhere to
-       record them at all: the couple could name a guest and choose a dish
-       but not say they cannot eat nuts. */
-    if (_rsvpState.existingPlusOne) {
-      var pdWrap = document.createElement('div');
-      pdWrap.className = 'rsvp-plus-one-dietary';
-      pdWrap.style.cssText = 'margin-top:0.6rem;display:none';
-      pdWrap.innerHTML =
-        '<textarea class="rsvp-textarea" rows="1" data-p-field="dietary" ' +
-          'placeholder="' + esc('Allergies or dietary needs for ' +
-            (_rsvpState.existingPlusOne.name || 'your guest') + '?') + '" ' +
-          'style="width:100%;box-sizing:border-box;resize:vertical"></textarea>';
-      list.appendChild(pdWrap);
-    }
-
     list.querySelectorAll('.rsvp-event-block').forEach(applyEntreeGate);
     /* Same reasoning for the dietary box: nobody has answered yet, so it starts
        hidden rather than appearing and then vanishing on the first change. It
@@ -1356,13 +1372,17 @@
       document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
         if (r.style.display === 'none') return;      // guest is not attending this one
         var sel = r.querySelector('[data-p-field="entree"]');
+        var att = r.querySelector('[data-p-field="attending"]');
         pEvents2.push({
           event_id: r.dataset.eventId || '',
+          // Their own answer: a plus-one can come to the reception and skip
+          // the ceremony, so this is no longer always "yes".
+          attending: att ? ((att.value || '').trim() || 'yes') : 'yes',
           entree: sel ? (sel.value || '').trim() : '',
         });
       });
       if (pEvents2.length) {
-        var pDietEl = document.querySelector('#rsvpEventList [data-p-field="dietary"]');
+        var pDietEl = document.querySelector('[data-p-field="dietary"]');
         extraGuests.push({
           name: _rsvpState.existingPlusOne.name || '',
           meal: _rsvpState.existingPlusOne.meal_preference || '',
