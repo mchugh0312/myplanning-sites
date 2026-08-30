@@ -1286,9 +1286,18 @@ function hydrateTemplate(d) {
               // any line naming a known dress code.
               var _lines = rest.split(/<br\s*\/?>/i);
               var _last = (_lines[_lines.length - 1] || '').replace(/<[^>]+>/g, '').trim();
+              // MP-457, second half. The "any short trailing line" arm used to
+              // read:  _last.split(/\s+/).length <= 3 && !/\d/.test(_last)
+              // which swallowed the last line of any event that happened to end
+              // in three words or fewer - a venue like "The Old Barn" was lifted
+              // out of the address and printed as the dress code.
+              //
+              // A trailing line is only treated as attire when it actually
+              // names one. The keyword list is the same one used above, plus
+              // the words couples reach for when writing attire without the
+              // word "attire". Anything else stays part of the event.
               var _looksLikeAttire = _last && (
-                /\b(casual|formal|black\s*tie|white\s*tie|cocktail|festive|semi-?formal|smart|beach|garden)\b/i.test(_last) ||
-                (_last.split(/\s+/).length <= 3 && !/\d/.test(_last))
+                /\b(casual|formal|black\s*tie|white\s*tie|cocktail|festive|semi-?formal|smart|beach|garden|dressy|lounge|resort|tropical|western|costume|masquerade|optional)\b/i.test(_last)
               );
               if (_looksLikeAttire) {
                 dressCode = _last;
