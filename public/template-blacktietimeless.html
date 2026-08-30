@@ -908,7 +908,9 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
 
 
 // Boot, slug detection and the RSVP engine live in /site-runtime.js.
-const _DEFAULT_DRESS = 'Evening Casual';
+// _DEFAULT_DRESS removed with MP-457. The sample attire line now lives in
+// SAMPLE_DATA.events_info, where it reads as sample copy rather than being
+// stamped onto whatever a couple types.
 const _CANDELABRA   = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png';
 const _EVENTS_PHOTO = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/549a3628-9df0-4712-b841-68cad63cfecd.png';
 const _ARC = 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/18355396-7355-43fe-937f-e9ae89e88f81.png';
@@ -1311,10 +1313,26 @@ function hydrateTemplate(d) {
                        '<span class="other-event-where">' + _restLines.slice(_whenCount).join('<br>') + '</span>';
               }
             }
-            // The design always closes the block with a dress code. If the
-            // couple hasn't given one, fall back to the template's sample line
-            // rather than dropping it — this is placeholder copy like any other.
-            if (!dressCode) dressCode = _DEFAULT_DRESS;
+            // MP-457: "Evening Casual" was appearing on couples' own events.
+            //
+            // This used to read: if (!dressCode) dressCode = _DEFAULT_DRESS;
+            // The reasoning was that the design always closes a card with an
+            // attire line, so one was invented when the parser could not find
+            // one. But the parser fails to find one most of the time, because
+            // most couples do not write an attire line at all - so the template
+            // was printing its own sample text onto a real event, under a real
+            // event name, the moment new text was entered.
+            //
+            // Nothing is invented now. A card with no attire has no attire
+            // line. The sample copy in SAMPLE_DATA carries its own <em> attire
+            // line instead, so the standalone template still looks like the
+            // design without putting words in a couple's mouth.
+            //
+            // NOTE the guess above (~line 1285) is still loose: any trailing
+            // line of three words or fewer with no digits is read as attire, so
+            // an event ending "The Old Barn" will show that as a dress code.
+            // Left alone deliberately - tightening it changes what already-live
+            // sites display, which is a decision, not a fix.
             list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, dressCode, photoUrl));
           });
         }
@@ -1614,7 +1632,9 @@ const SAMPLE_DATA = {
   hero_image:'',
   story:'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, April 5th, 2026 &middot; 4:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April 5th, 2026 &middot; 7:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em>',
-  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101',
+  // The attire line is written out here rather than injected by the parser.
+  // See MP-457 in the other-events block above.
+  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101<br><em>Evening Casual</em>',
   accommodation_info:'<strong>Hyatt Regency La Jolla At Aventine</strong><br>Beyond the Shadow Glen Hotel Resort Block<br>3777 La Jolla Village Drive, La Jolla, CA 92037',
   travel_info:'The nearest airport is San Diego International Airport (SAN), approximately 20 minutes from the venue by car. Uber and Lyft are readily available. We recommend staying within a 10-minute drive of the venue.',
   things_to_do:'Visit La Jolla Cove for stunning coastal views, explore Torrey Pines State Reserve, or spend an evening in the Gaslamp Quarter. Ask us for personalised recommendations.',
