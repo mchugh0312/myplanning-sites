@@ -2297,9 +2297,79 @@
     } catch (e) {}
   }
 
+  /* The design's own wording for each section, captured the first time we are
+     about to write over it. Without this there is NO WAY BACK: hydrate() runs
+     again on every payload the editor posts, without reloading the page, so a
+     heading written once stays written. Clearing the rename in the editor sent
+     a payload with no override, the old code did nothing, and the page and its
+     menu kept showing the rename - which is how a couple who deleted a section
+     name was left with a menu item called "O". */
+  var _designHeadings = {};
+
+  function _rememberHeading(key, ids, node) {
+    if (Object.prototype.hasOwnProperty.call(_designHeadings, key)) return;
+    var links = [];
+    try { links = [].slice.call(document.querySelectorAll('a[href="#' + ids + '"]')); } catch (e) {}
+    _designHeadings[key] = {
+      heading: node ? node.textContent : null,
+      link: links.length ? links[0].textContent : null,
+    };
+  }
+
+  function _writeHeading(key, ids, text) {
+    var sec = document.getElementById(ids);
+    if (!sec) return false;
+    var node = _headingNode(sec);
+    _rememberHeading(key, ids, node);
+    /* Home has no heading of its own: the first title-ish element in the
+       hero is the couple's names, and writing over those would be a
+       spectacular way to fail. Rename its menu link only. */
+    if (key !== 'home' && node && text !== null) node.textContent = text;
+    /* The menu has to agree with the page, or the couple renames a section
+       and the nav still points at the old name. */
+    if (text !== null) {
+      try {
+        var links = document.querySelectorAll('a[href="#' + ids + '"]');
+        for (var k = 0; k < links.length; k++) links[k].textContent = text;
+      } catch (e) {}
+    }
+    return true;
+  }
+
+  /* Put a section back to the wording the template shipped with. */
+  function _restoreHeading(key) {
+    var saved = _designHeadings[key];
+    if (!saved) return;
+    var ids = SECTION_ANCHORS[key];
+    if (!ids) return;
+    for (var i = 0; i < ids.length; i++) {
+      var sec = document.getElementById(ids[i]);
+      if (!sec) continue;
+      if (key !== 'home' && saved.heading !== null) {
+        var node = _headingNode(sec);
+        if (node) node.textContent = saved.heading;
+      }
+      if (saved.link !== null) {
+        try {
+          var links = document.querySelectorAll('a[href="#' + ids[i] + '"]');
+          for (var k = 0; k < links.length; k++) links[k].textContent = saved.link;
+        } catch (e) {}
+      }
+      break;
+    }
+  }
+
   function applySectionHeadings(d) {
-    var map = d && d.section_headings;
-    if (!map) return;
+    var map = (d && d.section_headings) || {};
+
+    /* Every section we have previously renamed and that is NOT in this payload
+       goes back to the design's wording. This runs before the writes below so a
+       rename that merely changed is not restored and then rewritten. */
+    Object.keys(_designHeadings).forEach(function (key) {
+      var t = map[key];
+      if (!t || !String(t).trim()) _restoreHeading(key);
+    });
+
     Object.keys(map).forEach(function (key) {
       var text = map[key];
       if (!text || !String(text).trim()) return;   /* blank means keep the design's own */
@@ -2307,22 +2377,7 @@
       var ids = SECTION_ANCHORS[key];
       if (!ids) return;
       for (var i = 0; i < ids.length; i++) {
-        var sec = document.getElementById(ids[i]);
-        if (!sec) continue;
-        /* Home has no heading of its own: the first title-ish element in the
-           hero is the couple's names, and writing over those would be a
-           spectacular way to fail. Rename its menu link only. */
-        if (key !== 'home') {
-          var node = _headingNode(sec);
-          if (node) node.textContent = text;
-        }
-        /* The menu has to agree with the page, or the couple renames a section
-           and the nav still points at the old name. */
-        try {
-          var links = document.querySelectorAll('a[href="#' + ids[i] + '"]');
-          for (var k = 0; k < links.length; k++) links[k].textContent = text;
-        } catch (e) {}
-        break;
+        if (_writeHeading(key, ids[i], text)) break;
       }
     });
   }
