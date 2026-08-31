@@ -1161,8 +1161,23 @@ function hydrateTemplate(d) {
             _extraHTML += '<div style="grid-column:1/-1">' +
               buildCard(eventName, detail, dressCode) + '</div>';
           });
+        } else if (wParts.length === 1) {
+          // One event is still an event. This used to skip buildCard entirely
+          // and dump the raw HTML into a bare detail div, so deleting the
+          // Ceremony changed the Reception's font and size — the surviving card
+          // stopped being a card. Same builder as the pair, full width.
+          var _p1     = wParts[0];
+          var _nm1    = _mpTitle(_p1);
+          var _name1  = _nm1 ? _nm1[1] : '';
+          var _rest1  = _nm1 ? _p1.replace(_nm1[0], '').replace(/^<br\s*\/?>\s*/i, '') : _p1;
+          var _dm1    = _rest1.match(/<em>([^<]+)<\/em>\s*$/i);
+          var _dress1 = _dm1 ? _dm1[1] : '';
+          var _det1   = _dm1 ? _rest1.replace(_dm1[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : _rest1;
+          leftHTML = '<div style="grid-column:1/-1">' +
+            buildCard(_name1, _det1, _dress1) + '</div>';
         } else {
-          // Fallback: single full-width block — span all three columns.
+          // Nothing that survived the length filter — dump what there is rather
+          // than showing an empty section.
           leftHTML = '<div class="wedding-card" style="grid-column:1/-1">' +
             '<div class="wedding-card-detail">' + d.weddings_info + '</div></div>';
         }

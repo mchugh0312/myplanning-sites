@@ -1513,7 +1513,11 @@ function hydrateTemplate(d) {
                                     .split('||SPLIT||')
                                     .map(function(p) { return p.trim(); })
                                     .filter(function(p) { return p.length > 3; });
-        if (wParts.length >= 2) {
+        if (wParts.length) {
+          // One event is still an event. This used to require TWO blocks before
+          // it would build cards at all, so deleting the Ceremony dropped the
+          // Reception into a raw 0.9rem serif div — a different font and size
+          // from the card it had been a moment earlier.
           // Two-column layout: Ceremony left, Reception right
           // Every block, not just the first two. A couple who adds a third
           // event under Ceremony and Reception had it silently dropped: the
@@ -1523,7 +1527,7 @@ function hydrateTemplate(d) {
           wParts.forEach(function(part, _i) {
             var col = document.createElement('div');
             col.className = 'event-card-primary';
-            if (_i >= 2) col.style.gridColumn = '1/-1';
+            if (_i >= 2 || wParts.length === 1) col.style.gridColumn = '1/-1';
             // First line = event name (bold/strong), rest = details, last em = dress code
             var nameMatch = _mpTitle(part);
             var eventName = nameMatch ? nameMatch[1] : '';
@@ -1538,7 +1542,8 @@ function hydrateTemplate(d) {
             grid.appendChild(col);
           });
         } else {
-          // Fallback: single full-width block
+          // Nothing that survived the length filter — dump what there is rather
+          // than showing an empty section.
           var card = document.createElement('div');
           card.className = 'event-card-primary';
           card.style.cssText = 'grid-column:1/-1';

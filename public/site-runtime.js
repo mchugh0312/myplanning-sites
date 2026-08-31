@@ -2764,6 +2764,100 @@
       }).join('&') + '&display=swap';
   }
 
+  /* ── Fonts the couple applied to CONTENT (MP-332) ───────────────────────────
+     A font picked in the Content tab lands on a run of text, not on a role:
+     <span style="font-family:'Pinyon Script'">Cocktail Attire</span>. Only the
+     three role fonts and the per-section fonts from font_settings were ever
+     requested from Google, so nothing downloaded that face and the browser fell
+     back to the nearest serif. That is why the preview showed a different font
+     from the one that was picked, and why it looked like a font change had been
+     applied to the wrong words: the few faces that happened to already be on the
+     page did change, and the rest quietly did not.
+
+     Allow-listed rather than pattern-matched, and it has to be. css2 answers
+     400 for a family it does not recognise, and a 400 fails the WHOLE request -
+     so a single stray value in a pasted span would take down every other font in
+     the same stylesheet, including the couple's headings. Keep in sync with
+     FONTS in the Softr block (Website.txt); nothing breaks if it drifts, a font
+     added there and not here simply will not download. */
+  var CONTENT_FONTS = [
+    'Aboreto', 'Ballet', 'Comic Neue', 'Corben', 'Cormorant Garamond',
+    'Dancing Script', 'DM Sans', 'EB Garamond', 'Great Vibes',
+    'Instrument Serif', 'La Belle Aurore', 'Lancelot', 'Lexend Deca',
+    'Libre Baskerville', 'Lora', 'Luxurious Script', 'Montserrat',
+    'Noto Serif', 'Open Sans', 'Oswald', 'Ovo', 'Pacifico', 'Pinyon Script',
+    'Playfair Display', 'Poppins', 'Roboto', 'Sorts Mill Goudy'
+  ];
+  var _contentFontIndex = null;
+
+  function _knownContentFont(name) {
+    if (!_contentFontIndex) {
+      _contentFontIndex = {};
+      for (var i = 0; i < CONTENT_FONTS.length; i++) {
+        _contentFontIndex[CONTENT_FONTS[i].toLowerCase()] = CONTENT_FONTS[i];
+      }
+    }
+    /* Trim any run of quotes and space at either end. The couple's markup can
+       arrive as 'Pinyon Script', "Pinyon Script" or Pinyon Script, and the
+       attribute's own closing quote often rides along on the last one. */
+    var n = String(name || '').replace(/^[\s"']+|[\s"']+$/g, '');
+    /* Return the canonical spelling, not the couple's. css2 is case-sensitive
+       on the family name and would 400 on "playfair display". */
+    return _contentFontIndex[n.toLowerCase()] || null;
+  }
+
+  /* Every string field, not a fixed list: the picker is available on all of the
+     rich-text fields, and a new one should not have to be remembered here. */
+  function collectContentFonts(d) {
+    var seen = {}, out = [];
+    if (!d) return out;
+    /* Runs to the ; or the > that ends the tag, so the attribute's own closing
+       quote can be swept up in the value - _knownContentFont trims it off. */
+    var re = /font-family\s*:\s*([^;>]+)/gi;
+    var keys = Object.keys(d);
+    for (var i = 0; i < keys.length; i++) {
+      var v = d[keys[i]];
+      if (typeof v !== 'string' || v.indexOf('font-family') === -1) continue;
+      re.lastIndex = 0;
+      var m;
+      while ((m = re.exec(v))) {
+        var parts = m[1].split(',');
+        for (var j = 0; j < parts.length; j++) {
+          var name = _knownContentFont(parts[j]);
+          if (name && !seen[name]) { seen[name] = 1; out.push(name); }
+        }
+      }
+    }
+    return out;
+  }
+
+  function loadContentFonts(names) {
+    if (!names || !names.length) return;
+    var link = document.getElementById('mp-content-fonts');
+    if (!link) {
+      link = document.createElement('link');
+      link.id = 'mp-content-fonts';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    /* Deliberately no :wght@ list, unlike the role fonts. Several of the
+       picker's faces ship a single weight - Pinyon Script, Great Vibes, Ballet,
+       La Belle Aurore - and css2 answers 400 for a weight a family does not
+       have, which would drop every other family in the same request. Inline
+       content needs the default face; bold inside it is synthesised, exactly as
+       it is today.
+
+       A SEPARATE element from mp-role-fonts, so that even if this request does
+       fail it cannot take the headings and body copy down with it. */
+    var href = 'https://fonts.googleapis.com/css2?' +
+      names.map(function (n) {
+        return 'family=' + encodeURIComponent(n).replace(/%20/g, '+');
+      }).join('&') + '&display=swap';
+    /* hydrate() runs on every keystroke in the editor; re-assigning an identical
+       href re-fetches and makes the text flash. */
+    if (link.getAttribute('href') !== href) link.setAttribute('href', href);
+  }
+
   function applyCustomFont(fontName) {
     var root = document.documentElement.style;
 
@@ -4247,6 +4341,9 @@
     // Per-role settings win. custom_font is the older single choice and stays
     // as the fallback so couples who made one keep it.
     if (!applyFontSettings(d)) applyCustomFont(d.custom_font);
+    /* Independent of the two above: a couple can set a font on a word without
+       ever touching the Design tab, so this must not sit behind either branch. */
+    try { loadContentFonts(collectContentFonts(d)); } catch (e) {}
     applyCustomColors(d);
 
     // Toggling a section on should show something. Templates gate most sections
