@@ -1528,17 +1528,23 @@ function hydrateTemplate(d) {
             var col = document.createElement('div');
             col.className = 'event-card-primary';
             if (_i >= 2 || wParts.length === 1) col.style.gridColumn = '1/-1';
-            // First line = event name (bold/strong), rest = details, last em = dress code
+            // First line is the title. Everything after it is rendered as the
+            // couple wrote it.
+            //
+            // A trailing <em> used to be lifted out as a dress code, which made
+            // italics decide both what a line MEANT and where it appeared. A
+            // font applied to that line stopped it matching and it silently lost
+            // its styling (MP-332); a line that was bold and italic together
+            // matched nothing at all (MP-337). Nothing is inferred now, so the
+            // couple styles the attire line themselves and it survives.
             var nameMatch = _mpTitle(part);
             var eventName = nameMatch ? nameMatch[1] : '';
-            var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            var dressCode = dressMatch ? dressMatch[1] : '';
-            var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
+            var detail = (nameMatch
+              ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+              : part).trim();
             col.innerHTML =
               (eventName ? '<div class="event-card-name">' + eventName + '</div>' : '') +
-              (detail    ? '<div class="event-card-detail">' + detail + '</div>' : '') +
-              (dressCode ? '<span class="event-card-dress">' + dressCode + '</span>' : '');
+              (detail    ? '<div class="event-card-detail">' + detail + '</div>' : '');
             grid.appendChild(col);
           });
         } else {
@@ -1587,18 +1593,16 @@ function hydrateTemplate(d) {
           .map(function(p){ return p.trim(); })
           .filter(function(p){ return p.length > 3; });
         list.innerHTML = oParts.map(function(part){
+          // Same contract as the weddings cards above: title from the first
+          // line, body verbatim, nothing inferred from <em>.
           var nameMatch  = _mpTitle(part);
           var eventName  = nameMatch ? nameMatch[1] : '';
-          var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-          var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-          var dressCode  = dressMatch ? dressMatch[1] : '';
-          var detail     = dressMatch
-            ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim()
-            : rest;
+          var detail     = (nameMatch
+            ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+            : part).trim();
           return '<div class="event-card-primary other-event-card">' +
             (eventName ? '<div class="event-card-name">' + eventName + '</div>' : '') +
             (detail    ? '<div class="event-card-detail">' + detail + '</div>' : '') +
-            (dressCode ? '<span class="event-card-dress">' + dressCode + '</span>' : '') +
           '</div>';
         }).join('');
       } else if (d.events && d.events.length > 2) {
