@@ -102,9 +102,16 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --rose:#e5989b;        /* rosy pink — page frame, story, FAQ bg */
-  --burgundy:#53141e;    /* burgundy — itinerary, registry, body text */
+  --burgundy:#53141e;
+  /* Body text. Its own variable so changing the text colour cannot repaint
+     the panels and borders that also use --burgundy. */
+  --ink: #53141e;    /* burgundy — itinerary, registry, body text */
   --yellow:#e4c567;      /* yellow — accommodations, RSVP bg, script accents */
-  --ivory:#fffdf5;       /* ivory — RSVP cards, book-now button bg */
+  --ivory:#fffdf5;
+  /* Text on dark panels. Same tone as --ivory, its own variable so the
+     couple can change text on a coloured panel without moving the page
+     background underneath it, and vice versa. */
+  --on-dark: #fffdf5;       /* ivory — RSVP cards, book-now button bg */
   --white:#ffffff;
   --text:#53141e;        /* burgundy as default text */
   --display:'Corben', Georgia, serif;
@@ -138,7 +145,7 @@ body.hydrating{visibility:hidden;}
 .menu-close{
   position:absolute;top:1.2rem;right:1.4rem;
   background:none;border:none;font-size:1.5rem;
-  cursor:pointer;color:var(--burgundy);opacity:0.6;line-height:1;
+  cursor:pointer;color:var(--ink);opacity:0.6;line-height:1;
   font-weight:300;
   width:32px;height:32px;display:flex;align-items:center;justify-content:center;
 }
@@ -158,7 +165,7 @@ body.hydrating{visibility:hidden;}
 .menu-links li a{
   font-family:var(--body);
   font-size:clamp(0.95rem,1.4vw,1.1rem);
-  color:var(--burgundy);
+  color:var(--ink);
   text-decoration:none;
   display:block;
   padding:0.5rem 0;
@@ -321,7 +328,7 @@ body.hydrating{visibility:hidden;}
 .story-text{
   font-family:var(--body);
   font-size:0.95rem;
-  color:var(--burgundy);
+  color:var(--ink);
   line-height:1.85;
   font-weight:400;
 }
@@ -334,7 +341,7 @@ body.hydrating{visibility:hidden;}
   background:var(--burgundy);
   padding:4rem 1.5rem 4.5rem;
   text-align:center;
-  color:var(--ivory);
+  color:var(--on-dark);
   position:relative;
 }
 .itinerary-title-wrap{
@@ -403,7 +410,7 @@ body.hydrating{visibility:hidden;}
 .itinerary-event-date{
   font-family:var(--body);
   font-size:0.78rem;
-  color:var(--ivory);
+  color:var(--on-dark);
   font-weight:400;
   line-height:1.7;
   margin-bottom:1rem;
@@ -415,7 +422,7 @@ body.hydrating{visibility:hidden;}
 .itinerary-event-venue{
   font-family:var(--body);
   font-size:0.78rem;
-  color:var(--ivory);
+  color:var(--on-dark);
   font-weight:600;
   line-height:1.6;
   margin-bottom:0.25rem;
@@ -435,7 +442,7 @@ body.hydrating{visibility:hidden;}
 .itinerary-event-detail{
   font-family:var(--body);
   font-size:0.78rem;
-  color:var(--ivory);
+  color:var(--on-dark);
   font-weight:400;
   line-height:1.8;
   letter-spacing:0.01em;
@@ -500,7 +507,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   /* Same size as the FAQs heading. */
   font-size:clamp(1.8rem, 4vw, 2.4rem);
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   margin-bottom:1.4rem;
   letter-spacing:-0.005em;
@@ -508,7 +515,7 @@ body.hydrating{visibility:hidden;}
 .accom-name{
   font-family:var(--script);
   font-size:clamp(1.6rem, 3.6vw, 2.2rem);
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   margin-bottom:0.6rem;
   line-height:1;
@@ -516,14 +523,14 @@ body.hydrating{visibility:hidden;}
 .accom-address{
   font-family:var(--body);
   font-size:0.82rem;
-  color:var(--burgundy);
+  color:var(--ink);
   line-height:1.65;
   margin-bottom:1.2rem;
 }
 .accom-meta{
   font-family:var(--body);
   font-size:0.86rem;
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:700;
   font-style:italic;
   margin-bottom:1.4rem;
@@ -533,7 +540,7 @@ body.hydrating{visibility:hidden;}
   display:inline-block;
   padding:0.7rem 2.2rem;
   background:var(--ivory);
-  color:var(--burgundy);
+  color:var(--ink);
   border:2px solid var(--burgundy);
   border-radius:999px;
   font-family:var(--body);
@@ -543,7 +550,7 @@ body.hydrating{visibility:hidden;}
   cursor:pointer;
   transition:background 0.25s, color 0.25s;
 }
-.accom-cta:hover{background:var(--burgundy);color:var(--ivory);}
+.accom-cta:hover{background:var(--burgundy);color:var(--on-dark);}
 
 /* ── FAQS (rosy pink, always-open list) ───────────────────── */
 .need-to-know{
@@ -555,7 +562,7 @@ body.hydrating{visibility:hidden;}
 .ntk-title{
   font-family:var(--display);
   font-size:clamp(1.8rem, 4vw, 2.4rem);
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   margin-bottom:2.2rem;
 }
@@ -571,7 +578,7 @@ body.hydrating{visibility:hidden;}
 .faq-q-text{
   font-family:var(--display);
   font-size:clamp(1.02rem,1.7vw,1.2rem);
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   line-height:1.4;
   display:block;
@@ -581,7 +588,7 @@ body.hydrating{visibility:hidden;}
 .faq-answer{
   font-family:var(--body);
   font-size:0.9rem;
-  color:var(--burgundy);
+  color:var(--ink);
   font-style:italic;
   line-height:1.7;
   max-width:480px;
@@ -634,7 +641,7 @@ body.hydrating{visibility:hidden;}
   display:inline-block;
   padding:0.7rem 2.2rem;
   background:var(--ivory);
-  color:var(--burgundy);
+  color:var(--ink);
   border:2px solid var(--burgundy);
   border-radius:999px;
   font-family:var(--body);
@@ -644,7 +651,7 @@ body.hydrating{visibility:hidden;}
   cursor:pointer;
   transition:background 0.25s, color 0.25s;
 }
-.registry-cta:hover{background:var(--yellow);color:var(--burgundy);}
+.registry-cta:hover{background:var(--yellow);color:var(--ink);}
 .registry-info{
   font-family:var(--body);
   font-size:0.82rem;
@@ -665,14 +672,14 @@ body.hydrating{visibility:hidden;}
 .rsvp-title{
   font-family:var(--display);
   font-size:clamp(1.7rem, 3.6vw, 2.2rem);
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   margin-bottom:0.5rem;
 }
 .rsvp-deadline{
   font-family:var(--body);
   font-size:0.85rem;
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:400;
   margin-bottom:2.2rem;
   letter-spacing:0.01em;
@@ -684,7 +691,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-event-label{
   font-family:var(--body);
   font-size:0.88rem;
-  color:var(--burgundy);
+  color:var(--ink);
   font-weight:700;
   margin-bottom:0.45rem;
   text-align:left;
@@ -696,7 +703,7 @@ body.hydrating{visibility:hidden;}
   background:var(--ivory);
   border-radius:999px;
   font-family:var(--body);font-size:0.85rem;
-  color:var(--burgundy);outline:none;display:block;
+  color:var(--ink);outline:none;display:block;
   text-align:center;
   transition:border-color 0.2s;
 }
@@ -718,7 +725,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-household.visible{display:block;}
 .rsvp-household-label{
   font-family:inherit;font-style:italic;
-  font-size:0.85rem;color:#53141e;
+  font-size:0.85rem;color:var(--ink);
   text-align:left;letter-spacing:0.01em;
   margin-bottom:0.7rem;line-height:1.5;
 }
@@ -733,14 +740,14 @@ body.hydrating{visibility:hidden;}
 }
 .rsvp-household-name{
   font-family:inherit;font-weight:600;font-size:0.9rem;
-  color:#53141e;
+  color:var(--ink);
   display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
 }
 .rsvp-household-name-primary-tag{
   font-family:inherit;
   font-size:0.62rem;font-weight:500;font-style:normal;
   letter-spacing:0.08em;text-transform:uppercase;
-  color:#fffdf5;background:#53141e;
+  color:var(--on-dark);background:var(--burgundy);
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
@@ -779,7 +786,7 @@ body.hydrating{visibility:hidden;}
   border:2px solid rgba(83,20,30,0.45);
   background:var(--ivory);
   font-family:var(--body);font-size:0.82rem;
-  color:var(--burgundy);outline:none;border-radius:999px;
+  color:var(--ink);outline:none;border-radius:999px;
   transition:border-color 0.2s;
   appearance:none;
   -webkit-appearance:none;
@@ -794,7 +801,7 @@ body.hydrating{visibility:hidden;}
   width:100%;padding:0.7rem 1.2rem;resize:vertical;min-height:54px;
   border:none;
   background:var(--ivory);font-family:var(--body);
-  font-size:0.82rem;color:var(--burgundy);outline:none;border-radius:14px;
+  font-size:0.82rem;color:var(--ink);outline:none;border-radius:14px;
 }
 .rsvp-textarea:focus{border-color:var(--burgundy);}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.5rem;margin:0.4rem 0 0.5rem;}
@@ -803,13 +810,13 @@ body.hydrating{visibility:hidden;}
   background:none;border:none;cursor:pointer;
   font-size:1rem;color:rgba(83,20,30,0.4);padding:0.3rem;line-height:1;
 }
-.rsvp-remove-btn:hover{color:var(--burgundy)}
+.rsvp-remove-btn:hover{color:var(--ink)}
 .rsvp-add-guest{
   display:block;width:100%;padding:0.7rem;
   border:1px dashed rgba(83,20,30,0.3);
   border-radius:999px;background:transparent;
   font-family:var(--body);font-size:0.82rem;
-  color:var(--burgundy);cursor:pointer;text-align:center;
+  color:var(--ink);cursor:pointer;text-align:center;
   margin-top:0.4rem;transition:background 0.2s;
 }
 .rsvp-add-guest:hover{background:rgba(83,20,30,0.06)}
@@ -817,7 +824,7 @@ body.hydrating{visibility:hidden;}
   display:inline-block;
   padding:0.85rem 3rem;
   margin:1.2rem auto 0;
-  background:var(--burgundy);color:var(--ivory);
+  background:var(--burgundy);color:var(--on-dark);
   border:2px solid var(--burgundy);border-radius:999px;
   cursor:pointer;font-family:var(--body);
   font-size:0.82rem;
@@ -831,7 +838,7 @@ body.hydrating{visibility:hidden;}
   background:var(--ivory);border:1px solid rgba(83,20,30,0.18);
   border-radius:14px;padding:1.6rem;text-align:center;
   font-family:var(--body);
-  color:var(--burgundy);font-size:0.92rem;line-height:1.6;
+  color:var(--ink);font-size:0.92rem;line-height:1.6;
   font-weight:500;
 }
 
@@ -840,7 +847,7 @@ body.hydrating{visibility:hidden;}
   background:var(--burgundy);
   padding:4rem 2rem;
   text-align:center;
-  color:var(--ivory);
+  color:var(--on-dark);
 }
 .travel-inner{max-width:620px;margin:0 auto;}
 .travel-title{
@@ -854,7 +861,7 @@ body.hydrating{visibility:hidden;}
 .travel-content{
   font-family:var(--body);
   font-size:0.92rem;
-  color:var(--ivory);
+  color:var(--on-dark);
   line-height:1.75;
   text-align:center;
 }
@@ -868,7 +875,7 @@ body.hydrating{visibility:hidden;}
 .gallery-title{
   font-family:var(--display);
   font-size:clamp(1.8rem, 4vw, 2.4rem);
-  color:var(--burgundy);
+  color:var(--ink);
   margin-bottom:2rem;
   font-weight:700;
 }
@@ -1862,7 +1869,7 @@ const SAMPLE_DATA = {
   gallery_images:[], rsvp_enabled:true, password_protected:false,
   website_mode:'Full', custom_font:'',
   rsvp_deadline:'2027-09-01',
-  customization:{ primary_color:'#53141e', accent_color:'#e5989b', text_color:'' },
+  customization:{primary_color:'',accent_color:'',text_color:''},
   rsvp_config:{ entrees:['Chicken','Fish','Vegetarian','Vegan','Kids Meal'], allow_plus_one:true },
   menu_config:{
     home:true, story:true, wedding:true, other_events:true,

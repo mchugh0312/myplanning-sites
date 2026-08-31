@@ -65,7 +65,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
-      footerVars: { bg: '--offwhite', ink: '--text' },
+      footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f9f7f5', ink: '#040505', accent: '#8d8863', rule: 'rgba(141,136,99,0.28)' },
@@ -77,7 +77,7 @@
       heroNamesId: 'heroInitialsWrap',
       heroId: 'hero',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
-      footerVars: { bg: '--gold', ink: '--text' },
+      footerVars: { bg: '--gold', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f2ece7', ink: '#4a3a3d', accent: '#673d45', rule: 'rgba(103,61,69,0.28)' },
@@ -92,7 +92,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'home',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
-      footerVars: { bg: '--offwhite', ink: '--text' },
+      footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#f4f2ed', ink: '#1c2120', accent: '#1c2120', rule: 'rgba(28,33,32,0.24)' },
@@ -104,7 +104,7 @@
       heroNamesId: 'heroNames',
       heroId: 'home',
       stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
-      footerVars: { bg: '--blue', ink: '--dark' },
+      footerVars: { bg: '--blue', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/015b4006-b2b0-4cdc-85fb-6c86758de1f9.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
       palette: { bg: '#d7dde4', ink: '#32344b', accent: '#32344b', rule: 'rgba(50,52,75,0.24)' },
@@ -115,7 +115,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','weekend','registry-section','need-to-know','accommodations','travel-section','gallery','rsvp'],
-      footerVars: { bg: '--offwhite', ink: '--text' },
+      footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f5f3ee', ink: '#1f211d', accent: '#696c62', rule: 'rgba(105,108,98,0.28)' },
@@ -126,7 +126,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','events-primary','other-events','accommodations','travel-section','faq-section','gallery','registry-section','rsvp'],
-      footerVars: { bg: '--ivory', ink: '--text' },
+      footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
@@ -140,7 +140,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','itinerary','accommodations','need-to-know','registry-section','travel-section','gallery','rsvp'],
-      footerVars: { bg: '--rose', ink: '--text' },
+      footerVars: { bg: '--rose', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png',
       scriptVar: '--script', displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#fffdf5', ink: '#53141e', accent: '#e5989b', rule: 'rgba(83,20,30,0.24)' },
@@ -152,7 +152,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['our-story','event-schedule','travel-section','accommodations','faq-section','gallery','registry-section','rsvp'],
-      footerVars: { bg: '--ivory', ink: '--text' },
+      footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/35c7f1a4-8d18-414b-ae05-0d7246886b52.png',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
       palette: { bg: '#fefaf1', ink: '#1b2a41', accent: '#5f7689', rule: 'rgba(27,42,65,0.22)' },
@@ -163,7 +163,7 @@
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
       stdHideIds: ['wedding','our-story','events','travel-section','need-to-know','gallery','registry-wrap','rsvp'],
-      footerVars: { bg: '--blue', ink: '--text' },
+      footerVars: { bg: '--blue', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg',
       scriptVar: null, displayVar: '--display', bodyVar: '--sans',
       palette: { bg: '#f4efe6', ink: '#1a1a1a', accent: '#6b5844', rule: 'rgba(26,26,26,0.2)' },
@@ -178,7 +178,7 @@
       heroNamesId: null,
       heroId: 'hero',
       stdHideIds: ['our-story','event-details','travel-section','travel-standalone','need-to-know','gallery','registry-wrap','rsvp'],
-      footerVars: { bg: '--beige', ink: '--text' },
+      footerVars: { bg: '--beige', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cdfe7e4-e470-4115-bb89-993f7b234798.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
       palette: { bg: '#f1e4c9', ink: '#53141e', accent: '#53141e', rule: 'rgba(83,20,30,0.24)' },
@@ -2079,22 +2079,31 @@
      now put their body copy on --text, so `ink` reaches all of it.
 
      `ink2` is the tone used for text sitting ON a dark panel or photograph.
-     Every template has one and it is heavily used, but in six of them it was
-     the SAME variable as the page ground, so a couple could not darken the
-     text on a coloured panel without repainting the whole page. Those six now
-     declare --on-dark alongside the background variable, seeded with the same
-     hex; the four that already had a separate tone keep it. */
+
+     Both are now dedicated variables — --ink and --on-dark — declared in every
+     template beside the tone they were split from and used ONLY in `color:`
+     declarations. That is the point: the tones they came from also paint
+     panels, borders and rules, so while a control wrote to the shared variable,
+     changing the text colour repainted the design. Whimsical Romance was the
+     worst of it, with --burgundy setting 25 text declarations AND 14 panels, so
+     "change the text" meant "repaint the site". A couple can now change either
+     text tone and move nothing but text.
+
+     The two names are the same in all ten templates, so nothing downstream has
+     to special-case a design. Keep TEMPLATE_PALETTES in Website.txt in step:
+     this decides which variable moves, that decides which colour the picker
+     opens on. */
   var TEMPLATE_COLOR_VARS = {
-    pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--text',     ink2: '--white' },
-    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--text',     ink2: '--on-dark' },
-    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--text',     ink2: '--white' },
-    goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--dark',     ink2: '--on-dark' },
-    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--text',     ink2: '--on-dark' },
-    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--text',     ink2: '--white' },
-    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--burgundy', ink2: '--on-dark' },
-    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--text',     ink2: '--white' },
-    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--text',     ink2: '--on-dark' },
-    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--text',     ink2: '--on-dark' },
+    pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark' },
+    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark' },
+    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark' },
+    goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark' },
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark' },
+    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark' },
+    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark' },
+    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark' },
+    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark' },
+    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark' },
   };
 
   /* ── SCROLL TO A SECTION ON REQUEST ────────────────────────────────────────
