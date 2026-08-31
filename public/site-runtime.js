@@ -2649,7 +2649,11 @@
         '.mp-gal-cell{flex:0 0 auto;padding:0 6px;box-sizing:border-box}' +
         '.mp-gal-frame{width:100%;aspect-ratio:4/3;background:transparent;' +
           'border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}' +
-        '.mp-gal-frame img{width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}' +
+                /* cursor:pointer, not zoom-in. The zoom-in cursor renders as a
+           magnifying glass over the photograph on most platforms, which reads
+           as page furniture sitting on the couple's picture rather than as an
+           affordance. A pointer says the same thing and shows nothing. */
+        '.mp-gal-frame img{width:100%;height:100%;object-fit:contain;display:block;cursor:pointer}' +
         '.mp-gal-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;' +
           'border-radius:50%;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:18px;' +
           'line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}' +
@@ -2677,10 +2681,9 @@
       img.src = url;
       img.alt = '';
       img.loading = 'lazy';
-      /* Templates that ship a WORKING lightbox get to use it; _openPhoto falls
-         back to the runtime's own when they don't have one or theirs throws.
-         This used to call the template's directly and swallow the error, which
-         is why cursor:zoom-in led nowhere in four templates. */
+      /* Straight to the runtime's lightbox. This used to call the template's
+         own and swallow any error, which is why clicking a photograph did
+         nothing at all in four templates. */
       img.addEventListener('click', function () {
         _openPhoto(urls, i);
       });
@@ -2779,9 +2782,8 @@
      an expand that did nothing in four of them.
 
      One implementation here, given the URLs directly, cannot fall out of scope
-     with a template's internals. A template that already has a WORKING lightbox
-     keeps it: _openPhoto tries the template's first and only falls back to
-     this. */
+     with a template's internals. See _openPhoto for why the templates' own are
+     not consulted at all. */
   var _lbState = null;
 
   function _ensureLightbox() {
@@ -2849,14 +2851,26 @@
       (_lbState.i + 1) + ' / ' + _lbState.urls.length;
   }
 
-  /* The template's own lightbox first, this one second. Three templates define
-     openLightbox() but throw on the missing _galleryUrls, so "defined" is not
-     "working" - the call is guarded and any throw falls through to ours. */
+  /* Always the runtime's own lightbox, never the template's.
+     
+     The first version of this tried the template's openLightbox() first and
+     only fell back on a thrown error. That is not good enough, because a
+     template lightbox has three ways to fail and only one of them throws:
+     Golden Hour has none at all; coastalchic, modernminimal and pressedpetals
+     throw ReferenceError because the _galleryUrls they read is declared inside
+     hydrateTemplate while the function sits at the top level; and any of them
+     can return early and silently when its markup is missing, in which case the
+     call "succeeds", nothing opens, and the fallback never runs. That last case
+     is unfixable from out here — there is no way to ask whether someone else's
+     lightbox actually opened.
+
+     So this does not ask. The carousel has already replaced the template's own
+     gallery grid, which means the template's click handlers are not attached to
+     anything on the page any more; deferring to its lightbox was keeping half
+     of a mechanism whose other half had been swapped out. One implementation,
+     the same in all ten templates, given the URLs directly so it cannot fall
+     out of scope with a template's internals. */
   function _openPhoto(urls, i) {
-    try {
-      if (typeof window.openGalleryLightbox === 'function') { window.openGalleryLightbox(i); return; }
-      if (typeof window.openLightbox === 'function') { window.openLightbox(i); return; }
-    } catch (e) { /* template lightbox is broken - use ours */ }
     if (!urls || !urls.length) return;
     _ensureLightbox();
     var lb = document.getElementById('mp-lb');
