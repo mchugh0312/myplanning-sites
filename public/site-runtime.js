@@ -913,7 +913,10 @@
 
     // Editing the name after a match invalidates it, otherwise a guest could
     // match, retype someone else's name and submit under the first guest's id.
-    if (_rsvpState.guestId && name !== _rsvpState.matchedName) resetRsvpMatch();
+    // Also runs when nothing is matched any more: after a submit the previous
+    // reply's thank-you panel and "Submitting..." button are still on screen,
+    // and they belong to the guest being typed over.
+    if (name !== _rsvpState.matchedName) resetRsvpMatch();
 
     checkShowSubmit();
 
@@ -929,8 +932,24 @@
     _rsvpState.matchedName = '';
     _rsvpState.plusOneAllowed = false;
     _rsvpState.householdMembers = [];
+    _rsvpState.existingPlusOne = null;
+    _rsvpState.plusOneName = 'Your plus one';
     var answers = rsvpEl('rsvpAnswers');
     if (answers) answers.style.display = 'none';
+
+    /* Everything the previous reply left on screen describes a guest who is
+       no longer selected, so it goes with the match. Without this the button
+       still read "Submitting...", the thank-you panel stayed up, and the
+       "Not X?" link kept naming the first person searched for. */
+    var btn = document.getElementById('rsvpSubmitBtn');
+    if (btn) {
+      btn.disabled = false;
+      if (btn.dataset && btn.dataset.idleLabel) btn.textContent = btn.dataset.idleLabel;
+    }
+    var success = document.getElementById('rsvpSuccess');
+    if (success) success.style.display = 'none';
+    var notYou = document.getElementById('mpNotYou');
+    if (notYou && notYou.parentNode) notYou.parentNode.removeChild(notYou);
   }
 
   function checkShowSubmit() {
@@ -1242,7 +1261,7 @@
         if (json.found === true) {
           applyFoundGuest(json, name);
         } else if (json.ambiguous) {
-          rejectGuest('ambiguous', 'Multiple matches. Please pick yours below');
+          rejectGuest('ambiguous', 'Multiple matches. Please pick yours below.');
           showAmbiguousMatches(json.matches || []);
         } else {
           rejectGuest('unknown',
@@ -1285,8 +1304,9 @@
     wrap.style.cssText = 'background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.10);' +
       'border-radius:6px;padding:0.55rem 0.7rem;margin:0.5rem 0 0.6rem;' +
       'font-family:inherit;font-size:0.8rem;display:block;';
-    wrap.innerHTML = '<div style="margin-bottom:0.4rem;font-size:0.72rem;opacity:0.7">' +
-      'We found a few matches. Please pick yours:</div>';
+    // No heading: the status banner directly above already says the same
+    // thing, and repeating it in smaller type read as two instructions.
+    wrap.innerHTML = '';
 
     matches.forEach(function (m) {
       var btn = document.createElement('button');
@@ -1736,6 +1756,9 @@
       return;
     }
 
+    // Keep the theme's own wording so a reset can put it back rather than
+    // inventing a label of its own.
+    if (btn.dataset && !btn.dataset.idleLabel) btn.dataset.idleLabel = btn.textContent || 'Send my reply';
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
