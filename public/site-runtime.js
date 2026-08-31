@@ -646,6 +646,14 @@
       /* The person replying gets the same bounded card as each household
          member, so it is obvious which answers belong to whom. */
       '#rsvpBlocks .rsvp-you-row{margin-bottom:1.25rem}',
+
+      /* MP-500. A little more weight on a phone, where the cards are the main
+         way of telling whose answers are whose. */
+      '@media (max-width: 767px){ #rsvpBlocks .rsvp-household-name{font-weight:600} }',
+
+      /* MP-500. The search box ran straight into the first event block. */
+      '#rsvpBlocks #rsvpAnswers{margin-top:1.5rem}',
+      '@media (max-width: 767px){ #rsvpBlocks #rsvpAnswers{margin-top:1.75rem} }',
     ].join('\n');
     document.head.appendChild(st);
   }
@@ -777,10 +785,13 @@
     // a worse failure than one offered an event too many.
     var events = eventsForInvitation(_rsvpState.invitedEventIds);
 
-    var youName = _rsvpState.matchedName || 'You';
+    // Only when a household card will sit beneath this one.
+    var hasOtherCards = (_rsvpState.householdMembers || []).some(function (m) {
+      return m && m.guest_id && m.guest_id !== _rsvpState.guestId && !m.is_plus_one;
+    });
     list.innerHTML =
       '<div class="rsvp-household-row rsvp-you-row">' +
-        '<div class="rsvp-household-name">' + esc(youName) + '</div>' +
+        (hasOtherCards ? '<div class="rsvp-household-name">You</div>' : '') +
         events.map(function (ev) {
       return '' +
         '<div class="rsvp-event-block" data-event-id="' + esc(ev.id) + '">' +
@@ -1151,11 +1162,11 @@
         }
       } catch (e) {}
       setStatus('ok',
-        '\u2713 ' + _rsvpState.matchedName + ', you have already replied' + when + ': ' +
+        '\u2713 You have already replied' + when + ': ' +
         prev.status + (prev.meal ? ' (' + prev.meal + ')' : '') +
         '. Answering again will replace that.');
     } else {
-      setStatus('ok', '\u2713 Found you on the list. ' + _rsvpState.matchedName);
+      setStatus('ok', '\u2713 Found you on the list.');
     }
     renderNotYouLink(_rsvpState.matchedName);
 
