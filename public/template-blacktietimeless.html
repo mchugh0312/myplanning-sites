@@ -44,8 +44,17 @@
 :root{
   --black:   #1c2120;
   --offwhite:#f9f7f5;
+  /* Third text tone, split from --offwhite so it can be changed without
+     repainting what --offwhite fills. */
+  --ink3: #f9f7f5;
   --white:   #ffffff;
+  /* Text on dark panels. Same tone as --white, its own variable so text on a
+     coloured panel moves independently of the panel itself. */
+  --on-dark: #ffffff;
   --text:    #1c2120;
+  /* Body text. Its own variable so changing the text colour cannot repaint
+     the panels and borders that also use --text. */
+  --ink: #1c2120;
   --muted:   rgba(28,33,32,0.55);
   /* Forever & Ever is monochrome dark/light — there's no olive accent.
      Older shared CSS rules reference --olive; alias to --black so they
@@ -57,7 +66,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:var(--serif);color:var(--text);background:var(--offwhite);}
+body{font-family:var(--serif);color:var(--ink);background:var(--offwhite);}
 body.hydrating{visibility:hidden;}
 img{max-width:100%;display:block;}
 
@@ -71,7 +80,7 @@ img{max-width:100%;display:block;}
 }
 .nav-hamburger{
   background:none;border:none;cursor:pointer;
-  font-size:1.3rem;color:var(--black);
+  font-size:1.3rem;color:var(--ink);
   line-height:1;letter-spacing:0.08em;
   pointer-events:auto;
   font-family:var(--serif);
@@ -96,7 +105,7 @@ img{max-width:100%;display:block;}
   background:none;border:none;cursor:pointer;
   font-size:1.6rem;color:rgba(28,33,32,0.55);line-height:1;
 }
-.menu-close:hover{color:var(--black);}
+.menu-close:hover{color:var(--ink);}
 
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:0.75rem;}
 .menu-links a{
@@ -104,7 +113,7 @@ img{max-width:100%;display:block;}
      not micro-type. Underline on hover / active, as specified. */
   font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.22rem);
   letter-spacing:0.01em;
-  color:var(--black);text-decoration:none;
+  color:var(--ink);text-decoration:none;
   display:inline-block;width:fit-content;
   border-bottom:1px solid transparent;
   padding-bottom:2px;
@@ -131,7 +140,7 @@ img{max-width:100%;display:block;}
 .home-couple-name{
   font-family:var(--script);
   font-size:clamp(4rem,10vw,7.5rem);
-  color:var(--black);
+  color:var(--ink);
   text-align:center;
   line-height:1.15;
   font-weight:400;
@@ -145,12 +154,12 @@ img{max-width:100%;display:block;}
 .story-section{background:var(--offwhite);}
 .story-title{
   font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
-  color:var(--black);text-align:center;margin-bottom:0.5rem;
+  color:var(--ink);text-align:center;margin-bottom:0.5rem;
 }
 .story-rule{width:40px;height:1px;background:rgba(28,33,32,0.25);margin:0 auto 2rem;}
 .story-body{
   font-family:var(--serif);font-size:0.88rem;
-  color:var(--black);line-height:2;text-align:center;
+  color:var(--ink);line-height:2;text-align:center;
   max-width:560px;margin:0 auto;
 }
 
@@ -178,19 +187,19 @@ img{max-width:100%;display:block;}
 .wedding-card-name{
   font-family:var(--script);
   font-size:clamp(2rem,4vw,3rem);
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:1.5rem;line-height:1.2;
   text-align:center;
 }
 .wedding-card-detail{
   font-family:var(--serif);font-size:1rem;
-  color:var(--white);line-height:2.1;
+  color:var(--on-dark);line-height:2.1;
   text-align:center;
 }
 .wedding-card-dress{
   display:block;margin-top:1.5rem;
   font-family:var(--script);font-size:1.6rem;
-  color:var(--white);
+  color:var(--on-dark);
   text-align:center;
 }
 
@@ -214,12 +223,12 @@ img{max-width:100%;display:block;}
 .other-event-name{
   font-family:var(--script);
   font-size:clamp(2rem,5vw,3.2rem);
-  color:var(--black);
+  color:var(--ink);
   margin-bottom:1.6rem;line-height:1.2;
 }
 .other-event-detail{
   font-family:var(--serif);font-size:1rem;
-  color:var(--black);line-height:1.75;text-align:center;
+  color:var(--ink);line-height:1.75;text-align:center;
 }
 /* .other-event-when / .other-event-where removed with the date-guessing
    splitter that was the only thing that ever emitted them. The gap they
@@ -230,7 +239,7 @@ img{max-width:100%;display:block;}
 .other-event-dress{
   display:block;margin-top:1.5rem;
   font-family:var(--script);font-size:2rem;
-  color:var(--black);
+  color:var(--ink);
 }
 
 /* ── TRAVEL / ACCOMMODATIONS — dark bg, two arch cards ──────── */
@@ -262,7 +271,7 @@ img{max-width:100%;display:block;}
   font-family:var(--script);
   /* Slightly larger than before, matching the design. */
   font-size:clamp(1.9rem,3vw,2.5rem);
-  color:var(--black);
+  color:var(--ink);
   line-height:1.1;
 }
 .arch-card-rule{
@@ -274,7 +283,7 @@ img{max-width:100%;display:block;}
   /* Not bold in the design, and set a little lower with more room beneath so
      the card doesn't end in a block of empty white. */
   font-family:var(--serif);font-size:1rem;font-weight:400;
-  color:var(--black);line-height:1.6;margin:0.4rem 0 0.9rem;
+  color:var(--ink);line-height:1.6;margin:0.4rem 0 0.9rem;
   text-align:center;
 }
 .arch-card-note{
@@ -284,7 +293,7 @@ img{max-width:100%;display:block;}
 }
 .arch-card-btn{
   display:inline-block;
-  background:var(--black);color:var(--white);
+  background:var(--black);color:var(--on-dark);
   font-family:var(--serif);font-size:0.78rem;font-weight:500;
   letter-spacing:0.04em;
   padding:0.7rem 1.8rem;border:none;cursor:pointer;
@@ -302,7 +311,7 @@ img{max-width:100%;display:block;}
 .ntk-title{
   font-family:var(--script);
   font-size:clamp(2.5rem,6vw,4rem);
-  color:var(--white);text-align:center;margin-bottom:3.5rem;
+  color:var(--on-dark);text-align:center;margin-bottom:3.5rem;
 }
 .ntk-inner{max-width:560px;margin:0 auto;}
 .ntk-item{
@@ -312,7 +321,7 @@ img{max-width:100%;display:block;}
 .ntk-item:last-child{margin-bottom:0;padding-bottom:0;}
 .ntk-question{
   font-family:var(--serif);font-size:1.1rem;font-weight:bold;
-  color:var(--white);margin-bottom:0.9rem;
+  color:var(--on-dark);margin-bottom:0.9rem;
 }
 .ntk-answer{
   font-family:var(--serif);font-size:0.88rem;font-style:italic;
@@ -325,7 +334,7 @@ img{max-width:100%;display:block;}
 .gallery-section{background:var(--offwhite);padding:5rem 2rem;}
 .gallery-title{
   font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
-  color:var(--black);text-align:center;margin-bottom:0.5rem;
+  color:var(--ink);text-align:center;margin-bottom:0.5rem;
 }
 .gallery-rule{width:40px;height:1px;background:rgba(28,33,32,0.25);margin:0 auto 2rem;}
 .gallery-grid{
@@ -338,8 +347,8 @@ img{max-width:100%;display:block;}
 .gallery-lightbox{position:fixed;inset:0;z-index:999;background:rgba(28,33,32,0.95);display:none;align-items:center;justify-content:center;}
 .gallery-lightbox.open{display:flex;}
 .gallery-lightbox img{max-width:88vw;max-height:88vh;object-fit:contain;}
-.gallery-lb-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;color:var(--offwhite);font-size:2rem;cursor:pointer;}
-.gallery-lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(249,247,245,0.15);border:none;cursor:pointer;color:var(--offwhite);width:44px;height:44px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.gallery-lb-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;color:var(--ink3);font-size:2rem;cursor:pointer;}
+.gallery-lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(249,247,245,0.15);border:none;cursor:pointer;color:var(--ink3);width:44px;height:44px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
 .gallery-lb-arrow:hover{background:rgba(249,247,245,0.3);}
 .gallery-lb-arrow.prev{left:1.2rem;}
 .gallery-lb-arrow.next{right:1.2rem;}
@@ -364,7 +373,7 @@ img{max-width:100%;display:block;}
 .registry-title{
   font-family:var(--script);
   font-size:clamp(2.2rem,5vw,3.5rem);
-  color:var(--black);
+  color:var(--ink);
   text-align:center;line-height:1.2;
 }
 a.registry-title{
@@ -392,14 +401,14 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 .rsvp-title{
   font-family:var(--script);
   font-size:clamp(2.4rem,5vw,3.4rem);
-  color:var(--black);
+  color:var(--ink);
   text-align:center;line-height:1.15;
   font-style:italic;
   margin-bottom:0.4rem;
 }
 .rsvp-deadline{
   font-family:var(--serif);font-size:0.95rem;
-  color:var(--black);
+  color:var(--ink);
   text-align:center;
   margin-bottom:2.5rem;
   letter-spacing:0;
@@ -426,7 +435,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   display:block;
   font-family:var(--serif);
   font-size:1.05rem;
-  color:var(--black);
+  color:var(--ink);
   margin:1.6rem 0 0.6rem;
   letter-spacing:0.01em;
 }
@@ -436,7 +445,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border:1px solid rgba(28,33,32,0.2);
   background:var(--white);
   font-family:var(--serif);font-size:0.95rem;
-  color:var(--text);outline:none;display:block;
+  color:var(--ink);outline:none;display:block;
   text-align:center;
   border-radius:2px;
   transition:border-color 0.2s;
@@ -482,7 +491,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   font-family:inherit;
   font-size:0.62rem;font-weight:500;font-style:normal;
   letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--offwhite);background:var(--black);
+  color:var(--ink3);background:var(--black);
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
@@ -521,7 +530,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   font-family:var(--serif);
   font-size:1.05rem;
   font-weight:600;
-  color:var(--black);
+  color:var(--ink);
   margin:1.2rem 0 0.7rem;
   text-align:left;
   letter-spacing:0;
@@ -539,7 +548,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border:1px solid rgba(28,33,32,0.2);
   background:var(--white);
   font-family:var(--serif);font-size:0.95rem;
-  color:var(--text);outline:none;border-radius:2px;
+  color:var(--ink);outline:none;border-radius:2px;
   appearance:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%231c2120' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat:no-repeat;
@@ -552,14 +561,14 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   width:100%;padding:0.85rem 1.2rem;resize:vertical;min-height:60px;
   border:1px solid rgba(28,33,32,0.2);
   background:var(--white);font-family:var(--serif);
-  font-size:0.95rem;color:var(--text);outline:none;border-radius:2px;
+  font-size:0.95rem;color:var(--ink);outline:none;border-radius:2px;
   transition:border-color 0.2s;
 }
 .rsvp-textarea:focus{border-color:var(--black);}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;}
 .extra-guest-row{display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:center;}
 .rsvp-remove-btn{background:none;border:none;cursor:pointer;font-size:1rem;color:rgba(28,33,32,0.4);padding:0.3rem;line-height:1;}
-.rsvp-remove-btn:hover{color:var(--black);}
+.rsvp-remove-btn:hover{color:var(--ink);}
 /* "+ Add Invited Guest" — outlined rectangle matching screenshot */
 .rsvp-add-guest{
   display:inline-block;
@@ -568,7 +577,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border-radius:2px;
   background:var(--white);
   font-family:var(--serif);font-size:0.85rem;
-  color:var(--black);cursor:pointer;
+  color:var(--ink);cursor:pointer;
   margin-top:1rem;
   transition:background 0.2s, border-color 0.2s;
 }
@@ -579,7 +588,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   display:block;
   margin:2rem auto 0;
   padding:0.85rem 2.5rem;
-  background:var(--black);color:var(--white);
+  background:var(--black);color:var(--on-dark);
   border:none;border-radius:2px;
   cursor:pointer;font-family:var(--serif);
   font-size:0.85rem;letter-spacing:0.04em;
@@ -593,7 +602,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   border-radius:3px;padding:2rem;text-align:center;
 }
 .rsvp-success-icon{font-size:2rem;margin-bottom:0.5rem}
-.rsvp-success-msg{font-family:var(--serif);font-size:0.9rem;color:var(--black);line-height:1.7;}
+.rsvp-success-msg{font-family:var(--serif);font-size:0.9rem;color:var(--ink);line-height:1.7;}
 
 /* ── GALLERY (collage variant) ─────────────────────────────── */
 .gallery-section{
@@ -660,7 +669,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 .footer-couple{
   font-family:var(--script);font-size:1.8rem;
-  color:var(--offwhite);display:block;margin-bottom:0.4rem;
+  color:var(--ink3);display:block;margin-bottom:0.4rem;
 }
 .footer-tagline{
   font-family:var(--serif);font-size:0.68rem;

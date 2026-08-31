@@ -85,19 +85,29 @@
 :root{
   /* Sage & Still palette */
   --sage:#a8a99b;        /* light sage / accent */
-  --offwhite:#f5f3ee;    /* paper / panel cream — page background */
+  --offwhite:#f5f3ee;
+  /* Text on dark panels. Same tone as --offwhite, its own variable so the
+     couple can change text on a coloured panel without moving the page
+     background underneath it, and vice versa. */
+  --on-dark: #f5f3ee;    /* paper / panel cream — page background */
   --green-gray:#696c62;  /* primary olive used for The Weekend block */
   --dark-green:#4b5244;  /* dark green — buttons, menu drawer, footer */
   --black:#000000;
-  --text:#1f211d;        /* near-black body text */
-  --muted:#7a7d72;       /* muted grey-green for meta */
+  --text:#1f211d;
+  /* Body text. Its own variable so changing the text colour cannot repaint
+     the panels and borders that also use --text. */
+  --ink: #1f211d;        /* near-black body text */
+  --muted:#7a7d72;
+  /* Third text tone, split from --muted so it can be changed without
+     repainting what --muted fills. */
+  --ink3: #7a7d72;       /* muted grey-green for meta */
   --display:'Aboreto', 'Cormorant Garamond', serif;
   --sub:'Ovo', Georgia, serif;
   --body:'DM Sans', system-ui, -apple-system, sans-serif;
 }
 html{scroll-behavior:smooth}
 body{
-  font-family:var(--body);color:var(--text);
+  font-family:var(--body);color:var(--ink);
   background:var(--offwhite);overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   font-size:16px;line-height:1.6;
@@ -242,7 +252,7 @@ body.hydrating{visibility:hidden;}
   background:var(--sage);
   padding:5rem 2rem;
   text-align:center;
-  color:var(--offwhite);
+  color:var(--on-dark);
 }
 .weekend-inner{max-width:680px;margin:0 auto;}
 .weekend-title{
@@ -270,7 +280,7 @@ body.hydrating{visibility:hidden;}
 .weekend-event-detail{
   font-family:var(--body);
   font-size:0.95rem;
-  color:var(--offwhite);
+  color:var(--on-dark);
   line-height:1.9;
   letter-spacing:0.02em;
   font-weight:400;
@@ -286,7 +296,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-style:normal;
   font-size:0.98rem;
-  color:var(--offwhite);
+  color:var(--on-dark);
   font-weight:700;
   letter-spacing:0.03em;
 }
@@ -320,7 +330,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   font-size:clamp(1.4rem,3vw,1.85rem);
   letter-spacing:0.22em;
-  color:var(--text);
+  color:var(--ink);
   text-transform:uppercase;
   margin-bottom:0.6rem;
   font-weight:400;
@@ -334,7 +344,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sub);
   font-style:italic;
   font-size:1.05rem;
-  color:var(--text);
+  color:var(--ink);
   line-height:1.95;
 }
 
@@ -395,7 +405,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   font-size:clamp(1.4rem, 3vw, 1.85rem);
   letter-spacing:0.22em;
-  color:var(--text);
+  color:var(--ink);
   text-transform:uppercase;
   text-align:center;
   margin-bottom:2.5rem;
@@ -421,7 +431,7 @@ body.hydrating{visibility:hidden;}
 .faq-q-text{
   font-family:var(--body);
   font-size:1.05rem;
-  color:var(--text);
+  color:var(--ink);
   font-weight:400;
   letter-spacing:0.01em;
   line-height:1.4;
@@ -450,7 +460,7 @@ body.hydrating{visibility:hidden;}
   transition:max-height 0.35s ease, padding 0.35s ease;
   font-family:var(--body);
   font-size:0.86rem;
-  color:var(--muted);
+  color:var(--ink3);
   line-height:1.85;
   padding:0 0.2rem;
 }
@@ -519,14 +529,14 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sub);
   font-style:normal;
   font-size:1.05rem;
-  color:var(--text);
+  color:var(--ink);
   margin-bottom:0.35rem;
   line-height:1.35;
 }
 .accom-card-place{
   font-family:var(--body);
   font-size:0.78rem;
-  color:var(--muted);
+  color:var(--ink3);
   margin-bottom:1.2rem;
   line-height:1.5;
 }
@@ -534,7 +544,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sub);
   font-style:italic;
   font-size:0.78rem;
-  color:var(--muted);
+  color:var(--ink3);
   margin-bottom:1rem;
   line-height:1.5;
 }
@@ -568,7 +578,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   font-size:clamp(1.6rem, 3.4vw, 2rem);
   letter-spacing:0.22em;
-  color:var(--text);
+  color:var(--ink);
   text-transform:uppercase;
   margin-bottom:0.5rem;
   font-weight:400;
@@ -577,7 +587,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sub);
   font-style:normal;
   font-size:1.05rem;
-  color:var(--muted);
+  color:var(--ink3);
   margin-bottom:2.2rem;
   letter-spacing:0.01em;
 }
@@ -589,7 +599,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sub);
   font-style:italic;
   font-size:0.92rem;
-  color:var(--text);
+  color:var(--ink);
   margin-bottom:0.6rem;
   text-align:left;
   letter-spacing:0.01em;
@@ -603,7 +613,7 @@ body.hydrating{visibility:hidden;}
   background:#ffffff;
   font-family:var(--body);
   font-size:0.95rem;
-  color:var(--text);
+  color:var(--ink);
   text-align:center;
   outline:none;
 }
@@ -647,7 +657,7 @@ body.hydrating{visibility:hidden;}
   font-family:inherit;
   font-size:0.62rem;font-weight:500;font-style:normal;
   letter-spacing:0.08em;text-transform:uppercase;
-  color:#f5f3ee;background:#4b5244;
+  color:var(--on-dark);background:#4b5244;
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
@@ -691,7 +701,7 @@ body.hydrating{visibility:hidden;}
   background:#ffffff;
   border-radius:999px;
   font-family:var(--body);font-size:0.82rem;
-  color:var(--text);outline:none;border-radius:4px;
+  color:var(--ink);outline:none;border-radius:4px;
   transition:border-color 0.2s;
 }
 .rsvp-select:focus,.rsvp-text-input:focus{border-color:var(--green-gray);}
@@ -699,7 +709,7 @@ body.hydrating{visibility:hidden;}
   width:100%;padding:0.6rem 0.9rem;resize:vertical;min-height:54px;
   border:1px solid rgba(105,108,98,0.25);
   background:var(--offwhite);font-family:var(--body);
-  font-size:0.82rem;color:var(--text);outline:none;border-radius:4px;
+  font-size:0.82rem;color:var(--ink);outline:none;border-radius:4px;
 }
 .rsvp-textarea:focus{border-color:var(--green-gray);}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;}
@@ -708,13 +718,13 @@ body.hydrating{visibility:hidden;}
   background:none;border:none;cursor:pointer;
   font-size:1rem;color:#bdbeb4;padding:0.3rem;line-height:1;
 }
-.rsvp-remove-btn:hover{color:var(--green-gray)}
+.rsvp-remove-btn:hover{color:var(--ink3)}
 .rsvp-add-guest{
   display:block;width:100%;padding:0.65rem;
   border:1px solid rgba(105,108,98,0.25);
   border-radius:4px;background:none;
   font-family:var(--body);font-size:0.82rem;
-  color:var(--text);cursor:pointer;text-align:center;
+  color:var(--ink);cursor:pointer;text-align:center;
   margin-top:0.5rem;transition:background 0.2s;
 }
 .rsvp-add-guest:hover{background:rgba(105,108,98,0.08)}
@@ -736,7 +746,7 @@ body.hydrating{visibility:hidden;}
   background:#ffffff;border:1px solid rgba(105,108,98,0.22);
   border-radius:6px;padding:1.8rem;text-align:center;
   font-family:var(--sub);font-style:italic;
-  color:var(--text);font-size:0.95rem;line-height:1.6;
+  color:var(--ink);font-size:0.95rem;line-height:1.6;
 }
 
 /* ── TRAVEL ───────────────────────────────────────────────── */
@@ -781,7 +791,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   font-size:clamp(1.4rem,3vw,1.85rem);
   letter-spacing:0.22em;
-  color:var(--text);
+  color:var(--ink);
   text-transform:uppercase;
   margin-bottom:0.6rem;
   font-weight:400;
@@ -1795,7 +1805,7 @@ const SAMPLE_DATA = {
   ],
   gallery_images:[], rsvp_enabled:true, password_protected:false,
   website_mode:'Full', custom_font:'',
-  customization:{ primary_color:'#696c62', accent_color:'#f5f3ee', text_color:'' },
+  customization:{primary_color:'',accent_color:'',text_color:''},
   rsvp_config:{ entrees:['Chicken','Fish','Vegetarian','Vegan','Kids Meal'], allow_plus_one:true },
   menu_config:{
     home:true, story:false, wedding:true, other_events:true,

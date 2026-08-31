@@ -106,7 +106,10 @@
   /* Body text. Its own variable so changing the text colour cannot repaint
      the panels and borders that also use --burgundy. */
   --ink: #53141e;    /* burgundy — itinerary, registry, body text */
-  --yellow:#e4c567;      /* yellow — accommodations, RSVP bg, script accents */
+  --yellow:#e4c567;
+  /* Third text tone, split from --yellow so it can be changed without
+     repainting what --yellow fills. */
+  --ink3: #e4c567;      /* yellow — accommodations, RSVP bg, script accents */
   --ivory:#fffdf5;
   /* Text on dark panels. Same tone as --ivory, its own variable so the
      couple can change text on a coloured panel without moving the page
@@ -258,7 +261,7 @@ body.hydrating{visibility:hidden;}
   /* Corben in the design — the script face is used only for the joining word
      and for section titles. */
   font-family:var(--display);
-  color:var(--yellow);
+  color:var(--ink3);
   line-height:1;
   font-weight:400;
   text-shadow:0 2px 18px rgba(0,0,0,0.45);
@@ -293,7 +296,7 @@ body.hydrating{visibility:hidden;}
   font-style:italic;
   vertical-align:0.3em;
   /* Same yellow as the names, per the design. */
-  color:var(--yellow);
+  color:var(--ink3);
   opacity:1;
 }
 
@@ -371,7 +374,7 @@ body.hydrating{visibility:hidden;}
 .itinerary-title{
   font-family:var(--script);
   font-size:clamp(2.6rem, 7vw, 4rem);
-  color:var(--yellow);
+  color:var(--ink3);
   font-weight:400;
   line-height:1;
   letter-spacing:0.005em;
@@ -402,7 +405,9 @@ body.hydrating{visibility:hidden;}
 .itinerary-event-name{
   font-family:var(--script);
   font-size:clamp(1.7rem, 3.6vw, 2.3rem);
-  color:var(--rose);
+  /* An event title is text, so it follows Text 3 rather than the accent tone
+     used by the panels around it. */
+  color:var(--ink3);
   font-weight:400;
   margin-bottom:0.9rem;
   line-height:1;
@@ -633,7 +638,7 @@ body.hydrating{visibility:hidden;}
 .registry-title{
   font-family:var(--script);
   font-size:clamp(2rem, 5vw, 3rem);
-  color:var(--yellow);
+  color:var(--ink3);
   font-weight:400;
   line-height:1;
 }
@@ -853,7 +858,7 @@ body.hydrating{visibility:hidden;}
 .travel-title{
   font-family:var(--script);
   font-size:clamp(2.4rem, 5vw, 3rem);
-  color:var(--yellow);
+  color:var(--ink3);
   margin-bottom:1.6rem;
   font-weight:400;
   line-height:1;
@@ -940,7 +945,7 @@ footer{
 .footer-names{
   font-family:var(--script);
   font-size:2rem;
-  color:var(--yellow);
+  color:var(--ink3);
   margin-bottom:0.4rem;
   font-weight:400;
   line-height:1;

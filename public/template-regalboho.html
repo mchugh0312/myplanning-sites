@@ -91,7 +91,10 @@
      couple can change text on a coloured panel without moving the page
      background underneath it, and vice versa. */
   --on-dark: #fefaf1;       /* page bg */
-  --olive:#515000;       /* nav, decorative dots/lines */
+  --olive:#515000;
+  /* Third text tone, split from --olive so it can be changed without
+     repainting what --olive fills. */
+  --ink3: #515000;       /* nav, decorative dots/lines */
   --burgundy:#53141e;    /* body text, titles, RSVP button */
   --beige:#f1e4c9;       /* Event Details bg, Registry bg, RSVP bg */
   --black:#000000;
@@ -157,7 +160,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--display);
   font-style:italic;
   font-size:0.95rem;
-  color:var(--olive);
+  color:var(--ink3);
   text-decoration:none;
   font-weight:400;
   padding:0 0.65rem;
@@ -203,7 +206,7 @@ body.hydrating{visibility:hidden;}
 .our-story-names{
   font-family:var(--display);
   font-style:italic;
-  color:var(--olive);
+  color:var(--ink3);
   font-size:clamp(3rem, 9vw, 6rem);
   font-weight:400;
   line-height:1;
@@ -215,7 +218,7 @@ body.hydrating{visibility:hidden;}
   font-size:1.2em;
   vertical-align:-0.05em;
   font-weight:400;
-  color:var(--olive);
+  color:var(--ink3);
   margin:0 0.05em;
 }
 .our-story-body{
@@ -898,7 +901,7 @@ footer{
   font-family:var(--display);
   font-style:italic;
   font-size:1.7rem;
-  color:var(--olive);
+  color:var(--ink3);
   margin-bottom:0.4rem;
   font-weight:400;
 }

@@ -71,15 +71,24 @@
   --navy:#1b2a41;
   --dusty-navy:#324a5f;
   --gray-blue:#5f7689;
+  /* Third text tone, split from --gray-blue so it can be changed without
+     repainting what --gray-blue fills. */
+  --ink3: #5f7689;
   --ivory:#fefaf1;
   --white:#ffffff;
+  /* Text on dark panels. Same tone as --white, its own variable so text on a
+     coloured panel moves independently of the panel itself. */
+  --on-dark: #ffffff;
   --text:#1b2a41;
+  /* Body text. Its own variable so changing the text colour cannot repaint
+     the panels and borders that also use --text. */
+  --ink: #1b2a41;
   --script:'La Belle Aurore','La Belle Aurore Local',cursive;
   --body:'Lexend Deca','Lexend Deca Local',sans-serif;
 }
 html{scroll-behavior:smooth}
 body{
-  font-family:var(--body);color:var(--text);background:var(--ivory);
+  font-family:var(--body);color:var(--ink);background:var(--ivory);
   overflow-x:hidden;
 }
 body.hydrating{visibility:hidden;}
@@ -108,7 +117,7 @@ body.hydrating{visibility:hidden;}
   transform:translateX(-50%);
   font-family:var(--script);
   font-size:clamp(3rem,8vw,6rem);
-  color:var(--white);
+  color:var(--on-dark);
   font-weight:400;
   line-height:1;
   text-shadow:0 4px 24px rgba(0,0,0,0.35);
@@ -134,7 +143,7 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
   font-size:0.82rem;
   letter-spacing:0.18em;
-  color:var(--white);
+  color:var(--on-dark);
   text-decoration:none;
   text-transform:uppercase;
   padding:0.3rem 0.2rem;
@@ -188,7 +197,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--white);
+  color:var(--on-dark);
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
@@ -199,7 +208,7 @@ body.hydrating{visibility:hidden;}
 }
 .schedule-event{
   text-align:center;
-  color:var(--white);
+  color:var(--on-dark);
 }
 .schedule-event-name{
   font-family:var(--body);
@@ -207,14 +216,14 @@ body.hydrating{visibility:hidden;}
   font-size:0.92rem;
   letter-spacing:0.18em;
   text-transform:uppercase;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:0.7rem;
 }
 .schedule-event-date{
   font-family:var(--body);
   font-weight:500;
   font-size:0.82rem;
-  color:var(--white);
+  color:var(--on-dark);
   line-height:1.7;
   margin-bottom:1.4rem;
 }
@@ -225,14 +234,14 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:400;
   font-size:0.82rem;
-  color:var(--white);
+  color:var(--on-dark);
   line-height:1.8;
 }
 .schedule-event-venue{
   font-family:var(--body);
   font-weight:600;
   font-size:0.85rem;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:0.4rem;
 }
 .schedule-event-address{
@@ -266,7 +275,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--text);
+  color:var(--ink);
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
@@ -282,12 +291,12 @@ body.hydrating{visibility:hidden;}
 .sec-rule i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.9;flex:none;}
 .sec-rule span{display:block;flex:1 1 auto;height:1px;background:currentColor;opacity:0.45;}
 .sec-rule.on-navy{color:rgba(255,255,255,0.75);}
-.sec-rule.on-ivory{color:var(--gray-blue);}
+.sec-rule.on-ivory{color:var(--ink3);}
 .travel-block{
   margin-bottom:1.5rem;
   font-family:var(--body);
   font-size:0.88rem;
-  color:var(--text);
+  color:var(--ink);
   line-height:1.7;
 }
 .travel-block-label{
@@ -296,14 +305,14 @@ body.hydrating{visibility:hidden;}
   font-size:0.85rem;
   letter-spacing:0.16em;
   text-transform:uppercase;
-  color:var(--text);
+  color:var(--ink);
   margin-bottom:0.6rem;
 }
 .travel-block-detail{
   font-family:var(--body);
   font-weight:300;
   font-size:0.85rem;
-  color:var(--text);
+  color:var(--ink);
   line-height:1.7;
 }
 .travel-note{
@@ -311,7 +320,7 @@ body.hydrating{visibility:hidden;}
   font-weight:300;
   font-style:italic;
   font-size:0.78rem;
-  color:var(--gray-blue);
+  color:var(--ink3);
   margin-top:1rem;
 }
 .travel-btn{
@@ -321,7 +330,7 @@ body.hydrating{visibility:hidden;}
   padding:0.85rem 3rem;
   border-radius:999px;
   background:var(--navy);
-  color:var(--white);
+  color:var(--on-dark);
   font-family:var(--body);
   font-weight:600;
   font-size:0.78rem;
@@ -377,7 +386,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--white);
+  color:var(--on-dark);
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
@@ -390,7 +399,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:500;
   font-size:1.02rem;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:0.8rem;
   display:block;
   line-height:1.4;
@@ -416,7 +425,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--text);
+  color:var(--ink);
   letter-spacing:0.02em;
   margin-bottom:1rem;
 }
@@ -424,7 +433,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:300;
   font-size:0.88rem;
-  color:var(--text);
+  color:var(--ink);
   line-height:1.7;
   margin-bottom:1.6rem;
 }
@@ -434,7 +443,7 @@ body.hydrating{visibility:hidden;}
   /* Fully rounded pill, per the design. */
   border-radius:999px;
   background:var(--navy);
-  color:var(--white);
+  color:var(--on-dark);
   font-family:var(--body);
   font-weight:600;
   font-size:0.78rem;
@@ -475,7 +484,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--white);
+  color:var(--on-dark);
   letter-spacing:0.02em;
   margin-bottom:0.9rem;
 }
@@ -483,7 +492,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:300;
   font-size:0.95rem;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:2rem;
   line-height:1.5;
 }
@@ -499,7 +508,7 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
   font-size:0.78rem;
   letter-spacing:0.18em;
-  color:var(--white);
+  color:var(--on-dark);
   outline:none;
   text-align:center;
   text-transform:uppercase;
@@ -522,7 +531,7 @@ body.hydrating{visibility:hidden;}
   font-size:0.82rem;
   letter-spacing:0.18em;
   text-transform:uppercase;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:0.7rem;
 }
 
@@ -554,7 +563,7 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
   font-size:0.72rem;
   letter-spacing:0.16em;
-  color:var(--white);
+  color:var(--on-dark);
   outline:none;
   text-align:center;
   text-align-last:center;
@@ -569,7 +578,7 @@ body.hydrating{visibility:hidden;}
 }
 .rsvp-select option{
   background:var(--navy);
-  color:var(--white);
+  color:var(--on-dark);
 }
 .rsvp-select:focus{border-color:var(--white);}
 
@@ -588,13 +597,13 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
   font-size:0.72rem;
   letter-spacing:0.16em;
-  color:var(--white);
+  color:var(--on-dark);
   cursor:pointer;
   margin-bottom:0.6rem;
   transition:background 0.2s,color 0.2s;
   text-transform:uppercase;
 }
-.rsvp-add-guest:hover{background:var(--white);color:var(--text);}
+.rsvp-add-guest:hover{background:var(--white);color:var(--ink);}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.6rem;}
 .extra-guest-row{position:relative;}
 .extra-guest-input{
@@ -607,7 +616,7 @@ body.hydrating{visibility:hidden;}
   font-weight:500;
   font-size:0.72rem;
   letter-spacing:0.16em;
-  color:var(--white);
+  color:var(--on-dark);
   outline:none;
   text-align:center;
   text-transform:uppercase;
@@ -622,7 +631,7 @@ body.hydrating{visibility:hidden;}
   background:none;border:none;font-size:1.1rem;color:rgba(255,255,255,0.6);
   cursor:pointer;line-height:1;padding:0.2rem;
 }
-.rsvp-remove-btn:hover{color:var(--white);}
+.rsvp-remove-btn:hover{color:var(--on-dark);}
 
 /* ── Household section ─────────────────────────────────────────
    Rendered when guest-lookup returns a guest with party members.
@@ -657,7 +666,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-household-name{
   font-family:var(--body);font-weight:600;font-size:0.82rem;
   letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--white);
+  color:var(--on-dark);
   display:flex;align-items:center;justify-content:center;gap:0.5rem;
   flex-wrap:wrap;
 }
@@ -665,7 +674,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-size:0.6rem;font-weight:500;font-style:normal;
   letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--text);background:var(--white);
+  color:var(--ink);background:var(--white);
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
@@ -702,7 +711,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:400;
   font-size:0.78rem;
-  color:var(--white);
+  color:var(--on-dark);
   outline:none;
   margin-bottom:0.5rem;
   text-align:center;
@@ -724,7 +733,7 @@ body.hydrating{visibility:hidden;}
 .rsvp-submit{
   padding:0.85rem 3rem;
   background:var(--white);
-  color:var(--text);
+  color:var(--ink);
   border:none;
   border-radius:999px;
   font-family:var(--body);
@@ -744,7 +753,7 @@ body.hydrating{visibility:hidden;}
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.25);
   border-radius:14px;
-  color:var(--white);
+  color:var(--on-dark);
   font-family:var(--body);
   font-size:0.92rem;
   font-weight:300;
@@ -762,7 +771,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--script);
   font-weight:400;
   font-size:1.8rem;
-  color:var(--white);
+  color:var(--on-dark);
   margin-bottom:0.3rem;
 }
 .footer-date{
@@ -784,12 +793,12 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--text);
+  color:var(--ink);
   margin-bottom:1.5rem;
 }
 .story-text{
   font-family:var(--body);font-weight:300;
-  font-size:0.92rem;color:var(--text);
+  font-size:0.92rem;color:var(--ink);
   line-height:1.8;
 }
 
@@ -801,11 +810,11 @@ body.hydrating{visibility:hidden;}
 .accom-title{
   font-family:var(--body);font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--text);margin-bottom:1.5rem;
+  color:var(--ink);margin-bottom:1.5rem;
 }
 .accom-content{
   font-family:var(--body);font-weight:300;
-  font-size:0.9rem;color:var(--text);line-height:1.8;
+  font-size:0.9rem;color:var(--ink);line-height:1.8;
 }
 
 /* ── GALLERY (compatibility) ─────────────────────────────── */
@@ -815,7 +824,7 @@ body.hydrating{visibility:hidden;}
 .gallery-section .section-title-mini{
   font-family:var(--body);font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
-  color:var(--text);margin-bottom:1.5rem;
+  color:var(--ink);margin-bottom:1.5rem;
 }
 .gallery-grid{
   display:grid;

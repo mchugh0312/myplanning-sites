@@ -50,6 +50,9 @@
 :root{
   --black:#000000;
   --blue:#004aad;
+  /* Third text tone, split from --blue so it can be changed without
+     repainting what --blue fills. */
+  --ink3: #004aad;
   --ivory:#fffdf5;
   --text:#000000;
   /* Body text. Its own variable so changing the text colour cannot repaint
@@ -333,7 +336,7 @@ body.hydrating{visibility:hidden;}
   cursor:pointer;
   transition:background 0.2s,color 0.2s;
 }
-.travel-btn:hover{background:var(--black);color:var(--ivory);}
+.travel-btn:hover{background:var(--black);color:var(--on-dark);}
 .travel-btn:hover{background:var(--black);color:var(--on-dark);}
 
 /* ── FAQs ─────────────────────────────────────────────────── */
@@ -590,7 +593,7 @@ body.hydrating{visibility:hidden;}
   margin-bottom:0.7rem;
   transition:background 0.2s,color 0.2s;
 }
-.rsvp-add-guest:hover{background:var(--white);color:var(--blue);}
+.rsvp-add-guest:hover{background:var(--white);color:var(--ink3);}
 .extra-guests-list{display:flex;flex-direction:column;gap:0.6rem;}
 .extra-guest-row{position:relative;}
 .extra-guest-input{
@@ -672,7 +675,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-size:0.62rem;font-weight:500;font-style:normal;
   letter-spacing:0.05em;text-transform:uppercase;
-  color:var(--blue);background:var(--white);
+  color:var(--ink3);background:var(--white);
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
