@@ -1141,7 +1141,7 @@ function hydrateTemplate(d) {
         if (wParts.length >= 2) {
           var _extraHTML = '';
           [leftHTML, rightHTML] = wParts.slice(0, 2).map(function(part) {
-            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
+            var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -1152,7 +1152,7 @@ function hydrateTemplate(d) {
           // The pair plus the candelabra between them is the design, so a third
           // block and beyond go underneath, full width, instead of being cut.
           wParts.slice(2).forEach(function(part) {
-            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
+            var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
@@ -1244,7 +1244,7 @@ function hydrateTemplate(d) {
             var photoUrl  = imgMatch ? imgMatch[1] : '';
             if (imgMatch) part = part.replace(imgMatch[0], '').replace(/^(<br\s*\/?>\s*)+/i, '');
             // Event name: first <strong>
-            var nameMatch  = part.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
+            var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
             var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
             // Dress code: <em>…</em> at the end, OR a final line containing
@@ -1725,6 +1725,29 @@ document.addEventListener('click', function(e) {
 
 
 // Exposed for the shared runtime, which owns boot order and hydration.
+/* ── Structure marker ───────────────────────────────────────────────────────
+   A blank line ends a card. site-runtime.js wraps the first line of each block
+   of weddings_info / events_info in <mp-title> and touches nothing else, so
+   <strong> and <em> everywhere below still mean bold and italic and are parsed
+   exactly as they were. A <strong> that wrapped the whole first line is dropped
+   by the runtime, which is what this file used to do itself - so existing sites
+   and SAMPLE_DATA render identically.
+
+   The old form is still accepted, character for character. That is what makes
+   the deploy order reversible. Deploy the TEMPLATES FIRST, then the runtime: if
+   the runtime goes first, an unconverted template renders every title as body
+   text on every live site. The fallback can be deleted once the runtime is live
+   everywhere.
+
+   Returns a match array with the same shape the inline regex had - m[0] is the
+   whole marker, which callers strip with replace(m[0], ''), and m[1] is the
+   text - so each call site changed by one line and nothing around it moved. */
+function _mpTitle(html) {
+  var s = String(html);
+  return s.match(/^\s*<mp-title>([\s\S]*?)<\/mp-title>/i) ||
+         s.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
+}
+
 window.hydrateTemplate = hydrateTemplate;
 try { window.SAMPLE_DATA = SAMPLE_DATA; } catch (e) {}
 </script>

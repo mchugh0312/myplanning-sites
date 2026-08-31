@@ -2225,52 +2225,127 @@
     return el;
   }
 
-  /* ── TITLES DO NOT NEED TO BE BOLD ─────────────────────────────────────────
-     Templates read the first line of each block as that card's name and render
-     it in their own display face — the script on Pressed Petals, condensed caps
-     on Modern Minimal. They recognise it by its being wrapped in <strong>.
+  /* ── STRUCTURE MARKERS ──────────────────────────────────────────────────────
+     Bold used to be structure. A first line wrapped in <strong> meant "a card
+     starts here", and two templates went further and split a blank-line-less blob
+     at every <strong>. That made <strong> mean two incompatible things, so a
+     couple who bolded a word got their content re-cut (MP-333, MP-337).
 
-     The couple is told "the first line of each event becomes its title", which
-     says nothing about bold. So deleting the supplied title and typing their
-     own, or pasting one in, produced a line that looked like body copy — and no
-     font picker would have fixed it, because the template applies the face and
-     was simply not being asked to.
+     The rule now is one sentence: A BLANK LINE ENDS A CARD. That is the only
+     separator. <strong> and <em> mean bold and italic, anywhere, and nothing
+     else - the runtime never infers a dress code, a hotel name or a section
+     from them, and never adds or removes emphasis the couple did not ask for.
 
-     Marking it here makes the promise true however the line was written, and no
-     template has to change. */
-  var TITLED_FIELDS = ['weddings_info', 'events_info', 'faqs'];
+     One tag is generated, and only one, because a template still has to know
+     which line to put in its heading slot:
 
-  function markFirstLineAsTitle(html) {
+       <mp-title>  the first line of each block
+
+     Two lines it never wraps:
+
+       - a line that is wholly italic. That is emphasis, not a heading, and it
+         is how the templates carry an invitation line or a standalone dress
+         code note. Wrapping it would break every /<em>...<\/em>\s*$/ in the ten
+         templates, because the marker's closing tag lands after the </em>.
+       - a line already marked, so a second hydrate cannot nest markers.
+
+     A <strong> or <b> wrapping the WHOLE first line is dropped. It was the old
+     delimiter and every template already consumed it, so dropping it is what
+     keeps existing sites and all ten SAMPLE_DATA blobs looking exactly as they
+     look today. Bold on PART of a line is the couple's own and is kept.
+
+     Markers are generated on every hydrate and never stored, so there is
+     nothing to migrate and rolling back is just a redeploy. */
+
+  /* Does `tag` wrap the WHOLE of `html`? A depth scan, not a regex: the greedy
+     form matched "<em>a</em> <em>b</em>" as one wrapped span, which would have
+     read a line with two separate italics as wholly italic. */
+  function _wrapsWhole(html, tag) {
+    var open = new RegExp('^\\s*<' + tag + '\\b[^>]*>', 'i');
+    var close = new RegExp('<\\/' + tag + '\\s*>\\s*$', 'i');
+    if (!open.test(html) || !close.test(html)) return false;
+    var inner = html.replace(open, '').replace(close, '');
+    var re = new RegExp('<(\\/?)' + tag + '\\b[^>]*>', 'gi');
+    var depth = 0, m;
+    while ((m = re.exec(inner))) {
+      depth += m[1] ? -1 : 1;
+      if (depth < 0) return false;      /* closed before the end: two siblings */
+    }
+    return depth === 0;
+  }
+
+  function _unwrap(line, tag) {
+    return line.replace(new RegExp('^\\s*<' + tag + '\\b[^>]*>', 'i'), '')
+               .replace(new RegExp('<\\/' + tag + '\\s*>\\s*$', 'i'), '').trim();
+  }
+
+  var _text = function (h) { return String(h || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim(); };
+
+  function markBlock(block) {
+    var lines = String(block).split(/(<br\s*\/?>)/i);
+    /* lines[] alternates content, separator, content, ... */
+    var f = -1;
+    for (var i = 0; i < lines.length; i += 2) if (_text(lines[i])) { f = i; break; }
+    if (f === -1) return block;
+
+    var line = lines[f].trim();
+
+    /* Wholly italic: emphasis, not a heading. Left completely alone. */
+    if (_wrapsWhole(line, 'em') || _wrapsWhole(line, 'i')) return block;
+
+    /* Already marked. hydrate() runs on every payload the editor posts, and a
+       cached payload could be handed to it twice; without this the second pass
+       would nest <mp-title> inside <mp-title>. */
+    if (/^<mp-title\b/i.test(line)) return block;
+
+    if (_wrapsWhole(line, 'strong')) line = _unwrap(line, 'strong');
+    else if (_wrapsWhole(line, 'b')) line = _unwrap(line, 'b');
+
+    lines[f] = '<mp-title>' + line + '</mp-title>';
+    return lines.join('');
+  }
+
+  function markStructure(html) {
     if (!html || typeof html !== 'string') return html;
-    /* Split on the blank line between cards, keeping the separators so the
-       value is rebuilt exactly as it was written. */
     var parts = html.split(/((?:<br\s*\/?>\s*){2,})/i);
     for (var i = 0; i < parts.length; i += 2) {
-      var block = parts[i];
-      if (!block || !block.trim()) continue;
-      var m = /^([\s\S]*?)(<br\s*\/?>)([\s\S]*)$/i.exec(block);
-      var first = m ? m[1] : block;
-      var rest  = m ? m[2] + m[3] : '';
-      if (!first.replace(/<[^>]*>/g, '').trim()) continue;     /* nothing to mark */
-
-      /* The WHOLE first line is the title, not just the part that happens to be
-         bold. Bolding one word of "Welcome Cocktails" used to make "Welcome"
-         the title and push "Cocktails" into the details, splitting a line that
-         reads as one. Strip any bold inside the line and wrap the lot. */
-      var bare = first.replace(/<\/?(?:strong|b)\b[^>]*>/gi, '');
-      if (!bare.replace(/<[^>]*>/g, '').trim()) continue;
-
-      parts[i] = '<strong>' + bare + '</strong>' + rest;
+      if (parts[i] && parts[i].trim()) parts[i] = markBlock(parts[i]);
     }
     return parts.join('');
   }
 
+  /* Only the two fields a template cuts into titled cards.
+
+     accommodation_info and travel_info are deliberately NOT here. Their parsers
+     pull a hotel or airport name out of the first <strong> and a note out of an
+     <em>, and three of them split on THREE or more <br> rather than two - so a
+     marker generated on a two-<br> boundary would land in the middle of a card.
+     Nothing about those two fields is ambiguous once a blank line is the
+     separator, so the simplest correct thing is to leave them untouched.
+
+     faqs is not here either: every FAQ parser already takes the first line as
+     the question and strips its tags, so a marker would change nothing. */
+  var STRUCTURED_FIELDS = ['weddings_info', 'events_info'];
+
   function markTitles(d) {
     if (!d) return;
-    for (var i = 0; i < TITLED_FIELDS.length; i++) {
-      var f = TITLED_FIELDS[i];
-      if (typeof d[f] === 'string' && d[f]) d[f] = markFirstLineAsTitle(d[f]);
+    for (var i = 0; i < STRUCTURED_FIELDS.length; i++) {
+      var f = STRUCTURED_FIELDS[i];
+      if (typeof d[f] === 'string' && d[f]) d[f] = markStructure(d[f]);
     }
+  }
+
+  /* Insurance. Some templates hand a structured field straight to innerHTML
+     rather than parsing it, and an unknown element there would inherit whatever
+     the browser felt like. Pin the marker to plain inline so a template that
+     has not been converted yet still renders the couple's words normally
+     instead of dropping or restyling them. */
+  function ensureMarkerCss() {
+    if (document.getElementById('mp-marker-css')) return;
+    var st = document.createElement('style');
+    st.id = 'mp-marker-css';
+    st.textContent = 'mp-title{display:inline;font:inherit;color:inherit}';
+    document.head.appendChild(st);
   }
 
   /* Tell the editor what each section is ACTUALLY called on the page. Without
@@ -4208,6 +4283,7 @@
 
     // Before the template reads it: a first line the couple typed or pasted is
     // as much a title as one that arrived already in bold.
+    try { ensureMarkerCss(); } catch (e) {}
     try { markTitles(d); } catch (e) {}
 
     try {
