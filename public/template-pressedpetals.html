@@ -326,7 +326,7 @@ body:has(.mp-std-bottom) .hero{
   font-weight:400;           /* slightly bold */
   line-height:2.1;
   letter-spacing:0.04em;
-  color:var(--text);             /* FIX 4: all text #040505 — but on olive bg use white */
+  color:var(--text);             /* FIX 4: all text var(--text) — but on olive bg use white */
   color:rgba(255,255,255,0.92);
 }
 /* FIX 3: Dress code in Citadel Script, Title Case (not uppercase) */
@@ -381,7 +381,7 @@ body:has(.mp-std-bottom) .hero{
   font-family:var(--script);font-size:1.7rem;
   color:var(--text);font-weight:400;margin-bottom:0.7rem;  /* FIX 4 */
 }
-/* FIX 4: Other event detail text bigger, color #040505 */
+/* FIX 4: Other event detail text bigger, color var(--text) */
 .other-event-detail{
   font-family:var(--serif);
   font-size:1rem;         /* was 0.8rem */
@@ -596,7 +596,7 @@ body:has(.mp-std-bottom) .hero{
   display:flex;justify-content:center;align-items:center;gap:0.6rem;
   padding:1.2rem 0;cursor:pointer;text-align:center;
 }
-/* FIX 6: Questions normal style, color #040505 */
+/* FIX 6: Questions normal style, color var(--text) */
 .faq-q-text{
   font-family:var(--serif);
   font-size:1.05rem;
@@ -891,7 +891,7 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 /* ── MOBILE ─────────────────────────────────────────────────── */
 /* ── OUR STORY ────────────────────────────────────────── */
 .our-story{
-  background:#f9f7f5;padding:5rem 4rem;
+  background:var(--offwhite);padding:5rem 4rem;
   position:relative;overflow:hidden;text-align:center;
 }
 .story-flower-r{
@@ -1215,7 +1215,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   <!-- Light FAQ area -->
   <div class="ntk-faq-area">
     <div class="faq-list" id="faqList">
-      <!-- FIX 6: Questions normal, answers italic — both #040505 -->
+      <!-- FIX 6: Questions normal, answers italic — both var(--text) -->
       <div class="faq-item">
         <button class="faq-question" onclick="toggleFaq(this)">
           <span class="faq-q-text">What should I wear to the wedding?</span>
@@ -1862,7 +1862,7 @@ const SAMPLE_DATA = {
   ],
   gallery_images:[], rsvp_enabled:true, password_protected:false,
   website_mode:'Full', custom_font:'',
-  customization:{ primary_color:'#8d8863', accent_color:'#f9f7f5', text_color:'' },
+  customization:{primary_color:'',accent_color:'',text_color:''},
   rsvp_config:{ entrees:['Chicken','Fish','Vegetarian','Vegan','Kids Meal'], allow_plus_one:true },
   menu_config:{
     home:true, story:true, wedding:true, other_events:true,
