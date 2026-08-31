@@ -1124,14 +1124,12 @@ function hydrateTemplate(d) {
   }
 
   // Hero images — use user uploads if present, else keep default
-  var heroImgs = [];
-  if (d.hero_image) heroImgs.push(d.hero_image);
-  if (d.gallery_images && d.gallery_images.length) {
-    d.gallery_images.forEach(function(g){
-      var u = typeof g==='string'?g:(g.url||'');
-      if (u && u!==d.hero_image) heroImgs.push(u);
-    });
-  }
+  // MP-504. The carousel is the WEBSITE set. It used to append the gallery,
+  // so every picture a couple added to their gallery also joined the slideshow
+  // at the top of the page.
+  var heroImgs = (Array.isArray(d.hero_images) && d.hero_images.length)
+    ? d.hero_images.slice()
+    : (d.hero_image ? [d.hero_image] : []);
   if (heroImgs.length) {
     buildCarousel(heroImgs);
   } else {
@@ -1201,16 +1199,17 @@ function hydrateTemplate(d) {
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(function(p){return p.length>3;});
 
       function makeWCard(html) {
+        // Title from the first line; the rest as the couple wrote it. Lifting a
+        // trailing <em> out as a dress code made italics decide a line's meaning
+        // as well as its look, so a font on that line stopped it matching and it
+        // lost its styling (MP-332), and a line that was bold and italic together
+        // matched nothing (MP-337).
         var nm=_mpTitle(html);
         var title=nm?nm[1]:'';
-        var rest=nm?html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():html;
-        var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);
-        var dress=dm?dm[1]:'';
-        var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;
+        var detail=nm?html.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():html.trim();
         return '<div class="wedding-card">' +
           (title ?'<div class="wedding-card-name">'+title+'</div>':'') +
           (detail?'<div class="wedding-card-detail">'+detail+'</div>':'') +
-          (dress ?'<div class="wedding-card-dress">'+dress+'</div>':'') +
         '</div>';
       }
 
@@ -1253,17 +1252,14 @@ function hydrateTemplate(d) {
         .split('||SPLIT||').map(function(p){return p.trim();}).filter(Boolean);
       if(!evParts.length) evParts=[d.events_info];
       evParts.forEach(function(part){
+        // Same contract as the wedding cards above.
         var nm=_mpTitle(part);
         var evName=nm?nm[1]:'';
-        var rest=nm?part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():part;
-        var dm=rest.match(/<em>([^<]+)<\/em>\s*$/i);
-        var dress=dm?dm[1]:'';
-        var detail=dm?rest.replace(dm[0],'').replace(/<br\s*\/?>\s*$/i,'').trim():rest;
+        var detail=nm?part.replace(nm[0],'').replace(/^<br\s*\/?>\s*/i,'').trim():part.trim();
         var item=document.createElement('div'); item.className='other-event-item';
         item.innerHTML=
           (evName?'<div class="other-event-name">'+evName+'</div>':'')+
-          (detail?'<div class="other-event-detail">'+detail+'</div>':'')+
-          (dress ?'<div class="other-event-dress">'+dress+'</div>':'');
+          (detail?'<div class="other-event-detail">'+detail+'</div>':'');
         evList.appendChild(item);
       });
     

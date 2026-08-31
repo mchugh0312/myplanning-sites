@@ -1368,19 +1368,22 @@ function hydrateTemplate(d){
           // past the second reuse the last icon rather than reading past the
           // end of the array.
           wParts.forEach(function(part, idx){
+            // Title from the first line; the rest as the couple wrote it. Lifting a
+            // trailing <em> out as a dress code made italics decide a line's meaning
+            // as well as its look, so a font on that line stopped it matching and it
+            // lost its styling (MP-332), and a line that was bold and italic together
+            // matched nothing (MP-337).
             var nameMatch = _mpTitle(part);
             var eventName = nameMatch ? nameMatch[1] : '';
-            var rest = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'') : part;
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            var dressCode = dressMatch ? dressMatch[1] : '';
-            var detail = dressMatch ? rest.replace(dressMatch[0],'').replace(/<br\s*\/?>\s*$/i,'').trim() : rest;
+            var detail = (nameMatch
+              ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'')
+              : part).trim();
 
             var html =
               '<div class="event-block">' +
                 '<div class="event-icon"><img src="' + (icons[idx] || icons[icons.length - 1]) + '" alt=""></div>' +
                 (eventName ? '<div class="event-name">' + eventName + '</div>' : '') +
                 (detail    ? '<div class="event-detail">' + detail + '</div>' : '') +
-                (dressCode ? '<span class="event-dress"><em>' + dressCode + '</em></span>' : '') +
               '</div>';
             grid.insertAdjacentHTML('beforeend', html);
           });
@@ -1488,9 +1491,10 @@ function hydrateTemplate(d){
   const travelSection = document.getElementById('travel-section');
   if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
   // Hero photo pair — gallery images if the couple has them, else the hero.
-  var _gal = (d.gallery_images || []).map(function(g){
-    return typeof g === 'string' ? g : (g.url || '');
-  }).filter(Boolean);
+  // MP-504. The pair is the WEBSITE set, not the gallery.
+  var _gal = (Array.isArray(d.hero_images) && d.hero_images.length)
+    ? d.hero_images.slice()
+    : (d.hero_image ? [d.hero_image] : []);
   var _pa = document.getElementById('heroPairA');
   var _pb = document.getElementById('heroPairB');
   // Both or neither: replacing just one left a mismatched pair, and falling

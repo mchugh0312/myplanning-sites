@@ -1429,12 +1429,15 @@ function hydrateTemplate(d) {
   // title. First upload goes to the hero, second to Need to Knows; with only
   // one, both use it, so the page never falls back to a stock image once a
   // couple has supplied their own.
-  var _photos = [];
-  if (d.hero_image) _photos.push(d.hero_image);
-  (d.gallery_images || []).forEach(function (g) {
-    var u = typeof g === 'string' ? g : (g && g.url) || '';
-    if (u && _photos.indexOf(u) === -1) _photos.push(u);
-  });
+  // MP-504. The Website set and the Gallery set are two different things. This
+  // takes the WEBSITE set; the gallery is only ever the gallery. Reading
+  // gallery_images here is why a couple could not add a picture to their gallery
+  // without it turning up behind Need to Knows. And hero_image is only ever the
+  // FIRST website photograph, which is why a couple with several still saw the
+  // same one in both places.
+  var _photos = (Array.isArray(d.hero_images) && d.hero_images.length)
+    ? d.hero_images.slice()
+    : (d.hero_image ? [d.hero_image] : []);
 
   if (_photos[0]) {
     var _heroImg = document.getElementById('heroImg');

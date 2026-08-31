@@ -1939,10 +1939,11 @@ function hydrateTemplate(d) {
   // Slots beyond the supplied photos keep their sample, which is better than
   // an empty frame.
   try {
-    var _storyPool = (d.gallery_images || []).map(function (g) {
-      return typeof g === 'string' ? g : (g && g.url) || '';
-    }).filter(Boolean);
-    if (d.hero_image && _storyPool.indexOf(d.hero_image) === -1) _storyPool.push(d.hero_image);
+    // MP-504. The WEBSITE set. It used to be the gallery with the hero appended,
+    // so the couple's gallery filled the story frames.
+    var _storyPool = (Array.isArray(d.hero_images) && d.hero_images.length)
+      ? d.hero_images.slice()
+      : (d.hero_image ? [d.hero_image] : []);
     if (_storyPool.length) {
       document.querySelectorAll('#storyPhotos img').forEach(function (img, i) {
         if (_storyPool[i]) img.src = _storyPool[i];

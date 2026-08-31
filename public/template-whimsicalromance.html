@@ -1743,9 +1743,10 @@ function hydrateTemplate(d) {
   // to it. Prefer the couple's second photograph so this section doesn't simply
   // repeat the hero; fall back to the first, then leave the sample in place.
   try {
-    var _accomPool = (d.gallery_images || []).map(function (g) {
-      return typeof g === 'string' ? g : (g && g.url) || '';
-    }).filter(Boolean);
+    // MP-504. The WEBSITE set, not the gallery.
+    var _accomPool = (Array.isArray(d.hero_images) && d.hero_images.length)
+      ? d.hero_images.slice()
+      : (d.hero_image ? [d.hero_image] : []);
     var _accomSrc = _accomPool[1] || _accomPool[0] || '';
     if (_accomSrc) {
       document.querySelectorAll('.accom-photo').forEach(function (img) { img.src = _accomSrc; });

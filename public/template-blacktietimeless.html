@@ -1253,7 +1253,7 @@ function hydrateTemplate(d) {
                               .map(function(p) { return p.trim(); })
                               .filter(function(p) { return p.length > 3; });
         if (oParts.length) {
-          oParts.forEach(function(part) {
+          oParts.forEach(function(part, _i) {
             // Photo: <img> tag anywhere in the block (usually at top). First wins.
             var imgMatch  = part.match(/<img[^>]*src=["']([^"']+)["'][^>]*>/i);
             var photoUrl  = imgMatch ? imgMatch[1] : '';
@@ -1286,11 +1286,17 @@ function hydrateTemplate(d) {
               var matched = d.events.find(function(e) { return e.name && e.name.trim().toLowerCase() === eventName.trim().toLowerCase(); });
               if (matched && (matched.photo || matched.image)) photoUrl = matched.photo || matched.image;
             }
-            // The design always carries a photo here. Fall back to the couple's
-            // gallery, then their hero, then the template's own image.
+            // The design always carries a photo here.
             if (!photoUrl) {
-              var _g = (d.gallery_images || []).map(function(x){ return typeof x === 'string' ? x : (x.url || ''); }).filter(Boolean);
-              photoUrl = _g[0] || d.hero_image || _EVENTS_PHOTO;
+              // MP-504. The WEBSITE set, not the gallery: a picture put in the
+              // gallery used to appear on an event card as well.
+              var _g = (Array.isArray(d.hero_images) && d.hero_images.length)
+                ? d.hero_images.slice()
+                : (d.hero_image ? [d.hero_image] : []);
+              // One photograph per card, in upload order. Every card used to
+              // take the first, so a couple with several website photographs saw
+              // the same one on every event.
+              photoUrl = _g[_i] || _g[0] || _EVENTS_PHOTO;
             }
             // Dress code: also accept a short final line with no keyword at all
             // ("Evening Casual"), which is how the design writes it.

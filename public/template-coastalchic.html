@@ -1376,10 +1376,12 @@ function hydrateTemplate(d){
   // hero photo.
   var travelImgEl = document.getElementById('travelImg');
   if (travelImgEl){
-    var _gal = (d.gallery_images || []).map(function(g){
-      return typeof g === 'string' ? g : (g.url || '');
-    }).filter(Boolean);
-    var _stampSrc = _gal[1] || _gal[0] || d.hero_image || '';
+    // MP-504. The WEBSITE set, not the gallery. Second photograph if there is
+    // one, so this frame does not simply repeat the hero.
+    var _gal = (Array.isArray(d.hero_images) && d.hero_images.length)
+      ? d.hero_images.slice()
+      : (d.hero_image ? [d.hero_image] : []);
+    var _stampSrc = _gal[1] || _gal[0] || '';
     if (_stampSrc) travelImgEl.src = _stampSrc;
   }
 
