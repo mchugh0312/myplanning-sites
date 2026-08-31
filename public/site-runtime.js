@@ -2677,13 +2677,12 @@
       img.src = url;
       img.alt = '';
       img.loading = 'lazy';
-      /* Templates that ship a lightbox already expose openLightbox(i). Use it
-         where it exists rather than building a second one. */
+      /* Templates that ship a WORKING lightbox get to use it; _openPhoto falls
+         back to the runtime's own when they don't have one or theirs throws.
+         This used to call the template's directly and swallow the error, which
+         is why cursor:zoom-in led nowhere in four templates. */
       img.addEventListener('click', function () {
-        try {
-          if (typeof window.openGalleryLightbox === 'function') window.openGalleryLightbox(i);
-          else if (typeof window.openLightbox === 'function') window.openLightbox(i);
-        } catch (e) {}
+        _openPhoto(urls, i);
       });
       frame.appendChild(img);
       cell.appendChild(frame);
@@ -2761,6 +2760,110 @@
     _galleryState = { onResize: onResize };
 
     render();
+  }
+
+  /* ── GALLERY LIGHTBOX (MP-351) ─────────────────────────────────────────────
+     The carousel frames are 4/3 and object-fit:contain, so nothing is cropped
+     there — but a photograph shown at a third of the page width is still small,
+     and several templates' own gallery grids DO crop to a square. Clicking a
+     photograph should open it whole.
+
+     Why the runtime owns this rather than each template: the templates were
+     supposed to already. Nine of ten define openLightbox(), and the carousel
+     called it. But in coastalchic, modernminimal and pressedpetals the
+     `_galleryUrls` array that openLightbox reads is declared INSIDE
+     hydrateTemplate, while openLightbox sits at the top level — so it closes
+     over a global that does not exist and throws ReferenceError the moment a
+     photograph is clicked. Golden Hour has no lightbox at all. The carousel
+     meanwhile paints cursor:zoom-in on every image in every template, promising
+     an expand that did nothing in four of them.
+
+     One implementation here, given the URLs directly, cannot fall out of scope
+     with a template's internals. A template that already has a WORKING lightbox
+     keeps it: _openPhoto tries the template's first and only falls back to
+     this. */
+  var _lbState = null;
+
+  function _ensureLightbox() {
+    if (document.getElementById('mp-lb')) return;
+    var st = document.createElement('style');
+    st.id = 'mp-lb-css';
+    st.textContent =
+      '#mp-lb{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);' +
+        'display:none;align-items:center;justify-content:center}' +
+      '#mp-lb.is-open{display:flex}' +
+      /* contain, never cover: the whole point is to see the photograph
+         uncropped, which is what the ticket asks for. */
+      '#mp-lb img{max-width:92vw;max-height:86vh;width:auto;height:auto;' +
+        'object-fit:contain;display:block;border-radius:2px}' +
+      '#mp-lb .mp-lb-x{position:absolute;top:14px;right:18px;background:none;border:none;' +
+        'color:#fff;font-size:30px;line-height:1;cursor:pointer;padding:6px}' +
+      '#mp-lb .mp-lb-nav{position:absolute;top:50%;transform:translateY(-50%);' +
+        'background:rgba(255,255,255,0.14);border:none;color:#fff;font-size:26px;' +
+        'width:46px;height:46px;border-radius:50%;cursor:pointer}' +
+      '#mp-lb .mp-lb-prev{left:16px}#mp-lb .mp-lb-next{right:16px}' +
+      '#mp-lb .mp-lb-count{position:absolute;bottom:18px;left:0;right:0;text-align:center;' +
+        'color:rgba(255,255,255,0.75);font-size:12px;letter-spacing:0.08em}' +
+      '@media(max-width:600px){#mp-lb .mp-lb-nav{width:38px;height:38px;font-size:20px}}';
+    document.head.appendChild(st);
+
+    var lb = document.createElement('div');
+    lb.id = 'mp-lb';
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-modal', 'true');
+    lb.innerHTML =
+      '<button class="mp-lb-x" aria-label="Close">&times;</button>' +
+      '<button class="mp-lb-nav mp-lb-prev" aria-label="Previous photograph">&#8249;</button>' +
+      '<img alt="">' +
+      '<button class="mp-lb-nav mp-lb-next" aria-label="Next photograph">&#8250;</button>' +
+      '<div class="mp-lb-count"></div>';
+    document.body.appendChild(lb);
+
+    var close = function () {
+      lb.classList.remove('is-open');
+      document.body.style.overflow = _lbState && _lbState.prevOverflow || '';
+    };
+    var step = function (dir) {
+      if (!_lbState || !_lbState.urls.length) return;
+      _lbState.i = (_lbState.i + dir + _lbState.urls.length) % _lbState.urls.length;
+      _paintLightbox();
+    };
+    lb.querySelector('.mp-lb-x').addEventListener('click', close);
+    lb.querySelector('.mp-lb-prev').addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
+    lb.querySelector('.mp-lb-next').addEventListener('click', function (e) { e.stopPropagation(); step(1); });
+    /* Backdrop only. Clicking the photograph itself must not close it. */
+    lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (!lb.classList.contains('is-open')) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    });
+  }
+
+  function _paintLightbox() {
+    var lb = document.getElementById('mp-lb');
+    if (!lb || !_lbState) return;
+    lb.querySelector('img').src = _lbState.urls[_lbState.i];
+    lb.querySelector('.mp-lb-count').textContent =
+      (_lbState.i + 1) + ' / ' + _lbState.urls.length;
+  }
+
+  /* The template's own lightbox first, this one second. Three templates define
+     openLightbox() but throw on the missing _galleryUrls, so "defined" is not
+     "working" - the call is guarded and any throw falls through to ours. */
+  function _openPhoto(urls, i) {
+    try {
+      if (typeof window.openGalleryLightbox === 'function') { window.openGalleryLightbox(i); return; }
+      if (typeof window.openLightbox === 'function') { window.openLightbox(i); return; }
+    } catch (e) { /* template lightbox is broken - use ours */ }
+    if (!urls || !urls.length) return;
+    _ensureLightbox();
+    var lb = document.getElementById('mp-lb');
+    _lbState = { urls: urls, i: i, prevOverflow: document.body.style.overflow };
+    _paintLightbox();
+    lb.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
   }
 
   function applyCustomColors(d) {
