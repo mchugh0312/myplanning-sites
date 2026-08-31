@@ -221,9 +221,12 @@ img{max-width:100%;display:block;}
   font-family:var(--serif);font-size:1rem;
   color:var(--black);line-height:1.75;text-align:center;
 }
-.other-event-when,
-.other-event-where{display:block;}
-.other-event-where{margin-top:1.4rem;}
+/* .other-event-when / .other-event-where removed with the date-guessing
+   splitter that was the only thing that ever emitted them. The gap they
+   produced is now an mp-gap spacer in the copy itself, which the couple can
+   see and move. The height below is the 1.4rem the splitter used, so a card
+   written from the sample copy sits exactly as it did before. */
+.mp-gap{display:block;}
 .other-event-dress{
   display:block;margin-top:1.5rem;
   font-family:var(--script);font-size:2rem;
@@ -1295,23 +1298,16 @@ function hydrateTemplate(d) {
               // the same one on every event.
               photoUrl = _g[_i] || _g[0] || _EVENTS_PHOTO;
             }
-            // Separate the opening date/time lines from the venue block, which
-            // in the design sit apart rather than running together.
-            var _restLines = rest.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-            if (_restLines.length > 1) {
-              // "When" is the leading run of date/time lines — a couple may put
-              // the date and time on one line or on two. Everything after is the
-              // venue block, which must stay together: splitting at a fixed line
-              // count put the gap between a venue and its own address.
-              var _WHEN = /(January|February|March|April|May|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|o['’]clock|noon|midnight)/i;
-              var _whenCount = 0;
-              while (_whenCount < _restLines.length && _WHEN.test(_restLines[_whenCount])) _whenCount++;
-              if (_whenCount === 0) _whenCount = 1;
-              if (_whenCount < _restLines.length) {
-                rest = '<span class="other-event-when">' + _restLines.slice(0, _whenCount).join('<br>') + '</span>' +
-                       '<span class="other-event-where">' + _restLines.slice(_whenCount).join('<br>') + '</span>';
-              }
-            }
+            // The date lines used to be split off from the venue block here by
+            // a date regex, and the two groups wrapped in .other-event-when /
+            // .other-event-where to put a gap between them. That was the last
+            // piece of inference left in any template: it decided, by reading
+            // the couple's words, where their card should breathe.
+            //
+            // The gap is still in the design. It is in SAMPLE_DATA now, as an
+            // mp-gap spacer the couple can see, move or delete with the spacer
+            // button in the editor — the same control every other template's
+            // sample copy uses. Spacing is theirs to set, not ours to guess.
             // MP-457 is closed by construction rather than by a tighter guess.
             // The attire line is no longer identified at all, so it cannot be
             // invented ("Evening Casual" on a couple's own event) and cannot be
@@ -1617,9 +1613,12 @@ const SAMPLE_DATA = {
   hero_image:'',
   story:'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, April 5th, 2026 &middot; 4:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April 5th, 2026 &middot; 7:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em>',
-  // The attire line is written out here rather than injected by the parser.
-  // See MP-457 in the other-events block above.
-  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101<br><em>Evening Casual</em>',
+  // The attire line is written out here rather than injected by the parser
+  // (MP-457), and the gap before the venue is an mp-gap spacer rather than
+  // something a date regex decides. Both are ordinary editable copy now: the
+  // couple can retype the attire line or move the gap and watch the card
+  // change, which is not true of anything a parser puts there.
+  events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<span class="mp-gap" style="display:block;height:1.4rem"></span>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101<br><em>Evening Casual</em>',
   accommodation_info:'<strong>Hyatt Regency La Jolla At Aventine</strong><br>Beyond the Shadow Glen Hotel Resort Block<br>3777 La Jolla Village Drive, La Jolla, CA 92037',
   travel_info:'The nearest airport is San Diego International Airport (SAN), approximately 20 minutes from the venue by car. Uber and Lyft are readily available. We recommend staying within a 10-minute drive of the venue.',
   things_to_do:'Visit La Jolla Cove for stunning coastal views, explore Torrey Pines State Reserve, or spend an evening in the Gaslamp Quarter. Ask us for personalised recommendations.',

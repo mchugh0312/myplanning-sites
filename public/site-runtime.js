@@ -2498,6 +2498,69 @@
     }
   }
 
+  /* Hide a heading the couple has deliberately blanked, and take its space with
+     it. display:none rather than empty text: an emptied <h2> still occupies its
+     own margins, so clearing a title left a gap where it used to be and the
+     section read as broken rather than as having no title.
+
+     The menu link is left at the design's wording on purpose. A nav item with
+     no text is an invisible click target, so the page can have no heading while
+     the menu still has something to say. */
+  /* The exact element _blankHeading hid, per section. Remembering it is the
+     whole trick: un-blanking used to walk back up from the heading clearing
+     display:none as it went, which would also reveal any ancestor the template
+     had deliberately hidden - and templates hide their sections by default and
+     let hydrate show them. Restoring only what we hid cannot do that. */
+  var _blankedNodes = {};
+
+  /* Hide a heading the couple has deliberately blanked, and take its space with
+     it. display:none rather than empty text: an emptied <h2> still occupies its
+     own margins, so clearing a title left a gap where it used to be and the
+     section read as broken rather than as having no title.
+
+     The menu link is left at the design's wording on purpose. A nav item with
+     no text is an invisible click target, so the page can have no heading while
+     the menu still has something to say. */
+  function _blankHeading(key) {
+    if (_blankedNodes[key]) return;                /* already hidden */
+    var ids = SECTION_ANCHORS[key];
+    if (!ids || key === 'home') return;
+    for (var i = 0; i < ids.length; i++) {
+      var sec = document.getElementById(ids[i]);
+      if (!sec) continue;
+      var node = _headingNode(sec);
+      if (node) {
+        /* Walk out through wrappers that exist only to hold this heading - a
+           .sec-head, or Vintage's oval-title shell - so the decorative rule
+           under a title goes with the title rather than being left floating.
+           Stop as soon as a parent holds more than the heading does: that is
+           the section's own content, not the heading's wrapper. */
+        var el = node;
+        while (el.parentNode && el.parentNode !== sec &&
+               (el.parentNode.textContent || '').trim() === (node.textContent || '').trim()) {
+          el = el.parentNode;
+        }
+        /* Never hide something already hidden for another reason - we would
+           then "restore" it into view later. */
+        if (el.style && el.style.display !== 'none') {
+          _blankedNodes[key] = { el: el, prev: el.style.display };
+          el.style.display = 'none';
+        }
+      }
+      break;
+    }
+  }
+
+  /* Undo _blankHeading, and only ever that. Kept separate from _restoreHeading's
+     text write because a section can be un-blanked without ever having been
+     renamed. */
+  function _unblankHeading(key) {
+    var saved = _blankedNodes[key];
+    if (!saved) return;
+    try { saved.el.style.display = saved.prev || ''; } catch (e) {}
+    delete _blankedNodes[key];
+  }
+
   function applySectionHeadings(d) {
     var map = (d && d.section_headings) || {};
 
@@ -2516,6 +2579,21 @@
         _rememberHeading(key, ids[i], _headingNode(sec));
         break;
       }
+    });
+
+    /* Three states, not two. THIS IS THE WHOLE POINT OF THE null.
+         - key absent          -> no override, use the design's own wording
+         - key present, null   -> the couple deliberately cleared it: no heading
+         - key present, text   -> a rename
+       Before the null existed, a cleared box and an untouched box were the same
+       stored value, so clearing a heading put the template's wording back and
+       there was no way to have a section with no title at all. */
+    Object.keys(SECTION_ANCHORS).forEach(function (key) {
+      if (key === 'home') return;
+      var has = Object.prototype.hasOwnProperty.call(map, key);
+      var val = has ? map[key] : undefined;
+      if (has && (val === null || !String(val).trim())) _blankHeading(key);
+      else _unblankHeading(key);
     });
 
     /* Every section we have previously renamed and that is NOT in this payload

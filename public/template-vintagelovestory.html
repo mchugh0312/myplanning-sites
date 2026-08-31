@@ -1612,7 +1612,7 @@ function hydrateWeddingSection(d, menu) {
     });
     if (weddingEvents.length >= 1) {
       ceremony = {
-        eventName: weddingEvents[0].name || 'The Ceremony',
+        eventName: weddingEvents[0].name || '',
         dateLine: weddingEvents[0].date ? fmtVintageDate(weddingEvents[0].date) : '',
         timeLine: weddingEvents[0].time || '',
         venue: weddingEvents[0].venue || '',
@@ -1621,7 +1621,7 @@ function hydrateWeddingSection(d, menu) {
     }
     if (weddingEvents.length >= 2) {
       reception = {
-        eventName: weddingEvents[1].name || 'The Reception',
+        eventName: weddingEvents[1].name || '',
         dateLine: weddingEvents[1].date ? fmtVintageDate(weddingEvents[1].date) : '',
         timeLine: weddingEvents[1].time || '',
         venue: weddingEvents[1].venue || '',
@@ -1635,12 +1635,18 @@ function hydrateWeddingSection(d, menu) {
     return;
   }
 
-  // Override default event names if the parsed eventName looks generic
-  var ceremonyTitle = ceremony.eventName || 'The Ceremony';
-  var receptionTitle = (reception && reception.eventName) || 'The Reception';
+  // No title, no title element. These used to fall back to 'The Ceremony' and
+  // 'The Reception', which put words nobody typed onto a real couple's site —
+  // the same fault as the invented attire line MP-457 was about. A couple whose
+  // two wedding blocks are called something else entirely got the template's
+  // wording instead of their own the moment a title line was missing. The
+  // sample copy below names both, so the design still looks complete out of the
+  // box and the couple edits the name rather than discovering it.
+  var ceremonyTitle = ceremony.eventName || '';
+  var receptionTitle = (reception && reception.eventName) || '';
 
   var leftHtml = '<div class="wedding-col">' +
-    '<h2 class="wedding-col-title">' + ceremonyTitle + '</h2>' +
+    (ceremonyTitle ? '<h2 class="wedding-col-title">' + ceremonyTitle + '</h2>' : '') +
     renderWeddingColMeta(ceremony) +
   '</div>';
   var figureHtml = '<div class="wedding-figure">' +
@@ -1648,7 +1654,7 @@ function hydrateWeddingSection(d, menu) {
   '</div>';
   var rightHtml = reception
     ? '<div class="wedding-col">' +
-        '<h2 class="wedding-col-title">' + receptionTitle + '</h2>' +
+        (receptionTitle ? '<h2 class="wedding-col-title">' + receptionTitle + '</h2>' : '') +
         renderWeddingColMeta(reception) +
       '</div>'
     : '<div class="wedding-col"></div>';
@@ -1680,7 +1686,7 @@ function hydrateEventsSection(d, menu) {
   parsed.forEach(function(p, i) {
     if (i > 0) html += '<div class="events-divider"></div>';
     html += '<div class="event-col">' +
-      '<h3 class="event-col-title">' + (p.eventName || 'Event') + '</h3>' +
+      (p.eventName ? '<h3 class="event-col-title">' + p.eventName + '</h3>' : '') +
       renderColMeta(p) +
     '</div>';
   });

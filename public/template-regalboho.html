@@ -1407,7 +1407,12 @@ function parseAllEventsFromBlob(blob) {
 
 function renderEventCol(parsed) {
   return '<div class="event-col">' +
-    '<div class="event-col-name">' + (parsed.eventName || 'Event') + '</div>' +
+    // No title, no title element. This used to fall back to the word
+    // "Event", which put a word nobody typed onto a real couple's site — the
+    // same fault as the invented attire line MP-457 was about. The sample copy
+    // below names every event, so the design still looks complete out of the
+    // box and the couple edits the name rather than discovering it.
+    (parsed.eventName ? '<div class="event-col-name">' + parsed.eventName + '</div>' : '') +
     '<div class="event-col-divider"></div>' +
     '<div class="event-col-meta">' +
       // The couple's own text goes straight into the meta container, so it
