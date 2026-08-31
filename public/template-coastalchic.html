@@ -218,6 +218,16 @@ body.hydrating{visibility:hidden;}
   line-height:1.7;
   margin-bottom:1.4rem;
 }
+/* The couple's own text, rendered as one block. The date / venue / address
+   rules on either side of this one still dress the d.events database path,
+   which has real columns to put in them. */
+.schedule-event-detail{
+  font-family:var(--body);
+  font-weight:400;
+  font-size:0.82rem;
+  color:var(--white);
+  line-height:1.8;
+}
 .schedule-event-venue{
   font-family:var(--body);
   font-weight:600;
@@ -1417,7 +1427,8 @@ function hydrateTemplate(d){
       // has real content. Parsed blocks with a name but no date or venue used
       // to wipe the placeholder and leave a nearly empty grid.
       var hasRealEvents = allEvents.some(function(ev){
-        return (ev.name || '').trim() && ((ev.date || '').trim() || (ev.venue || '').trim());
+        return (ev.name || '').trim() &&
+          ((ev.detail || '').trim() || (ev.date || '').trim() || (ev.venue || '').trim());
       });
       if (hasRealEvents){
         // Placeholder retention: render into a detached node and only
@@ -1431,15 +1442,25 @@ function hydrateTemplate(d){
         if (allEvents.length === 1) grid.style.gridTemplateColumns = '1fr';
         else if (allEvents.length === 2) grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
         else grid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-        allEvents.filter(function(ev){ return (ev.name||'').trim(); }).forEach(function(ev){
+        // A block with body text but no title used to be dropped on the floor
+        // by this filter — the couple's words were in the record and never
+        // appeared. Either half is enough to make a card.
+        allEvents.filter(function(ev){
+          return (ev.name||'').trim() || (ev.detail||'').trim();
+        }).forEach(function(ev){
           var dateLine = ev.date || '';
           if (ev.time) dateLine += (dateLine ? '<br>' : '') + ev.time;
+          var body = ev.detail
+            // The couple's own text, in one piece, exactly as written.
+            ? '<div class="schedule-event-detail">' + ev.detail + '</div>'
+            // The database path, which has real columns for these slots.
+            : '<div class="schedule-event-date">' + dateLine + '</div>' +
+              (ev.venue   ? '<div class="schedule-event-venue">' + ev.venue + '</div>' : '') +
+              (ev.address ? '<div class="schedule-event-address">' + ev.address.replace(/,\s*/g,',<br>') + '</div>' : '');
           var html =
             '<div class="schedule-event">' +
-              '<div class="schedule-event-name">' + (ev.name || '') + '</div>' +
-              '<div class="schedule-event-date">' + dateLine + '</div>' +
-              (ev.venue   ? '<div class="schedule-event-venue">' + ev.venue + '</div>' : '') +
-              (ev.address ? '<div class="schedule-event-address">' + ev.address.replace(/,\s*/g,',<br>') + '</div>' : '') +
+              (ev.name ? '<div class="schedule-event-name">' + ev.name + '</div>' : '') +
+              body +
             '</div>';
           grid.insertAdjacentHTML('beforeend', html);
         });
@@ -1723,36 +1744,27 @@ function parseHtmlBlocks(html){
     .split('||SPLIT||')
     .map(function(p){ return p.trim(); })
     .filter(function(p){ return p.length > 3; });
+  // First line is the title. Everything after it is returned as the couple
+  // wrote it, in one piece.
+  //
+  // This used to sort the remaining lines into date / time / venue / address by
+  // reading them, and to do that it ran replace(/<[^>]+>/g,'') on every line
+  // before testing it — then rendered the stripped copy. Bold, italic, links
+  // and fonts inside an event were destroyed before they reached the page, so
+  // there was nothing here to "fix" about the attire regex: coastalchic never
+  // had one, it simply threw away all the couple's markup. It also joined the
+  // address lines with commas and the renderer split them again, so a line
+  // break the couple typed did not survive the round trip either.
+  //
+  // The slots still exist for the d.events database path, which has real date,
+  // time, venue and address columns to fill them.
   return parts.map(function(part){
     var nameMatch = _mpTitle(part);
     var name = nameMatch ? nameMatch[1] : '';
-    var rest = nameMatch ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'') : part;
-    // Strip remaining tags except <br> for line splitting
-    var lines = rest.split(/<br\s*\/?>/i).map(function(l){
-      return l.replace(/<[^>]+>/g,'').trim();
-    }).filter(Boolean);
-    // Heuristic: first line(s) until we hit a venue-like line are "date/time"
-    // Simpler: take first line as date, second as time (if both present), rest as venue+address
-    var date = '', time = '', venue = '', address = '';
-    if (lines.length){
-      // Try to match a date pattern in first line
-      var dateLike = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|monday|tuesday|wednesday|thursday|friday|saturday|sunday|\d{4})/i;
-      if (dateLike.test(lines[0])){
-        date = lines[0];
-        if (lines[1] && /\d/.test(lines[1]) && lines[1].length < 30){
-          time = lines[1];
-          venue = lines[2] || '';
-          address = lines.slice(3).join(', ');
-        } else {
-          venue = lines[1] || '';
-          address = lines.slice(2).join(', ');
-        }
-      } else {
-        venue = lines[0];
-        address = lines.slice(1).join(', ');
-      }
-    }
-    return { name:name, date:date, time:time, venue:venue, address:address };
+    var detail = (nameMatch
+      ? part.replace(nameMatch[0],'').replace(/^<br\s*\/?>\s*/i,'')
+      : part).trim();
+    return { name:name, detail:detail };
   });
 }
 

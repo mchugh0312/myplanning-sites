@@ -1513,54 +1513,32 @@ function hydrateTemplate(d) {
             var card = document.createElement('div');
             card.className = 'weekend-event';
 
-            // First <strong>...</strong> = event name
+            // First line is the title. Everything after it is rendered as the
+            // couple wrote it.
+            //
+            // This used to pull a time out of the middle of the block with a
+            // clock-reading regex and re-print it at the bottom of the card, so
+            // a couple who wrote the time on its own line, in the order they
+            // wanted it, saw it moved somewhere they had not put it. Testing a
+            // line meant stripping its markup first, and where a date and a
+            // time shared a line the surviving text was re-emitted as the
+            // stripped plain copy — so a font, a link or a bold word on that
+            // line was destroyed. It also lifted a trailing <em> out as a dress
+            // code, which is what MP-332 and MP-337 both broke on, and gave
+            // whichever line happened to sort first the `line-strong` face
+            // whether or not that is where the couple wanted the emphasis.
+            //
+            // The slots stay on the d.events branch above, which has real date,
+            // time, venue, address and dress_code columns to fill them.
             var nameMatch = _mpTitle(part);
             var eventName = nameMatch ? nameMatch[1] : '';
-            var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-
-            // Last <em>...</em> = dress code
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            var dressCode = dressMatch ? dressMatch[1] : '';
-            var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
-
-            // Split detail on <br> and pull out the time line
-            var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-            var timeLine = '';
-            var detailLines = [];
-            // A time is a clock reading, a range of them, or a worded hour.
-            var TIME_RE = /(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)?\s*[–—-]\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)|\d{1,2}:\d{2}|\b\d{1,2}\s*o['’]clock\b[^,<]*|\bnoon\b|\bmidnight\b)/i;
-            // A date is a month name or a d/m/y style figure.
-            var DATE_RE = /(January|February|March|April|May|June|July|August|September|October|November|December|Mon|Tue|Wed|Thu|Fri|Sat|Sun|\d{1,2}[./]\d{1,2}[./]\d{2,4})/i;
-            lines.forEach(function(line) {
-              var plain = line.replace(/<[^>]+>/g, '').trim();
-              var m = plain.match(TIME_RE);
-              if (!m) { detailLines.push(line); return; }
-              if (!DATE_RE.test(plain)) {
-                // The whole line is the time — keep it intact so "7:00 PM –
-                // 9:00 PM" doesn't lose half of itself.
-                if (!timeLine) timeLine = plain;
-                return;
-              }
-              // Date and time share a line: split so the date keeps its place
-              // and the time moves to the end of the block, as in the design.
-              var withoutTime = plain.replace(TIME_RE, '').replace(/[,;·|]\s*$/, '').replace(/\s{2,}/g, ' ').trim();
-              if (!timeLine) timeLine = m[0].trim();
-              if (withoutTime) detailLines.push(withoutTime);
-            });
-
-            var detailHtml = '';
-            if (detailLines.length) {
-              detailHtml = '<span class="line-strong">' + detailLines[0] + '</span>';
-              if (detailLines.length > 1) {
-                detailHtml += '<br>' + detailLines.slice(1).join('<br>');
-              }
-            }
+            var detail = (nameMatch
+              ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+              : part).trim();
 
             card.innerHTML =
               (eventName ? '<div class="weekend-event-name">' + eventName + '</div>' : '') +
-              (detailHtml ? '<div class="weekend-event-detail">' + detailHtml + '</div>' : '') +
-              (timeLine ? '<span class="weekend-event-time">' + timeLine + '</span>' : '') +
-              (dressCode ? '<span class="weekend-event-dress">' + dressCode + '</span>' : '');
+              (detail ? '<div class="weekend-event-detail">' + detail + '</div>' : '');
             list.appendChild(card);
           });
         });

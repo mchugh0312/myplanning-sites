@@ -1115,11 +1115,16 @@ function hydrateTemplate(d) {
       grid = document.createElement('div');
 
       const candelabraSrc = _CANDELABRA;
-      const buildCard = function(eventName, detail, dressCode) {
+      // The third argument is ONLY ever the `dress_code` column of a d.events
+      // row. It is never inferred from what the couple wrote: the weddings_info
+      // path below passes nothing, so a card built from the couple's own text
+      // has no attire slot and the attire line stays in the detail, styled the
+      // way they styled it.
+      const buildCard = function(eventName, detail, dbDress) {
         return '<div class="wedding-card">' +
           (eventName ? '<div class="wedding-card-name">' + eventName + '</div>' : '') +
           (detail    ? '<div class="wedding-card-detail">' + detail + '</div>' : '') +
-          (dressCode ? '<span class="wedding-card-dress">' + dressCode + '</span>' : '') +
+          (dbDress   ? '<span class="wedding-card-dress">' + dbDress + '</span>' : '') +
         '</div>';
       };
       let leftHTML = '', rightHTML = '';
@@ -1140,26 +1145,32 @@ function hydrateTemplate(d) {
                               .filter(function(p) { return p.length > 3; });
         if (wParts.length >= 2) {
           var _extraHTML = '';
+          // First line is the title. Everything after it is rendered as the
+          // couple wrote it.
+          //
+          // A trailing <em> used to be lifted out as a dress code, which made
+          // italics decide both what a line MEANT and where it appeared. A font
+          // applied to that line stopped it matching and it silently lost its
+          // styling (MP-332); a line that was bold and italic together matched
+          // nothing at all (MP-337). Nothing is inferred now.
           [leftHTML, rightHTML] = wParts.slice(0, 2).map(function(part) {
             var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
-            var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            var dressCode  = dressMatch ? dressMatch[1] : '';
-            var detail     = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
-            return buildCard(eventName, detail, dressCode);
+            var detail     = (nameMatch
+              ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+              : part).trim();
+            return buildCard(eventName, detail);
           });
           // The pair plus the candelabra between them is the design, so a third
           // block and beyond go underneath, full width, instead of being cut.
           wParts.slice(2).forEach(function(part) {
             var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
-            var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            var dressCode  = dressMatch ? dressMatch[1] : '';
-            var detail     = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
+            var detail     = (nameMatch
+              ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+              : part).trim();
             _extraHTML += '<div style="grid-column:1/-1">' +
-              buildCard(eventName, detail, dressCode) + '</div>';
+              buildCard(eventName, detail) + '</div>';
           });
         } else if (wParts.length === 1) {
           // One event is still an event. This used to skip buildCard entirely
@@ -1169,12 +1180,11 @@ function hydrateTemplate(d) {
           var _p1     = wParts[0];
           var _nm1    = _mpTitle(_p1);
           var _name1  = _nm1 ? _nm1[1] : '';
-          var _rest1  = _nm1 ? _p1.replace(_nm1[0], '').replace(/^<br\s*\/?>\s*/i, '') : _p1;
-          var _dm1    = _rest1.match(/<em>([^<]+)<\/em>\s*$/i);
-          var _dress1 = _dm1 ? _dm1[1] : '';
-          var _det1   = _dm1 ? _rest1.replace(_dm1[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : _rest1;
+          var _det1   = (_nm1
+            ? _p1.replace(_nm1[0], '').replace(/^<br\s*\/?>\s*/i, '')
+            : _p1).trim();
           leftHTML = '<div style="grid-column:1/-1">' +
-            buildCard(_name1, _det1, _dress1) + '</div>';
+            buildCard(_name1, _det1) + '</div>';
         } else {
           // Nothing that survived the length filter — dump what there is rather
           // than showing an empty section.
@@ -1232,12 +1242,14 @@ function hydrateTemplate(d) {
       var _orig_list = list;
       list = document.createElement('div');
 
-      const buildOtherCard = function(eventName, detail, dressCode, photoUrl) {
+      // As with buildCard above: the attire slot is fed only by the d.events
+      // `dress_code` column. The events_info path passes nothing.
+      const buildOtherCard = function(eventName, detail, dbDress, photoUrl) {
         return '<div class="other-event-item">' +
           (photoUrl  ? '<img class="other-event-photo" src="' + photoUrl + '" alt="">' : '') +
           (eventName ? '<div class="other-event-name">' + eventName + '</div>' : '') +
           (detail    ? '<div class="other-event-detail">' + detail + '</div>' : '') +
-          (dressCode ? '<span class="other-event-dress">' + dressCode + '</span>' : '') +
+          (dbDress   ? '<span class="other-event-dress">' + dbDress + '</span>' : '') +
         '</div>';
       };
       if (d.events_info) {
@@ -1258,28 +1270,13 @@ function hydrateTemplate(d) {
             var imgMatch  = part.match(/<img[^>]*src=["']([^"']+)["'][^>]*>/i);
             var photoUrl  = imgMatch ? imgMatch[1] : '';
             if (imgMatch) part = part.replace(imgMatch[0], '').replace(/^(<br\s*\/?>\s*)+/i, '');
-            // Event name: first <strong>
+            // First line is the title. Everything after it is rendered as the
+            // couple wrote it — see the note on the wedding cards above.
             var nameMatch  = _mpTitle(part);
             var eventName  = nameMatch ? nameMatch[1] : '';
-            var rest       = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-            // Dress code: <em>…</em> at the end, OR a final line containing
-            // "Attire"/"Dress". Lets users write "Evening Casual Attire" as
-            // plain text without italic markup.
-            var dressCode = '';
-            var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-            if (dressMatch) {
-              dressCode = dressMatch[1];
-              rest = rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim();
-            } else {
-              // Check the last <br>-separated line for an attire/dress keyword.
-              var lines = rest.split(/<br\s*\/?>/i);
-              var lastLine = (lines[lines.length - 1] || '').replace(/<[^>]+>/g, '').trim();
-              if (lastLine && /\battire\b|\bdress\s*code\b/i.test(lastLine)) {
-                dressCode = lastLine;
-                lines.pop();
-                rest = lines.join('<br>').replace(/<br\s*\/?>\s*$/i, '').trim();
-              }
-            }
+            var rest       = (nameMatch
+              ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+              : part).trim();
             // Photo fallback: if the user didn't embed an img but has a
             // structured d.events entry with a `.photo` matching by name.
             if (!photoUrl && d.events && eventName) {
@@ -1298,34 +1295,6 @@ function hydrateTemplate(d) {
               // the same one on every event.
               photoUrl = _g[_i] || _g[0] || _EVENTS_PHOTO;
             }
-            // Dress code: also accept a short final line with no keyword at all
-            // ("Evening Casual"), which is how the design writes it.
-            if (!dressCode) {
-              // The design writes the attire as a bare final line — "Evening
-              // Casual" — with no <em>, no "attire" keyword and nothing else to
-              // identify it. Accept a short trailing line with no digits, or
-              // any line naming a known dress code.
-              var _lines = rest.split(/<br\s*\/?>/i);
-              var _last = (_lines[_lines.length - 1] || '').replace(/<[^>]+>/g, '').trim();
-              // MP-457, second half. The "any short trailing line" arm used to
-              // read:  _last.split(/\s+/).length <= 3 && !/\d/.test(_last)
-              // which swallowed the last line of any event that happened to end
-              // in three words or fewer - a venue like "The Old Barn" was lifted
-              // out of the address and printed as the dress code.
-              //
-              // A trailing line is only treated as attire when it actually
-              // names one. The keyword list is the same one used above, plus
-              // the words couples reach for when writing attire without the
-              // word "attire". Anything else stays part of the event.
-              var _looksLikeAttire = _last && (
-                /\b(casual|formal|black\s*tie|white\s*tie|cocktail|festive|semi-?formal|smart|beach|garden|dressy|lounge|resort|tropical|western|costume|masquerade|optional)\b/i.test(_last)
-              );
-              if (_looksLikeAttire) {
-                dressCode = _last;
-                _lines.pop();
-                rest = _lines.join('<br>').replace(/<br\s*\/?>\s*$/i, '').trim();
-              }
-            }
             // Separate the opening date/time lines from the venue block, which
             // in the design sit apart rather than running together.
             var _restLines = rest.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
@@ -1343,27 +1312,13 @@ function hydrateTemplate(d) {
                        '<span class="other-event-where">' + _restLines.slice(_whenCount).join('<br>') + '</span>';
               }
             }
-            // MP-457: "Evening Casual" was appearing on couples' own events.
-            //
-            // This used to read: if (!dressCode) dressCode = _DEFAULT_DRESS;
-            // The reasoning was that the design always closes a card with an
-            // attire line, so one was invented when the parser could not find
-            // one. But the parser fails to find one most of the time, because
-            // most couples do not write an attire line at all - so the template
-            // was printing its own sample text onto a real event, under a real
-            // event name, the moment new text was entered.
-            //
-            // Nothing is invented now. A card with no attire has no attire
-            // line. The sample copy in SAMPLE_DATA carries its own <em> attire
-            // line instead, so the standalone template still looks like the
-            // design without putting words in a couple's mouth.
-            //
-            // NOTE the guess above (~line 1285) is still loose: any trailing
-            // line of three words or fewer with no digits is read as attire, so
-            // an event ending "The Old Barn" will show that as a dress code.
-            // Left alone deliberately - tightening it changes what already-live
-            // sites display, which is a decision, not a fix.
-            list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, dressCode, photoUrl));
+            // MP-457 is closed by construction rather than by a tighter guess.
+            // The attire line is no longer identified at all, so it cannot be
+            // invented ("Evening Casual" on a couple's own event) and cannot be
+            // mistaken for something else (a venue like "The Old Barn" lifted
+            // out of the address). It stays where the couple put it, in the
+            // face they gave it.
+            list.insertAdjacentHTML('beforeend', buildOtherCard(eventName, rest, '', photoUrl));
           });
         }
       } else if (d.events && d.events.length > 2) {

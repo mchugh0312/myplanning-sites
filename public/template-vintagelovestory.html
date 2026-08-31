@@ -1402,68 +1402,56 @@ function fmtVintageDateShort(d) {
   return fmtVintageDate(d);
 }
 
-// Parse a single event blob (HTML between <strong>...</strong>) into structured pieces
+// First line is the title. Everything after it is kept as the couple wrote it.
+//
+// This used to sort the remaining lines into date / time / venue / address by
+// reading them, stripping the markup off each line to test it and rendering the
+// stripped copy — so a font, a link, or a bold word inside an event never
+// reached the page. On top of that it ran a line it took for a date through
+// fmtVintageDate, rewriting "Sat, Sept 25th" into the template's own
+// "Sunday, 09.25.2026" house style: a couple could not spell their own date the
+// way they wanted it. And it lifted a trailing <em> out as a dress code, which
+// is what MP-332 and MP-337 broke on — then dropped it, since neither renderer
+// below ever had an attire slot to put it in. An italic attire line was
+// therefore deleted from the site outright.
+//
+// The date / time / venue / address slots stay in the two renderers for the
+// d.events database path, which has real columns to fill them.
 function parseEventBlob(part) {
   var nameMatch = _mpTitle(part);
   var eventName = nameMatch ? nameMatch[1] : '';
-  var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-
-  var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-  var dressCode = dressMatch ? dressMatch[1] : '';
-  var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
-
-  var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-
-  var dateLine = '';
-  var timeLine = '';
-  var detailLines = [];
-
-  lines.forEach(function(line) {
-    var clean = line.replace(/<[^>]+>/g, '').trim();
-    if (!dateLine && /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|January|February|March|April|May|June|July|August|September|October|November|December)/i.test(clean)) {
-      dateLine = clean;
-    } else if (!timeLine && /\d{1,2}\s*(?::\d{2})?\s*(?:[–-]|to)\s*\d{1,2}|\d{1,2}:\d{2}|\bo['’]clock\b|\bAM\b|\bPM\b|\bam\b|\bpm\b/i.test(clean)) {
-      timeLine = clean;
-    } else {
-      detailLines.push(clean);
-    }
-  });
-
-  var venue = detailLines.length ? detailLines[0] : '';
-  var address = detailLines.length > 1 ? detailLines.slice(1).join('<br>') : '';
-
-  // Reformat date as Vintage style if parseable
-  if (dateLine) {
-    var parsed = new Date(dateLine);
-    if (!isNaN(parsed)) dateLine = fmtVintageDate(dateLine);
-  }
+  var detail = (nameMatch
+    ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+    : part).trim();
 
   return {
     eventName: eventName,
-    dateLine: dateLine,
-    timeLine: timeLine,
-    venue: venue,
-    address: address,
-    dressCode: dressCode
+    detail: detail
   };
 }
 
 // Render an event into a wedding column or events column
 function renderColMeta(parsed) {
   return '<div class="event-col-meta">' +
-    (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
-    (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
-    (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
-    (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '') +
+    // The couple's own text goes straight into the meta container, so it
+    // renders in the face and size this card already used. The spans below
+    // are the database path's slots.
+    (parsed.detail ? parsed.detail :
+      (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
+      (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
+      (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
+      (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '')) +
   '</div>';
 }
 
 function renderWeddingColMeta(parsed) {
   return '<div class="wedding-col-meta">' +
-    (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
-    (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
-    (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
-    (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '') +
+    // As renderColMeta above: couple's text verbatim, slots for the database.
+    (parsed.detail ? parsed.detail :
+      (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
+      (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
+      (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
+      (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '')) +
   '</div>';
 }
 

@@ -1370,48 +1370,28 @@ function fmtRegalDate(d) {
   } catch(e) { return d; }
 }
 
+// First line is the title. Everything after it is kept as the couple wrote it.
+//
+// This used to sort the remaining lines into date / time / venue / address by
+// reading them, stripping the markup off each line to test it and then
+// rendering the stripped copy — so a font, a link, or a bold word inside an
+// event never reached the page. It also lifted a trailing <em> out as a dress
+// code, which is what MP-332 and MP-337 broke on, and reformatted a date it
+// thought it recognised into the template's house style, overwriting the
+// wording the couple chose.
+//
+// The date / time / venue / address slots stay in renderEventCol for the
+// d.events database path, which has real columns to fill them.
 function parseEventBlob(part) {
   var nameMatch = _mpTitle(part);
   var eventName = nameMatch ? nameMatch[1] : '';
-  var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-
-  var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-  var dressCode = dressMatch ? dressMatch[1] : '';
-  var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
-
-  var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-
-  var dateLine = '';
-  var timeLine = '';
-  var detailLines = [];
-
-  lines.forEach(function(line) {
-    var clean = line.replace(/<[^>]+>/g, '').trim();
-    if (!dateLine && /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|January|February|March|April|May|June|July|August|September|October|November|December)/i.test(clean)) {
-      dateLine = clean;
-    } else if (!timeLine && /\d{1,2}\s*(?::\d{2})?\s*(?:[–-]|to)\s*\d{1,2}|\d{1,2}:\d{2}|\bo['’]clock\b|\bAM\b|\bPM\b|\bam\b|\bpm\b/i.test(clean)) {
-      timeLine = clean;
-    } else {
-      detailLines.push(clean);
-    }
-  });
-
-  var venue = detailLines.length ? detailLines[0] : '';
-  var address = detailLines.length > 1 ? detailLines.slice(1).join('<br>') : '';
-
-  // Reformat date as Regal style if parseable
-  if (dateLine) {
-    var parsed = new Date(dateLine);
-    if (!isNaN(parsed)) dateLine = fmtRegalDate(dateLine);
-  }
+  var detail = (nameMatch
+    ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+    : part).trim();
 
   return {
     eventName: eventName,
-    dateLine: dateLine,
-    timeLine: timeLine,
-    venue: venue,
-    address: address,
-    dressCode: dressCode
+    detail: detail
   };
 }
 
@@ -1430,12 +1410,18 @@ function renderEventCol(parsed) {
     '<div class="event-col-name">' + (parsed.eventName || 'Event') + '</div>' +
     '<div class="event-col-divider"></div>' +
     '<div class="event-col-meta">' +
-      (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
-      (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
-      (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
-      (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '') +
+      // The couple's own text goes straight into the meta container, so it
+      // renders in exactly the face and size this card already used. The
+      // spans below are the database path's slots.
+      (parsed.detail ? parsed.detail :
+        (parsed.dateLine ? '<span class="day">' + parsed.dateLine + '</span>' : '') +
+        (parsed.timeLine ? '<span class="time">' + parsed.timeLine + '</span>' : '') +
+        (parsed.venue ? '<span class="venue">' + parsed.venue + '</span>' : '') +
+        (parsed.address ? '<span class="address">' + parsed.address + '</span>' : '')) +
     '</div>' +
-    (parsed.dressCode ? '<div class="event-col-dress">Dress Code: ' + parsed.dressCode + '</div>' : '') +
+    // Fed only by the d.events `dress_code` column, never inferred from what
+    // the couple wrote.
+    (parsed.dbDress ? '<div class="event-col-dress">Dress Code: ' + parsed.dbDress + '</div>' : '') +
   '</div>';
 }
 
@@ -1463,7 +1449,7 @@ function hydrateEventDetails(d, menu) {
         timeLine: ev.time || '',
         venue: ev.venue || '',
         address: ev.address || '',
-        dressCode: ev.dress_code || ''
+        dbDress: ev.dress_code || ''
       };
     });
   }

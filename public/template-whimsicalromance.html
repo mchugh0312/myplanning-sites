@@ -428,6 +428,18 @@ body.hydrating{visibility:hidden;}
   font-style:italic;
   line-height:1.55;
 }
+/* The couple's own text, rendered as one block. The date / time / venue /
+   address rules above still dress the d.events database path, which has real
+   columns to put in them. The responsive override for this class already
+   existed further down; only the base rule was missing. */
+.itinerary-event-detail{
+  font-family:var(--body);
+  font-size:0.78rem;
+  color:var(--ivory);
+  font-weight:400;
+  line-height:1.8;
+  letter-spacing:0.01em;
+}
 .itinerary-event-dress{
   display:block;
   margin-top:0.5rem;
@@ -1374,58 +1386,31 @@ function renderItineraryEvent(eventName, dateStr, timeStr, venue, address) {
   return card;
 }
 
-// Parse a single event blob (HTML between <strong>...</strong>) into structured pieces
-function parseEventBlob(part) {
+// Render one event card from a block the couple wrote.
+//
+// This replaces parseEventBlob, which sorted the block's lines into the date /
+// time / venue / address slots above by reading them. It had to strip the
+// markup off a line to test it — replace(/<[^>]+>/g,'') — and it rendered the
+// stripped copy, so bold, italic, links and fonts inside an event were
+// destroyed before they reached the page. It also lifted a trailing <em> out as
+// a dress code and then dropped it on the floor: the caller never passed it to
+// a slot, so an italic attire line vanished from the site entirely.
+//
+// The slots stay for the d.events database path below, where date, time, venue
+// and address really are separate columns. Text the couple typed is not sorted,
+// stripped, or reformatted — first line is the title, the rest is theirs.
+function renderItineraryBlock(part) {
+  var card = document.createElement('div');
+  card.className = 'itinerary-event';
   var nameMatch = _mpTitle(part);
   var eventName = nameMatch ? nameMatch[1] : '';
-  var rest = nameMatch ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-
-  // Last <em>...</em> is dress code — set aside
-  var dressMatch = rest.match(/<em>([^<]+)<\/em>\s*$/i);
-  var dressCode = dressMatch ? dressMatch[1] : '';
-  var detail = dressMatch ? rest.replace(dressMatch[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest;
-
-  var lines = detail.split(/<br\s*\/?>/i).map(function(l){ return l.trim(); }).filter(Boolean);
-
-  var dateLine = '';
-  var timeLine = '';
-  var detailLines = [];
-
-  lines.forEach(function(line) {
-    var clean = line.replace(/<[^>]+>/g, '').trim();
-    if (!dateLine && /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun|January|February|March|April|May|June|July|August|September|October|November|December)/i.test(clean)) {
-      dateLine = clean;
-    } else if (!timeLine && /\d{1,2}\s*(?::\d{2})?\s*(?:[–-]|to)\s*\d{1,2}|\d{1,2}:\d{2}|\bo['’]clock\b|\bAM\b|\bPM\b|\bam\b|\bpm\b|\bnoon\b|\bmidnight\b/i.test(clean)) {
-      timeLine = clean;
-    } else {
-      detailLines.push(clean);
-    }
-  });
-
-  // First non-date/non-time line = venue, rest = address
-  var venue = detailLines.length ? detailLines[0] : '';
-  var address = detailLines.length > 1 ? detailLines.slice(1).join('<br>') : '';
-
-  // Format date with ordinal superscript if it's parseable
-  if (dateLine) {
-    // Try to parse and reformat with <sup>
-    var parsed = new Date(dateLine);
-    if (!isNaN(parsed)) {
-      dateLine = fmtItineraryDate(dateLine);
-    } else {
-      // Try matching "Saturday, October 13th, 2026" → wrap "th" in <sup>
-      dateLine = dateLine.replace(/(\d{1,2})(st|nd|rd|th)\b/, '$1<sup>$2</sup>');
-    }
-  }
-
-  return {
-    eventName: eventName,
-    dateLine: dateLine,
-    timeLine: timeLine,
-    venue: venue,
-    address: address,
-    dressCode: dressCode
-  };
+  var detail = (nameMatch
+    ? part.replace(nameMatch[0], '').replace(/^<br\s*\/?>\s*/i, '')
+    : part).trim();
+  card.innerHTML =
+    (eventName ? '<div class="itinerary-event-name">' + eventName + '</div>' : '') +
+    (detail    ? '<div class="itinerary-event-detail">' + detail + '</div>' : '');
+  return card;
 }
 
 // Render an accommodation block from an HTML blob.
@@ -1648,14 +1633,7 @@ function hydrateTemplate(d) {
                           .map(function(p) { return p.trim(); })
                           .filter(function(p) { return p.length > 3; });
           parts.forEach(function(part) {
-            var parsed = parseEventBlob(part);
-            grid.appendChild(renderItineraryEvent(
-              parsed.eventName,
-              parsed.dateLine,
-              parsed.timeLine,
-              parsed.venue,
-              parsed.address
-            ));
+            grid.appendChild(renderItineraryBlock(part));
           });
         });
       }
