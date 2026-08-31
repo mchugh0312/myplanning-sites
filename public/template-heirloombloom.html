@@ -40,6 +40,10 @@
 :root{
   --gold:    #afab57;
   --offwhite:#f2ece7;
+  /* Text on dark panels. Same tone as --offwhite, its own variable so the
+     couple can change text on a coloured panel without moving the page
+     background underneath it, and vice versa. */
+  --on-dark: #f2ece7;
   --berry:   #673d45;
   --gray:    #696c62;
   --text:    #4a3a3d;
@@ -85,7 +89,7 @@ img{max-width:100%;display:block;}
   background:none;border:none;cursor:pointer;
   font-size:1.5rem;color:rgba(74,58,61,0.55);line-height:1;
 }
-.menu-close:hover{color:var(--offwhite);}
+.menu-close:hover{color:var(--on-dark);}
 /* .menu-title styled the drawer's "Menu" heading (gold script, clamped
    2.6–3.6rem, 1.6rem margin beneath). The heading was removed — it labelled a
    list of links as a menu — so the rule goes too rather than styling nothing.
@@ -229,18 +233,18 @@ img{max-width:100%;display:block;}
 .other-event-name{
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--offwhite);
+  color:var(--on-dark);
   margin-bottom:1.6rem;line-height:1.2;
 }
 .other-event-detail{
   font-family:var(--serif);font-size:1.05rem;
-  color:var(--offwhite);line-height:2.2;
+  color:var(--on-dark);line-height:2.2;
   text-align:center;
 }
 .other-event-dress{
   display:block;margin-top:1.4rem;
   font-family:var(--script);font-size:1.25rem;
-  color:var(--offwhite);
+  color:var(--on-dark);
 }
 
 /* ── ACCOMMODATIONS — gray bg ─────────────────────────────────── */
@@ -357,7 +361,7 @@ img{max-width:100%;display:block;}
 .gallery-section{background:var(--berry);padding:4rem 2rem;}
 .gallery-title{
   font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--offwhite);text-align:center;margin-bottom:0.5rem;
+  color:var(--on-dark);text-align:center;margin-bottom:0.5rem;
 }
 .gallery-rule{width:50px;height:1px;background:rgba(175,171,87,0.6);margin:0 auto 2rem;}
 .gallery-grid{
@@ -373,8 +377,8 @@ img{max-width:100%;display:block;}
 }
 .gallery-lightbox.open{display:flex;}
 .gallery-lightbox img{max-width:88vw;max-height:88vh;object-fit:contain;}
-.gallery-lb-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;color:var(--offwhite);font-size:2rem;cursor:pointer;}
-.gallery-lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(103,61,69,0.6);border:none;cursor:pointer;color:var(--offwhite);width:44px;height:44px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.gallery-lb-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;color:var(--on-dark);font-size:2rem;cursor:pointer;}
+.gallery-lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(103,61,69,0.6);border:none;cursor:pointer;color:var(--on-dark);width:44px;height:44px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
 .gallery-lb-arrow:hover{background:rgba(103,61,69,0.9);}
 .gallery-lb-arrow.prev{left:1.2rem;}
 .gallery-lb-arrow.next{right:1.2rem;}
@@ -438,7 +442,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 .rsvp-title{
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--offwhite);
+  color:var(--on-dark);
   margin-bottom:0.5rem;
 }
 .rsvp-deadline{
@@ -504,20 +508,20 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   background:transparent;
   border:1px solid rgba(242,236,231,0.55);
   border-radius:999px;
-  color:var(--offwhite);
+  color:var(--on-dark);
   font-family:var(--serif);
   font-size:1.05rem;
   cursor:pointer;
   transition:background 0.2s;
 }
 .rsvp-add-guest:hover{background:rgba(242,236,231,0.12);}
-.rsvp-add-guest:hover{border-color:rgba(242,236,231,0.6);color:var(--offwhite);}
+.rsvp-add-guest:hover{border-color:rgba(242,236,231,0.6);color:var(--on-dark);}
 .extra-guest-row{margin-bottom:0.6rem;}
 .rsvp-remove-btn{background:none;border:none;cursor:pointer;color:rgba(242,236,231,0.5);font-size:1rem;padding:0 0.2rem;}
 .rsvp-submit{
   display:block;width:100%;margin-top:1.8rem;
   background:var(--berry);border:none;
-  color:var(--offwhite);font-family:var(--serif);
+  color:var(--on-dark);font-family:var(--serif);
   font-size:0.95rem;letter-spacing:0.12em;text-transform:uppercase;
   padding:0.85rem;cursor:pointer;border-radius:999px;transition:opacity 0.2s;
 }
@@ -525,7 +529,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 .rsvp-submit:disabled{opacity:0.4;cursor:not-allowed;}
 .rsvp-success{
   display:none;margin-top:2rem;
-  font-family:var(--script);font-size:2rem;color:var(--offwhite);
+  font-family:var(--script);font-size:2rem;color:var(--on-dark);
 }
 /* Wrapper for dynamic party-total text within the success message */
 .rsvp-success-msg{display:block;}
@@ -562,7 +566,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 .rsvp-household-name{
   font-family:var(--serif);font-weight:400;font-size:1.05rem;
-  color:var(--offwhite);
+  color:var(--on-dark);
   display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
   letter-spacing:0.02em;
 }
@@ -602,7 +606,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
 /* ── FOOTER ──────────────────────────────────────────────────── */
 .footer{background:var(--berry);text-align:center;padding:2.5rem 1rem;}
-.footer-couple{font-family:var(--script);font-size:2rem;color:var(--offwhite);display:block;margin-bottom:0.4rem;}
+.footer-couple{font-family:var(--script);font-size:2rem;color:var(--on-dark);display:block;margin-bottom:0.4rem;}
 .footer-tagline{font-family:var(--serif);font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(242,236,231,0.5);}
 
 /* ── RESPONSIVE ──────────────────────────────────────────────── */

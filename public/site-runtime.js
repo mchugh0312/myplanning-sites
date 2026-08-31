@@ -2071,17 +2071,30 @@
      text colour. Templates keep their own handling; this runs after
      hydrateTemplate so it wins, and setting nothing when a value is empty means
      the template's own palette still shows through. */
+  /* MP-357, second half. "Text color only adjusts the color of some text" was
+     read as a contrast decision. It was not: in four templates `ink` pointed at
+     a --text variable that duplicated the real body tone's hex and carried
+     almost none of the copy. Coastal Chic set 14 declarations in var(--navy)
+     and 1 in var(--text), so the control moved one of fifteen. Those templates
+     now put their body copy on --text, so `ink` reaches all of it.
+
+     `ink2` is the tone used for text sitting ON a dark panel or photograph.
+     Every template has one and it is heavily used, but in six of them it was
+     the SAME variable as the page ground, so a couple could not darken the
+     text on a coloured panel without repainting the whole page. Those six now
+     declare --on-dark alongside the background variable, seeded with the same
+     hex; the four that already had a separate tone keep it. */
   var TEMPLATE_COLOR_VARS = {
-    pressedpetals:       { bg: '--offwhite', accent: '--olive', ink: '--text' },
-    heirloombloom:       { bg: '--offwhite', accent: '--berry', ink: '--text' },
-    blacktietimeless:    { bg: '--offwhite', accent: '--black', ink: '--text' },
-    goldenhour:          { bg: '--white', accent: '--blue', ink: '--dark' },
-    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--text' },
-    modernminimal:       { bg: '--ivory', accent: '--blue', ink: '--text' },
-    whimsicalromance:    { bg: '--ivory', accent: '--rose', ink: '--burgundy' },
-    coastalchic:         { bg: '--ivory', accent: '--navy', ink: '--text' },
-    vintagelovestory:    { bg: '--ivory', accent: '--brown', ink: '--text' },
-    regalboho:           { bg: '--ivory', accent: '--beige', ink: '--text' },
+    pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--text',     ink2: '--white' },
+    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--text',     ink2: '--on-dark' },
+    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--text',     ink2: '--white' },
+    goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--dark',     ink2: '--on-dark' },
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--text',     ink2: '--on-dark' },
+    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--text',     ink2: '--white' },
+    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--burgundy', ink2: '--on-dark' },
+    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--text',     ink2: '--white' },
+    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--text',     ink2: '--on-dark' },
+    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--text',     ink2: '--on-dark' },
   };
 
   /* ── SCROLL TO A SECTION ON REQUEST ────────────────────────────────────────
@@ -2884,7 +2897,8 @@
     var c = d && d.customization;
     if (!c) return;
     var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
-    var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color], [v.ink, c.text_color]];
+    var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color],
+                 [v.ink, c.text_color], [v.ink2, c.text2_color]];
     try {
       var root = document.documentElement.style;
       for (var i = 0; i < pairs.length; i++) {
