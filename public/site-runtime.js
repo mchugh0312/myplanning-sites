@@ -2385,7 +2385,28 @@
   /* Tell the editor what each section is ACTUALLY called on the page. Without
      this the Content tab showed its own generic label — "Our Registry" — while
      the site said "See Our Registry", and nothing had gone wrong; they were
-     simply two different pieces of text. */
+     simply two different pieces of text.
+
+     Two rules here, both of them load-bearing:
+
+     1. REPORT THE DESIGN'S WORDING, NOT WHAT IS CURRENTLY ON SCREEN. This runs
+        after applySectionHeadings, so by now the node may already hold the
+        couple's override. Reading the node back would echo the override to the
+        editor as though it were the template's own heading, and the Content
+        box would offer it as the thing you are about to replace. _designHeadings
+        holds the wording the template shipped with, captured before the first
+        write, so prefer it whenever we have it.
+
+     2. REPORT EVERY SECTION, INCLUDING THE ONES WITH NO HEADING. The editor
+        merges what we send over what it already had, so a key we leave out
+        keeps its previous value forever - and the previous value belongs to
+        whichever template was previewed before this one. That is how Pressed
+        Petals, whose travel section is headed "Flights", came to offer
+        "Travel Info" in the Content tab: four other templates use that wording,
+        and the key was never cleared on the way in. Nine section/template pairs
+        have no heading element at all, so this is not an edge case. Sending an
+        explicit null overwrites the stale entry and lets the editor fall back
+        to its own label. */
   function reportSectionHeadings() {
     if (!_isPreview) return;
     try {
@@ -2393,14 +2414,23 @@
       Object.keys(SECTION_ANCHORS).forEach(function (key) {
         if (key === 'home') return;               /* the hero is the names */
         var ids = SECTION_ANCHORS[key];
-        for (var i = 0; i < ids.length; i++) {
-          var sec = document.getElementById(ids[i]);
-          if (!sec) continue;
-          var node = _headingNode(sec);
-          var text = node && (node.textContent || '').trim();
-          if (text) out[key] = text;
-          break;
+        var text = null;
+        /* The design's own wording, if we have already captured it. */
+        var saved = Object.prototype.hasOwnProperty.call(_designHeadings, key)
+          ? _designHeadings[key] : null;
+        if (saved && saved.heading !== null && String(saved.heading).trim()) {
+          text = String(saved.heading).trim();
+        } else {
+          for (var i = 0; i < ids.length; i++) {
+            var sec = document.getElementById(ids[i]);
+            if (!sec) continue;
+            var node = _headingNode(sec);
+            var t = node && (node.textContent || '').trim();
+            if (t) text = t;
+            break;
+          }
         }
+        out[key] = text || null;
       });
       parent.postMessage({ type: 'MP_SECTION_HEADINGS', headings: out }, '*');
     } catch (e) {}
@@ -2470,6 +2500,23 @@
 
   function applySectionHeadings(d) {
     var map = (d && d.section_headings) || {};
+
+    /* Capture the design's wording for EVERY section before anything is
+       written over it, not just the ones being renamed. reportSectionHeadings
+       runs after this and needs the original wording to send to the editor;
+       capturing lazily inside _writeHeading meant a section acquired its
+       "original" only once it had already been renamed, which is exactly when
+       the original is no longer readable off the page. */
+    Object.keys(SECTION_ANCHORS).forEach(function (key) {
+      if (key === 'home') return;
+      var ids = SECTION_ANCHORS[key];
+      for (var i = 0; i < ids.length; i++) {
+        var sec = document.getElementById(ids[i]);
+        if (!sec) continue;
+        _rememberHeading(key, ids[i], _headingNode(sec));
+        break;
+      }
+    });
 
     /* Every section we have previously renamed and that is NOT in this payload
        goes back to the design's wording. This runs before the writes below so a
