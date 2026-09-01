@@ -2175,7 +2175,12 @@
     heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold', accent3: '--gray' },
     blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--dark' },
-    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage', accent3: '--dark-green' },
+    /* accent is --sage, not --green-gray. The Weekend band - this design's
+       signature block - is painted in --sage, and --green-gray only draws
+       hairlines, hovers and rules. The roles were the wrong way round, so
+       "Main Color" moved the rules while the big band stayed put, and the
+       Save the Date band came out in the wrong green. */
+    sageandstill:        { bg: '--offwhite', accent: '--sage',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--green-gray', accent3: '--dark-green' },
     modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--black' },
     whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--yellow' },
     coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
@@ -4803,16 +4808,26 @@
          Hide the element until its own pixels are ready and show it again
          afterwards, independently of the page reveal. Worst case the frame is
          empty for a moment and the site colour shows through, which is the
-         template's own ground — never somebody else's photograph. */
-      if (s.el && s.el.tagName === 'IMG') {
+         template's own ground — never somebody else's photograph.
+
+         NOT in the editor's thumbnails. A thumbnail is a still: nobody watches
+         it load, so there is no flash to prevent, and hiding buys nothing while
+         risking a thumbnail captured mid-load with an empty hero. Modern
+         Minimal's carousel card lost its photograph exactly that way. */
+      if (s.el && s.el.tagName === 'IMG' &&
+          !(document.body && document.body.classList.contains('thumbnail-mode'))) {
         (function (img) {
           var prev = img.style.visibility;
-          img.style.visibility = 'hidden';
           var show = function () { img.style.visibility = prev || ''; };
+          img.style.visibility = 'hidden';
           img.addEventListener('load', show);
           img.addEventListener('error', show);
           if (img.decode) { try { img.decode().then(show, show); } catch (e) { show(); } }
-          /* Never leave it hidden on a stalled request. */
+          /* A cached image can finish between the `complete` test above and
+             these listeners, in which case load has already fired and would
+             never fire again — the picture would stay hidden for good. */
+          if (img.complete) show();
+          /* And never leave it hidden on a stalled request. */
           setTimeout(show, HERO_REVEAL_CEILING_MS + 4000);
         })(s.el);
       }
