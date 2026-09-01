@@ -2117,21 +2117,29 @@
      nothing. The variable is still called --ink3 everywhere, so only this table
      knows the difference.
 
+     `accent2` is the design's SECOND fill — the other colour it paints panels
+     and blocks with, as distinct from the brand accent. Heirloom Bloom's is the
+     mustard --gold behind the registry and the couple's initials, which no
+     control reached. Unlike the text roles it is NOT split into a dedicated
+     variable: it paints, and it is allowed to letter too — Heirloom Bloom's
+     mustard draws the couple's initials in the same tone as the panel, and a
+     couple changing that colour means both.
+
      The names are the same in all ten templates, so nothing downstream has
      to special-case a design. Keep TEMPLATE_PALETTES in Website.txt in step:
      this decides which variable moves, that decides which colour the picker
      opens on. */
   var TEMPLATE_COLOR_VARS = {
-    pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3' },
-    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
-    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3' },
+    pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
+    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold' },
+    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
+    goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--dark' },
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage' },
+    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--black' },
+    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy' },
+    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
+    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue' },
+    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy' },
   };
 
   /* ── SCROLL TO A SECTION ON REQUEST ────────────────────────────────────────
@@ -2936,7 +2944,7 @@
     var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
     var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color],
                  [v.ink, c.text_color], [v.ink2, c.text2_color],
-                 [v.ink3, c.text3_color]];
+                 [v.ink3, c.text3_color], [v.accent2, c.accent2_color]];
     try {
       var root = document.documentElement.style;
       for (var i = 0; i < pairs.length; i++) {
@@ -3730,7 +3738,22 @@
     // Golden Hour before this pass). Give those a text link rather than leaving
     // guests with a registry section they can't open. It inherits the section's
     // own type and colour, so it reads as part of the template.
-    if (!nodes.length && section && url) {
+    // The `nodes.length` test alone is not enough: it only knows about links
+    // whose class or id is in REGISTRY_LINK_SELECTORS, so a template whose CTA
+    // is styled some other way looks link-less and gets a SECOND call to action
+    // appended beside the one it already had. Ask the section what it actually
+    // displays instead.
+    var alreadyHasCta = false;
+    if (section) {
+      try {
+        alreadyHasCta = Array.prototype.slice.call(
+          section.querySelectorAll('a, .registry-title, .registry-cta, h1, h2, h3')
+        ).some(function (el) {
+          return el.id !== 'registryBody' && (el.textContent || '').trim();
+        });
+      } catch (e) {}
+    }
+    if (!nodes.length && !alreadyHasCta && section && url) {
       var fallback = document.createElement('a');
       fallback.className = 'mp-registry-fallback';
       fallback.textContent = 'View Our Registry';

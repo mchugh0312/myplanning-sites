@@ -382,9 +382,14 @@ body:has(.mp-std-bottom) .hero{
      colours flip. */
   max-width:520px;margin:0 auto;
 }
-.other-event-card .event-card-name{color:var(--ink3);}
+/* The design sets this band's type in the dark shade, the same one the section's
+   own .other-event-name and .other-event-detail rules below already use. These
+   two were olive, so the SAME section rendered dark from its static placeholder
+   markup and olive once hydrated - two rules for one thing, disagreeing.
+   Dark, per the design, and now Text 1 moves the whole band together. */
+.other-event-card .event-card-name{color:var(--ink);}
 .other-event-card .event-card-detail{color:var(--ink);}
-.other-event-card .event-card-dress{color:var(--ink3);}
+.other-event-card .event-card-dress{color:var(--ink);}
 .other-event-card:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
 .other-event-name{
   font-family:var(--script);font-size:1.7rem;
