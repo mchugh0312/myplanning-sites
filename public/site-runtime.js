@@ -3933,6 +3933,82 @@
     '.top-nav', '#topNav', '.nav-hamburger', '.nav-toggle', '[onclick*="openMenu"]'
   ].join(',');
 
+  /* Accommodations and Travel: one link each, worded as the sections are.
+
+     Templates hard-code their menus and the two drifted apart. Pressed Petals
+     offered a single "Recommended Accommodations" link while the page headed
+     those two bands "Hotel" and "Flights", and its travel section — a separate
+     band with its own id — had no link at all, so there was no way to reach it.
+
+     Deliberately just these two. An earlier version did every section and the
+     result was worse than the problem: RSVP became "Rsvp Please", Regal Boho
+     picked up the couple's names as a menu item, and Sage & Still listed "The
+     Weekend" twice. A section heading is written to sit on the page, not to
+     label a menu, and only these two were actually reported as wrong.
+
+     Runs after applySectionHeadings, so a renamed heading is already on the
+     page, and before buildMobileNav, which copies the template's menu into the
+     drawer. */
+  var MENU_SYNC_KEYS = ['accommodations', 'travel'];
+
+  function syncMenuLinks() {
+    try {
+      var wanted = [];
+      MENU_SYNC_KEYS.forEach(function (key) {
+        var ids = SECTION_ANCHORS[key] || [];
+        for (var i = 0; i < ids.length; i++) {
+          var sec = document.getElementById(ids[i]);
+          if (!sec) continue;
+          /* A section switched off keeps its markup but is hidden, and a link
+             to it would scroll nowhere. */
+          if (sec.style && sec.style.display === 'none') return;
+          var node = _headingNode(sec);
+          var text = node && (node.textContent || '').replace(/\s+/g, ' ').trim();
+          /* A menu label, not a paragraph. Anything long is the wrong node. */
+          if (!text || text.length > 40) return;
+          wanted.push({ id: ids[i], text: text, top: sec.offsetTop || 0 });
+          return;
+        }
+      });
+      if (!wanted.length) return;
+
+      var have = {};
+      var hostFor = {};
+      Array.prototype.slice.call(document.querySelectorAll(NAV_LINK_SOURCES)).forEach(function (a) {
+        var href = (a.getAttribute('href') || '').replace('#', '');
+        if (!href) return;
+        for (var i = 0; i < wanted.length; i++) {
+          if (wanted[i].id !== href) continue;
+          if ((a.textContent || '').trim() !== wanted[i].text) a.textContent = wanted[i].text;
+          have[href] = a;
+          hostFor[href] = a.closest ? (a.closest('li') || a) : a;
+        }
+      });
+
+      /* Add the missing one next to the one that is present, so it lands
+         beside its neighbour rather than at the end of the menu. Cloning that
+         entry carries the menu's own markup and styling across. */
+      wanted.sort(function (x, y) { return x.top - y.top; });
+      wanted.forEach(function (w) {
+        if (have[w.id]) return;
+        var ref = null;
+        for (var i = 0; i < wanted.length; i++) {
+          if (hostFor[wanted[i].id]) { ref = hostFor[wanted[i].id]; break; }
+        }
+        if (!ref || !ref.parentNode) return;
+        var clone = ref.cloneNode(true);
+        var a = clone.tagName === 'A' ? clone : clone.querySelector('a');
+        if (!a) return;
+        a.setAttribute('href', '#' + w.id);
+        a.textContent = w.text;
+        a.classList.remove('active');
+        ref.parentNode.insertBefore(clone, ref.nextSibling);
+        have[w.id] = a;
+        hostFor[w.id] = clone;
+      });
+    } catch (e) {}
+  }
+
   function buildMobileNav() {
     if (document.querySelector('.mp-mnav-btn')) return;
 
@@ -5008,6 +5084,10 @@
     // 5. Mobile navigation. Built from the links the template just rendered,
     //    so it has to run after hydrateTemplate. Skipped for save-the-date,
     //    where there's nowhere to navigate to.
+    /* Before buildMobileNav, which copies the template's menu into the drawer:
+       relabel the links to match the section headings and add one for any
+       visible section that has none. */
+    syncMenuLinks();
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
 
     // 6. Save the Date trims the fully-rendered page down to its hero. It runs
