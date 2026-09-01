@@ -789,6 +789,14 @@
     var hasOtherCards = (_rsvpState.householdMembers || []).some(function (m) {
       return m && m.guest_id && m.guest_id !== _rsvpState.guestId && !m.is_plus_one;
     });
+    /* Rescue the two nodes that live inside this list but are not rebuilt by
+       it. Assigning innerHTML below destroys everything in the list, and
+       these were moved in by the previous render. */
+    var _keepBtn = rsvpEl('rsvpAddGuestBtn');
+    var _keepDiet = rsvpEl('rsvpDietaryBlock');
+    if (_keepBtn && _keepBtn.parentNode && list.contains(_keepBtn)) _keepBtn.parentNode.removeChild(_keepBtn);
+    if (_keepDiet && _keepDiet.parentNode && list.contains(_keepDiet)) _keepDiet.parentNode.removeChild(_keepDiet);
+
     list.innerHTML =
       '<div class="rsvp-household-row rsvp-you-row">' +
         (hasOtherCards ? '<div class="rsvp-household-name">You</div>' : '') +
@@ -874,9 +882,9 @@
        put "add a guest for yourself" below everybody else. */
     var youCard = list.querySelector('.rsvp-you-row');
     if (youCard) {
-      var addBtnEl = rsvpEl('rsvpAddGuestBtn');
+      var addBtnEl = _keepBtn || rsvpEl('rsvpAddGuestBtn');
       if (addBtnEl) youCard.appendChild(addBtnEl);
-      var dietBlock = rsvpEl('rsvpDietaryBlock');
+      var dietBlock = _keepDiet || rsvpEl('rsvpDietaryBlock');
       if (dietBlock) youCard.appendChild(dietBlock);
     }
 
