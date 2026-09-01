@@ -3978,7 +3978,7 @@
           var text = node && (node.textContent || '').replace(/\s+/g, ' ').trim();
           /* A menu label, not a paragraph. Anything long is the wrong node. */
           if (!text || text.length > 40) return;
-          wanted.push({ id: ids[i], text: text, top: sec.offsetTop || 0 });
+          wanted.push({ id: ids[i], text: text, sec: sec });
           return;
         }
       });
@@ -3997,15 +3997,25 @@
         }
       });
 
-      /* Add the missing one next to the one that is present, so it lands
-         beside its neighbour rather than at the end of the menu. Cloning that
-         entry carries the menu's own markup and styling across. */
-      wanted.sort(function (x, y) { return x.top - y.top; });
+      /* Add the missing one next to its neighbour rather than at the end of the
+         menu. Position comes from where the SECTIONS sit relative to each
+         other, compared with compareDocumentPosition — offsetTop was the first
+         attempt and is not comparable across elements with different offset
+         parents, which is how Flights landed after Need to Knows instead of
+         straight after Hotel.
+
+         Cloning the neighbour's entry carries the menu's own markup and
+         styling across. */
       wanted.forEach(function (w) {
         if (have[w.id]) return;
         var ref = null;
         for (var i = 0; i < wanted.length; i++) {
-          if (hostFor[wanted[i].id]) { ref = hostFor[wanted[i].id]; break; }
+          var other = wanted[i];
+          if (other.id === w.id || !hostFor[other.id]) continue;
+          /* Only anchor to a section that comes BEFORE this one on the page, so
+             the new link lands after it. */
+          var pos = w.sec.compareDocumentPosition(other.sec);
+          if (pos & Node.DOCUMENT_POSITION_PRECEDING) ref = hostFor[other.id];
         }
         if (!ref || !ref.parentNode) return;
         var clone = ref.cloneNode(true);
