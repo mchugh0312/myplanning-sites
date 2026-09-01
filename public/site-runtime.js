@@ -24,6 +24,11 @@
        hydration from the editor iframe
      - not_published  -> Coming Soon screen
      - password_required -> password screen WITH a working input
+     - Save the Date mode -> its own block (see applySaveTheDate). The old
+       per-template `stdHideIds` list is gone: it named the sections to hide
+       and went out of date whenever a template's structure changed, which is
+       how Modern Minimal ended up announcing over its nav bar with the real
+       hero still on the page. Everything top-level is hidden by rule now.
      - Save the Date mode -> dedicated announcement screen (hydrateTemplate is
        never called in this mode)
      - custom font application
@@ -64,7 +69,6 @@
       label: 'Pressed Petals',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/5fb8a5ba-cd46-4296-ab23-0b2a2c718eae.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -76,7 +80,6 @@
       label: 'Heirloom Bloom',
       heroNamesId: 'heroInitialsWrap',
       heroId: 'hero',
-      stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--gold', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4a57bd8a-41d2-4d52-a165-34aaa12e08f7.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -91,7 +94,6 @@
       loading: { bg: '#1c2120', ink: '#f4f2ed', accent: '#f4f2ed', rule: 'rgba(244,242,237,0.30)' },
       heroNamesId: 'heroCoupleNames',
       heroId: 'home',
-      stdHideIds: ['our-story','events-primary','other-events','accommodations','need-to-know','travel-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/4ba695df-c964-49f0-af5c-23e2b23ce77e.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -103,7 +105,6 @@
       label: 'Golden Hour',
       heroNamesId: 'heroNames',
       heroId: 'home',
-      stdHideIds: ['story','wedding','events','accommodations','travel','ntk','gallery','registry','rsvp'],
       footerVars: { bg: '--blue', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/015b4006-b2b0-4cdc-85fb-6c86758de1f9.png',
       scriptVar: '--script', displayVar: '--serif', bodyVar: '--serif',
@@ -114,7 +115,6 @@
       label: 'Sage & Still',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['our-story','weekend','registry-section','need-to-know','accommodations','travel-section','gallery','rsvp'],
       footerVars: { bg: '--offwhite', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c4d74a7e-2fde-4301-b288-f58cd3c8b911.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
@@ -125,7 +125,6 @@
       label: 'Modern Minimal',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['our-story','events-primary','other-events','accommodations','travel-section','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
@@ -139,7 +138,6 @@
       label: 'Whimsical Romance',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['our-story','itinerary','accommodations','need-to-know','registry-section','travel-section','gallery','rsvp'],
       footerVars: { bg: '--rose', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png',
       scriptVar: '--script', displayVar: '--display', bodyVar: '--body',
@@ -151,7 +149,6 @@
       label: 'Coastal Chic',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['our-story','event-schedule','travel-section','accommodations','faq-section','gallery','registry-section','rsvp'],
       footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/35c7f1a4-8d18-414b-ae05-0d7246886b52.png',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
@@ -162,7 +159,6 @@
       label: 'Vintage Love Story',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
-      stdHideIds: ['wedding','our-story','events','travel-section','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--blue', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/2558bbd6-8fe8-4f9c-90a4-1b827ba7515d.svg',
       scriptVar: null, displayVar: '--display', bodyVar: '--sans',
@@ -177,7 +173,6 @@
       label: 'Regal Boho',
       heroNamesId: null,
       heroId: 'hero',
-      stdHideIds: ['our-story','event-details','travel-section','travel-standalone','need-to-know','gallery','registry-wrap','rsvp'],
       footerVars: { bg: '--beige', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cdfe7e4-e470-4115-bb89-993f7b234798.png',
       scriptVar: null, displayVar: '--display', bodyVar: '--body',
@@ -3389,8 +3384,12 @@
 
   function _stdRemoveBlocks() {
     try {
-      var blocks = document.querySelectorAll('.mp-std-top,.mp-std-bottom');
-      for (var i = 0; i < blocks.length; i++) blocks[i].parentNode.removeChild(blocks[i]);
+      /* The whole block. Earlier this removed .mp-std-top and .mp-std-bottom,
+         which were appended into the template's hero; they live inside
+         .mp-std-block now, so both forms are swept for a page that still has
+         the old shape in place. */
+      document.querySelectorAll('.mp-std-block,.mp-std-top,.mp-std-bottom')
+        .forEach(function (el) { if (el.parentNode) el.parentNode.removeChild(el); });
       var st = document.getElementById('mp-std-css');
       if (st && st.parentNode) st.parentNode.removeChild(st);
     } catch (e) {}
@@ -3398,14 +3397,6 @@
 
   function clearSaveTheDate() {
     _stdRemoveBlocks();
-    try {
-      /* The phone rules key off these, so leaving them on would keep the hero
-         inset and its scrims hidden after the mode is switched back off. */
-      document.querySelectorAll('.mp-std-photo,.mp-std-scrim').forEach(function (el) {
-        el.classList.remove('mp-std-photo');
-        el.classList.remove('mp-std-scrim');
-      });
-    } catch (e) {}
     try {
       var hidden = document.querySelectorAll('[data-mp-std-hidden]');
       for (var i = 0; i < hidden.length; i++) {
@@ -3415,104 +3406,90 @@
     } catch (e) {}
   }
 
+  /* Save the Date is its own block now, not the template's hero with things
+     switched off.
+
+     It used to hide a per-template list of section ids and then dress whatever
+     hero was left. That list was wrong wherever a template's structure differed
+     from the assumption: Modern Minimal's heroId is its site HEADER, so the
+     announcement dressed the nav bar while the real photograph sat in a
+     separate section nobody hid, and things-to-do was missing from its list
+     entirely — a screen of empty space above the picture, with Our Story
+     underneath it.
+
+     So this builds one block: a single photograph, the announcement, the
+     invitation line and the motif. Everything else on the page is hidden,
+     reversibly. No carousel, no second image, no scrims, no stray section, and
+     nothing to keep in step per template. */
+  function _stdFonts() {
+    var v = function (name, fallback) {
+      return name ? 'var(' + name + ',' + fallback + ')' : fallback;
+    };
+    return {
+      /* Section headings, which is what "Save the Date" is. Templates that have
+         a script face use it for headings; the rest use their display face. */
+      heading: v(CFG.scriptVar || CFG.displayVar, CFG.fonts.display),
+      body: v(CFG.bodyVar, CFG.fonts.body)
+    };
+  }
+
+  /* The one photograph. The couple's own first, the template's built-in hero
+     as the fallback so the announcement still looks like something before they
+     have uploaded anything. */
+  function _stdPhotoUrl(d) {
+    if (Array.isArray(d.hero_images) && d.hero_images.length) return d.hero_images[0];
+    if (d.hero_image) return d.hero_image;
+    try {
+      var img = document.querySelector('#heroImg, .hero img, .hero-image img, #hero img, .hero-section img');
+      if (img && img.getAttribute('src')) return img.getAttribute('src');
+    } catch (e) {}
+    return '';
+  }
+
   function applySaveTheDate(d) {
-    // 1. Hide every section below the hero. RSVP, registry, travel and the rest
-    //    stay configured in the editor — they're simply not served to guests.
-    /* Rebuild rather than bail out, so re-running with new data replaces the
-       announcement instead of stacking a second one on top of it. */
     _stdRemoveBlocks();
 
-    (CFG.stdHideIds || []).forEach(function (id) {
-      _stdHide(document.getElementById(id));
-    });
-
-    // 2. Remove navigation, including the shared mobile drawer. With every
-    //    target hidden, menu links would be dead ends.
+    /* Hide every top-level thing on the page. Not a list of ids — the list is
+       what kept going out of date. The brand footer is left alone; it sits
+       beneath the block by design. */
     try {
+      Array.prototype.slice.call(document.body.children).forEach(function (el) {
+        var tag = el.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK') return;
+        if (el.classList && el.classList.contains('mp-brand-footer')) return;
+        if (el.classList && el.classList.contains('mp-std-block')) return;
+        _stdHide(el);
+      });
+      /* The shared mobile drawer and its scrim are appended to body by the
+         runtime, so they are caught above — but the button can be inside a
+         hidden section and still fixed-position. Belt and braces. */
       document.querySelectorAll(STD_NAV_SELECTORS + ',.mp-mnav-btn,.mp-mnav-panel,.mp-mnav-scrim')
         .forEach(_stdHide);
     } catch (e) {}
 
-    // 2b. The template's own footer repeats the couple's names and the date,
-    //     which the announcement above already carries, so in Save the Date
-    //     mode it reads as the same information twice. No template lists its
-    //     footer in stdHideIds, so hide it here. The MyPlanning.ai brand footer
-    //     is appended to <body> separately and is untouched. MP-311.
-    try {
-      ['footerNames', 'footerCouple', 'footerDate'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        var band = el.closest ? el.closest('footer:not(.mp-brand-footer), .site-footer, #siteFooter') : null;
-        _stdHide(band || el);
-      });
-    } catch (e) {}
-
-    var hero = document.getElementById(CFG.heroId) ||
-               document.querySelector('.hero, .hero-section');
-    if (!hero) return;
-
     var dateLine = fmtDate(d.celebration_date);
     var location = (d.celebration_location || '').trim();
     var names = d.couple_names || [d.partner_1, d.partner_2].filter(Boolean).join(' & ') || '';
+    var photo = _stdPhotoUrl(d);
+    var fonts = _stdFonts();
 
-    var namesEl = CFG.heroNamesId ? document.getElementById(CFG.heroNamesId) : null;
-    var heroHasDate = !!hero.querySelector('#heroDate, .hero-date');
-    var firstName = (d.partner_1 || names.split('&')[0] || '').trim();
-    var _heroText = (hero.textContent || '').toLowerCase();
-    var heroHasNames = !!firstName && _heroText.indexOf(firstName.toLowerCase()) !== -1;
-
-    // ── Colour ───────────────────────────────────────────────────────────
-    // Inherit the colour of the hero's own name text. That element is designed
-    // to be legible against whatever the hero is — a photo, a colour block, a
-    // gradient — so borrowing its colour is more reliable than guessing.
-    // Coastal Chic is the case in point: its page ink is dark navy, which
-    // vanished against the darkened photo, while its hero names are white.
-    var inkColor = '';
-    try {
-      if (namesEl) inkColor = getComputedStyle(namesEl).color;
-      if (!inkColor) inkColor = getComputedStyle(hero).color;
-    } catch (e) {}
-    if (!inkColor) inkColor = CFG.palette.ink;
-
-    // A photo hero needs a shadow behind the type regardless of colour.
-    var heroHasImage = false;
-    try {
-      heroHasImage = !!hero.querySelector('img') ||
-        (getComputedStyle(hero).backgroundImage || 'none') !== 'none';
-    } catch (e) {}
-    var shadow = heroHasImage ? '0 2px 18px rgba(0,0,0,0.55)' : 'none';
-
-    /* A selector that reaches THIS hero on every template. CFG.heroId is the
-       one the template declares; the class fallbacks cover the rest. */
-    var _stdHeroSel = (CFG.heroId ? '#' + CFG.heroId + ',' : '') + '.hero,.hero-section';
-
-    /* The phone layout letterboxes the photograph, so the bands above and
-       below it need a ground and an ink of their own.
-
-       The ground is the template's ACCENT — Pressed Petals' olive, Heirloom
-       Bloom's berry — not the page background. The announcement should read as
-       the design's own colour, and a band in the page's off-white looks like
-       the picture simply failed to fill the screen.
-
-       Read live off the custom properties rather than the static palette, so a
-       couple who has recoloured the site gets their accent here too. The
-       palette is the fallback for a template whose variable is missing. */
+    /* Ground and ink for the block. The ground is the template's ACCENT —
+       Pressed Petals' olive, Heirloom Bloom's berry — read live off the custom
+       property so a recoloured site gets its own. */
     var _roleVars = TEMPLATE_COLOR_VARS[TID] || {};
     var _cssVal = function (name, fallback) {
       if (!name) return fallback;
       try {
-        var v = getComputedStyle(document.documentElement).getPropertyValue(name);
-        v = (v || '').trim();
+        var v = (getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim();
         return v || fallback;
       } catch (e) { return fallback; }
     };
     var bandBg = _cssVal(_roleVars.accent, CFG.palette.accent || CFG.palette.bg);
 
-    /* Which ink reads on that band depends on the band. Six accents are dark —
-       Heirloom Bloom's berry, Coastal Chic's navy — and want the tone the
-       design already uses for text on its dark panels. But Golden Hour's accent
-       is a pale blue and Regal Boho's a warm beige, where that same tone is
-       near-white and would vanish. So measure the band and choose. */
+    /* Which ink reads on that ground depends on the ground. Six accents are
+       dark and want the tone the design uses for text on its dark panels; but
+       Golden Hour's accent is a pale blue and Regal Boho's a warm beige, where
+       that same tone is near-white and would vanish. So measure and choose. */
     var _lum = function (col) {
       try {
         var m = String(col).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
@@ -3526,243 +3503,96 @@
           g = parseInt(h.slice(2, 4), 16);
           b = parseInt(h.slice(4, 6), 16);
         }
-        /* Rec. 601 luma: good enough to tell a dark ground from a light one. */
-        return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return (0.299 * r + 0.587 * g + 0.114 * b) / 255;   /* Rec. 601 luma */
       } catch (e) { return null; }
     };
     var _bandLum = _lum(bandBg);
     var bandInk = (_bandLum === null || _bandLum < 0.55)
-      ? _cssVal(_roleVars.ink2, CFG.palette.bg)      /* dark band  -> light ink */
-      : _cssVal(_roleVars.ink, CFG.palette.ink);     /* light band -> page ink  */
+      ? _cssVal(_roleVars.ink2, CFG.palette.bg)      /* dark ground  -> light ink */
+      : _cssVal(_roleVars.ink, CFG.palette.ink);     /* light ground -> page ink  */
 
-    /* Roughly what the MyPlanning.ai footer occupies on a phone. The hero is
-       sized against it so the announcement fills the screen and the footer sits
-       under it without the page scrolling. */
     var STD_FOOTER_PX = 96;
 
     var style = document.createElement('style');
     style.id = 'mp-std-css';
     style.textContent =
+      'body{margin:0;background:' + bandBg + '}' +
+      '.mp-std-block{position:relative;box-sizing:border-box;width:100%;' +
+        'background:' + bandBg + ';color:' + bandInk + ';overflow:hidden;' +
+        /* DESKTOP: the block is the screen and the photograph fills it, with
+           the type laid over the picture as before. */
+        'height:100vh;display:block}' +
+      '.mp-std-photo{position:absolute;inset:0;margin:0}' +
+      '.mp-std-photo img{width:100%;height:100%;object-fit:cover;display:block}' +
       '.mp-std-top,.mp-std-bottom{position:absolute;left:50%;transform:translateX(-50%);' +
         'width:min(92%,680px);text-align:center;z-index:8;pointer-events:none;' +
-        'color:' + inkColor + ';text-shadow:' + shadow + '}' +
+        'color:#fff;text-shadow:0 2px 18px rgba(0,0,0,0.55)}' +
       '.mp-std-top{top:7%}' +
       '.mp-std-bottom{bottom:6%}' +
-      '.mp-std-eyebrow{font-size:1.05rem;letter-spacing:0.3em;text-transform:uppercase;margin:0;' +
-        'font-weight:700}' +
-      '.mp-std-names{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
-      '.mp-std-meta{font-size:0.9rem;letter-spacing:0.2em;text-transform:uppercase;margin:10px 0 0;' +
-        'color:' + inkColor + ';text-shadow:' + shadow + '}' +
-      '.mp-std-loc{opacity:0.85;margin-top:4px}' +
-      '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;opacity:0.92;' +
-        'margin:16px 0 0}' +
-      /* Left unfiltered on purpose. Several motifs are full-colour
-         illustrations - Pressed Petals' pressed flower, Regal Boho's posy - and
-         a brightness/invert trick to force them to the band's ink would flatten
-         those to a silhouette. */
-      '.mp-std-motif{display:block;margin:0 auto 10px;height:34px;width:auto;' +
-        'object-fit:contain}' +
-      '.mp-std-top .mp-std-eyebrow + .mp-std-meta{margin-top:12px}' +
+      '.mp-std-eyebrow{font-family:' + fonts.heading + ';font-size:1.6rem;' +
+        'letter-spacing:0.08em;margin:0}' +
+      '.mp-std-names{font-family:' + fonts.heading + ';' +
+        'font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:14px 0 0}' +
+      '.mp-std-meta{font-family:' + fonts.body + ';font-size:0.95rem;letter-spacing:0.14em;' +
+        'margin:10px 0 0}' +
+      '.mp-std-loc{opacity:0.9;margin-top:4px}' +
+      '.mp-std-note{font-family:' + fonts.body + ';font-size:0.95rem;letter-spacing:0.06em;' +
+        'font-style:italic;margin:0}' +
+      /* Left unfiltered on purpose: several motifs are full-colour
+         illustrations that a brightness/invert trick would flatten. */
+      '.mp-std-motif{display:block;margin:0 auto 12px;height:72px;width:auto;object-fit:contain}' +
+
+      /* PHONE: the block plus the footer are exactly one screen, and nothing
+         scrolls. One column — announcement, photograph, invitation — with the
+         photograph whole and centred and the space around it in the site
+         colour. */
       '@media(max-width:640px){' +
-        '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.22em}' +
-        '.mp-std-meta{font-size:0.76rem;letter-spacing:0.15em}' +
-        '.mp-std-note{font-size:0.78rem}' +
-
-        /* On a phone the announcement is the whole screen: the photograph
-           whole and centred in the middle, the type in the empty bands above
-           and below it, and those bands in the site's own ground.
-
-           The first attempt made the hero a flex column. That does nothing
-           here, because every template's hero holds its picture in an
-           absolutely positioned wrapper (Pressed Petals: .hero-image with
-           inset:0) - an absolute child takes no part in its parent's flex
-           layout, so the picture stayed pinned to the top of the hero and the
-           type still landed on it.
-
-           So the wrapper keeps its absolute positioning and is simply INSET:
-           pulled in from the top and bottom to leave the two bands. The
-           picture is then contained inside that middle strip, which centres it
-           both ways and never crops it. The bands are the hero's own
-           background, which is set to the site colour below.
-
-           mp-std-photo is put on the wrapper at runtime rather than named here
-           per template - see applySaveTheDate. */
-        _stdHeroSel + '{height:calc(100vh - ' + STD_FOOTER_PX + 'px)!important;' +
-          'height:calc(100svh - ' + STD_FOOTER_PX + 'px)!important;' +
-          'min-height:0!important;max-height:none!important;aspect-ratio:auto!important;' +
-          'position:relative!important;overflow:hidden!important;' +
-          /* The ground behind the letterboxing. !important because several
-             heroes carry an inline background - a placeholder gradient - which
-             would otherwise win over a stylesheet rule. */
-          'background:' + bandBg + '!important}' +
-
-        '.mp-std-photo{position:absolute!important;left:0!important;right:0!important;' +
-          'top:21%!important;bottom:19%!important;width:auto!important;height:auto!important;' +
-          'margin:0!important;background:none!important}' +
-        /* Both forms: the wrapper when there is one, the image itself when the
-           picture hangs directly off the hero. */
-        '.mp-std-photo img,img.mp-std-photo{width:100%!important;height:100%!important;' +
-          'object-fit:contain!important;object-position:center center!important;' +
-          'background:none!important}' +
-
-        /* Scrims and vignettes are drawn to sit ON a full-bleed photograph. With
-           the picture inset they would tint the clean bands instead. */
-        '.mp-std-scrim{display:none!important}' +
-
-        /* The type stays in the overlay, but now the bands beneath it are
-           empty, so it reads against the site colour rather than the picture.
-           Hence the page ink and no drop shadow. */
-        '.mp-std-top,.mp-std-bottom{color:' + bandInk + '!important;text-shadow:none!important;' +
-          'width:min(92%,680px)}' +
-        '.mp-std-top{top:4%!important}' +
-        '.mp-std-bottom{bottom:4%!important}' +
-        '.mp-std-names{font-size:clamp(1.8rem,8vw,2.6rem)}' +
-        '.mp-std-motif{height:28px;margin-bottom:8px}' +
+        'html,body{overflow-x:hidden}' +
+        '.mp-std-block{height:calc(100vh - ' + STD_FOOTER_PX + 'px);' +
+          'height:calc(100svh - ' + STD_FOOTER_PX + 'px);' +
+          'display:flex;flex-direction:column;align-items:center;justify-content:space-between;' +
+          'padding:22px 0;gap:12px}' +
+        '.mp-std-photo{position:relative;inset:auto;flex:1 1 auto;min-height:0;width:100%;' +
+          'display:flex;align-items:center;justify-content:center}' +
+        '.mp-std-photo img{width:100%;height:100%;object-fit:contain;object-position:center}' +
+        '.mp-std-top,.mp-std-bottom{position:static;transform:none;flex:0 0 auto;' +
+          /* On the site colour, not on the photograph: the design's own ink,
+             and no shadow. */
+          'color:' + bandInk + ';text-shadow:none}' +
+        '.mp-std-eyebrow{font-size:1.35rem}' +
+        '.mp-std-names{font-size:clamp(1.6rem,7vw,2.2rem);margin-top:8px}' +
+        '.mp-std-meta{font-size:0.82rem;letter-spacing:0.1em}' +
+        '.mp-std-note{font-size:0.85rem}' +
+        '.mp-std-motif{height:56px;margin-bottom:8px}' +
       '}';
     document.head.appendChild(style);
 
-    try {
-      var pos = getComputedStyle(hero).position;
-      if (!pos || pos === 'static') hero.style.position = 'relative';
-    } catch (e) { hero.style.position = 'relative'; }
-
-    /* Mark the element that actually holds the photograph, and the decorative
-       overlays drawn on top of it. Every template names these differently -
-       .hero-image, .hero-photo, .hero-media - and each has its own gradient or
-       vignette, so the phone rules above address them through these two
-       classes rather than a list of selectors that would need extending for
-       every template.
-
-       The wrapper is what gets inset, not the <img>: it is the absolutely
-       positioned box, and moving the image inside it would leave the box
-       covering the bands. */
-    try {
-      var _photoEl = hero.querySelector('img');
-      if (_photoEl) {
-        /* Walk up to the hero's DIRECT child. That is the element carrying the
-           absolute positioning - Heirloom Bloom's photograph sits in
-           .hero-carousel > .hero-slide > img, and insetting the slide would
-           leave the carousel still covering the bands. */
-        var _wrap = _photoEl;
-        while (_wrap.parentNode && _wrap.parentNode !== hero) _wrap = _wrap.parentNode;
-        _wrap.classList.add('mp-std-photo');
-      }
-      /* A scrim is an element with no text that exists to tint the photograph.
-         Anything the couple can read is left alone. */
-      Array.prototype.slice.call(hero.children).forEach(function (child) {
-        if (child.classList && child.classList.contains('mp-std-photo')) return;
-        if ((child.textContent || '').trim()) return;
-        if (child.querySelector && child.querySelector('img')) return;
-        var cn = String(child.className || '');
-        if (/gradient|scrim|overlay|veil|tint|shade/i.test(cn)) child.classList.add('mp-std-scrim');
-      });
-    } catch (e) {}
-
-    // ── Top: the announcement itself ─────────────────────────────────────
-    var top = document.createElement('div');
-    top.className = 'mp-std-top';
-    top.innerHTML = '<p class="mp-std-eyebrow">Save the Date</p>' +
-      (!heroHasDate && dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
-      (location ? '<p class="mp-std-meta mp-std-loc">' + esc(location) + '</p>' : '') +
-      (!heroHasNames && names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '');
-    hero.appendChild(top);
-
-    // ── Bottom: the invitation line only ─────────────────────────────────
-    var bottom = document.createElement('div');
-    bottom.className = 'mp-std-bottom';
-    /* The template's own motif — the same mark the loading screen uses — set
-       above the invitation line so the bottom band carries a piece of the
-       design rather than a lone sentence. */
-    bottom.innerHTML =
-      (CFG.loadingImage
-        ? '<img class="mp-std-motif" src="' + CFG.loadingImage + '" alt="">'
-        : '') +
-      '<p class="mp-std-note">Formal invitation to follow</p>';
-    hero.appendChild(bottom);
-
-    // The two blocks above are positioned over the hero, which is the intended
-    // look. On templates whose hero already carries type near the top or bottom
-    // they landed on top of it. Rather than guess a safe offset per template,
-    // measure after layout and, only where they actually collide, drop the
-    // block out of the overlay into normal flow above or below the hero.
-    // MP-309.
-    _scheduleStdDeoverlap(hero, [top, bottom]);
+    var block = document.createElement('div');
+    block.className = 'mp-std-block';
+    block.innerHTML =
+      '<div class="mp-std-top">' +
+        '<p class="mp-std-eyebrow">Save the Date</p>' +
+        (names ? '<p class="mp-std-names">' + esc(names) + '</p>' : '') +
+        (dateLine ? '<p class="mp-std-meta">' + esc(dateLine) + '</p>' : '') +
+        (location ? '<p class="mp-std-meta mp-std-loc">' + esc(location) + '</p>' : '') +
+      '</div>' +
+      (photo ? '<div class="mp-std-photo"><img src="' + photo + '" alt=""></div>' : '') +
+      '<div class="mp-std-bottom">' +
+        (CFG.loadingImage
+          ? '<img class="mp-std-motif" src="' + CFG.loadingImage + '" alt="">' : '') +
+        '<p class="mp-std-note">Formal invitation to follow</p>' +
+      '</div>';
+    document.body.insertBefore(block, document.body.firstChild);
 
     try { document.title = (d.couple_names || 'Our Wedding') + ': Save the Date'; } catch (e) {}
   }
 
-  function _stdOwnTextRects(hero) {
-    var rects = [];
-    try {
-      var nodes = hero.querySelectorAll('h1,h2,h3,h4,h5,p,span,div,figcaption,li,time,svg');
-      for (var i = 0; i < nodes.length; i++) {
-        var el = nodes[i];
-        if (el.closest && el.closest('.mp-std-top,.mp-std-bottom')) continue;
-        if (!(el.textContent || '').trim()) continue;
-        /* Skip wrappers: only measure the element that actually holds the text,
-           or a container would report a rect covering the whole hero. */
-        /* Skip wrappers, but never an <svg>: its children are its own text. */
-        var tag = (el.tagName || '').toLowerCase();
-        if (tag !== 'svg' && el.querySelector &&
-            el.querySelector('h1,h2,h3,h4,h5,p,span,div,li,time,svg')) continue;
-        var r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) rects.push(r);
-      }
-    } catch (e) {}
-    return rects;
-  }
-
-  function _stdDeoverlap(hero, blocks) {
-    if (!hero || !hero.parentNode) return;
-    /* Phones do not need this and must not have it. The mobile rules already
-       put both blocks into the hero's flow, above and below the photograph, so
-       nothing overlaps by construction — and this would move them OUT of the
-       hero entirely, undoing the single-screen layout and reintroducing the
-       scroll. Desktop keeps the overlay, so it keeps the measuring. */
-    try {
-      if (window.matchMedia && window.matchMedia('(max-width:640px)').matches) return;
-    } catch (e) {}
-    var own = _stdOwnTextRects(hero);
-    if (!own.length) return;
-    for (var i = 0; i < blocks.length; i++) {
-      var b = blocks[i];
-      if (!b || b.getAttribute('data-mp-std-flow') === '1') continue;
-      var r = b.getBoundingClientRect();
-      var hit = false;
-      for (var j = 0; j < own.length; j++) {
-        var o = own[j];
-        if (!(r.right < o.left || r.left > o.right || r.bottom < o.top || r.top > o.bottom)) {
-          hit = true; break;
-        }
-      }
-      if (!hit) continue;
-      b.setAttribute('data-mp-std-flow', '1');
-      b.style.position   = 'static';
-      b.style.transform  = 'none';
-      b.style.width      = 'auto';
-      b.style.padding    = '20px 16px';
-      /* Out of the hero it no longer sits on the photograph, so the hero's ink
-         and the drop shadow would be wrong: use the page's own ink. */
-      b.style.color      = CFG.palette.ink;
-      b.style.textShadow = 'none';
-      if ((b.className || '').indexOf('mp-std-top') !== -1) {
-        hero.parentNode.insertBefore(b, hero);
-      } else {
-        hero.parentNode.insertBefore(b, hero.nextSibling);
-      }
-    }
-  }
-
-  function _scheduleStdDeoverlap(hero, blocks) {
-    var run = function () { try { _stdDeoverlap(hero, blocks); } catch (e) {} };
-    if (window.requestAnimationFrame) {
-      requestAnimationFrame(function () { requestAnimationFrame(run); });
-    } else { setTimeout(run, 0); }
-    /* Display faces change the metrics, so a block that cleared the hero's type
-       with the fallback face can collide once the real one lands. */
-    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(run); } catch (e) {}
-    setTimeout(run, 500);
-  }
+  /* _stdOwnTextRects, _stdDeoverlap and _scheduleStdDeoverlap were removed
+     with the rewrite above. They existed to measure whether the announcement
+     had landed on top of the template hero's own type and, where it had, move
+     it out into normal flow. Save the Date no longer reuses the template's
+     hero — it builds its own block with only the type it puts there — so there
+     is nothing left to collide with. */
 
   // ── Password gate (with a working input — the old screen had none) ───────
   function renderPasswordScreen(coupleNames) {
