@@ -1850,9 +1850,16 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.wedding,                                   href: '#events-primary',   label: 'The Wedding'    },
     { show: !!menu.other_events,                              href: '#other-events',     label: 'Other Events'   },
     { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
+    /* Travel points at #travel-section and sits next to Accommodations.
+       It used to target '#accommodations' — the same section as the entry
+       above it — so the two menu items scrolled to the same place and the
+       travel band had nothing pointing at it. It was also listed after Things
+       to Do, which put it three items away from the section it belongs beside.
+       The runtime relabels both from their section headings, so these read
+       "Hotel" and "Flights" on the finished site. */
+    { show: !!menu.travel,                                    href: '#travel-section',   label: 'Travel'         },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',    label: 'Need to Knows'  },
     { show: !!menu.things_to_do,                              href: '#things-to-do',     label: 'Things to Do'   },
-    { show: !!menu.travel,                                    href: '#accommodations',   label: 'Travel'         },
     { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'        },
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'   },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'           },
