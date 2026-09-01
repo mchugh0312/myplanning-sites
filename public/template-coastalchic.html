@@ -75,10 +75,13 @@
      repainting what --gray-blue fills. */
   --ink3: #5f7689;
   --ivory:#fefaf1;
-  --white:#ffffff;
+  /* Was #ffffff. This template's colour spec has no pure white - its lightest
+     tone is the Ivory - so the cards and the text on dark panels are that,
+     not a fifth tone a shade brighter than everything else. */
+  --white:#fefaf1;
   /* Text on dark panels. Same tone as --white, its own variable so text on a
      coloured panel moves independently of the panel itself. */
-  --on-dark: #ffffff;
+  --on-dark: #fefaf1;
   --text:#1b2a41;
   /* Body text. Its own variable so changing the text colour cannot repaint
      the panels and borders that also use --text. */

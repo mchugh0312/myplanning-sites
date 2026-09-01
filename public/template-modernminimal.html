@@ -58,10 +58,13 @@
   /* Body text. Its own variable so changing the text colour cannot repaint
      the panels and borders that also use --text. */
   --ink: #000000;
-  --white:#ffffff;
+  /* Was #ffffff. This template's colour spec has no pure white - its lightest
+     tone is the Ivory - so the cards and the text on dark panels are that,
+     not a fifth tone a shade brighter than everything else. */
+  --white:#fffdf5;
   /* Text on dark panels. Same tone as --white, its own variable so text on a
      coloured panel moves independently of the panel itself. */
-  --on-dark: #ffffff;
+  --on-dark: #fffdf5;
   /* DIN Next Condensed is commercial; drop DINNextCondensedBold.woff2 into
      /public/fonts/ and it takes precedence. Until then Oswald keeps the
      condensed proportions the design depends on — Poppins is not

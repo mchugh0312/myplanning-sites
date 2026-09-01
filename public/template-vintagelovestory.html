@@ -98,11 +98,11 @@
      background underneath it, and vice versa. */
   --on-dark: #fffdf5;       /* ivory — page bg, text on dark sections */
   --blue:#d8ebf9;        /* baby blue — ampersand, ceremony figure oval, accent */
-  --text:#1a1a1a;
-  /* Body text. Its own variable so changing the text colour cannot repaint
-     the panels and borders that also use --text. */
-  --ink: #1a1a1a;
-  --muted:#6a6a6a;
+  /* Body copy. This template's colour spec names black; the near-black here
+     and the muted grey beside it were drift, two tones sitting just off the
+     one the spec actually has. Both are gone - the single muted line now
+     uses the accent text tone. */
+  --ink: #000000;
   --display:'Instrument Serif', Georgia, serif;
   --sans:'Stack Sans Headline', 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -465,7 +465,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--sans);
   font-style:italic;
   font-size:0.78rem;
-  color:var(--muted);
+  color:var(--ink3);
   margin-top:1.6rem;
 }
 
