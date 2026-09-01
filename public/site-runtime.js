@@ -2125,21 +2125,30 @@
      mustard draws the couple's initials in the same tone as the panel, and a
      couple changing that colour means both.
 
+     `accent3` is OPTIONAL and exists on four templates only, checked against
+     the designs: Heirloom Bloom's grey-green --gray behind the RSVP block and
+     its Book Now buttons; Sage & Still's --dark-green buttons and menu drawer,
+     which its own design note lists as one of five colours; Whimsical
+     Romance's --yellow, a full band behind Hotel Details and RSVP; and Regal
+     Boho's --olive frame and rules. The other six genuinely paint with two
+     colours and a ground, so their control is hidden rather than wired to
+     something that does not exist.
+
      The names are the same in all ten templates, so nothing downstream has
      to special-case a design. Keep TEMPLATE_PALETTES in Website.txt in step:
      this decides which variable moves, that decides which colour the picker
      opens on. */
   var TEMPLATE_COLOR_VARS = {
     pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
-    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold' },
+    heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold', accent3: '--gray' },
     blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--dark' },
-    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage' },
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage', accent3: '--dark-green' },
     modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--black' },
-    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy' },
+    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--yellow' },
     coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue' },
-    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy' },
+    regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--olive' },
   };
 
   /* ── SCROLL TO A SECTION ON REQUEST ────────────────────────────────────────
@@ -2944,7 +2953,8 @@
     var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
     var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color],
                  [v.ink, c.text_color], [v.ink2, c.text2_color],
-                 [v.ink3, c.text3_color], [v.accent2, c.accent2_color]];
+                 [v.ink3, c.text3_color], [v.accent2, c.accent2_color],
+                 [v.accent3, c.accent3_color]];
     try {
       var root = document.documentElement.style;
       for (var i = 0; i < pairs.length; i++) {
