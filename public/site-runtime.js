@@ -2539,7 +2539,19 @@
         }
         out[key] = text || null;
       });
-      parent.postMessage({ type: 'MP_SECTION_HEADINGS', headings: out }, '*');
+      /* Say WHICH template these came from. The editor keeps two preview
+         iframes alive and swaps between them, so after a template switch the
+         previous template's frame is still in the page and still reports. Its
+         headings would then land on top of the current one's - which is how
+         Pressed Petals came to offer Modern Minimal's "Accommodations" and
+         "Travel Info" in the Content tab while the page itself read Hotel and
+         Flights. The editor drops anything that is not the template it is
+         showing. */
+      var _file = '';
+      try { _file = (location.pathname.split('/').pop() || ''); } catch (e) {}
+      parent.postMessage({
+        type: 'MP_SECTION_HEADINGS', headings: out, template: _file
+      }, '*');
     } catch (e) {}
   }
 
