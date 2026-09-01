@@ -2685,13 +2685,18 @@
       }
     });
 
-    /* Three states, not two. THIS IS THE WHOLE POINT OF THE null.
-         - key absent          -> no override, use the design's own wording
-         - key present, null   -> the couple deliberately cleared it: no heading
+    /* Three states, not two. hasOwnProperty is what separates them:
+         - key ABSENT          -> no override, use the design's own wording
+         - key present, ""     -> the couple deliberately cleared it: no heading
          - key present, text   -> a rename
-       Before the null existed, a cleared box and an untouched box were the same
-       stored value, so clearing a heading put the template's wording back and
-       there was no way to have a section with no title at all. */
+       Before the third state existed, a cleared box and an untouched box were
+       the same stored value, so clearing a heading put the template's wording
+       back and there was no way to have a section with no title at all.
+
+       The blank was briefly a JSON null. It is "" now: the editor posts this
+       field to the record verbatim, and nothing that reaches the record should
+       be a shape the backend has not been sent before. null is still accepted
+       here so a record written during that window still reads correctly. */
     Object.keys(SECTION_ANCHORS).forEach(function (key) {
       if (key === 'home') return;
       var has = Object.prototype.hasOwnProperty.call(map, key);
@@ -2984,14 +2989,42 @@
     document.body.style.overflow = 'hidden';
   }
 
+  /* Read one of the colour keys back out of custom_css.
+     The name is guarded against the numbered ones: an unanchored "text" also
+     matches "--text2:" and "--text3:". */
+  function _cssColorVar(css, name) {
+    if (!css) return '';
+    try {
+      var m = String(css).match(new RegExp('--' + name + '\\s*:\\s*(#[0-9a-fA-F]{3,8})'));
+      return m ? m[1] : '';
+    } catch (e) { return ''; }
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
     var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+
+    /* THE LIVE SITE HAS TO DERIVE THESE ITSELF.
+       Only primary_color and accent_color are columns on the record. The other
+       five tones are stored as keys inside custom_css, and in the editor the
+       block unpacks them into the preview payload before sending it. Nothing
+       does that on live: the page fetches the record straight from the API, so
+       customization arrives with the two columns and nothing else, and every
+       colour the couple set beyond Site Background and Accent silently did not
+       apply. That is why the changes showed in preview and not on the site.
+       Falling back to custom_css here makes both paths read the same source. */
+    var css = d.custom_css || '';
+    var pick = function (fromPayload, key) {
+      return fromPayload || _cssColorVar(css, key);
+    };
+
     var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color],
-                 [v.ink, c.text_color], [v.ink2, c.text2_color],
-                 [v.ink3, c.text3_color], [v.accent2, c.accent2_color],
-                 [v.accent3, c.accent3_color]];
+                 [v.ink, pick(c.text_color, 'text(?![0-9])')],
+                 [v.ink2, pick(c.text2_color, 'text2')],
+                 [v.ink3, pick(c.text3_color, 'text3')],
+                 [v.accent2, pick(c.accent2_color, 'accent2')],
+                 [v.accent3, pick(c.accent3_color, 'accent3')]];
     try {
       var root = document.documentElement.style;
       for (var i = 0; i < pairs.length; i++) {
@@ -4837,7 +4870,15 @@
         style.id = 'mp-custom-css';
         document.head.appendChild(style);
       }
-      if (style.textContent !== d.custom_css) style.textContent = d.custom_css;
+      /* The five colour tones live in this field as bare "--text2:#xxx;"
+         declarations. They are STORAGE KEYS that applyCustomColors reads, not
+         CSS the couple wrote: a bare declaration outside any selector is
+         invalid and the browser drops the run, which can take a following rule
+         with it. Strip them so only the couple's own CSS is injected. */
+      var css = String(d.custom_css)
+        .replace(/--(?:text[0-9]?|accent[0-9])\s*:\s*[^;]+;?/g, '')
+        .trim();
+      if (style.textContent !== css) style.textContent = css;
     }
     // Per-role settings win. custom_font is the older single choice and stays
     // as the fallback so couples who made one keep it.
