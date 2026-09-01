@@ -199,6 +199,20 @@
   // the editor previewing the raw template.
   var _pathSlug = /^template-[a-z]+\.html$/i.test(_firstPart) ? '' : _firstPart;
   var _liveSlug = _slugParam || _pathSlug;
+  /* The template's head installs #mp-veil (html{visibility:hidden}) and lifts it
+     on a blind 4s timer, so the page still appears if this file never loads.
+     But on a slow connection hydration can still be running at 4s, and the
+     timer would then uncover the UN-hydrated page — the template's stock
+     photographs, painted for a moment before the couple's replace them. That is
+     the flash still being seen on live.
+
+     Setting this at parse time lets the timer tell the two cases apart: no flag
+     means the runtime never arrived and the veil must lift; the flag means
+     hydration is in flight and the timer should wait longer before overriding
+     it. reveal() lifts the veil itself the moment the page is worth showing, so
+     in the ordinary case neither timer is ever reached. */
+  try { window.__mpRuntimeAlive = 1; } catch (e) {}
+
   var _isPreview = !_liveSlug;
   var _pwdParam = _params.get('pwd') || '';
 
@@ -3698,15 +3712,25 @@
      than as one run of text. Set centrally so every template behaves alike. */
   function layOutRegistry() {
     try {
+      /* Three ids in play across the ten templates: registryInfo (seven of
+         them), registryText, and registryBody (Golden Hour, Heirloom Bloom).
+         Missing the third meant this returned early on those two, so their
+         title stayed an inline <a> and the couple's copy wrapped around it
+         instead of starting underneath — "See Our Registry" with the first
+         words of the paragraph running into the same line. */
       var info = document.getElementById('registryInfo') ||
-                 document.getElementById('registryText');
+                 document.getElementById('registryText') ||
+                 document.getElementById('registryBody');
       if (!info) return;
       var hasCopy = !!(info.textContent || '').trim();
       var title = document.getElementById('registryCta') ||
                   document.querySelector('.registry-title, .registry-cta');
-      if (title && hasCopy) {
-        title.style.display = 'block';
-        title.style.marginBottom = '0.2rem';
+      if (title) {
+        /* Block whenever there is copy; back to the design's own inline
+           display when there is not, so clearing the text also undoes the
+           layout change rather than leaving a stranded block heading. */
+        title.style.display = hasCopy ? 'block' : '';
+        title.style.marginBottom = hasCopy ? '0.2rem' : '';
       }
       info.style.display = hasCopy ? 'block' : 'none';
       if (hasCopy && !info.style.marginTop) info.style.marginTop = '1.2rem';
@@ -4496,9 +4520,18 @@
   function _heroSources() {
     var urls = [];
     try {
-      var img = document.getElementById('heroImg') ||
-                document.querySelector('.hero img, .hero-image img, #hero img');
-      if (img && img.getAttribute('src')) urls.push({ el: img, url: img.getAttribute('src') });
+      /* ALL the hero's photographs, not just the first. Several templates open
+         on a carousel or a strip — Heirloom Bloom's #heroCarousel holds three —
+         and waiting on one of them uncovered the page while the rest were still
+         arriving, so they popped in one after another. Capped so a long gallery
+         cannot hold the page back. */
+      var imgs = document.querySelectorAll(
+        '#heroImg, #heroCarousel img, .hero img, .hero-image img, #hero img');
+      for (var k = 0; k < imgs.length && urls.length < 4; k++) {
+        if (imgs[k].getAttribute('src')) {
+          urls.push({ el: imgs[k], url: imgs[k].getAttribute('src') });
+        }
+      }
 
       var bgHosts = document.querySelectorAll('#heroCol1, .hero-section, .hero, #hero');
       for (var i = 0; i < bgHosts.length && urls.length < 3; i++) {
@@ -4516,16 +4549,33 @@
 
     var pending = 0, settled = false;
     var finish = function () { if (settled) return; settled = true; reveal(); };
-    var one = function () { if (--pending <= 0) finish(); };
+    /* One settle per SOURCE. A source can report twice — `load` fires and then
+       decode() resolves — and a shared counter would take both, dropping
+       `pending` to zero while other photographs were still in flight and
+       uncovering the page early. Each source gets its own latch. */
+    var onePer = function () {
+      var done = false;
+      return function () {
+        if (done) return;
+        done = true;
+        if (--pending <= 0) finish();
+      };
+    };
 
     for (var i = 0; i < sources.length; i++) {
       var s = sources[i];
       if (s.el && s.el.complete) continue;
       pending++;
+      var one = onePer();
       var probe = s.el || new Image();
       probe.addEventListener('load', one);
       probe.addEventListener('error', one);
       if (!s.el) probe.src = s.url;
+      /* `load` fires when the bytes are in, which is not the same as the frame
+         being paintable — a large photograph can still cost a decode after it.
+         decode() resolves once it can be painted; where it is unsupported or
+         rejects, the load handler above still settles this source. */
+      if (probe.decode) { try { probe.decode().then(one, one); } catch (e) {} }
     }
     if (!pending) { finish(); return; }
     setTimeout(finish, 2500);

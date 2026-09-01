@@ -1029,9 +1029,28 @@ body.thumbnail-mode{scroll-behavior:auto;}
     s.id = 'mp-veil';
     s.textContent = 'html{visibility:hidden}';
     document.head.appendChild(s);
-    setTimeout(function () {
+    /* Safety net, not a schedule. site-runtime lifts this veil itself the
+       moment the page is worth showing, so in the ordinary case neither timer
+       below is reached.
+
+       It used to lift blind at 4s. On a slow connection hydration can still be
+       running then, and lifting uncovered the UN-hydrated page — the template's
+       own stock photographs, painted for a moment before the couple's replaced
+       them. That is the flash that survived on live after preview and
+       thumbnails were fixed.
+
+       window.__mpRuntimeAlive is set the instant site-runtime.js parses, which
+       separates the two cases: no flag means the runtime never arrived and the
+       page must be uncovered now; the flag means hydration is in flight, so
+       give it longer before overriding it. The page still cannot stay hidden
+       indefinitely either way. */
+    var lift = function () {
       var e = document.getElementById('mp-veil');
       if (e && e.parentNode) e.parentNode.removeChild(e);
+    };
+    setTimeout(function () {
+      if (!window.__mpRuntimeAlive) { lift(); return; }
+      setTimeout(lift, 8000);
     }, 4000);
   } catch (e) {}
 })();
