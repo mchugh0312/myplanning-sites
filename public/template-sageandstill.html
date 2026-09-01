@@ -93,14 +93,15 @@
   --green-gray:#696c62;  /* primary olive used for The Weekend block */
   --dark-green:#4b5244;  /* dark green — buttons, menu drawer, footer */
   --black:#000000;
-  --text:#1f211d;
-  /* Body text. Its own variable so changing the text colour cannot repaint
-     the panels and borders that also use --text. */
-  --ink: #1f211d;        /* near-black body text */
-  --muted:#7a7d72;
-  /* Third text tone, split from --muted so it can be changed without
-     repainting what --muted fills. */
-  --ink3: #7a7d72;       /* muted grey-green for meta */
+  /* Body copy on the light grounds. This template's design note lists five
+     colours and the near-black that used to letter the page was not one of
+     them - it was drift, sitting a shade off the black the note specifies.
+     --text and --muted, the two off-spec tones, are gone with it; nothing
+     referenced them any more. */
+  --ink: #000000;
+  /* Accent text - the secondary lines: FAQ answers, the accommodation meta,
+     the RSVP deadline. Also drift, a shade off the green gray the note has. */
+  --ink3: #696c62;
   --display:'Aboreto', 'Cormorant Garamond', serif;
   --sub:'Ovo', Georgia, serif;
   --body:'DM Sans', system-ui, -apple-system, sans-serif;

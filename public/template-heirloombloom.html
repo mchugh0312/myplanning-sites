@@ -45,14 +45,17 @@
      background underneath it, and vice versa. */
   --on-dark: #f2ece7;
   --berry:   #673d45;
-  /* Third text tone, split from --berry so it can be changed without
-     repainting what --berry fills. */
-  --ink3: #673d45;
+  /* Accent text: the hero initials and the menu hover, which the design
+     draws in the light green rather than the berry. Split from --gold so
+     the lettering can move without repainting the registry band. */
+  --ink3: #afab57;
   --gray:    #696c62;
-  --text:    #4a3a3d;
-  /* Body text. Its own variable so changing the text colour cannot repaint
-     the panels and borders that also use --text. */
-  --ink: #4a3a3d;
+  /* Body copy AND headings on the light grounds. This template's colour
+     spec lists four colours and the near-black that used to letter most
+     of the page was not one of them - it was drift, a fifth tone sitting
+     alongside berry and close enough to read as a second burgundy. Berry
+     is the only dark chromatic tone the spec has, so it does both jobs. */
+  --ink: #673d45;
   --white:   #ffffff;
   /* Luxurious Script per the design (was Sloop Script Pro). */
   --script:  'Luxurious Script','Sloop Script Pro',cursive;
@@ -114,8 +117,8 @@ img{max-width:100%;display:block;}
   border-bottom:1px solid transparent;padding-bottom:2px;
   transition:border-color 0.2s;
 }
-.menu-links a:hover,.menu-links a.active{border-bottom-color:var(--text);}
-.menu-links a:hover{color:var(--gold);}
+.menu-links a:hover,.menu-links a.active{border-bottom-color:var(--ink);}
+.menu-links a:hover{color:var(--ink3);}
 
 /* ── HERO — full bleed photo, initials bottom-left area ──────── */
 .hero{
@@ -172,7 +175,7 @@ img{max-width:100%;display:block;}
   position:relative;
   font-family:'Lancelot',Georgia,serif;
   font-size:clamp(8.75rem,28.75vw,21rem);
-  color:var(--gold);
+  color:var(--ink3);
   line-height:0.86;
 }
 .hero-initial-left{  transform:translateY(-22%); }
@@ -181,7 +184,7 @@ img{max-width:100%;display:block;}
   position:relative;
   font-family:var(--script);
   font-size:clamp(6.25rem,16.9vw,13.1rem);
-  color:var(--gold);
+  color:var(--ink3);
   line-height:1;
   /* Optical spacing: the script ampersand's own side bearings are uneven, so a
      touch more room on its right keeps both gaps looking equal. */
@@ -209,18 +212,18 @@ img{max-width:100%;display:block;}
 .wedding-card-name{
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--ink3);
+  color:var(--ink);
   margin-bottom:1.4rem;line-height:1.2;
 }
 .wedding-card-detail{
   font-family:var(--serif);font-size:1.05rem;
-  color:var(--ink3);line-height:2.1;
+  color:var(--ink);line-height:2.1;
   text-align:center;
 }
 .wedding-card-dress{
   display:block;margin-top:1.2rem;
   font-family:var(--script);font-size:1.25rem;
-  color:var(--ink3);
+  color:var(--ink);
 }
 
 /* ── OTHER EVENTS — berry bg, all centred white ──────────────── */
@@ -293,7 +296,7 @@ img{max-width:100%;display:block;}
 }
 .accom-title{
   font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--ink3);margin-bottom:1.2rem;
+  color:var(--ink);margin-bottom:1.2rem;
 }
 .accom-detail{
   /* 3. Larger than 0.82rem, which read as fine print. */
@@ -323,7 +326,7 @@ img{max-width:100%;display:block;}
 .section-title-script{
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--ink3);text-align:center;
+  color:var(--ink);text-align:center;
   margin-bottom:0.5rem;
 }
 .section-rule-gold{width:50px;height:1px;background:var(--gold);margin:0 auto 2rem;}
@@ -342,7 +345,7 @@ img{max-width:100%;display:block;}
   font-weight:400;
   font-family:var(--script);
   font-size:clamp(1.9rem,3.6vw,2.6rem);
-  color:var(--ink3);text-align:center;margin-bottom:1.6rem;
+  color:var(--ink);text-align:center;margin-bottom:1.6rem;
 }
 .ntk-item{
   /* The design's blocks are close together; these were ~3x the gap. */
@@ -355,7 +358,7 @@ img{max-width:100%;display:block;}
 .ntk-question{
   font-family:var(--serif);
   font-size:1.25rem;font-weight:normal;
-  color:var(--ink3);margin-bottom:0.5rem;
+  color:var(--ink);margin-bottom:0.5rem;
 }
 .ntk-answer{
   font-family:var(--serif);font-size:1.05rem;
@@ -580,7 +583,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   font-family:var(--serif);
   font-size:0.62rem;font-style:normal;
   letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--ink3);background:var(--gold);
+  color:var(--ink);background:var(--gold);
   padding:2px 8px;border-radius:999px;
 }
 /* Household selects deliberately carry NO font-size of their own.
@@ -606,9 +609,9 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 /* ── STORY — offwhite bg ─────────────────────────────────────── */
 .story-section{background:var(--gold);padding:4rem 2rem;}
 .story-inner{max-width:560px;margin:0 auto;text-align:center;}
-.story-inner .section-title-script{color:var(--ink3) !important;}
+.story-inner .section-title-script{color:var(--ink) !important;}
 .story-inner .section-rule-gold{background:rgba(103,61,69,0.4) !important;}
-.story-inner .section-body-serif{color:var(--ink3) !important;}
+.story-inner .section-body-serif{color:var(--ink) !important;}
 
 /* ── FOOTER ──────────────────────────────────────────────────── */
 .footer{background:var(--berry);text-align:center;padding:2.5rem 1rem;}
