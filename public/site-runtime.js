@@ -3732,6 +3732,25 @@
         title.style.display = hasCopy ? 'block' : '';
         title.style.marginBottom = hasCopy ? '0.2rem' : '';
       }
+      /* display:block on the heading is not enough on its own. Heirloom Bloom's
+         .registry-frame is a FLEX ROW, so the heading and the copy are flex
+         items sitting side by side and `display` on an item is ignored — which
+         is why the couple's text appeared to the RIGHT of "See Our Registry"
+         and pushed the heading into wrapping rather than starting beneath it.
+         Stack the container instead, and only while it holds copy. */
+      try {
+        var box = info.parentNode;
+        if (box && box.style) {
+          var disp = (window.getComputedStyle ? window.getComputedStyle(box).display : '') || '';
+          if (hasCopy && disp.indexOf('flex') !== -1) {
+            box.style.flexDirection = 'column';
+            box.style.justifyContent = 'center';
+          } else if (!hasCopy) {
+            box.style.flexDirection = '';
+            box.style.justifyContent = '';
+          }
+        }
+      } catch (e) {}
       info.style.display = hasCopy ? 'block' : 'none';
       if (hasCopy && !info.style.marginTop) info.style.marginTop = '1.2rem';
     } catch (e) {}
@@ -4519,25 +4538,40 @@
      is free once the browser has it, and correct when it does not. */
   function _heroSources() {
     var urls = [];
+    var seen = {};
+    var add = function (el, url) {
+      if (!url || seen[url] || urls.length >= 5) return;
+      seen[url] = 1;
+      urls.push({ el: el, url: url });
+    };
     try {
       /* ALL the hero's photographs, not just the first. Several templates open
          on a carousel or a strip — Heirloom Bloom's #heroCarousel holds three —
          and waiting on one of them uncovered the page while the rest were still
-         arriving, so they popped in one after another. Capped so a long gallery
-         cannot hold the page back. */
+         arriving, so they popped in one after another. */
       var imgs = document.querySelectorAll(
         '#heroImg, #heroCarousel img, .hero img, .hero-image img, #hero img');
-      for (var k = 0; k < imgs.length && urls.length < 4; k++) {
-        if (imgs[k].getAttribute('src')) {
-          urls.push({ el: imgs[k], url: imgs[k].getAttribute('src') });
-        }
-      }
+      for (var k = 0; k < imgs.length; k++) add(imgs[k], imgs[k].getAttribute('src'));
 
-      var bgHosts = document.querySelectorAll('#heroCol1, .hero-section, .hero, #hero');
-      for (var i = 0; i < bgHosts.length && urls.length < 3; i++) {
+      /* Photographs hydrate paints as a BACKGROUND, anywhere on the page.
+         This is why Pressed Petals flashed when nothing else did: its Need to
+         Knows band ships a stock photograph in the markup and hydrate swaps
+         #needToKnowBg's backgroundImage to the couple's. The old list only
+         looked at hero containers, so the page was uncovered while that band
+         still held the template's own photograph — the stock couple, on screen,
+         for as long as the new one took to arrive. Golden Hour swaps two the
+         same way.
+
+         An inline background-image is exactly the fingerprint of a swap:
+         hydrate sets these on the element, the stylesheet does not. Reading
+         them back after hydrate finds every photograph that was just put
+         there, whatever the template calls the element. */
+      var bgHosts = document.querySelectorAll(
+        '[style*="background-image"], #heroCol1, .hero-section, .hero, #hero');
+      for (var i = 0; i < bgHosts.length; i++) {
         var bg = bgHosts[i].style && bgHosts[i].style.backgroundImage;
         var m = bg && /url\(['"]?([^'")]+)/.exec(bg);
-        if (m) urls.push({ el: null, url: m[1] });
+        if (m) add(null, m[1]);
       }
     } catch (e) {}
     return urls;
