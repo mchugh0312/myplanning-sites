@@ -3399,6 +3399,14 @@
   function clearSaveTheDate() {
     _stdRemoveBlocks();
     try {
+      /* The phone rules key off these, so leaving them on would keep the hero
+         inset and its scrims hidden after the mode is switched back off. */
+      document.querySelectorAll('.mp-std-photo,.mp-std-scrim').forEach(function (el) {
+        el.classList.remove('mp-std-photo');
+        el.classList.remove('mp-std-scrim');
+      });
+    } catch (e) {}
+    try {
       var hidden = document.querySelectorAll('[data-mp-std-hidden]');
       for (var i = 0; i < hidden.length; i++) {
         hidden[i].style.display = hidden[i].getAttribute('data-mp-std-hidden') || '';
@@ -3516,41 +3524,54 @@
         '.mp-std-meta{font-size:0.76rem;letter-spacing:0.15em}' +
         '.mp-std-note{font-size:0.78rem}' +
 
-        /* On a phone the announcement should be the screen: one column, the
-           photograph whole and centred, the type in the space left over.
-           Before this the hero kept its desktop framing — a fixed aspect ratio
-           and object-fit:cover — so the picture was cropped to a band across
-           the top and the page scrolled sideways to reach the rest of it.
+        /* On a phone the announcement is the whole screen: the photograph
+           whole and centred in the middle, the type in the empty bands above
+           and below it, and those bands in the site's own ground.
 
-           The blocks come out of the absolute overlay and into normal flow, so
-           they sit in the empty bands above and below the picture rather than
-           on top of it. `order` puts the announcement first: both blocks are
-           appended after the image in the DOM. */
-        _stdHeroSel + '{position:relative!important;display:flex!important;' +
-          'flex-direction:column;align-items:center;justify-content:center;gap:14px;' +
-          /* svh, not vh: on iOS vh is the tallest the viewport ever gets, so
-             the browser chrome cut the bottom off. The vh line is the fallback
-             for anything that does not know svh. */
-          'min-height:calc(100vh - ' + STD_FOOTER_PX + 'px);' +
-          'min-height:calc(100svh - ' + STD_FOOTER_PX + 'px);' +
-          'height:auto!important;max-height:none!important;aspect-ratio:auto!important;' +
-          /* The letterboxing above and below the picture is the site's own
-             ground, not the browser's white. */
-          'background-color:' + bandBg + ';' +
-          'padding:20px 0;box-sizing:border-box;overflow:visible!important}' +
+           The first attempt made the hero a flex column. That does nothing
+           here, because every template's hero holds its picture in an
+           absolutely positioned wrapper (Pressed Petals: .hero-image with
+           inset:0) - an absolute child takes no part in its parent's flex
+           layout, so the picture stayed pinned to the top of the hero and the
+           type still landed on it.
 
-        /* Whole, never cropped, and never taller than the space it has. */
-        _stdHeroSel + ' img{width:100%!important;height:auto!important;' +
-          'max-height:calc(100svh - ' + (STD_FOOTER_PX + 150) + 'px)!important;' +
-          'object-fit:contain!important;object-position:center!important;' +
-          'flex:0 1 auto;min-height:0;margin:0 auto!important;display:block}' +
+           So the wrapper keeps its absolute positioning and is simply INSET:
+           pulled in from the top and bottom to leave the two bands. The
+           picture is then contained inside that middle strip, which centres it
+           both ways and never crops it. The bands are the hero's own
+           background, which is set to the site colour below.
 
-        '.mp-std-top,.mp-std-bottom{position:static!important;transform:none!important;' +
-          'left:auto;top:auto;bottom:auto;width:min(92%,680px);flex:0 0 auto;' +
-          /* On the plain band the hero's own ink — often white, chosen to read
-             against a photograph — would be invisible. Use the page ink. */
-          'color:' + bandInk + ';text-shadow:none}' +
-        '.mp-std-top{order:-1}' +
+           mp-std-photo is put on the wrapper at runtime rather than named here
+           per template - see applySaveTheDate. */
+        _stdHeroSel + '{height:calc(100vh - ' + STD_FOOTER_PX + 'px)!important;' +
+          'height:calc(100svh - ' + STD_FOOTER_PX + 'px)!important;' +
+          'min-height:0!important;max-height:none!important;aspect-ratio:auto!important;' +
+          'position:relative!important;overflow:hidden!important;' +
+          /* The ground behind the letterboxing. !important because several
+             heroes carry an inline background - a placeholder gradient - which
+             would otherwise win over a stylesheet rule. */
+          'background:' + bandBg + '!important}' +
+
+        '.mp-std-photo{position:absolute!important;left:0!important;right:0!important;' +
+          'top:21%!important;bottom:19%!important;width:auto!important;height:auto!important;' +
+          'margin:0!important;background:none!important}' +
+        /* Both forms: the wrapper when there is one, the image itself when the
+           picture hangs directly off the hero. */
+        '.mp-std-photo img,img.mp-std-photo{width:100%!important;height:100%!important;' +
+          'object-fit:contain!important;object-position:center center!important;' +
+          'background:none!important}' +
+
+        /* Scrims and vignettes are drawn to sit ON a full-bleed photograph. With
+           the picture inset they would tint the clean bands instead. */
+        '.mp-std-scrim{display:none!important}' +
+
+        /* The type stays in the overlay, but now the bands beneath it are
+           empty, so it reads against the site colour rather than the picture.
+           Hence the page ink and no drop shadow. */
+        '.mp-std-top,.mp-std-bottom{color:' + bandInk + '!important;text-shadow:none!important;' +
+          'width:min(92%,680px)}' +
+        '.mp-std-top{top:4%!important}' +
+        '.mp-std-bottom{bottom:4%!important}' +
         '.mp-std-names{font-size:clamp(1.8rem,8vw,2.6rem)}' +
       '}';
     document.head.appendChild(style);
@@ -3559,6 +3580,38 @@
       var pos = getComputedStyle(hero).position;
       if (!pos || pos === 'static') hero.style.position = 'relative';
     } catch (e) { hero.style.position = 'relative'; }
+
+    /* Mark the element that actually holds the photograph, and the decorative
+       overlays drawn on top of it. Every template names these differently -
+       .hero-image, .hero-photo, .hero-media - and each has its own gradient or
+       vignette, so the phone rules above address them through these two
+       classes rather than a list of selectors that would need extending for
+       every template.
+
+       The wrapper is what gets inset, not the <img>: it is the absolutely
+       positioned box, and moving the image inside it would leave the box
+       covering the bands. */
+    try {
+      var _photoEl = hero.querySelector('img');
+      if (_photoEl) {
+        /* Walk up to the hero's DIRECT child. That is the element carrying the
+           absolute positioning - Heirloom Bloom's photograph sits in
+           .hero-carousel > .hero-slide > img, and insetting the slide would
+           leave the carousel still covering the bands. */
+        var _wrap = _photoEl;
+        while (_wrap.parentNode && _wrap.parentNode !== hero) _wrap = _wrap.parentNode;
+        _wrap.classList.add('mp-std-photo');
+      }
+      /* A scrim is an element with no text that exists to tint the photograph.
+         Anything the couple can read is left alone. */
+      Array.prototype.slice.call(hero.children).forEach(function (child) {
+        if (child.classList && child.classList.contains('mp-std-photo')) return;
+        if ((child.textContent || '').trim()) return;
+        if (child.querySelector && child.querySelector('img')) return;
+        var cn = String(child.className || '');
+        if (/gradient|scrim|overlay|veil|tint|shade/i.test(cn)) child.classList.add('mp-std-scrim');
+      });
+    } catch (e) {}
 
     // ── Top: the announcement itself ─────────────────────────────────────
     var top = document.createElement('div');
