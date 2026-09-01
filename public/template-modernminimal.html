@@ -987,7 +987,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   <nav class="site-nav" id="siteNav">
     <a href="#hero"            onclick="handleNavClick(this)" class="active">Home</a>
     <a href="#events-primary"  onclick="handleNavClick(this)">Events</a>
-    <a href="#travel-section"  onclick="handleNavClick(this)">Travel Info</a>
+    <a href="#travel-section"  onclick="handleNavClick(this)">Travel</a>
     <a href="#faq-section"     onclick="handleNavClick(this)">FAQs</a>
     <a href="#registry-section" onclick="handleNavClick(this)">Registry</a>
     <a href="#rsvp"            onclick="handleNavClick(this)">RSVP</a>
@@ -1099,7 +1099,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 <!-- TRAVEL -->
 <div class="travel-section" id="travel-section">
   <div class="travel-inner">
-    <h2 class="section-title">Travel Info</h2>
+    <h2 class="section-title">Travel</h2>
     <div class="travel-content" id="travelContent">
       The Penny Hotel Williamsburg<br>
       <em>Request the Kira &amp; Jay room block</em>
@@ -1689,7 +1689,7 @@ function _buildNav(menu, rsvpOn, d){
   var links = [
     { show: !!menu.home,                                href:'#hero',              label:'Home'        },
     { show: !!menu.wedding || !!menu.other_events,      href:'#events-primary',    label:'Events'      },
-    { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',    label:'Travel Info' },
+    { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',    label:'Travel' },
     { show: !!(menu.faqs || menu.things_to_do),         href:'#faq-section',       label:'FAQs'        },
     // Things to Do has its own section now, so it gets its own entry.
     { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },

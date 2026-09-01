@@ -1118,7 +1118,7 @@ body.thumbnail-mode .home-block{min-height:0;}
     <ul class="menu-links" id="menuLinks">
       <li><a href="#hero"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#itinerary"        onclick="handleMenuClick(this)">Weekend Itinerary</a></li>
-      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Hotel Details</a></li>
+      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Accommodations</a></li>
       <li><a href="#need-to-know"     onclick="handleMenuClick(this)">FAQs</a></li>
       <li><a href="#registry-section" onclick="handleMenuClick(this)">Our Registry</a></li>
       <li><a href="#rsvp"             onclick="handleMenuClick(this)">RSVP</a></li>
@@ -1219,7 +1219,7 @@ body.thumbnail-mode .home-block{min-height:0;}
       </div>
     </div>
     <div class="accom-content" id="accomContent">
-      <h2 class="accom-title">Hotel Details</h2>
+      <h2 class="accom-title">Accommodations</h2>
       <div class="accom-name">Hilton Minneapolis</div>
       <div class="accom-address">1001 S Marquette Ave,<br>Minneapolis, MN 55403</div>
       <div class="accom-meta">Request the Sherrie &amp; Robert room block</div>
@@ -1474,7 +1474,7 @@ function renderAccomContent(html) {
     meta = _names ? 'Request the ' + _names + ' room block' : 'Request the room block';
   }
   content.innerHTML =
-    '<h2 class="accom-title">Hotel Details</h2>' +
+    '<h2 class="accom-title">Accommodations</h2>' +
     (name ? '<div class="accom-name">' + name + '</div>' : '') +
     (address ? '<div class="accom-address">' + address + '</div>' : '') +
     '<div class="accom-meta">' + meta + '</div>' +
@@ -1852,7 +1852,7 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.home,                                      href: '#hero',             label: 'Home'              },
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'         },
     { show: !!(menu.wedding || menu.other_events),            href: '#itinerary',        label: 'Weekend Itinerary' },
-    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Hotel Details'     },
+    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations'     },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'FAQs'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on

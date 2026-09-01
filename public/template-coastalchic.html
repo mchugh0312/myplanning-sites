@@ -1074,7 +1074,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
     <ul class="nav-links" id="navLinks">
       <li><a href="#hero" onclick="handleNavClick(this)" class="active">Home</a></li>
       <li><a href="#event-schedule" onclick="handleNavClick(this)">Event Schedule</a></li>
-      <li><a href="#travel-section" onclick="handleNavClick(this)">Travel Info</a></li>
+      <li><a href="#travel-section" onclick="handleNavClick(this)">Travel</a></li>
       <li><a href="#faq-section" onclick="handleNavClick(this)">FAQs</a></li>
       <li><a href="#registry-section" onclick="handleNavClick(this)">Registry</a></li>
       <li><a href="#rsvp" onclick="handleNavClick(this)">RSVP</a></li>
@@ -1151,7 +1151,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
 <div class="travel-section" id="travel-section">
   <div class="travel-inner">
     <div class="travel-text">
-      <div class="sec-head"><h2 class="travel-title">Travel Info</h2><div class="sec-rule on-ivory"><i></i><span></span><i></i></div></div>
+      <div class="sec-head"><h2 class="travel-title">Travel</h2><div class="sec-rule on-ivory"><i></i><span></span><i></i></div></div>
       <div id="travelContent">
         <div class="travel-block">
           <div class="travel-block-label">Airport</div>
@@ -1806,7 +1806,7 @@ function _buildNav(menu, rsvpOn, d){
   var links = [
     { show: !!menu.home,                                href:'#hero',             label:'Home'           },
     { show: !!(menu.wedding || menu.other_events),      href:'#event-schedule',   label:'Event Schedule' },
-    { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',   label:'Travel Info'    },
+    { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',   label:'Travel'    },
     { show: !!(menu.faqs || menu.things_to_do),         href:'#faq-section',      label:'FAQs'           },
     // Things to Do has its own section now, so it gets its own entry.
     { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },

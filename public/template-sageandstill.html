@@ -1056,7 +1056,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
       <li><a href="#hero"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#weekend"          onclick="handleMenuClick(this)">The Wedding</a></li>
       <li><a href="#weekend"          onclick="handleMenuClick(this)">Other Events</a></li>
-      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Recommended Accommodations</a></li>
+      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Accommodations</a></li>
       <li><a href="#need-to-know"     onclick="handleMenuClick(this)">Need to Knows</a></li>
       <li><a href="#registry-section" onclick="handleMenuClick(this)">Our Registry</a></li>
       <li><a href="#rsvp"             onclick="handleMenuClick(this)">RSVP</a></li>
@@ -1782,7 +1782,7 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.home,                                      href: '#hero',             label: 'Home'                       },
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'                  },
     { show: !!(menu.wedding || menu.other_events),            href: '#weekend',          label: 'The Weekend'                },
-    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Recommended Accommodations' },
+    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'Need to Knows'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on
