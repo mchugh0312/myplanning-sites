@@ -703,9 +703,26 @@
        so a guest could be asked about the reception before the ceremony.
        sort_order is the couple's own Event Sequence; date is the sensible
        fallback, and name only breaks a tie. */
+    // The order this event has, whatever the template chose to pass along.
+    var _seqOf = function (e) {
+      if (!e) return null;
+      if (e.sort_order != null && String(e.sort_order).trim() !== '') return Number(e.sort_order);
+      var byId = e.id != null ? _eventOrderFromPayload[String(e.id)] : undefined;
+      if (byId != null) return byId;
+      var nm = String(e.label || e.name || '').trim().toLowerCase();
+      var byName = nm ? _eventOrderFromPayload[nm] : undefined;
+      return byName != null ? byName : null;
+    };
+
+    /* Where the order came from, so a wrong order after this points at the
+       data rather than at another layer. */
+    console.log('[RSVP] event order in: '
+      + JSON.stringify((events || []).map(function (e) {
+          return String(e && (e.label || e.name)) + '(' + _seqOf(e) + ')'; })));
+
     _rsvpState.events = (events || []).slice().sort(function (a, b) {
-      var sa = (a && a.sort_order != null) ? Number(a.sort_order) : null;
-      var sb = (b && b.sort_order != null) ? Number(b.sort_order) : null;
+      var sa = _seqOf(a);
+      var sb = _seqOf(b);
       if (sa != null && sb != null && sa !== sb) return sa - sb;
       if (sa != null && sb == null) return -1;
       if (sa == null && sb != null) return 1;
@@ -713,6 +730,9 @@
       if (da !== db) return da < db ? -1 : 1;
       return String((a && a.label) || '').localeCompare(String((b && b.label) || ''));
     });
+
+    console.log('[RSVP] event order out: '
+      + JSON.stringify(_rsvpState.events.map(function (e) { return String(e && e.label); })));
     _rsvpState.guestId = '';
     _rsvpState.matchedName = '';
     _rsvpState.plusOneAllowed = false;
@@ -1114,6 +1134,9 @@
   /* One delegated handler for the plus-one pencil. The event rows are rebuilt
      on every answer, so a listener bound to each pencil would be lost; this
      survives, and it renames on every row at once rather than per event. */
+  // Event order as the payload gave it, before any template reshaped it.
+  var _eventOrderFromPayload = {};
+
   var _plusOneRenameBound = false;
   var _rsvpCommitPlusOneName = null;
   function bindPlusOneRename() {
@@ -4775,6 +4798,21 @@
     // Every template and the save-the-date screen read d.couple_names, so
     // normalise it here rather than in ten places.
     d.couple_names = coupleNames(d);
+
+    /* The couple's event order, taken from the payload before any template
+       has had a chance to reshape it. Templates build their own array for the
+       RSVP form and several drop everything except id, name and date, which
+       is how the events ended up alphabetical with the Welcome Event last.
+       Keyed by id and by name so either resolves. */
+    _eventOrderFromPayload = {};
+    (Array.isArray(d.events) ? d.events : []).forEach(function (ev, i) {
+      if (!ev) return;
+      var seq = (ev.sort_order != null && String(ev.sort_order).trim() !== '')
+        ? Number(ev.sort_order) : (i + 1);
+      if (ev.id) _eventOrderFromPayload[String(ev.id)] = seq;
+      var nm = String(ev.name || ev.label || '').trim().toLowerCase();
+      if (nm) _eventOrderFromPayload[nm] = seq;
+    });
 
     // 2. RSVP entree options must be set before the template builds its blocks.
     if (d.rsvp_config && d.rsvp_config.entreesByEvent && typeof d.rsvp_config.entreesByEvent === 'object') {
