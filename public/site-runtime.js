@@ -3997,7 +3997,21 @@
           return;
         }
       });
-      if (!wanted.length) return;
+      /* In the editor only, say what this found. The menu is assembled by the
+         template and relabelled here, so when the two disagree the useful
+         question is which step saw what - not something that can be inferred
+         from the finished menu. */
+      var _log = function (stage, detail) {
+        try {
+          if (!window._isPreview) return;
+          console.log('[mp-menu] ' + stage, detail);
+        } catch (e) {}
+      };
+      _log('sections found', wanted.map(function (w) { return w.id + ' -> "' + w.text + '"'; }));
+      if (!wanted.length) {
+        _log('nothing to sync', 'no accommodations/travel section is visible with a heading');
+        return;
+      }
 
       var have = {};
       var hostFor = {};
@@ -4012,6 +4026,7 @@
         }
       });
 
+      _log('links matched', Object.keys(have));
       /* Add the missing one next to its neighbour rather than at the end of the
          menu. Position comes from where the SECTIONS sit relative to each
          other, compared with compareDocumentPosition — offsetTop was the first
@@ -4059,7 +4074,14 @@
         have[w.id] = a;
         hostFor[w.id] = clone;
       });
-    } catch (e) {}
+    } catch (e) {
+      /* Was a bare swallow. Anything thrown in here leaves the template's own
+         hardcoded labels in place and looks exactly like the sync never ran,
+         with nothing anywhere to say otherwise. */
+      try {
+        if (window._isPreview) console.error('[mp-menu] sync failed', e);
+      } catch (e2) {}
+    }
   }
 
   function buildMobileNav() {
@@ -4842,8 +4864,26 @@
       if (s.el && s.el.tagName === 'IMG' &&
           !(document.body && document.body.classList.contains('thumbnail-mode'))) {
         (function (img) {
-          var prev = img.style.visibility;
-          var show = function () { img.style.visibility = prev || ''; };
+          /* Once per element. The preview re-hydrates on every keystroke, so
+             this runs again while the first load is still in flight - and the
+             second pass read the visibility we had just set, captured 'hidden'
+             as the value to restore, and put it back to hidden when the image
+             finally arrived. The hero then never appeared at all. */
+          if (img.__mpHiding) return;
+          /* And never hide the same picture twice. `complete` is the obvious
+             test but it is not dependable across engines right after a load,
+             so remember the src we hid for: a later hydrate carrying the same
+             photograph must leave it alone rather than blank a picture the
+             couple is already looking at. */
+          var _src = img.getAttribute('src');
+          if (img.__mpHidSrc === _src) return;
+          img.__mpHidSrc = _src;
+          img.__mpHiding = 1;
+          var prev = img.style.visibility === 'hidden' ? '' : img.style.visibility;
+          var show = function () {
+            img.style.visibility = prev || '';
+            img.__mpHiding = 0;
+          };
           img.style.visibility = 'hidden';
           img.addEventListener('load', show);
           img.addEventListener('error', show);
