@@ -4536,36 +4536,54 @@
      Covers both shapes of hero: an <img> (most templates) and a CSS background
      (Golden Hour composites three). Probing a background URL through Image()
      is free once the browser has it, and correct when it does not. */
+  /* Every <img> src as the MARKUP shipped it, captured the moment this file
+     runs — which is before hydrate, since site-runtime loads at the foot of the
+     body. Comparing against it afterwards identifies exactly the photographs
+     hydrate replaced, which is exactly the set that can flash: an element
+     holding a stock photograph until the couple's arrives.
+
+     Chasing these by name did not scale. The list was hero containers, then
+     #heroCarousel, then anything with an inline background-image, and a scan
+     still turned up Coastal Chic's #travelImg — a stock photograph in the
+     markup, swapped at hydrate, watched by nothing. This asks the page what
+     changed instead of trying to know every id in ten templates. */
+  var _initialSrc = [];
+  try {
+    var _shipped = document.querySelectorAll('img[src]');
+    for (var _i = 0; _i < _shipped.length; _i++) {
+      _initialSrc.push([_shipped[_i], _shipped[_i].getAttribute('src')]);
+    }
+  } catch (e) {}
+
   function _heroSources() {
     var urls = [];
     var seen = {};
     var add = function (el, url) {
-      if (!url || seen[url] || urls.length >= 5) return;
+      if (!url || seen[url] || urls.length >= 6) return;
       seen[url] = 1;
       urls.push({ el: el, url: url });
     };
     try {
-      /* ALL the hero's photographs, not just the first. Several templates open
-         on a carousel or a strip — Heirloom Bloom's #heroCarousel holds three —
-         and waiting on one of them uncovered the page while the rest were still
-         arriving, so they popped in one after another. */
+      /* The hero FIRST. There is a cap below, and a template with a lot of
+         photographs — Modern Minimal ships thirteen, most of them registry
+         cards below the fold — would otherwise fill it before reaching the one
+         thing the reader is certain to be looking at. */
       var imgs = document.querySelectorAll(
         '#heroImg, #heroCarousel img, .hero img, .hero-image img, #hero img');
       for (var k = 0; k < imgs.length; k++) add(imgs[k], imgs[k].getAttribute('src'));
 
-      /* Photographs hydrate paints as a BACKGROUND, anywhere on the page.
-         This is why Pressed Petals flashed when nothing else did: its Need to
-         Knows band ships a stock photograph in the markup and hydrate swaps
-         #needToKnowBg's backgroundImage to the couple's. The old list only
-         looked at hero containers, so the page was uncovered while that band
-         still held the template's own photograph — the stock couple, on screen,
-         for as long as the new one took to arrive. Golden Hour swaps two the
-         same way.
+      /* Then anything else hydrate swapped, wherever it is on the page. */
+      for (var j = 0; j < _initialSrc.length; j++) {
+        var el = _initialSrc[j][0], was = _initialSrc[j][1];
+        var now = el.getAttribute('src');
+        if (now && now !== was) add(el, now);
+      }
 
-         An inline background-image is exactly the fingerprint of a swap:
-         hydrate sets these on the element, the stylesheet does not. Reading
-         them back after hydrate finds every photograph that was just put
-         there, whatever the template calls the element. */
+      /* Photographs painted as a BACKGROUND. This is why Pressed Petals flashed
+         when nothing else did: its Need to Knows band ships a stock photograph
+         and hydrate swaps #needToKnowBg's backgroundImage to the couple's. An
+         inline background-image is the fingerprint of a swap — the stylesheet
+         never sets one. Black Tie and Golden Hour do the same. */
       var bgHosts = document.querySelectorAll(
         '[style*="background-image"], #heroCol1, .hero-section, .hero, #hero');
       for (var i = 0; i < bgHosts.length; i++) {
