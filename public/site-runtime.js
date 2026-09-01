@@ -2346,6 +2346,15 @@
       for (var i = 0; i < cands.length; i++) {
         var c = cands[i];
         if (c.closest && c.closest('.mp-std-top,.mp-std-bottom,.mp-brand-footer')) continue;
+        /* A column, card, item or event title is CONTENT - one of several
+           inside the section - not the section's own heading. Pressed Petals'
+           accommodations band has no heading of its own; "Hotel" and "Flights"
+           are the two column titles, and reading one of them as the section
+           heading made the Content tab label that section "Hotel" and offered
+           no way to edit the word. Those titles come from the couple's copy
+           now, so the section falls back to its own name. */
+        var cn = String(c.className || '');
+        if (/(^|[\s-])(col|card|item|event|slide|cell)-title/i.test(cn)) continue;
         var t = (c.textContent || '').trim();
         if (t && t.length <= 60) { el = c; break; }
       }

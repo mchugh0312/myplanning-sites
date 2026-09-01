@@ -1687,8 +1687,7 @@ function hydrateTemplate(d) {
       // why the column arrived untitled.
       var _bookUrl = _mpBookUrl(d.accommodation_info, d.accommodation_url);
       accomList.innerHTML =
-        '<div class="accom-col-title">Hotel</div>' +
-        '<div class="accom-address">' + d.accommodation_info + '</div>' +
+        _mpColBlock(d.accommodation_info) +
         (_bookUrl
           ? '<a class="accom-btn" href="' + _bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
           : '');
@@ -1760,8 +1759,7 @@ function hydrateTemplate(d) {
   if (_travelCol && d.travel_info) {
     var _trUrl = _mpBookUrl(d.travel_info, d.travel_url);
     _travelCol.innerHTML =
-      '<div class="accom-col-title">Flights</div>' +
-      '<div class="accom-address">' + d.travel_info + '</div>' +
+      _mpColBlock(d.travel_info) +
       (_trUrl
         ? '<a class="accom-btn" href="' + _trUrl + '" target="_blank" rel="noopener">Book Now</a>'
         : '');
@@ -1840,6 +1838,24 @@ function hydrateTemplate(d) {
   _reveal();
 }
 
+/* The column title is the FIRST LINE of what the couple wrote, exactly as the
+   event lists work. It used to be the hardcoded word "Hotel" (and "Flights"),
+   which meant the two headings on this band were the only text on the page the
+   couple could not change: the Content tab offered them a body box and nothing
+   else, and renaming the section from the heading field renamed the band rather
+   than the column.
+
+   Nothing is invented. If the copy has no title line the column simply has no
+   title, and the sample copy below opens with one so the design still reads. */
+function _mpColBlock(html) {
+  var s = String(html || '');
+  var m = _mpTitle(s);
+  var title = m ? m[1] : '';
+  var rest = (m ? s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '') : s).trim();
+  return (title ? '<div class="accom-col-title">' + title + '</div>' : '') +
+         (rest ? '<div class="accom-address">' + rest + '</div>' : '');
+}
+
 function _buildMenu(menu, rsvpOn, d) {
   d = d || {};
   const menuEl = document.getElementById('menuLinks');
@@ -1890,8 +1906,8 @@ const SAMPLE_DATA = {
   story:'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, April 5th, 2026 &middot; 4:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em><br><br><strong>The Reception</strong><br>Saturday, April 5th, 2026 &middot; 7:00 o&rsquo;clock in the Evening<br>Estancia La Jolla Hotel &amp; Spa<br>9700 N Torrey Pines Rd, La Jolla, CA 92037<br><em>Cocktail Attire</em>',
   events_info:'<strong>Welcome Cocktails</strong><br>Friday, April 3rd, 2026 &middot; 7 O&rsquo;Clock in the Evening<br>Ultimate Skybox at Diamond of New Tower<br>109 Tenth Ave, San Diego, CA 92101',
-  accommodation_info:'<strong>Hyatt Regency La Jolla At Aventine</strong><br>Beyond the Shadow Glen Hotel Resort Block<br>3777 La Jolla Village Drive, La Jolla, CA 92037',
-  travel_info:'The nearest airport is San Diego International Airport (SAN), approximately 20 minutes from the venue by car. Uber and Lyft are readily available. We recommend staying within a 10-minute drive of the venue.',
+  accommodation_info:'<strong>Hotel</strong><br><strong>Hyatt Regency La Jolla At Aventine</strong><br>Beyond the Shadow Glen Hotel Resort Block<br>3777 La Jolla Village Drive, La Jolla, CA 92037',
+  travel_info:'<strong>Flights</strong><br>The nearest airport is San Diego International Airport (SAN), approximately 20 minutes from the venue by car. Uber and Lyft are readily available. We recommend staying within a 10-minute drive of the venue.',
   things_to_do:'Visit La Jolla Cove for stunning coastal views, explore Torrey Pines State Reserve, or spend an evening in the Gaslamp Quarter. Ask us for personalised recommendations.',
   faqs:'<strong>What should I wear?</strong><br>Cocktail attire. Think elegant dresses, jumpsuits, suits and blazers. Denim, trainers and golf attire are not permitted.<br><br><strong>Will there be transportation?</strong><br>Shuttle services will be arranged from the ceremony to the evening reception.',
   registry_info:'',
