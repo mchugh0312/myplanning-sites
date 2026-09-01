@@ -3487,15 +3487,53 @@
     var _stdHeroSel = (CFG.heroId ? '#' + CFG.heroId + ',' : '') + '.hero,.hero-section';
 
     /* The phone layout letterboxes the photograph, so the bands above and
-       below it need a ground and an ink of their own. Take them from the
-       template's palette rather than the hero's, whose ink is picked to read
-       against a photograph and would vanish on a plain band. */
-    var bandBg = CFG.palette.bg;
-    var bandInk = CFG.palette.ink;
-    try {
-      var _pageBg = getComputedStyle(document.body).backgroundColor;
-      if (_pageBg && _pageBg !== 'rgba(0, 0, 0, 0)' && _pageBg !== 'transparent') bandBg = _pageBg;
-    } catch (e) {}
+       below it need a ground and an ink of their own.
+
+       The ground is the template's ACCENT — Pressed Petals' olive, Heirloom
+       Bloom's berry — not the page background. The announcement should read as
+       the design's own colour, and a band in the page's off-white looks like
+       the picture simply failed to fill the screen.
+
+       Read live off the custom properties rather than the static palette, so a
+       couple who has recoloured the site gets their accent here too. The
+       palette is the fallback for a template whose variable is missing. */
+    var _roleVars = TEMPLATE_COLOR_VARS[TID] || {};
+    var _cssVal = function (name, fallback) {
+      if (!name) return fallback;
+      try {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+        v = (v || '').trim();
+        return v || fallback;
+      } catch (e) { return fallback; }
+    };
+    var bandBg = _cssVal(_roleVars.accent, CFG.palette.accent || CFG.palette.bg);
+
+    /* Which ink reads on that band depends on the band. Six accents are dark —
+       Heirloom Bloom's berry, Coastal Chic's navy — and want the tone the
+       design already uses for text on its dark panels. But Golden Hour's accent
+       is a pale blue and Regal Boho's a warm beige, where that same tone is
+       near-white and would vanish. So measure the band and choose. */
+    var _lum = function (col) {
+      try {
+        var m = String(col).match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+        var r, g, b;
+        if (m) { r = +m[1]; g = +m[2]; b = +m[3]; }
+        else {
+          var h = String(col).replace('#', '').trim();
+          if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+          if (h.length < 6) return null;
+          r = parseInt(h.slice(0, 2), 16);
+          g = parseInt(h.slice(2, 4), 16);
+          b = parseInt(h.slice(4, 6), 16);
+        }
+        /* Rec. 601 luma: good enough to tell a dark ground from a light one. */
+        return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      } catch (e) { return null; }
+    };
+    var _bandLum = _lum(bandBg);
+    var bandInk = (_bandLum === null || _bandLum < 0.55)
+      ? _cssVal(_roleVars.ink2, CFG.palette.bg)      /* dark band  -> light ink */
+      : _cssVal(_roleVars.ink, CFG.palette.ink);     /* light band -> page ink  */
 
     /* Roughly what the MyPlanning.ai footer occupies on a phone. The hero is
        sized against it so the announcement fills the screen and the footer sits
@@ -3518,6 +3556,12 @@
       '.mp-std-loc{opacity:0.85;margin-top:4px}' +
       '.mp-std-note{font-size:0.85rem;letter-spacing:0.08em;font-style:italic;opacity:0.92;' +
         'margin:16px 0 0}' +
+      /* Left unfiltered on purpose. Several motifs are full-colour
+         illustrations - Pressed Petals' pressed flower, Regal Boho's posy - and
+         a brightness/invert trick to force them to the band's ink would flatten
+         those to a silhouette. */
+      '.mp-std-motif{display:block;margin:0 auto 10px;height:34px;width:auto;' +
+        'object-fit:contain}' +
       '.mp-std-top .mp-std-eyebrow + .mp-std-meta{margin-top:12px}' +
       '@media(max-width:640px){' +
         '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.22em}' +
@@ -3573,6 +3617,7 @@
         '.mp-std-top{top:4%!important}' +
         '.mp-std-bottom{bottom:4%!important}' +
         '.mp-std-names{font-size:clamp(1.8rem,8vw,2.6rem)}' +
+        '.mp-std-motif{height:28px;margin-bottom:8px}' +
       '}';
     document.head.appendChild(style);
 
@@ -3625,7 +3670,14 @@
     // ── Bottom: the invitation line only ─────────────────────────────────
     var bottom = document.createElement('div');
     bottom.className = 'mp-std-bottom';
-    bottom.innerHTML = '<p class="mp-std-note">Formal invitation to follow</p>';
+    /* The template's own motif — the same mark the loading screen uses — set
+       above the invitation line so the bottom band carries a piece of the
+       design rather than a lone sentence. */
+    bottom.innerHTML =
+      (CFG.loadingImage
+        ? '<img class="mp-std-motif" src="' + CFG.loadingImage + '" alt="">'
+        : '') +
+      '<p class="mp-std-note">Formal invitation to follow</p>';
     hero.appendChild(bottom);
 
     // The two blocks above are positioned over the hero, which is the intended
