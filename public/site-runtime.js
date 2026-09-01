@@ -1170,7 +1170,13 @@
     // names in a family that can quietly be the wrong person, and the guest has
     // no way back. Say who was matched and offer a way out of it.
     var prev = json.previous_rsvp;
-    if (prev && prev.status) {
+    /* "Pending" is the state a guest is created in, not an answer they gave,
+       so it must not count as a previous reply. An answer is attending, not
+       attending, or maybe. */
+    var prevAnswer = String((prev && prev.status) || '').trim().toLowerCase();
+    var hasAnswered = prevAnswer !== ''
+      && prevAnswer !== 'pending' && prevAnswer !== 'invited' && prevAnswer !== 'no response';
+    if (prev && hasAnswered) {
       // MP-343. Answering again is allowed — plans change — but it should be a
       // decision, not something done in ignorance of the first reply.
       var when = '';
@@ -2020,6 +2026,13 @@
         }
       });
       if (!anyOk) throw new Error(failMsg || 'RSVP submission failed.');
+
+      /* The banner describes the reply this submission has just replaced, and
+         the "Not X?" link offers to change who is answering. Neither belongs
+         beside a thank-you. Both return on the next search. */
+      setStatus('', '');
+      var notYouEl = document.getElementById('mpNotYou');
+      if (notYouEl && notYouEl.parentNode) notYouEl.parentNode.removeChild(notYouEl);
 
       var successEl = document.getElementById('rsvpSuccess');
       if (successEl) {
