@@ -3540,7 +3540,14 @@
         'font-style:italic;margin:0}' +
       /* Left unfiltered on purpose: several motifs are full-colour
          illustrations that a brightness/invert trick would flatten. */
-      '.mp-std-motif{display:block;margin:0 auto 12px;height:72px;width:auto;object-fit:contain}' +
+      /* Centred by auto margins AND by the block's own text-align, because a
+         couple of the motifs are wide artwork with the mark off to one side —
+         Sage & Still's sat well right of centre at full width. Capping the
+         width keeps those inside the column so the visual centre lands near
+         the middle. */
+      '.mp-std-motif{display:block;margin-left:auto;margin-right:auto;margin-bottom:10px;' +
+        'height:48px;width:auto;max-width:min(60%,220px);object-fit:contain;' +
+        'object-position:center center}' +
 
       /* PHONE: the block plus the footer are exactly one screen, and nothing
          scrolls. One column — announcement, photograph, invitation — with the
@@ -3563,7 +3570,7 @@
         '.mp-std-names{font-size:clamp(1.6rem,7vw,2.2rem);margin-top:8px}' +
         '.mp-std-meta{font-size:0.82rem;letter-spacing:0.1em}' +
         '.mp-std-note{font-size:0.85rem}' +
-        '.mp-std-motif{height:56px;margin-bottom:8px}' +
+        '.mp-std-motif{height:40px;max-width:min(55%,180px);margin-bottom:8px}' +
       '}';
     document.head.appendChild(style);
 
@@ -4002,7 +4009,23 @@
         a.setAttribute('href', '#' + w.id);
         a.textContent = w.text;
         a.classList.remove('active');
-        ref.parentNode.insertBefore(clone, ref.nextSibling);
+        /* Copy the separator too. Several navs are a row of inline anchors laid
+           out with the whitespace BETWEEN them - Modern Minimal's .site-nav is
+           one - so inserting the clone with no gap ran the new link straight
+           into its neighbour. */
+        var gap = null;
+        var sib = ref.nextSibling;
+        if (sib && sib.nodeType === 3 && /^\s+$/.test(sib.nodeValue)) {
+          gap = document.createTextNode(sib.nodeValue);
+        } else {
+          var prev = ref.previousSibling;
+          if (prev && prev.nodeType === 3 && /^\s+$/.test(prev.nodeValue)) {
+            gap = document.createTextNode(prev.nodeValue);
+          }
+        }
+        var at = ref.nextSibling;
+        if (gap) ref.parentNode.insertBefore(gap, at);
+        ref.parentNode.insertBefore(clone, gap ? gap.nextSibling : at);
         have[w.id] = a;
         hostFor[w.id] = clone;
       });
@@ -4548,7 +4571,20 @@
   // pass colours directly, since no template stylesheet is applied there.
   function resolveFooterColors(override) {
     var vars = CFG.footerVars || {};
-    var bgRaw = (override && override.bg) || cssVar(vars.bg, CFG.palette.bg);
+
+    /* The footer takes the site's theme colour — the ACCENT — on every
+       template. footerVars used to name the tone per template and the result
+       was split down the middle: five sat on the page ground and came out
+       white, five on a theme tone. The white ones read as a gap under the page
+       rather than the end of it.
+
+       Reading the role variable means a couple who has recoloured their site
+       gets their own accent here too. footerVars is kept as the fallback for a
+       template with no accent variable, and `override` still wins so a screen
+       that has no template stylesheet can pass colours in directly. */
+    var _accentVar = (TEMPLATE_COLOR_VARS[TID] || {}).accent;
+    var bgRaw = (override && override.bg) ||
+                cssVar(_accentVar, cssVar(vars.bg, CFG.palette.accent || CFG.palette.bg));
     var inkRaw = (override && override.ink) || cssVar(vars.ink, CFG.palette.ink);
 
     var bg = parseColor(bgRaw) || parseColor(CFG.palette.bg) || { r: 249, g: 247, b: 245 };
