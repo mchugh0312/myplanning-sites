@@ -3474,6 +3474,26 @@
     } catch (e) {}
     var shadow = heroHasImage ? '0 2px 18px rgba(0,0,0,0.55)' : 'none';
 
+    /* A selector that reaches THIS hero on every template. CFG.heroId is the
+       one the template declares; the class fallbacks cover the rest. */
+    var _stdHeroSel = (CFG.heroId ? '#' + CFG.heroId + ',' : '') + '.hero,.hero-section';
+
+    /* The phone layout letterboxes the photograph, so the bands above and
+       below it need a ground and an ink of their own. Take them from the
+       template's palette rather than the hero's, whose ink is picked to read
+       against a photograph and would vanish on a plain band. */
+    var bandBg = CFG.palette.bg;
+    var bandInk = CFG.palette.ink;
+    try {
+      var _pageBg = getComputedStyle(document.body).backgroundColor;
+      if (_pageBg && _pageBg !== 'rgba(0, 0, 0, 0)' && _pageBg !== 'transparent') bandBg = _pageBg;
+    } catch (e) {}
+
+    /* Roughly what the MyPlanning.ai footer occupies on a phone. The hero is
+       sized against it so the announcement fills the screen and the footer sits
+       under it without the page scrolling. */
+    var STD_FOOTER_PX = 96;
+
     var style = document.createElement('style');
     style.id = 'mp-std-css';
     style.textContent =
@@ -3492,10 +3512,47 @@
         'margin:16px 0 0}' +
       '.mp-std-top .mp-std-eyebrow + .mp-std-meta{margin-top:12px}' +
       '@media(max-width:640px){' +
-        '.mp-std-top{top:5%}.mp-std-bottom{bottom:5%}' +
         '.mp-std-eyebrow{font-size:0.86rem;letter-spacing:0.22em}' +
         '.mp-std-meta{font-size:0.76rem;letter-spacing:0.15em}' +
-        '.mp-std-note{font-size:0.78rem}}';
+        '.mp-std-note{font-size:0.78rem}' +
+
+        /* On a phone the announcement should be the screen: one column, the
+           photograph whole and centred, the type in the space left over.
+           Before this the hero kept its desktop framing — a fixed aspect ratio
+           and object-fit:cover — so the picture was cropped to a band across
+           the top and the page scrolled sideways to reach the rest of it.
+
+           The blocks come out of the absolute overlay and into normal flow, so
+           they sit in the empty bands above and below the picture rather than
+           on top of it. `order` puts the announcement first: both blocks are
+           appended after the image in the DOM. */
+        _stdHeroSel + '{position:relative!important;display:flex!important;' +
+          'flex-direction:column;align-items:center;justify-content:center;gap:14px;' +
+          /* svh, not vh: on iOS vh is the tallest the viewport ever gets, so
+             the browser chrome cut the bottom off. The vh line is the fallback
+             for anything that does not know svh. */
+          'min-height:calc(100vh - ' + STD_FOOTER_PX + 'px);' +
+          'min-height:calc(100svh - ' + STD_FOOTER_PX + 'px);' +
+          'height:auto!important;max-height:none!important;aspect-ratio:auto!important;' +
+          /* The letterboxing above and below the picture is the site's own
+             ground, not the browser's white. */
+          'background-color:' + bandBg + ';' +
+          'padding:20px 0;box-sizing:border-box;overflow:visible!important}' +
+
+        /* Whole, never cropped, and never taller than the space it has. */
+        _stdHeroSel + ' img{width:100%!important;height:auto!important;' +
+          'max-height:calc(100svh - ' + (STD_FOOTER_PX + 150) + 'px)!important;' +
+          'object-fit:contain!important;object-position:center!important;' +
+          'flex:0 1 auto;min-height:0;margin:0 auto!important;display:block}' +
+
+        '.mp-std-top,.mp-std-bottom{position:static!important;transform:none!important;' +
+          'left:auto;top:auto;bottom:auto;width:min(92%,680px);flex:0 0 auto;' +
+          /* On the plain band the hero's own ink — often white, chosen to read
+             against a photograph — would be invisible. Use the page ink. */
+          'color:' + bandInk + ';text-shadow:none}' +
+        '.mp-std-top{order:-1}' +
+        '.mp-std-names{font-size:clamp(1.8rem,8vw,2.6rem)}' +
+      '}';
     document.head.appendChild(style);
 
     try {
@@ -3552,6 +3609,14 @@
 
   function _stdDeoverlap(hero, blocks) {
     if (!hero || !hero.parentNode) return;
+    /* Phones do not need this and must not have it. The mobile rules already
+       put both blocks into the hero's flow, above and below the photograph, so
+       nothing overlaps by construction — and this would move them OUT of the
+       hero entirely, undoing the single-screen layout and reintroducing the
+       scroll. Desktop keeps the overlay, so it keeps the measuring. */
+    try {
+      if (window.matchMedia && window.matchMedia('(max-width:640px)').matches) return;
+    } catch (e) {}
     var own = _stdOwnTextRects(hero);
     if (!own.length) return;
     for (var i = 0; i < blocks.length; i++) {
@@ -4651,6 +4716,11 @@
     return urls;
   }
 
+  /* How long the page may stay covered waiting for photographs. A swapped
+     image is hidden for a while longer than this - see below - so that a slow
+     photograph shows the site's own ground rather than the stock one. */
+  var HERO_REVEAL_CEILING_MS = 2500;
+
   function revealWhenHeroReady() {
     var sources = _heroSources();
     if (!sources.length) { reveal(); return; }
@@ -4675,6 +4745,31 @@
       if (s.el && s.el.complete) continue;
       pending++;
       var one = onePer();
+
+      /* Setting a new src does NOT clear the old picture: the browser keeps
+         painting the previous image until the replacement decodes. So a
+         template's stock photograph stays on screen for the whole download,
+         and if the ceiling below fires first the page is uncovered with the
+         stock couple still showing. That is the "it loaded the template image
+         before mine" on Save the Date, where the hero IS the whole page.
+
+         Hide the element until its own pixels are ready and show it again
+         afterwards, independently of the page reveal. Worst case the frame is
+         empty for a moment and the site colour shows through, which is the
+         template's own ground — never somebody else's photograph. */
+      if (s.el && s.el.tagName === 'IMG') {
+        (function (img) {
+          var prev = img.style.visibility;
+          img.style.visibility = 'hidden';
+          var show = function () { img.style.visibility = prev || ''; };
+          img.addEventListener('load', show);
+          img.addEventListener('error', show);
+          if (img.decode) { try { img.decode().then(show, show); } catch (e) { show(); } }
+          /* Never leave it hidden on a stalled request. */
+          setTimeout(show, HERO_REVEAL_CEILING_MS + 4000);
+        })(s.el);
+      }
+
       var probe = s.el || new Image();
       probe.addEventListener('load', one);
       probe.addEventListener('error', one);
@@ -4686,7 +4781,7 @@
       if (probe.decode) { try { probe.decode().then(one, one); } catch (e) {} }
     }
     if (!pending) { finish(); return; }
-    setTimeout(finish, 2500);
+    setTimeout(finish, HERO_REVEAL_CEILING_MS);
   }
 
   /* True only while the preview is showing the template's OWN sample payload
