@@ -2175,12 +2175,15 @@
     heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold', accent3: '--gray' },
     blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--dark' },
-    /* accent is --sage, not --green-gray. The Weekend band - this design's
-       signature block - is painted in --sage, and --green-gray only draws
-       hairlines, hovers and rules. The roles were the wrong way round, so
-       "Main Color" moved the rules while the big band stayed put, and the
-       Save the Date band came out in the wrong green. */
-    sageandstill:        { bg: '--offwhite', accent: '--sage',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--green-gray', accent3: '--dark-green' },
+    /* accent is --green-gray, and --sage is the highlight.
+
+       Reverted. --sage does paint the Weekend band, so on the page it is the
+       larger of the two, and for a moment accent pointed at it. But every tone
+       derived from the accent inherits that choice, and on #a8a99b the Save the
+       Date motif stops reading: it is a pale mark and the sage is pale too. The
+       darker green-gray carries it. Worth knowing if this is ever revisited:
+       "Main Color" therefore moves the rules and hovers rather than the band. */
+    sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage', accent3: '--dark-green' },
     modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--black' },
     whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--yellow' },
     coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
