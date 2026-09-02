@@ -1825,15 +1825,39 @@
     if (_rsvpState.existingPlusOne) {
       var pEvents2 = [];
       document.querySelectorAll('#rsvpEventList .rsvp-plus-one-row').forEach(function (r) {
-        if (r.style.display === 'none') return;      // guest is not attending this one
+        /* MP-518. This used to skip every hidden row, which conflated two
+           different things.
+
+           A plus-one row is hidden when the primary's answer for that event
+           is not "yes" (see the display assignment in the attendance
+           handler). That covers both "the primary has not answered this one
+           yet" and "the primary said no". Skipping both meant a guest
+           re-submitting to add a single event sent only that event, and the
+           backend, which replaced rather than merged, collapsed the
+           plus-one's invitation to it.
+
+           The backend merges now, so silence correctly means "no change".
+           That makes the second case worse rather than better: a primary
+           switching an event from yes to no would send nothing for it and
+           the plus-one's old yes would survive the merge. So an explicit no
+           is now sent as a no, and only genuinely unanswered events are left
+           out. */
+        var ownBlock = r.closest ? r.closest('.rsvp-event-block') : null;
+        var ownAtt = ownBlock ? ownBlock.querySelector('[data-field="attending"]') : null;
+        var ownVal = ownAtt ? (ownAtt.value || '').trim() : '';
+        var hidden = r.style.display === 'none';
+        if (hidden && ownVal !== 'no') return;       // not answered yet, leave it alone
+
         var sel = r.querySelector('[data-p-field="entree"]');
         var att = r.querySelector('[data-p-field="attending"]');
         pEvents2.push({
           event_id: r.dataset.eventId || '',
           // Their own answer: a plus-one can come to the reception and skip
-          // the ceremony, so this is no longer always "yes".
-          attending: att ? ((att.value || '').trim() || 'yes') : 'yes',
-          entree: sel ? (sel.value || '').trim() : '',
+          // the ceremony, so this is no longer always "yes". A plus-one does
+          // not attend without the person who brought them, so a primary's
+          // no is theirs too.
+          attending: hidden ? 'no' : (att ? ((att.value || '').trim() || 'yes') : 'yes'),
+          entree: hidden ? '' : (sel ? (sel.value || '').trim() : ''),
         });
       });
       if (pEvents2.length) {
