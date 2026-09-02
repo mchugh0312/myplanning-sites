@@ -293,7 +293,7 @@ img{max-width:100%;display:block;}
     transparent 4px 11px
   );
 }
-.accom-title{
+.accom-col-title{
   font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--ink);margin-bottom:1.2rem;
 }
@@ -652,7 +652,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 
   /* Accommodations / travel stack */
   .accom-grid,.travel-grid{grid-template-columns:1fr;gap:1.8rem;}
-  .accom-title,.travel-title,.ntk-title,.registry-title,.rsvp-title{
+  .accom-col-title,.travel-title,.ntk-title,.registry-title,.rsvp-title{
     font-size:clamp(1.5rem,7.5vw,2.1rem);
   }
   .accom-detail,.travel-detail{font-size:0.88rem;}
@@ -876,13 +876,13 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
 <section class="accommodations-section" id="accommodations" style="display:none">
   <div class="accom-inner">
     <div class="accom-col" id="accomContent">
-      <div class="accom-title">Hotel</div>
+      <div class="accom-col-title">Hotel</div>
       <div class="accom-detail">Hyatt Regency La Jolla at Aventine<br><em>Request the room block</em></div>
       <a class="accom-btn" href="#">Book Now</a>
     </div>
     <div class="accom-divider"></div>
     <div class="accom-col" id="travelContent">
-      <div class="accom-title">Flights</div>
+      <div class="accom-col-title">Flights</div>
       <div class="accom-detail">San Diego National Airport<br><em>Approximately 30 minutes from the venue</em></div>
       <a class="accom-btn" href="#">Book Now</a>
     </div>
@@ -1314,9 +1314,7 @@ function hydrateTemplate(d) {
       var rest=d.accommodation_info;
       var _acUrl=_mpBookUrl(d.accommodation_info, d.accommodation_url);
       acContent.innerHTML=
-        '<div class="accom-title">'+acName+'</div>'+
-        ''+
-        (rest?'<div class="accom-detail">'+rest+'</div>':'')+
+        _mpColBlock(d.accommodation_info)+
         // The design always shows the button; inert without a URL.
         '<a class="accom-btn" href="'+(_acUrl||'#')+'"'+(_acUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
     }
@@ -1328,9 +1326,7 @@ function hydrateTemplate(d) {
     if(trContent){
       var _trUrl=_mpBookUrl(d.travel_info, d.travel_url);
       trContent.innerHTML=
-        '<div class="accom-title">Flights</div>'+
-        ''+
-        '<div class="accom-detail">'+d.travel_info+'</div>'+
+        _mpColBlock(d.travel_info)+
         '<a class="accom-btn" href="'+(_trUrl||'#')+'"'+(_trUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
     }
   }
@@ -1502,6 +1498,19 @@ const SAMPLE_DATA={
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* The column title is the FIRST LINE of what the couple wrote, exactly as the
+   event lists work. It used to be the hardcoded words "Hotel" and "Flights",
+   so those two headings were the only text on the page a couple could not
+   change: the Content tab gave them a body box and nothing else. */
+function _mpColBlock(html, detailClass) {
+  var s = String(html || '');
+  var m = _mpTitle(s);
+  var title = m ? m[1] : '';
+  var rest = (m ? s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '') : s).trim();
+  return (title ? '<div class="accom-col-title">' + title + '</div>' : '') +
+         (rest ? '<div class="' + (detailClass || 'accom-detail') + '">' + rest + '</div>' : '');
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

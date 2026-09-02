@@ -931,8 +931,9 @@ function hydrateTemplate(d){
     if(acContent){
       // The label is fixed by the design. A <strong> in the couple's copy is
       // the venue NAME, so it stays in the body instead of replacing "Hotel".
-      var acName='Hotel';
-      var rest=d.accommodation_info;
+      var _ac=_mpColParts(d.accommodation_info,'Hotel');
+      var acName=_ac.title;
+      var rest=_ac.rest;
       // Dedicated field first (Accomodation URL / MXzO9); a link pasted into
       // the copy still works for couples who did it that way.
       var acUrl=d.accommodation_url||_extractUrl(d.accommodation_info);
@@ -961,7 +962,7 @@ function hydrateTemplate(d){
       var tName=airportMatch?airportMatch[0].trim():'Airport';
       var tNote=tText.replace(tName,'').replace(/^[.,\s]+/,'').trim();
       trContent.innerHTML=
-        '<div class="split-label">Flights</div>'+
+        '<div class="split-label">'+_mpColParts(d.travel_info,'Flights').title+'</div>'+
         '<div class="split-rule"></div>'+
         '<div class="split-name">'+tName+'</div>'+
         (tNote?'<div class="split-note">'+tNote+'</div>':'')+
@@ -1105,6 +1106,20 @@ const SAMPLE_DATA={
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* Pull the couple's own title off the first line of a block, when there is one.
+   Returns { title, rest }: title is '' when they have not written one, so the
+   caller keeps the design's own word. The two column headings used to be fixed
+   strings, which made them the only text on the page a couple could not edit. */
+function _mpColParts(html, fallback) {
+  var s = String(html || '');
+  var m = _mpTitle(s);
+  if (!m) return { title: fallback || '', rest: s };
+  return {
+    title: m[1],
+    rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
+  };
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

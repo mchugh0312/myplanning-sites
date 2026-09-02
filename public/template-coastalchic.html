@@ -1597,7 +1597,8 @@ function hydrateTemplate(d){
           var _names = (d.couple_names || '').trim();
           if (_names) hotelHtml += '<br><em>*Request the ' + _names + ' room block</em>';
         }
-        parts.push(_renderRichTravel(hotelHtml, 'Hotel'));
+        var _h = _mpColParts(hotelHtml, 'Hotel');
+        parts.push(_renderRichTravel(_h.rest, _h.title));
       }
       // Keep the template's placeholder blocks when the couple hasn't written
       // anything — an empty Travel Info section looks broken.
@@ -1964,6 +1965,20 @@ document.addEventListener('click', function(e){
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* Pull the couple's own title off the first line of a block, when there is one.
+   Returns { title, rest }: title is '' when they have not written one, so the
+   caller keeps the design's own word. The two column headings used to be fixed
+   strings, which made them the only text on the page a couple could not edit. */
+function _mpColParts(html, fallback) {
+  var s = String(html || '');
+  var m = _mpTitle(s);
+  if (!m) return { title: fallback || '', rest: s };
+  return {
+    title: m[1],
+    rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
+  };
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

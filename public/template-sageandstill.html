@@ -1609,11 +1609,13 @@ function hydrateTemplate(d) {
         accomInner.style.gridTemplateColumns = '1fr 1fr';
 
         if (hotelHtml) {
-          var hotelCard = renderAccomCard('Hotel', hotelHtml, d.accommodation_url);
+          var _h = _mpColParts(hotelHtml, 'Hotel');
+          var hotelCard = renderAccomCard(_h.title, _h.rest, d.accommodation_url);
           accomInner.appendChild(hotelCard);
         }
         if (flightHtml) {
-          var flightCard = renderAccomCard('Flights', flightHtml, d.travel_url);
+          var _f = _mpColParts(flightHtml, 'Flights');
+          var flightCard = renderAccomCard(_f.title, _f.rest, d.travel_url);
           accomInner.appendChild(flightCard);
         } else if (hotelHtml) {
           // Only one card — let it span and centre
@@ -1930,6 +1932,20 @@ document.addEventListener('click', function(e) {
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* Pull the couple's own title off the first line of a block, when there is one.
+   Returns { title, rest }: title is '' when they have not written one, so the
+   caller keeps the design's own word. The two column headings used to be fixed
+   strings, which made them the only text on the page a couple could not edit. */
+function _mpColParts(html, fallback) {
+  var s = String(html || '');
+  var m = _mpTitle(s);
+  if (!m) return { title: fallback || '', rest: s };
+  return {
+    title: m[1],
+    rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
+  };
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);
