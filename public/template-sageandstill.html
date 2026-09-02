@@ -1913,10 +1913,59 @@ document.addEventListener('click', function(e) {
    Returns a match array with the same shape the inline regex had - m[0] is the
    whole marker, which callers strip with replace(m[0], ''), and m[1] is the
    text - so each call site changed by one line and nothing around it moved. */
+/* The title of a block: its first line, when that whole line is emphasised.
+   Returns [wholeLine, innerHtml] so callers can strip m[0] and render m[1].
+
+   This used to require the line to BEGIN with <strong>, <b> or <mp-title>.
+   Any wrapper defeated it, and the editor produces wrappers constantly:
+   execCommand('fontName') on a fully selected line yields
+   <span style="font-family:X"><strong>Flights</strong></span>, which did not
+   match, so the title silently became body text and the heading vanished.
+   That is the same fault as MP-332 and MP-337, which were about an attire line
+   losing its styling for exactly this reason.
+
+   So: find the first line, and accept it as a title when all of its text sits
+   inside a marker. Only the marker tags are unwrapped - a font, an italic or a
+   colour the couple applied is carried through into the heading, which is what
+   makes their formatting show on the site. A line with text OUTSIDE the marker
+   ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
+   left alone. */
 function _mpTitle(html) {
   var s = String(html);
-  return s.match(/^\s*<mp-title>([\s\S]*?)<\/mp-title>/i) ||
-         s.match(/^\s*<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>/i);
+  var br = s.search(/<br\s*\/?>/i);
+  var line = br === -1 ? s : s.slice(0, br);
+  var text = function (h) {
+    return String(h).replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim();
+  };
+  if (!text(line)) return null;
+  if (!/<(?:mp-title|strong|b)\b/i.test(line)) return null;
+  /* Anything left once the marked runs are removed is text the marker does not
+     cover, so this line is prose rather than a heading. */
+  var outside = line.replace(/<(mp-title|strong|b)\b[^>]*>[\s\S]*?<\/\1>/gi, '');
+  if (text(outside)) return null;
+  /* Unwrap only the OUTERMOST marker and its matching close, so emphasis
+     INSIDE the title survives - "The <strong>Ceremony</strong>" keeps its
+     partial bold. Stripping every marker tag flattened that. */
+  var open = /<(mp-title|strong|b)\b[^>]*>/i.exec(line);
+  var inner = line;
+  if (open) {
+    var name = open[1].toLowerCase();
+    var re = new RegExp('<' + name + '\\b[^>]*>|<\\/' + name + '\\s*>', 'gi');
+    re.lastIndex = open.index;
+    var depth = 0, closeAt = -1, closeLen = 0, m;
+    while ((m = re.exec(line))) {
+      if (m[0].charAt(1) === '/') {
+        depth--;
+        if (depth === 0) { closeAt = m.index; closeLen = m[0].length; break; }
+      } else depth++;
+    }
+    if (closeAt !== -1) {
+      inner = line.slice(0, open.index) +
+              line.slice(open.index + open[0].length, closeAt) +
+              line.slice(closeAt + closeLen);
+    }
+  }
+  return [line, inner];
 }
 
 window.hydrateTemplate = hydrateTemplate;
