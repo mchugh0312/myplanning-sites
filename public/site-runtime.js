@@ -2098,6 +2098,27 @@
       var notYouEl = document.getElementById('mpNotYou');
       if (notYouEl && notYouEl.parentNode) notYouEl.parentNode.removeChild(notYouEl);
 
+      /* MP-517. Order matters here, and it used to be wrong.
+
+         The old sequence revealed the thank-you, started a smooth
+         scrollIntoView toward it, and only then hid the submit button and the
+         answers block. Hiding the answers removes most of the page from
+         layout, so everything below it shifts up by hundreds of pixels while
+         the scroll is still animating toward coordinates that no longer
+         exist. That is the flicker, and it is why the page settles above the
+         confirmation with the guest left to scroll down and find it.
+
+         So: collapse first, reveal second, measure and scroll last, on the
+         next frame so the browser has recomputed layout before anything is
+         measured.
+
+         Not scrollIntoView, for the reason given on scrollToSection below:
+         inside a frame it walks every scrollable ancestor and moves the wrong
+         one. The rest of this file scrolls by hand and so does this now. */
+      btn.style.display = 'none';
+      var answers = rsvpEl('rsvpAnswers');
+      if (answers) answers.style.display = 'none';
+
       var successEl = document.getElementById('rsvpSuccess');
       if (successEl) {
         if (total > 1) {
@@ -2111,11 +2132,21 @@
           else successEl.textContent = text;
         }
         successEl.style.display = 'block';
-        try { successEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            try {
+              var box = successEl.getBoundingClientRect();
+              var top = box.top + (window.pageYOffset || document.documentElement.scrollTop || 0);
+              /* Sits a little below the top of the viewport rather than
+                 centered: the thank-you is the last thing on the page now, so
+                 centering it can leave a screen of blank space beneath. */
+              window.scrollTo({ top: Math.max(0, top - 80), behavior: 'smooth' });
+            } catch (e) {
+              try { successEl.scrollIntoView(); } catch (e2) {}
+            }
+          });
+        });
       }
-      btn.style.display = 'none';
-      var answers = rsvpEl('rsvpAnswers');
-      if (answers) answers.style.display = 'none';
     }).catch(function (err) {
       rsvpNotice('Sorry, ' + (err && err.message ? err.message : 'something went wrong submitting your RSVP. Please try again.'));
       btn.disabled = false;
