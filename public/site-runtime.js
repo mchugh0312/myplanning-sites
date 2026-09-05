@@ -4149,7 +4149,15 @@
   }
 
   function buildMobileNav() {
-    if (document.querySelector('.mp-mnav-btn')) return;
+    /* Built once, then REFRESHED on every later hydrate.
+       It used to return here whenever the drawer already existed, so the
+       drawer kept whatever link set the first hydrate saw. In the editor the
+       page never reloads: clearing a section's content switches its toggle off
+       on save, the template rebuilds its own menu correctly, and the drawer
+       went on offering links to sections that were no longer there. The live
+       site looked right only because it loads once, after the toggles are
+       already settled. */
+    var _panel = document.querySelector('.mp-mnav-panel');
 
     // Collect the links the template rendered, before anything is hidden.
     var links = [];
@@ -4166,6 +4174,24 @@
       });
     } catch (e) { return; }
     if (!links.length) return;
+
+    /* Already there: replace its links and stop. Rebuilding the whole drawer
+       would drop the open/closed state and re-run the stylesheet on every
+       keystroke. */
+    if (_panel) {
+      var _cur = Array.prototype.slice.call(_panel.querySelectorAll('a'))
+        .map(function (a) { return (a.getAttribute('href') || '') + '|' + (a.textContent || '').trim(); })
+        .join(',');
+      var _next = links.map(function (l) { return l.href + '|' + l.label; }).join(',');
+      if (_cur !== _next) {
+        /* Same markup the panel was built with. Closing on a tap is delegated
+           on the panel itself, so replacing the anchors keeps that working. */
+        _panel.innerHTML = links.map(function (l) {
+          return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>';
+        }).join('');
+      }
+      return;
+    }
 
     // A template can declare its own drawer colours; otherwise the page palette
     // is used.
@@ -4195,10 +4221,19 @@
         '.mp-mnav-panel{display:block;position:fixed;top:0;right:0;bottom:0;z-index:9998;' +
           'width:min(78vw,300px);background:' + dp.bg + ';color:' + dp.ink + ';' +
           'transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);' +
-          'padding:76px 26px 30px;overflow-y:auto;box-shadow:-12px 0 34px rgba(0,0,0,0.18)}' +
+          /* 76px of top padding was reserving room for a close button that
+             sits in the drawer's own corner, and it left an empty band above
+             the first link that read as a gap rather than as spacing. The
+             button is 44px at top:14px, so 68px clears it with room to spare
+             and the list starts where the eye expects it. */
+          'padding:68px 26px 30px;overflow-y:auto;box-shadow:-12px 0 34px rgba(0,0,0,0.18)}' +
         '.mp-mnav-panel.open{transform:translateX(0)}' +
+        /* 0.94rem set against the page's own root size came out noticeably
+           smaller than the designs, which read closer to a normal body line.
+           The uppercase and the wide tracking make a given size look smaller
+           again, so this is sized up and the tracking eased slightly. */
         '.mp-mnav-panel a{display:block;padding:15px 0;text-decoration:none;color:' + dp.ink + ';' +
-          'font-size:0.94rem;letter-spacing:0.13em;text-transform:uppercase;' +
+          'font-size:1.06rem;letter-spacing:0.1em;text-transform:uppercase;' +
           'border-bottom:1px solid ' + dp.rule + '}' +
         '.mp-mnav-panel a:last-child{border-bottom:none}' +
         'body.mp-mnav-open{overflow:hidden}' +

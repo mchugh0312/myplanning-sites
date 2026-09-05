@@ -435,6 +435,13 @@ body:has(.mp-std-bottom) .hero{
    DO draw dots, but nothing in this template carries that class — they are dead
    CSS from an earlier `.accom-split` layout and were never what rendered here.
    Kept at this section's own 6% inset rather than the events section's 8%. */
+/* Only when there are two columns to divide. The rule is drawn by the WRAPPER,
+   so hiding either section left it running down the middle of the one that
+   remained: clear the Hotel card and a hairline appeared through the middle of
+   Flights. hydrate puts the class on, because it is the only place that knows
+   how many columns are actually showing. */
+.accom-pair.mp-one-col::before,
+.accom-pair.mp-one-col::after{display:none;}
 .accom-pair::before{
   content:'';position:absolute;left:50%;top:6%;bottom:6%;
   width:1px;transform:translateX(-50%);
@@ -1767,6 +1774,22 @@ function hydrateTemplate(d) {
   // Its own band now, so it stands or falls on its own toggle rather than
   // sharing the accommodations one.
   if (_travelSec) _travelSec.style.display = menu.travel ? '' : 'none';
+
+  /* One column or two. The dividing rule belongs to the wrapper, so it has to
+     be told when only one side is showing. Counts what is actually visible
+     rather than the toggles, since a section with no content is hidden here
+     too. */
+  var _pair = document.querySelector('.accom-pair');
+  if (_pair) {
+    var _shown = 0;
+    ['accommodations', 'travel-section'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.style.display !== 'none') _shown++;
+    });
+    _pair.classList.toggle('mp-one-col', _shown < 2);
+    /* Neither showing: the band would be an empty olive stripe. */
+    _pair.style.display = _shown ? '' : 'none';
+  }
 
   var _accomSec = document.getElementById('accommodations');
   if (_accomSec) _accomSec.style.display = menu.accommodations ? '' : 'none';
