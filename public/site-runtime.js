@@ -4220,6 +4220,99 @@
     }
   }
 
+  /* ── Names that fit the box they are in (MP-302, MP-312, MP-313) ──────────
+
+     Every template sizes its couple names with clamp(min, Nvw, max) and nothing
+     else. Two things follow from that, and they are the three tickets:
+
+     1. The clamp has a FLOOR. Pressed Petals never goes below 4.5rem, Sage &
+        Still never below 2.4rem. A long name - "Monika1 & Manish" - cannot get
+        small enough to fit a phone, so it is cut off or spills out. No amount of
+        container work fixes a font that refuses to shrink.
+
+     2. vw is the IFRAME's width, not the device's. The template card, the Live
+        Preview and the real site are three different viewport widths showing
+        the same page, so the same name is sized three different ways and only
+        one of them is what the couple will actually get.
+
+     Measuring the rendered text and shrinking it to fit answers both: the box
+     decides, not the viewport, so all three agree because all three measure.
+
+     The loop is kept apart from the DOM work so it can be tested without a
+     layout engine. */
+  function _shrinkToFit(startPx, minPx, overflows) {
+    var size = startPx;
+    /* 6% a step: small enough not to overshoot into needlessly tiny type,
+       large enough to converge in a handful of passes. The guard is a
+       backstop - a measurer that always reports overflow would otherwise spin. */
+    for (var i = 0; i < 40 && size > minPx && overflows(size); i++) {
+      size = size * 0.94;
+    }
+    return Math.max(size, minPx);
+  }
+
+  /* Does the text spill out of the space it has? Width first, then the parent's
+     box - an inline element reports clientWidth 0, so its own scrollWidth says
+     nothing and only the comparison with the parent does. */
+  function _textOverflows(el) {
+    try {
+      if (el.scrollWidth > el.clientWidth + 1) return true;
+      var p = el.parentElement;
+      if (!p) return false;
+      var r = el.getBoundingClientRect(), pr = p.getBoundingClientRect();
+      if (!pr.width) return false;
+      return r.width > pr.width + 1 || r.right > pr.right + 1 || r.left < pr.left - 1;
+    } catch (e) { return false; }
+  }
+
+  function fitHeroNames() {
+    try {
+      var ids = [CFG.heroNamesId, 'heroCoupleNames', 'heroNames', 'heroInitialsWrap'];
+      var seen = [];
+      for (var i = 0; i < ids.length; i++) {
+        if (!ids[i]) continue;
+        var el = document.getElementById(ids[i]);
+        if (el && seen.indexOf(el) === -1) seen.push(el);
+      }
+      seen.forEach(function (el) {
+        /* Cleared first, so a window growing back gets the design's own size
+           again rather than staying at whatever the narrowest pass chose. */
+        el.style.fontSize = '';
+        var start = parseFloat(getComputedStyle(el).fontSize) || 0;
+        if (!start) return;
+        /* A floor of its own, well below the design's, so a very long name gets
+           small rather than clipped - but never becomes unreadable. */
+        var min = Math.max(14, start * 0.42);
+        var fitted = _shrinkToFit(start, min, function (px) {
+          el.style.fontSize = px + 'px';
+          return _textOverflows(el);
+        });
+        if (fitted >= start - 0.5) el.style.fontSize = '';   // it always fitted
+        else el.style.fontSize = fitted + 'px';
+      });
+    } catch (e) {}
+  }
+
+  /* Re-measured when the width changes and once the webfonts have arrived -
+     a name measured in the fallback face is measured against the wrong
+     metrics, and the real face is usually wider. */
+  var _fitPending = null;
+  function scheduleFitHeroNames() {
+    if (_fitPending) clearTimeout(_fitPending);
+    _fitPending = setTimeout(fitHeroNames, 60);
+  }
+
+  function watchHeroNames() {
+    if (window.__mpFitWatching) return;
+    window.__mpFitWatching = 1;
+    try { window.addEventListener('resize', scheduleFitHeroNames); } catch (e) {}
+    try {
+      if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(scheduleFitHeroNames, function () {});
+      }
+    } catch (e) {}
+  }
+
   function buildMobileNav() {
     /* Built once, then REFRESHED on every later hydrate.
        It used to return here whenever the drawer already existed, so the
@@ -5374,6 +5467,12 @@
     /* Before buildMobileNav, which copies the template's menu into the drawer:
        relabel the links to match the section headings and add one for any
        visible section that has none. */
+    /* After the names are on the page and before the reveal, so the first
+       thing seen is already the right size rather than a large name snapping
+       smaller. */
+    fitHeroNames();
+    watchHeroNames();
+
     syncMenuLinks();
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
 
