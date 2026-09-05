@@ -3872,7 +3872,14 @@
       var hasCopy = !!(info.textContent || '').trim();
       var title = document.getElementById('registryCta') ||
                   document.querySelector('.registry-title, .registry-cta');
-      if (title) {
+      /* A heading the couple has deliberately cleared stays cleared. MP-498.
+         _blankHeading hides it, but this runs LAST in hydrate and used to set
+         display unconditionally - so it handed "See Our Registry" straight back
+         every time. It was the only heading still doing this because it is the
+         only one that is also a call to action, and so the only one this
+         function touches. */
+      var _blanked = !!_blankedNodes.registry;
+      if (title && !_blanked) {
         /* Block whenever there is copy; back to the design's own inline
            display when there is not, so clearing the text also undoes the
            layout change rather than leaving a stranded block heading. */

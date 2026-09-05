@@ -1598,15 +1598,26 @@ function hydrateTravelInfo(d, menu) {
     return;
   }
 
-  // Build the grid — both columns, with divider, even if one is empty
-  var leftHtml = '<div class="travel-col">' +
-    '<h3 class="travel-col-title">Airports</h3>' +
-    (airportsHtml || '<div class="travel-item" style="color:#999;font-style:italic">No airport info provided.</div>') +
-  '</div>';
-  var rightHtml = '<div class="travel-col">' +
-    '<h3 class="travel-col-title">Hotels</h3>' +
-    (hotelsHtml || '<div class="travel-item" style="color:#999;font-style:italic">No hotel info provided.</div>') +
-  '</div>';
+  /* A column only exists when there is something to put in it, and the rule
+     between them only when there are two.
+
+     It used to build both regardless and fill an empty one with "No airport
+     info provided." - text nobody wrote, on a couple's own wedding site, in
+     the same way MP-457's invented attire line was. And the divider went in
+     unconditionally, so clearing one side left a rule down the middle of the
+     other. */
+  var leftHtml = airportsHtml
+    ? '<div class="travel-col">' +
+        '<h3 class="travel-col-title">Airports</h3>' + airportsHtml +
+      '</div>'
+    : '';
+  var rightHtml = hotelsHtml
+    ? '<div class="travel-col">' +
+        '<h3 class="travel-col-title">Hotels</h3>' + hotelsHtml +
+      '</div>'
+    : '';
+  var dividerHtml = (leftHtml && rightHtml)
+    ? '<div class="travel-divider"></div>' : '';
 
   // Keep the template's fuller sample when the couple's data is thinner — a
   // one-airport, one-hotel record was replacing the two-and-two sample and
@@ -1614,7 +1625,7 @@ function hydrateTravelInfo(d, menu) {
   var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
   var _newItems = airportItems.length + hotelItems.length;
   if (_newItems >= _phItems || _phItems === 0) {
-    grid.innerHTML = leftHtml + '<div class="travel-divider"></div>' + rightHtml;
+    grid.innerHTML = leftHtml + dividerHtml + rightHtml;
   } else {
     window.MP_SHOWING_PLACEHOLDERS = true;
   }

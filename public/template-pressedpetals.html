@@ -120,8 +120,12 @@ body.hydrating{visibility:hidden;}
   width:min(46%,470px);background:var(--offwhite);
   transform:translateX(100%);
   transition:transform 0.45s cubic-bezier(0.77,0,0.175,1);
-  display:flex;flex-direction:column;justify-content:center;
-  padding:3rem;box-shadow:-8px 0 40px rgba(0,0,0,0.14);
+  /* The list starts near the top rather than floating in the middle of the
+     panel. justify-content:center reads fine with ten links, but a couple who
+     switches most sections off is left with four or five sitting halfway down
+     under a large empty band. The top padding clears the close button. */
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding:5.5rem 3rem 3rem;box-shadow:-8px 0 40px rgba(0,0,0,0.14);
   pointer-events:auto;position:relative;
 }
 .menu-overlay.open .menu-drawer{transform:translateX(0)}
@@ -140,10 +144,12 @@ body.hydrating{visibility:hidden;}
 /* FIX 8: Links underline on hover/active, no bullet */
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
-  font-family:var(--serif);font-size:1rem;
+  /* 1rem sat noticeably smaller than the rest of the page. The drawer is a
+     primary navigation, not a caption. */
+  font-family:var(--serif);font-size:1.18rem;
   color:var(--ink);text-decoration:none;
   letter-spacing:0.04em;display:block;
-  padding:0.7rem 0;
+  padding:0.85rem 0;
   border-bottom:1px solid rgba(141,136,99,0.18);
   transition:text-decoration 0.1s, color 0.2s;
   text-underline-offset:4px;
