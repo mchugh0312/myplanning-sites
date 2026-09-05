@@ -3879,6 +3879,42 @@
          only one that is also a call to action, and so the only one this
          function touches. */
       var _blanked = !!_blankedNodes.registry;
+
+      /* With the heading cleared, the section's only clickable thing has gone
+         with it - the heading IS the call to action on most templates. Rather
+         than leave a registry a guest cannot open, make the copy itself the
+         link: the couple keeps the wording they wrote, and the whole paragraph
+         becomes clickable.
+
+         A real anchor, not a click handler, so it is reachable by keyboard,
+         opens in a new tab like the heading did, and shows its destination on
+         hover. The marker class keeps a re-hydrate from nesting a second one. */
+      if (_blanked && hasCopy && _registryUrl && !info.querySelector('.mp-registry-body-cta')) {
+        try {
+          var wrap = document.createElement('a');
+          wrap.className = 'mp-registry-body-cta';
+          wrap.setAttribute('href', _registryUrl);
+          wrap.setAttribute('target', '_blank');
+          wrap.setAttribute('rel', 'noopener');
+          /* Inherit everything: this must not change how the copy looks, only
+             what happens when it is clicked. */
+          wrap.style.cssText = 'display:block;color:inherit;font:inherit;' +
+            'text-decoration:none;cursor:pointer';
+          while (info.firstChild) wrap.appendChild(info.firstChild);
+          info.appendChild(wrap);
+        } catch (e) {}
+      } else if (!_blanked) {
+        /* Heading back: unwrap, so the copy is not left clickable on top of a
+           heading that is already the call to action. */
+        try {
+          var made = info.querySelector('.mp-registry-body-cta');
+          if (made) {
+            while (made.firstChild) info.insertBefore(made.firstChild, made);
+            info.removeChild(made);
+          }
+        } catch (e) {}
+      }
+
       if (title && !_blanked) {
         /* Block whenever there is copy; back to the design's own inline
            display when there is not, so clearing the text also undoes the
@@ -3910,12 +3946,19 @@
     } catch (e) {}
   }
 
+  /* The registry address, set by wireRegistryLinks and read by
+     layOutRegistry a few steps later. */
+  var _registryUrl = '';
+
   function wireRegistryLinks(d) {
     // The editor preview receives a real slug in its payload, but navigating
     // the preview iframe to the live registry isn't what a couple expects from
     // a click in the editor — keep the button inert there.
     var slug = _isPreview ? '' : (window._weddingSlug || _liveSlug || '');
     var url = slug ? '/' + encodeURIComponent(slug) + '/registry' : '';
+    /* Kept for layOutRegistry, which runs after this and is the only place
+       that knows whether the heading ended up blanked. */
+    _registryUrl = url;
 
     var nodes = [];
     try { nodes = Array.prototype.slice.call(document.querySelectorAll(REGISTRY_LINK_SELECTORS)); }
