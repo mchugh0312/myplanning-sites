@@ -4313,6 +4313,39 @@
     } catch (e) {}
   }
 
+  /* ── A section the couple emptied goes, chrome and all ────────────────────
+
+     Templates set these two sections from the menu toggle alone, so clearing
+     the copy left the section standing with nothing in it. On Golden Hour those
+     are split cards with a rule and a border, so the page showed a pair of
+     empty framed boxes; on others it is a heading over blank space.
+
+     Done here rather than in each template: six of the ten had the same
+     toggle-only line, and one rule beats six that can drift apart.
+
+     Only ever HIDES. A section the template chose to hide for its own reasons
+     stays hidden, and nothing here can put one back. */
+  function hideEmptyOptionalSections(d) {
+    var FIELDS = {
+      accommodations: 'accommodation_info',
+      travel: 'travel_info'
+    };
+    Object.keys(FIELDS).forEach(function (key) {
+      var v = d[FIELDS[key]];
+      /* undefined or null means the field was never set, and the template's own
+         sample copy is on screen - that is the placeholder behaviour every
+         section here relies on, and it must not be hidden. Empty means they
+         emptied it. */
+      if (v === undefined || v === null) return;
+      if (String(v).replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim()) return;
+      var ids = SECTION_ANCHORS[key] || [];
+      for (var i = 0; i < ids.length; i++) {
+        var el = document.getElementById(ids[i]);
+        if (el) el.style.display = 'none';
+      }
+    });
+  }
+
   function buildMobileNav() {
     /* Built once, then REFRESHED on every later hydrate.
        It used to return here whenever the drawer already existed, so the
@@ -5470,6 +5503,8 @@
     /* After the names are on the page and before the reveal, so the first
        thing seen is already the right size rather than a large name snapping
        smaller. */
+    hideEmptyOptionalSections(d);
+
     fitHeroNames();
     watchHeroNames();
 
