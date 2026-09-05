@@ -3245,18 +3245,40 @@
   }
 
   function loadGoogleFonts(names) {
-    var id = 'mp-role-fonts';
-    var link = document.getElementById(id);
-    if (!link) {
-      link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    link.href = 'https://fonts.googleapis.com/css2?' +
-      names.map(function (n) {
-        return 'family=' + encodeURIComponent(n).replace(/%20/g, '+') + ':wght@300;400;500;600;700';
-      }).join('&') + '&display=swap';
+    /* One family per request, and no :wght@ list.
+
+       This asked for 300;400;500;600;700 for every family in a single
+       stylesheet. css2 answers 400 for a weight a family does not have, and a
+       400 fails the WHOLE request - so one single-weight face took down every
+       other font with it. Pinyon Script, Great Vibes, Ballet and La Belle
+       Aurore all ship one weight, so any template using one of them lost its
+       headings AND its body copy to fallback faces. That is the "Flights in the
+       wrong font" in the preview: the box was right, the page had no Pinyon
+       Script to render with.
+
+       loadContentFonts already worked this out and says so in its own comment;
+       the role fonts never got the same treatment. Bold is synthesised, which
+       is what was happening anyway whenever the request failed. */
+    var wanted = names.map(function (n) {
+      return 'https://fonts.googleapis.com/css2?family=' +
+        encodeURIComponent(n).replace(/%20/g, '+') + '&display=swap';
+    });
+    /* Reuse the elements already on the page rather than replacing them, so
+       hydrate running on every keystroke does not re-request the same faces. */
+    var have = {};
+    Array.prototype.slice.call(document.querySelectorAll('link[data-mp-role-font]'))
+      .forEach(function (el) {
+        if (wanted.indexOf(el.href) === -1) { el.parentNode.removeChild(el); return; }
+        have[el.href] = 1;
+      });
+    wanted.forEach(function (href) {
+      if (have[href]) return;
+      var el = document.createElement('link');
+      el.rel = 'stylesheet';
+      el.setAttribute('data-mp-role-font', '1');
+      el.href = href;
+      document.head.appendChild(el);
+    });
   }
 
   /* ── Fonts the couple applied to CONTENT (MP-332) ───────────────────────────
