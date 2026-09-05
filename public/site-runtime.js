@@ -5285,7 +5285,12 @@
 
     // 7. Registry links, then the MyPlanning.ai footer.
     wireRegistryLinks(d);
-    hydrateThingsToDo(d);
+    /* Not in Save the Date. This sets its own section's display from the menu
+       toggle, and it runs AFTER the announcement has hidden everything - so on
+       a Save the Date page it put Things to Do back on screen underneath the
+       announcement (MP-561). Anything below that reads a menu toggle and shows
+       a section has to be skipped in this mode for the same reason. */
+    if (_isPreview || !isSaveTheDate(d)) hydrateThingsToDo(d);
     hydrateRegistryPreview(d);
     renderBrandFooter();
 
