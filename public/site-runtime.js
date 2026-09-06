@@ -4759,11 +4759,15 @@
        live and so are skipped in the editor, but the template ships sample tiles
        in its markup: bailing out first left those on screen, so the toggle did
        nothing in the preview and the couple saw gifts they had just turned off. */
+    var tiles = grid.querySelectorAll('.registry-card');
     if (d && d.registry_preview === false) {
-      var off = grid.querySelectorAll('.registry-card');
-      for (var k = 0; k < off.length; k++) off[k].style.display = 'none';
+      for (var k = 0; k < tiles.length; k++) tiles[k].style.display = 'none';
       return;
     }
+    /* Put them back. Switching the toggle off set display:none inline and
+       nothing ever cleared it, so switching it on again did nothing at all -
+       the couple turned the preview on and the section stayed empty. */
+    for (var u = 0; u < tiles.length; u++) tiles[u].style.display = '';
 
     if (_isPreview) return;
     var slug = window._weddingSlug || _liveSlug || '';
