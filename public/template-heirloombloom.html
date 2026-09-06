@@ -377,10 +377,7 @@ img{max-width:100%;display:block;}
 
 /* ── GALLERY — berry bg ────────────────────────────────────────── */
 .gallery-section{background:var(--offwhite);padding:4rem 2rem;}
-/* Gallery takes the Need to Knows band's treatment - which here is the
-   LIGHT one, so the type comes back off --on-dark to the page ink. */
-.gallery-section .gallery-title{color:var(--ink);}
-.gallery-section .gallery-rule{background:rgba(103,61,69,0.45);}
+
 .gallery-title{
   font-family:var(--script);font-size:clamp(1.9rem,3.6vw,2.6rem);
   color:var(--on-dark);text-align:center;margin-bottom:0.5rem;
@@ -777,6 +774,12 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
 #things-to-do.mp-ttd-alt{background:var(--offwhite);}
 #things-to-do.mp-ttd-alt .ntk-title,
 #things-to-do.mp-ttd-alt .ntk-answer{color:var(--ink);}
+/* Gallery sits on the FAQ band now, so its heading has to move with it.
+   At the END of the stylesheet on purpose: the base rule for this class sets
+   colour too, and above it the base won and the heading was invisible against
+   its own band. */
+.gallery-section .gallery-title{color:var(--ink);}
+.gallery-section .gallery-rule{background:rgba(103,61,69,0.45);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

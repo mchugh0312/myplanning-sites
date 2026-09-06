@@ -4736,17 +4736,24 @@
   ========================================================================== */
   function hydrateRegistryPreview(d) {
     var grid = document.getElementById('registryGrid');
-    if (!grid || _isPreview) return;
+    if (!grid) return;
 
     /* The couple asked for a link only. Take the sample tiles down and leave the
        section as its heading, their words and the button - the same shape a
        couple with no gifts gets. Undefined means the choice was never made,
-       which is everyone created before the setting existed, so the gifts show. */
+       which is everyone created before the setting existed, so the gifts show.
+
+       BEFORE the _isPreview return, not after. The gifts themselves are fetched
+       live and so are skipped in the editor, but the template ships sample tiles
+       in its markup: bailing out first left those on screen, so the toggle did
+       nothing in the preview and the couple saw gifts they had just turned off. */
     if (d && d.registry_preview === false) {
       var off = grid.querySelectorAll('.registry-card');
       for (var k = 0; k < off.length; k++) off[k].style.display = 'none';
       return;
     }
+
+    if (_isPreview) return;
     var slug = window._weddingSlug || _liveSlug || '';
     if (!slug) return;
 

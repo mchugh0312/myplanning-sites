@@ -236,9 +236,7 @@ body.thumbnail-mode .hero-names-text{
 
 /* ── GALLERY ──────────────────────────────────────────────────── */
 .gallery-section{background:var(--blue);padding:4rem 2rem;}
-/* Gallery takes the Need to Knows band's treatment. */
-.gallery-section .gallery-title{color:var(--on-dark);}
-.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
+
 .gallery-title{font-family:var(--script);font-size:clamp(2rem,5vw,3rem);color:var(--ink);text-align:center;margin-bottom:0.5rem;}
 .gallery-rule{width:40px;height:1px;background:rgba(50,52,75,0.2);margin:0 auto 2rem;}
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:820px;margin:0 auto;}
@@ -474,6 +472,12 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
 #things-to-do.mp-ttd-alt{background:var(--blue);}
 #things-to-do.mp-ttd-alt .ntk-title,
 #things-to-do.mp-ttd-alt .ntk-answer{color:var(--on-dark);}
+/* Gallery sits on the FAQ band now, so its heading has to move with it.
+   At the END of the stylesheet on purpose: the base rule for this class sets
+   colour too, and above it the base won and the heading was invisible against
+   its own band. */
+.gallery-section .gallery-title{color:var(--on-dark);}
+.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

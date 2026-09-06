@@ -334,10 +334,7 @@ img{max-width:100%;display:block;}
 
 /* ── GALLERY — offwhite bg ────────────────────────────────────── */
 .gallery-section{background:var(--black);padding:5rem 2rem;}
-/* Gallery takes the Need to Knows band's treatment. Its title and rule
-   move with it, or they would sit dark-on-dark. */
-.gallery-section .gallery-title{color:var(--on-dark);}
-.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
+
 .gallery-title{
   font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
   color:var(--ink);text-align:center;margin-bottom:0.5rem;
@@ -774,6 +771,12 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
 #things-to-do.mp-ttd-alt{background:var(--black);}
 #things-to-do.mp-ttd-alt .ntk-title,
 #things-to-do.mp-ttd-alt .ntk-answer{color:var(--on-dark);}
+/* Gallery sits on the FAQ band now, so its heading has to move with it.
+   At the END of the stylesheet on purpose: the base rule for this class sets
+   colour too, and above it the base won and the heading was invisible against
+   its own band. */
+.gallery-section .gallery-title{color:var(--on-dark);}
+.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
