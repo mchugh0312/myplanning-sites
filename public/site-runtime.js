@@ -4737,6 +4737,16 @@
   function hydrateRegistryPreview(d) {
     var grid = document.getElementById('registryGrid');
     if (!grid || _isPreview) return;
+
+    /* The couple asked for a link only. Take the sample tiles down and leave the
+       section as its heading, their words and the button - the same shape a
+       couple with no gifts gets. Undefined means the choice was never made,
+       which is everyone created before the setting existed, so the gifts show. */
+    if (d && d.registry_preview === false) {
+      var off = grid.querySelectorAll('.registry-card');
+      for (var k = 0; k < off.length; k++) off[k].style.display = 'none';
+      return;
+    }
     var slug = window._weddingSlug || _liveSlug || '';
     if (!slug) return;
 
@@ -5617,8 +5627,17 @@
     // the schedule directly above it.
     var deadlineEl = document.getElementById('rsvpDeadline');
     if (deadlineEl) {
+      /* Their own sentence wins outright. Each template words this line
+         differently and the code below only ever swapped the DATE into that
+         wording, so a couple who wanted to say something else could not. */
+      var note = (d.rsvp_config && d.rsvp_config.note) || '';
       var deadline = (d.rsvp_config && d.rsvp_config.deadline) || d.rsvp_deadline || '';
-      if (deadline) {
+      if (note && String(note).trim()) {
+        /* NOT a return. This runs inside hydrate, not a helper of its own, so
+           returning here would have skipped the mobile drawer, the footer and
+           everything after it. */
+        deadlineEl.textContent = String(note).trim();
+      } else if (deadline) {
         // Keep each template's phrasing ("Please send your response by …",
         // "Kindly …", "By …") and swap only the date.
         var raw = (deadlineEl.textContent || '').trim();
