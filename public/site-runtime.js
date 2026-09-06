@@ -4745,8 +4745,38 @@
         // (sort_order). Take them as they come — filtering out image-less items
         // reordered the preview relative to the registry itself, which is why
         // it looked shuffled.
-        var items = (reg.items || []).slice(0, cards.length);
-        if (!items.length) return;
+        /* Show more than the markup happens to provide.
+
+           Each template ships a fixed handful of .registry-card placeholders -
+           four in most - and the preview was capped at however many that was.
+           A couple with twenty gifts had sixteen of them invisible, and on a
+           phone the four sat in one long column, which is the least useful
+           shape for browsing. Cloning a card up to REG_PREVIEW_MAX lets the
+           section show a real selection without every template needing new
+           markup. */
+        var REG_PREVIEW_MAX = 12;
+        var all = reg.items || [];
+        /* No gifts: take the sample cards down and let the section be a heading,
+           the couple's words and the link.
+
+           It used to return here with the template's PLACEHOLDER cards still on
+           screen, so a couple who had not added anything showed four stock gift
+           tiles on their wedding site. That is also the "link only" shape, which
+           is what a couple pointing guests at a shop elsewhere wants. */
+        if (!all.length) {
+          for (var z = 0; z < cards.length; z++) cards[z].style.display = 'none';
+          return;
+        }
+
+        var want = Math.min(all.length, REG_PREVIEW_MAX);
+        var grid0 = cards[0];
+        for (var n = cards.length; n < want; n++) {
+          var clone = grid0.cloneNode(true);
+          clone.setAttribute('data-mp-reg-clone', '1');
+          grid0.parentNode.appendChild(clone);
+        }
+        cards = grid.querySelectorAll('.registry-card');
+        var items = all.slice(0, want);
 
         var registryUrl = '/' + encodeURIComponent(slug) + '/registry';
         injectPreviewStyles();
@@ -4755,6 +4785,10 @@
           if (i >= items.length) { cards[i].style.display = 'none'; continue; }
           renderPreviewCard(cards[i], items[i], registryUrl);
         }
+
+        /* Beyond the cap, point at the registry itself rather than pretending
+           this is all of it. */
+        if (all.length > want) addRegistryMore(grid, registryUrl, all.length - want);
       })
       .catch(function () { /* placeholder cards stand */ });
   }
@@ -4784,8 +4818,35 @@
         'box-shadow:0 1px 4px rgba(0,0,0,0.18);font-size:13px;line-height:1;color:#c0392b}' +
       '.mp-reg-price{font-size:0.86rem;opacity:0.85;margin-top:2px}' +
       '.mp-reg-meta{font-size:0.72rem;opacity:0.65;margin-top:2px}' +
-      '.mp-reg-gifted{opacity:0.55}';
+      '.mp-reg-gifted{opacity:0.55}' +
+      /* Two columns on a phone. The templates lay this out for a desktop row,
+         which on a narrow screen becomes one item per screenful - the least
+         useful shape there is for browsing gifts. Two columns shows a real
+         selection without shrinking the pictures to nothing. */
+      '@media(max-width:640px){' +
+        '#registryGrid{display:grid!important;grid-template-columns:1fr 1fr!important;' +
+          'gap:0.9rem!important;align-items:start}' +
+        '#registryGrid .registry-card{width:auto!important;max-width:none!important;' +
+          'flex:none!important;margin:0!important}' +
+      '}' +
+      '.mp-reg-more{grid-column:1/-1;display:block;text-align:center;' +
+        'margin:1.1rem auto 0;font-size:0.9rem;text-decoration:underline;opacity:0.85}';
     document.head.appendChild(st);
+  }
+
+  /* "and 8 more" - a plain link, not a Load more button. There is nothing here
+     to load: the rest of the gifts live on the registry page, which is where a
+     guest is going to end up anyway. A button that fetched more into this
+     preview would be duplicating that page badly. */
+  function addRegistryMore(grid, registryUrl, remaining) {
+    try {
+      if (grid.querySelector('.mp-reg-more')) return;
+      var a = document.createElement('a');
+      a.className = 'mp-reg-more';
+      a.setAttribute('href', registryUrl);
+      a.textContent = 'See all gifts (' + remaining + ' more)';
+      grid.appendChild(a);
+    } catch (e) {}
   }
 
   function renderPreviewCard(card, it, registryUrl) {
