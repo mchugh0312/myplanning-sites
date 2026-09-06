@@ -4936,7 +4936,13 @@
            shape for browsing. Cloning a card up to REG_PREVIEW_MAX lets the
            section show a real selection without every template needing new
            markup. */
-        var REG_PREVIEW_MAX = 12;
+        /* ONE ROW, no more. This was 12, which stacked three or four rows of
+           gifts into a section that only exists to say "we have a registry" -
+           and then needed a link underneath to excuse itself. Four is the row
+           every template's own markup ships, so the preview now ends where the
+           design's row ends. The section's own button is the way through to the
+           full registry. */
+        var REG_PREVIEW_MAX = 4;
         var all = reg.items || [];
         /* No gifts: take the sample cards down and let the section be a heading,
            the couple's words and the link.
@@ -4970,7 +4976,9 @@
 
         /* Beyond the cap, point at the registry itself rather than pretending
            this is all of it. */
-        if (all.length > want) addRegistryMore(grid, registryUrl, all.length - want);
+        /* No "see all gifts" link. It pointed at the registry, which is exactly
+           where the section's own button already goes - two links, one
+           destination, directly under each other. */
     };
 
     /* Cached: re-apply, no request. Covers the toggle-off-and-on path, where
@@ -5036,6 +5044,11 @@
     if (document.getElementById('mp-regprev-css')) return;
     var st = document.createElement('style');
     st.id = 'mp-regprev-css';
+    /* The design's own accent, not the browser's idea of a link. currentColor
+       gave every template the same grey-on-whatever pill, which is why these
+       buttons read as bolted on rather than part of the page. */
+    var _cv = TEMPLATE_COLOR_VARS[TID] || {};
+    var _btnInk = _cv.accent ? 'var(' + _cv.accent + ')' : 'currentColor';
     // Inherits each template's own card styling; these only add the parts the
     // templates have no markup for.
     st.textContent =
@@ -5077,30 +5090,22 @@
       '#registryGrid[data-mp-built] .registry-card-name{font-size:0.9rem;line-height:1.3}' +
       /* currentColor throughout, so the card takes the section's own ink instead
          of the browser's link blue - the design's colours without knowing them. */
+      /* Buttons on ONE line across the row. The cards were their natural
+         height (align-items:start), so a gift whose name wrapped to two lines
+         pushed its button lower than its neighbours' and the row read as
+         ragged. Equal-height cards plus margin-top:auto on the button pins
+         every CTA to the same baseline whatever the name above it does. */
+      '#registryGrid[data-mp-built]{align-items:stretch}' +
+      '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
+      '#registryGrid .registry-buy-btn{margin-top:auto;align-self:center}' +
       '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block;font-size:0.75rem;' +
-        'letter-spacing:0.08em;text-decoration:none;color:inherit;max-width:100%;' +
-        'border:1px solid currentColor;border-radius:999px;padding:0.45rem 1rem;opacity:0.75}' +
+        'letter-spacing:0.08em;text-decoration:none;max-width:100%;' +
+        'color:' + _btnInk + ';border:1px solid ' + _btnInk + ';' +
+        'border-radius:999px;padding:0.45rem 1rem}' +
       '#registryGrid[data-mp-built] .mp-reg-thumb{width:100%;aspect-ratio:1;border-radius:6px;' +
         'background:currentColor;opacity:0.12}' +
-      '#registryGrid[data-mp-built] .mp-reg-placeholder{opacity:0.9}' +
-      '.mp-reg-more{grid-column:1/-1;display:block;text-align:center;' +
-        'margin:1.1rem auto 0;font-size:0.9rem;text-decoration:underline;opacity:0.85}';
+      '#registryGrid[data-mp-built] .mp-reg-placeholder{opacity:0.9}';
     document.head.appendChild(st);
-  }
-
-  /* "and 8 more" - a plain link, not a Load more button. There is nothing here
-     to load: the rest of the gifts live on the registry page, which is where a
-     guest is going to end up anyway. A button that fetched more into this
-     preview would be duplicating that page badly. */
-  function addRegistryMore(grid, registryUrl, remaining) {
-    try {
-      if (grid.querySelector('.mp-reg-more')) return;
-      var a = document.createElement('a');
-      a.className = 'mp-reg-more';
-      a.setAttribute('href', registryUrl);
-      a.textContent = 'See all gifts (' + remaining + ' more)';
-      grid.appendChild(a);
-    } catch (e) {}
   }
 
   function renderPreviewCard(card, it, registryUrl) {
