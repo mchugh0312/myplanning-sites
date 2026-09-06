@@ -169,7 +169,7 @@ body.hydrating{visibility:hidden;}
 .hero-deco-left{
   /* Overlapping the photo's left edge, as in the design — they were pushed far
      out into the margin. */
-  left:-90px;top:200px;
+  left:-90px;top:250px;
   width:150px;height:auto;
 }
 .hero-deco-right{
@@ -861,8 +861,15 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   .hero-image-wrap img{max-width:100%;}
   /* The decorations overlap the photo on desktop; at phone width there's no
      margin for them to sit in, so they tuck against the frame's corners. */
-  .hero-deco-left{left:-14px;top:auto;bottom:-18px;width:74px;}
-  .hero-deco-right{right:-12px;top:-16px;width:68px;}
+  .hero-deco-left{
+    /* Anchored to the TOP, not the bottom. At this width .hero-pair becomes a
+       grid and the two photos stack, so `bottom` put this below BOTH of them -
+       it read as a stray motif under the last picture rather than beside the
+       hero. */
+    left:-10px;top:70px;bottom:auto;width:88px;}
+  .hero-deco-right{
+    /* Bigger: at 68px the glasses read as a smudge beside a full-width photo. */
+    right:-10px;top:-14px;width:96px;}
 
   /* The overlapping pair becomes two stacked photos: at phone width each half
      would be barely 130px wide. */

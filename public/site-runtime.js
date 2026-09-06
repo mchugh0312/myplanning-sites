@@ -5037,8 +5037,16 @@
         '<ul class="mp-bf-links">' + links + '</ul>' +
         '<p class="mp-bf-copy">Copyright \u00a9 ' + new Date().getFullYear() +
           ' MyPlanning.ai, Inc. All rights reserved. Patent Pending.</p>' +
-      '</div>' +
-      '<div class="mp-bf-rule bottom"></div>';
+      '</div>';
+    /* One rule, above the footer, and nothing below it.
+
+       There used to be a second at the very bottom of the page. On most designs
+       the footer ground differs from the band above, so the TOP rule read as
+       "the line above the footer" and the bottom one went unnoticed at the edge
+       of the page. On Modern Minimal the footer sits on the same blue as the
+       RSVP band above it, so the top rule vanished into it and the only line
+       anyone saw was the one UNDERNEATH - the same element, reading as though
+       the pattern had moved. */
   }
 
   function renderBrandFooter(override) {
