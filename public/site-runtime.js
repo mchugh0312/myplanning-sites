@@ -4815,8 +4815,13 @@
       for (var c = 0; c < want; c++) {
         var card = document.createElement('div');
         card.className = 'registry-card';
-        card.innerHTML = '<img alt=""><div class="registry-card-name">Gift ' + (c + 1) + '</div>' +
-          '<a class="registry-buy-btn" href="#" target="_blank" rel="noopener">Purchase this Item</a>';
+        /* A placeholder, marked as one. The <img> has no src in the editor, so
+           it rendered as a blank gap, and the button inherited the browser's
+           link blue rather than anything from the design. */
+        card.className = 'registry-card mp-reg-placeholder';
+        card.innerHTML = '<div class="mp-reg-thumb"></div>' +
+          '<div class="registry-card-name">Gift ' + (c + 1) + '</div>' +
+          '<span class="registry-buy-btn">Purchase this Item</span>';
         grid.appendChild(card);
       }
       if (copy && copy.parentNode) copy.parentNode.insertBefore(grid, copy.nextSibling);
@@ -4978,8 +4983,14 @@
       '#registryGrid[data-mp-built] .registry-card img{width:100%;aspect-ratio:1;' +
         'object-fit:cover;border-radius:6px;display:block}' +
       '#registryGrid[data-mp-built] .registry-card-name{font-size:0.9rem;line-height:1.3}' +
-      '#registryGrid[data-mp-built] .registry-buy-btn{font-size:0.78rem;text-decoration:underline;' +
-        'opacity:0.85;max-width:100%}' +
+      /* currentColor throughout, so the card takes the section's own ink instead
+         of the browser's link blue - the design's colours without knowing them. */
+      '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block;font-size:0.75rem;' +
+        'letter-spacing:0.08em;text-decoration:none;color:inherit;max-width:100%;' +
+        'border:1px solid currentColor;border-radius:999px;padding:0.45rem 1rem;opacity:0.75}' +
+      '#registryGrid[data-mp-built] .mp-reg-thumb{width:100%;aspect-ratio:1;border-radius:6px;' +
+        'background:currentColor;opacity:0.12}' +
+      '#registryGrid[data-mp-built] .mp-reg-placeholder{opacity:0.9}' +
       '.mp-reg-more{grid-column:1/-1;display:block;text-align:center;' +
         'margin:1.1rem auto 0;font-size:0.9rem;text-decoration:underline;opacity:0.85}';
     document.head.appendChild(st);
