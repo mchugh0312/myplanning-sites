@@ -5177,12 +5177,15 @@
          empty for a moment and the site colour shows through, which is the
          template's own ground — never somebody else's photograph.
 
-         NOT in the editor's thumbnails. A thumbnail is a still: nobody watches
-         it load, so there is no flash to prevent, and hiding buys nothing while
-         risking a thumbnail captured mid-load with an empty hero. Modern
-         Minimal's carousel card lost its photograph exactly that way. */
-      if (s.el && s.el.tagName === 'IMG' &&
-          !(document.body && document.body.classList.contains('thumbnail-mode'))) {
+         The editor's thumbnails included. They were exempted for a while, on the
+         reasoning that a thumbnail is a still and could be captured mid-load
+         with an empty hero - but a thumbnail is a live iframe, not a capture,
+         so it simply resolves when the picture arrives. The card that lost its
+         photograph did so because of the 'hidden' latch described just below,
+         which is fixed; exempting them only meant the stock couple stayed on
+         the card when the real photograph was slow, which is worse and is
+         exactly what it looked like. */
+      if (s.el && s.el.tagName === 'IMG') {
         (function (img) {
           /* Once per element. The preview re-hydrates on every keystroke, so
              this runs again while the first load is still in flight - and the
