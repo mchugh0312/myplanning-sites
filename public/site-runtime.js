@@ -2631,12 +2631,11 @@
         _rsvpLine = _dl ? (_dl.textContent || '').replace(/\s+/g, ' ').trim() : '';
       } catch (e) {}
 
-      /* Whether this design has anywhere to SHOW gifts. Only one of the ten
-         ships a registry grid, so on the rest the Include preview switch had
-         nothing to reveal and looked broken when it was turned on. The editor
-         hides it where there is no grid. */
-      var _hasGifts = false;
-      try { _hasGifts = !!document.getElementById('registryGrid'); } catch (e) {}
+      /* Every design can show gifts now: ensureRegistryGrid builds the grid where
+         the markup has none, so the Include preview switch works everywhere and
+         no longer needs hiding. Kept in the message so an older editor that
+         still reads it sees true rather than nothing. */
+      var _hasGifts = true;
 
       /* How this design sets a BLOCK LABEL - the "Hotel" and "Flights" that come
          from the first line of the copy. It is not the section heading font and
@@ -4773,8 +4772,45 @@
      Fails quietly: if the registry is unpublished, password-gated, empty or
      unreachable, the template's own placeholder cards stay exactly as they are.
   ========================================================================== */
-  function hydrateRegistryPreview(d) {
+  /* The gift grid, built where the design has not got one.
+
+     Only Modern Minimal ships #registryGrid in its markup, so on the other nine
+     the Include preview switch had nowhere to put anything and was hidden. The
+     section itself exists everywhere though - heading, the couple's words, the
+     button - so the grid can be added under the copy and styled by the rules
+     injectPreviewStyles already provides. One place to do it beats nine
+     templates each growing their own markup and drifting apart.
+
+     Built empty. The cards are cloned from it by the caller, which is what
+     happens on Modern Minimal too, so both paths render identically. */
+  function ensureRegistryGrid() {
     var grid = document.getElementById('registryGrid');
+    if (grid) return grid;
+    try {
+      var sec = null;
+      var ids = SECTION_ANCHORS.registry || [];
+      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      if (!sec) return null;
+
+      /* Under the couple's words, above the button - the reading order the
+         section already has. */
+      var copy = sec.querySelector('#registryInfo,#registryText,#registryBody');
+      grid = document.createElement('div');
+      grid.id = 'registryGrid';
+      grid.setAttribute('data-mp-built', '1');
+      var card = document.createElement('div');
+      card.className = 'registry-card';
+      card.innerHTML = '<img alt=""><div class="registry-card-name"></div>' +
+        '<a class="registry-buy-btn" href="#" target="_blank" rel="noopener">Purchase this Item</a>';
+      grid.appendChild(card);
+      if (copy && copy.parentNode) copy.parentNode.insertBefore(grid, copy.nextSibling);
+      else sec.appendChild(grid);
+      return grid;
+    } catch (e) { return null; }
+  }
+
+  function hydrateRegistryPreview(d) {
+    var grid = ensureRegistryGrid();
     if (!grid) return;
 
     /* The couple asked for a link only. Take the sample tiles down and leave the
@@ -4897,6 +4933,19 @@
         '#registryGrid .registry-card{width:auto!important;max-width:none!important;min-width:0!important;' +
           'flex:none!important;margin:0!important}' +
       '}' +
+      /* A grid the runtime built has none of the template's own card styling,
+         so it gets a plain, neutral treatment that inherits the section's
+         colours. Templates that ship their own grid are untouched. */
+      '#registryGrid[data-mp-built]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));' +
+        'gap:1.2rem;max-width:720px;margin:1.6rem auto 0;align-items:start}' +
+      '@media(max-width:900px){#registryGrid[data-mp-built]{grid-template-columns:repeat(2,minmax(0,1fr))}}' +
+      '#registryGrid[data-mp-built] .registry-card{display:flex;flex-direction:column;' +
+        'align-items:center;text-align:center;gap:0.5rem;min-width:0}' +
+      '#registryGrid[data-mp-built] .registry-card img{width:100%;aspect-ratio:1;' +
+        'object-fit:cover;border-radius:6px;display:block}' +
+      '#registryGrid[data-mp-built] .registry-card-name{font-size:0.9rem;line-height:1.3}' +
+      '#registryGrid[data-mp-built] .registry-buy-btn{font-size:0.78rem;text-decoration:underline;' +
+        'opacity:0.85;max-width:100%}' +
       '.mp-reg-more{grid-column:1/-1;display:block;text-align:center;' +
         'margin:1.1rem auto 0;font-size:0.9rem;text-decoration:underline;opacity:0.85}';
     document.head.appendChild(st);
