@@ -101,6 +101,9 @@
       fonts: { display: "'Parfumerie Script',cursive", body: "'Goudy',Georgia,serif" }
     },
     goldenhour: {
+      /* Fixed hero slots: this design shows exactly this many photographs,
+         so the runtime cycles the couple's own to fill them. */
+      heroSlots: 3,
       navOverHero: true,   // hero is a full-bleed photo collage
       label: 'Golden Hour',
       heroNamesId: 'heroNames',
@@ -122,6 +125,9 @@
       fonts: { display: "'Aboreto','Cormorant Garamond',serif", body: "'DM Sans',system-ui,sans-serif" }
     },
     modernminimal: {
+      /* Fixed hero slots: this design shows exactly this many photographs,
+         so the runtime cycles the couple's own to fill them. */
+      heroSlots: 3,
       label: 'Modern Minimal',
       heroNamesId: 'heroCoupleNames',
       heroId: 'hero',
@@ -5540,6 +5546,30 @@
     try { markTitles(d); } catch (e) {}
 
     try {
+      /* Fill every hero slot from the couple's own photographs.
+
+         Designs with a fixed row - Modern Minimal's three, Golden Hour's three -
+         take hero_images in order and leave any slot they run out for on the
+         template's SAMPLE picture. So a couple who uploaded one photo published
+         a site with two stock ones beside it, and nothing said so.
+
+         Cycling what they gave us fills every slot with something of theirs:
+         one photo appears three times, two alternate, three appear once each.
+         Repetition is the couple's own picture, which is theirs to repeat; a
+         stock photograph is not licensed for their live site at all.
+
+         Only for designs that declare a fixed count. A carousel takes as many
+         as it is given and must not be padded, or it would loop one photo. */
+      try {
+        var _slots = CFG.heroSlots || 0;
+        var _own = (d && Array.isArray(d.hero_images)) ? d.hero_images.filter(Boolean) : [];
+        if (_slots > 1 && _own.length && _own.length < _slots) {
+          var _filled = [];
+          for (var _i = 0; _i < _slots; _i++) _filled.push(_own[_i % _own.length]);
+          d = Object.assign({}, d, { hero_images: _filled });
+        }
+      } catch (e) {}
+
       if (typeof window.hydrateTemplate === 'function') window.hydrateTemplate(d);
     } catch (err) {
       console.error('[site-runtime] hydrateTemplate failed:', err);

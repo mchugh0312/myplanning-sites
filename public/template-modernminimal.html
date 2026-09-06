@@ -169,11 +169,14 @@ body.hydrating{visibility:hidden;}
 .hero-deco-left{
   /* Overlapping the photo's left edge, as in the design — they were pushed far
      out into the margin. */
-  left:-90px;top:250px;
+  /* Pulled in towards the photograph. At -90/-70 the pair sat out in the
+     margin with a gap between them and the picture, so they read as page
+     furniture rather than as decoration on the hero. */
+  left:-55px;top:250px;
   width:150px;height:auto;
 }
 .hero-deco-right{
-  right:-70px;top:40px;
+  right:-40px;top:40px;
   width:135px;height:auto;
 }
 .hero-pair{
@@ -866,7 +869,10 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
        grid and the two photos stack, so `bottom` put this below BOTH of them -
        it read as a stray motif under the last picture rather than beside the
        hero. */
-    left:-10px;top:70px;bottom:auto;width:88px;}
+    /* 300px puts it about three-quarters down the first photo, which is where
+       it sits on desktop (top:250 against a pair 340 tall). At 70px it was up
+       by the couple's heads instead. */
+    left:-10px;top:300px;bottom:auto;width:88px;}
   .hero-deco-right{
     /* Bigger: at 68px the glasses read as a smudge beside a full-width photo. */
     right:-10px;top:-14px;width:96px;}
@@ -931,6 +937,8 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
      the commonest width there is - and the pair vanished together, which at
      least looked deliberate. They shrink here and go below 340. */
   .hero-deco-left,.hero-deco-right{transform:scale(0.7);}
+  /* Full-bleed photo here, so it is taller and the same point sits lower. */
+  .hero-deco-left{top:340px;}
   .hero-pair{max-width:100%;}
   .event-icon img{width:56px;}
   .registry-icon img{width:57px;}
