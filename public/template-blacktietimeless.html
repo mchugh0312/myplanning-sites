@@ -333,7 +333,7 @@ img{max-width:100%;display:block;}
 /* Candelabra image at bottom of NTK section */
 
 /* ── GALLERY — offwhite bg ────────────────────────────────────── */
-.gallery-section{background:var(--black);padding:5rem 2rem;}
+.gallery-section{background:var(--offwhite);padding:5rem 2rem;}
 
 .gallery-title{
   font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
@@ -775,8 +775,12 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
    At the END of the stylesheet on purpose: the base rule for this class sets
    colour too, and above it the base won and the heading was invisible against
    its own band. */
-.gallery-section .gallery-title{color:var(--on-dark);}
-.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
+/* The gallery band here is the OFFWHITE one declared later in this file - a
+   second .gallery-section rule further down wins over the one above. So the
+   title takes the page ink; on --on-dark it was white on offwhite and could
+   not be read at all. */
+.gallery-section .gallery-title{color:var(--ink);}
+.gallery-section .gallery-rule{background:rgba(28,33,32,0.25);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
