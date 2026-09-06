@@ -215,6 +215,17 @@
   try { window.__mpRuntimeAlive = 1; } catch (e) {}
 
   var _isPreview = !_liveSlug;
+
+  /* One registry request per slug, not one per keystroke. hydrate() runs on
+     EVERY payload the editor posts and the gift fetch sat inside it unguarded:
+     a single editing session fired 23 identical requests, each up to 2s. The
+     response is CACHED AND RE-APPLIED rather than skipped, because turning the
+     registry toggle off and on again restores the tiles and they still need
+     filling - a plain "already asked, do nothing" guard would leave the couple
+     looking at placeholders. */
+  var _regCacheSlug = null;   // slug the cached response belongs to
+  var _regCache = null;       // last response body for that slug
+  var _regInFlight = null;    // slug currently being fetched, if any
   var _pwdParam = _params.get('pwd') || '';
 
   window._liveSlug = _liveSlug;
@@ -2666,7 +2677,16 @@
         '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
       var _titleStyle = _styleOf(
         '.schedule-event-name,.event-card-name,.event-name,.wedding-card-name,' +
-        '.faq-question,.faq-q,.ntk-question,.other-event-name');
+        '.faq-question,.faq-q,.ntk-question,.other-event-name,' +
+        /* Regal Boho, Vintage Love Story and Whimsical Romance matched NOTHING
+           in this list, so they reported no title style and the editor fell
+           back to the heading face. Their question element is .faq-q-text -
+           note that .faq-q above does NOT match it, because a class selector
+           matches whole tokens, not prefixes. Each also names its event title
+           differently. In all three the older names above exist ONLY as CSS
+           rules with no element to match, which is why the list looked wider
+           than it was. Widened here rather than per-template, as agreed. */
+        '.faq-q-text,.event-col-name,.event-col-title,.itinerary-event-name');
 
       parent.postMessage({
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
@@ -4886,10 +4906,23 @@
     var cards = grid.querySelectorAll('.registry-card');
     if (!cards.length) return;
 
-    fetch(API + '/public/registry/by-slug/' + encodeURIComponent(slug))
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (reg) {
-        if (!reg || reg.password_required || reg.not_published) return;
+    /* Named so the cached path can re-run it without a request. */
+    var applyRegistry = function (reg) {
+        if (!reg) return;
+        /* The two gates. The server sends no items in either case, so there is
+           nothing any amount of client work can render - the fix is a setting
+           the couple owns. Tiles down, reason up, in the editor only. */
+        if (reg.password_required || reg.not_published) {
+          if (!_isPreview) return;
+          for (var g = 0; g < cards.length; g++) cards[g].style.display = 'none';
+          showRegistryNotice(grid, reg.password_required
+            ? 'Gift preview unavailable \u2014 your registry is password protected. ' +
+              'Remove the password to preview your gifts here, or turn this section off in Design.'
+            : 'Gift preview unavailable \u2014 your registry isn\u2019t published yet. ' +
+              'Publish it to preview your gifts here, or turn this section off in Design.');
+          return;
+        }
+        clearRegistryNotice();
         // The API already returns items in the couple's arranged order
         // (sort_order). Take them as they come — filtering out image-less items
         // reordered the preview relative to the registry itself, which is why
@@ -4938,8 +4971,25 @@
         /* Beyond the cap, point at the registry itself rather than pretending
            this is all of it. */
         if (all.length > want) addRegistryMore(grid, registryUrl, all.length - want);
+    };
+
+    /* Cached: re-apply, no request. Covers the toggle-off-and-on path, where
+       the tiles above have just been restored and still need filling. */
+    if (_regCacheSlug === slug && _regCache) { applyRegistry(_regCache); return; }
+    /* Already asking for this same slug - the next keystroke must not queue a
+       second request behind the first. */
+    if (_regInFlight === slug) return;
+    _regInFlight = slug;
+
+    fetch(API + '/public/registry/by-slug/' + encodeURIComponent(slug))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (reg) {
+        _regInFlight = null;
+        _regCacheSlug = slug;
+        _regCache = reg;
+        applyRegistry(reg);
       })
-      .catch(function () { /* placeholder cards stand */ });
+      .catch(function () { _regInFlight = null; /* placeholder cards stand */ });
   }
 
   function fmtMoney(cents) {
@@ -4951,6 +5001,35 @@
         maximumFractionDigits: 2
       });
     } catch (e) { return '$' + n.toFixed(0); }
+  }
+
+  /* Why the gift preview is empty, said out loud - EDITOR ONLY.
+
+     A password-protected or unpublished registry returns metadata with no
+     items at all, so there is nothing to render and the sample tiles used to
+     stand there unexplained. To the couple that reads as a broken preview, and
+     the real cause is a setting they own and can change. The live site is
+     untouched: guests still meet the normal password gate. */
+  function showRegistryNotice(grid, msg) {
+    if (!grid) return;
+    injectPreviewStyles();
+    var box = document.getElementById('mp-reg-notice');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'mp-reg-notice';
+      box.className = 'mp-reg-notice';
+      if (grid.parentNode) grid.parentNode.insertBefore(box, grid.nextSibling);
+      else return;
+    }
+    box.textContent = msg;
+    box.style.display = '';
+  }
+
+  /* Taken down whenever gifts do arrive, so unlocking the registry and coming
+     back does not leave the couple reading a stale warning under real tiles. */
+  function clearRegistryNotice() {
+    var box = document.getElementById('mp-reg-notice');
+    if (box) box.style.display = 'none';
   }
 
   function injectPreviewStyles() {
@@ -4967,6 +5046,11 @@
         'box-shadow:0 1px 4px rgba(0,0,0,0.18);font-size:13px;line-height:1;color:#c0392b}' +
       '.mp-reg-price{font-size:0.86rem;opacity:0.85;margin-top:2px}' +
       '.mp-reg-meta{font-size:0.72rem;opacity:0.65;margin-top:2px}' +
+      /* Deliberately quiet and unstyled-looking: this is a note to the couple
+         about a setting, not part of their design. Inherits the section's own
+         text colour so it reads as page furniture on all ten templates. */
+      '.mp-reg-notice{margin:14px auto 0;max-width:34em;text-align:center;' +
+        'font-size:0.9rem;line-height:1.5;opacity:0.75}' +
       '.mp-reg-gifted{opacity:0.55}' +
       /* Two columns on a phone. The templates lay this out for a desktop row,
          which on a narrow screen becomes one item per screenful - the least
