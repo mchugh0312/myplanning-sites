@@ -358,6 +358,19 @@ body:has(.mp-std-bottom) .hero{
 
 /* ── OTHER EVENTS (offwhite bg) ───────────────────────────── */
 .other-events{background:var(--offwhite);position:relative;overflow:visible;}
+
+/* Things to Do, when the Gallery is switched on.
+
+   The bands alternate down the page and Things to Do sits directly above the
+   Gallery, which is pale - so two light bands ended up side by side and the
+   rhythm collapsed. With the Gallery on it takes the Wedding band's olive
+   instead; with it off it keeps the Other Events treatment above.
+
+   site-runtime puts mp-ttd-alt on the section; the colours are the template's
+   own, which is why this rule lives here rather than there. */
+#things-to-do.mp-ttd-alt{background:var(--olive);}
+#things-to-do.mp-ttd-alt .section-title,
+#things-to-do.mp-ttd-alt .other-event-detail{color:var(--on-dark);}
 /* Things to Do is a single block of copy rather than the two event cards this
    section normally holds, so it needs the centring the cards would have given
    it. Scoped to .ttd-body so the real Other Events cards are untouched. */

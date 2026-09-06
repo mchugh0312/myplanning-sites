@@ -331,7 +331,11 @@ img{max-width:100%;display:block;}
 /* Candelabra image at bottom of NTK section */
 
 /* ── GALLERY — offwhite bg ────────────────────────────────────── */
-.gallery-section{background:var(--offwhite);padding:5rem 2rem;}
+.gallery-section{background:var(--black);padding:5rem 2rem;}
+/* Gallery takes the Need to Knows band's treatment. Its title and rule
+   move with it, or they would sit dark-on-dark. */
+.gallery-section .gallery-title{color:var(--on-dark);}
+.gallery-section .gallery-rule{background:rgba(255,255,255,0.35);}
 .gallery-title{
   font-family:var(--script);font-size:clamp(2.5rem,6vw,4rem);
   color:var(--ink);text-align:center;margin-bottom:0.5rem;
@@ -761,6 +765,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
 }
 
+/* Things to Do, when the Gallery is switched on: the Wedding band's treatment.
+   The bands alternate and Things to Do sits above the Gallery, so with the
+   Gallery on two like bands would meet. Scoped to the id, because this section
+   shares .ntk-section with Need to Knows. */
+#things-to-do.mp-ttd-alt{background:var(--black);}
+#things-to-do.mp-ttd-alt .ntk-title,
+#things-to-do.mp-ttd-alt .ntk-answer{color:var(--on-dark);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

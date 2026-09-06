@@ -1060,6 +1060,11 @@ footer{
 /* The card renders at 1100x3500, where 100vh is the full 3500px: that filled
    the card with empty pink below the hero. */
 body.thumbnail-mode .home-block{min-height:0;}
+/* Things to Do takes the Itinerary band when the Gallery is on. Scoped to the
+   id: this section shares .need-to-know with Need to Knows. */
+#things-to-do.mp-ttd-alt{background:var(--burgundy);}
+#things-to-do.mp-ttd-alt .ntk-title,
+#things-to-do.mp-ttd-alt .faq-answer{color:var(--on-dark);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

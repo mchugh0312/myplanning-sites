@@ -822,8 +822,11 @@ body.hydrating{visibility:hidden;}
 
 /* ── GALLERY (compatibility) ─────────────────────────────── */
 .gallery-section{
-  background:var(--ivory);padding:3.5rem 1rem 4rem;text-align:center;
+  background:var(--navy);padding:3.5rem 1rem 4rem;text-align:center;
 }
+/* Gallery takes the FAQs band's treatment. Its heading moves with it, or
+   it would sit dark-on-dark. */
+.gallery-section .section-title-mini{color:var(--on-dark);}
 .gallery-section .section-title-mini{
   font-family:var(--body);font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
@@ -1011,6 +1014,12 @@ body.thumbnail-mode .hero{
 
 /* Optional: speed up thumbnail rendering by skipping smooth-scroll behaviours */
 body.thumbnail-mode{scroll-behavior:auto;}
+/* Things to Do takes the Wedding band when the Gallery is on - the light one
+   here, so the type comes off the navy ink. Scoped to the id: this section
+   shares .faq-section with the FAQs. */
+#things-to-do.mp-ttd-alt{background:var(--ivory);}
+#things-to-do.mp-ttd-alt .faq-title,
+#things-to-do.mp-ttd-alt .faq-answer{color:var(--ink);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

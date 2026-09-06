@@ -4325,6 +4325,29 @@
 
      Only ever HIDES. A section the template chose to hide for its own reasons
      stays hidden, and nothing here can put one back. */
+  /* ── Things to Do takes the other band's colour when the Gallery is on ────
+
+     The bands alternate down the page, and Things to Do sits directly above the
+     Gallery. The Gallery is a light band, so a light Things to Do puts two pale
+     bands together and the rhythm collapses.
+
+     The rule: Gallery ON, Things to Do takes the WEDDING section's treatment;
+     Gallery OFF, it keeps the Other Events treatment it has now.
+
+     The runtime only says WHICH, by putting mp-ttd-alt on the section - what
+     that looks like is the template's business, because the two treatments are
+     different colours in each design. A template with no rule for the class is
+     simply unaffected, so this can be rolled out one design at a time. */
+  function styleThingsToDo(menu) {
+    try {
+      var ids = SECTION_ANCHORS.things_to_do || [];
+      for (var i = 0; i < ids.length; i++) {
+        var el = document.getElementById(ids[i]);
+        if (el) el.classList.toggle('mp-ttd-alt', !!(menu && menu.gallery));
+      }
+    } catch (e) {}
+  }
+
   function hideEmptyOptionalSections(d) {
     var FIELDS = {
       accommodations: 'accommodation_info',
@@ -5504,6 +5527,7 @@
        thing seen is already the right size rather than a large name snapping
        smaller. */
     hideEmptyOptionalSections(d);
+    styleThingsToDo(d.menu_config || {});
 
     fitHeroNames();
     watchHeroNames();

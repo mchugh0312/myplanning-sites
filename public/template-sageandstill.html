@@ -997,6 +997,11 @@ footer{
    overrides capped the names at 2.6rem, which is why the card showed tiny type
    next to a full-size photo while the preview looked completely different. */
 body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
+/* Things to Do takes the Weekend band when the Gallery is on. Scoped to the id:
+   this section shares .need-to-know with Need to Knows. */
+#things-to-do.mp-ttd-alt{background:var(--sage);}
+#things-to-do.mp-ttd-alt .ntk-title,
+#things-to-do.mp-ttd-alt .faq-answer{color:var(--on-dark);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
