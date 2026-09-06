@@ -2638,9 +2638,28 @@
       var _hasGifts = false;
       try { _hasGifts = !!document.getElementById('registryGrid'); } catch (e) {}
 
+      /* How this design sets a BLOCK LABEL - the "Hotel" and "Flights" that come
+         from the first line of the copy. It is not the section heading font and
+         it is not the same everywhere: Pressed Petals sets those labels in its
+         script face, Coastal Chic in bold uppercase body. The editor was marking
+         that first line in the heading face for every template, so on Coastal
+         Chic the box showed a flowing script where the page showed bold caps. */
+      var _labelFont = '', _labelWeight = '', _labelCaps = '';
+      try {
+        var _lab = document.querySelector(
+          '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
+        if (_lab) {
+          var cs = getComputedStyle(_lab);
+          _labelFont = (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim();
+          _labelWeight = cs.fontWeight || '';
+          _labelCaps = cs.textTransform || '';
+        }
+      } catch (e) {}
+
       parent.postMessage({
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
-        rsvpLine: _rsvpLine, registryGrid: _hasGifts
+        rsvpLine: _rsvpLine, registryGrid: _hasGifts,
+        labelFont: _labelFont, labelWeight: _labelWeight, labelCaps: _labelCaps
       }, '*');
     } catch (e) {}
   }
