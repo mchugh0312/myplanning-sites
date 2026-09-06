@@ -158,7 +158,10 @@ body.hydrating{visibility:hidden;}
   display:inline-block;
   max-width:100%;
 }
-.hero-image-wrap img{
+/* :not(.hero-deco) - the decorations live in this wrapper now so that their
+   offsets are measured against the photograph, and this width:100% caught
+   them too: a 150px motif rendered at the full width of the hero. */
+.hero-image-wrap img:not(.hero-deco){
   /* Square, per the design — it was rendering at the file's own tall ratio. */
   display:block;width:100%;max-width:480px;
   aspect-ratio:1/1;object-fit:cover;
@@ -867,7 +870,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 
   /* Hero */
   .hero{padding:0.5rem 1.1rem 2.4rem;}
-  .hero-image-wrap img{max-width:100%;}
+  .hero-image-wrap img:not(.hero-deco){max-width:100%;}
   /* The decorations overlap the photo on desktop; at phone width there's no
      margin for them to sit in, so they tuck against the frame's corners. */
   .hero-deco-left{
