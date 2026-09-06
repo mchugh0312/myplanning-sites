@@ -150,7 +150,10 @@ body.hydrating{visibility:hidden;}
   position:relative;
   text-align:center;
 }
-.hero-image-wrap{
+/* Positioning context for the decorations. They used to sit in .hero-inner,
+   which also holds the tagline and the photo pair - so an offset measured
+   against all of that put the disco ball on the story text, not the picture. */
+.hero-image-wrap{position:relative;
   position:relative;
   display:inline-block;
   max-width:100%;
@@ -172,11 +175,11 @@ body.hydrating{visibility:hidden;}
   /* Pulled in towards the photograph. At -90/-70 the pair sat out in the
      margin with a gap between them and the picture, so they read as page
      furniture rather than as decoration on the hero. */
-  left:-55px;top:250px;
+  left:-55px;top:58%;
   width:150px;height:auto;
 }
 .hero-deco-right{
-  right:-40px;top:40px;
+  right:-40px;top:6%;
   width:135px;height:auto;
 }
 .hero-pair{
@@ -396,9 +399,7 @@ body.hydrating{visibility:hidden;}
   letter-spacing:0.02em;
   margin-bottom:2rem;
 }
-/* The couple's registry words, under the heading and above the gifts - which
-   is where a note like "we are registered at..." belongs. It used to be
-   pushed in above the button at the very bottom, after every item. */
+/* The couple's registry words, under the heading and above the gifts. */
 .registry-note{font-family:var(--body);font-size:0.92rem;line-height:1.7;
   color:var(--ink);max-width:520px;margin:0 auto 1.6rem;text-align:center;}
 .registry-grid{
@@ -830,8 +831,8 @@ body.hydrating{visibility:hidden;}
   .hero{padding:1rem 1.5rem 3rem;}
   /* Tablet step: lower than desktop's margin position but not yet tucked
      into the corners the way the phone rules do. */
-  .hero-deco-left{left:-30px;top:150px;width:80px;}
-  .hero-deco-right{right:-20px;top:30px;width:75px;}
+  .hero-deco-left{left:-30px;top:58%;width:80px;}
+  .hero-deco-right{right:-20px;top:6%;width:75px;}
   .events-primary,.other-events,.travel-section,
   .faq-section,.registry-section{padding:2.5rem 1.2rem 3rem;}
   .rsvp-section{padding:3rem 1.2rem 3.5rem;}
@@ -870,15 +871,17 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   /* The decorations overlap the photo on desktop; at phone width there's no
      margin for them to sit in, so they tuck against the frame's corners. */
   .hero-deco-left{
-    /* A PERCENTAGE, not a pixel offset. .hero-pair is a grid of two stacked
-       photos here and its height changes with the screen, so 70px sat up by
-       the couple's heads and 300px hung below the picture - every fixed
-       number is only right at one width. 34% lands in the lower left of the
-       FIRST photo, where it sits on desktop, at any size. */
-    left:-10px;top:34%;bottom:auto;width:88px;}
+    /* Anchored to the TOP, not the bottom. At this width .hero-pair becomes a
+       grid and the two photos stack, so `bottom` put this below BOTH of them -
+       it read as a stray motif under the last picture rather than beside the
+       hero. */
+    /* 300px puts it about three-quarters down the first photo, which is where
+       it sits on desktop (top:250 against a pair 340 tall). At 70px it was up
+       by the couple's heads instead. */
+    left:-10px;top:58%;bottom:auto;width:88px;}
   .hero-deco-right{
     /* Bigger: at 68px the glasses read as a smudge beside a full-width photo. */
-    right:-10px;top:-14px;width:96px;}
+    right:-10px;top:2%;width:96px;}
 
   /* The overlapping pair becomes two stacked photos: at phone width each half
      would be barely 130px wide. */
@@ -894,10 +897,19 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 
   /* Event blocks and photo strips stack */
   .events-grid,.photo-strip{grid-template-columns:1fr;gap:1.2rem;}
-  /* The registry stays TWO columns on a phone. One column turns a gift list
-     into a page of scrolling, one item per screenful. The events and the
-     photo strip do want a single column, which is why they keep it. */
-  .registry-grid{grid-template-columns:repeat(2,1fr);gap:1rem;}
+  /* The registry stays TWO columns: one turns a gift list into a page of
+     scrolling, one item per screenful.
+
+     minmax(0,1fr), not 1fr: a 1fr track will not shrink below its content's
+     minimum width, and "Purchase this Item" with 1.6rem of padding is wider
+     than half a phone - so the second column ran off the right edge and the
+     page scrolled sideways. */
+  .registry-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+  .registry-card{min-width:0;}
+  .registry-card img{width:100%;}
+  /* The button has to be allowed to get narrower than its label. */
+  .registry-buy-btn{max-width:100%;padding:0.7rem 0.9rem;font-size:0.78rem;
+    white-space:normal;box-sizing:border-box;}
   .event-block{padding:1.4rem 0;}
   .event-name{font-size:1.25rem;}
   .event-detail{font-size:0.88rem;line-height:1.7;}
@@ -945,7 +957,6 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
      least looked deliberate. They shrink here and go below 340. */
   .hero-deco-left,.hero-deco-right{transform:scale(0.7);}
   /* Full-bleed photo here, so it is taller and the same point sits lower. */
-  .hero-deco-left{top:340px;}
   .hero-pair{max-width:100%;}
   .event-icon img{width:56px;}
   .registry-icon img{width:57px;}
@@ -1030,11 +1041,12 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <img class="hero-deco hero-deco-left"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/48f1a6d3-a35e-4827-8a10-2691bc1550fb.svg" alt="">
-    <img class="hero-deco hero-deco-right"
-      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg" alt="">
+    
     <div class="hero-image-wrap">
+        <img class="hero-deco hero-deco-left"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/48f1a6d3-a35e-4827-8a10-2691bc1550fb.svg" alt="">
+        <img class="hero-deco hero-deco-right"
+      src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg" alt="">
       <img id="heroImg"
         src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/785a7c3d-8056-4b24-b1b8-bea98a73bd43.jpeg"
         alt="Couple photo">
@@ -1672,7 +1684,7 @@ function hydrateTemplate(d){
   if (registrySection) registrySection.style.display = menu.registry ? '' : 'none';
   if (menu.registry){
     var _note = document.getElementById('registryInfo');
-    if (_note) _note.innerHTML = '';          // cleared each pass, then rewritten
+    if (_note) _note.innerHTML = '';        // cleared, then rewritten below
     // If user provides registry_info as HTML with links, use it as the bottom CTA.
     if (d.registry_info){
       var infoEl = document.getElementById('registryCta');
@@ -1684,12 +1696,9 @@ function hydrateTemplate(d){
         infoEl.textContent = 'View Our Registry';
       } else {
         // No external link: keep the button (the runtime points it at
-        // /{slug}/registry) and show the couple's text under the heading.
-        //
-        // ASSIGNED, not appended. This used insertAdjacentHTML('afterbegin') on
-        // a wrapper, and hydrate runs on every keystroke in the preview - so the
-        // note stacked up, one copy per keypress, each holding what had been
-        // typed so far: "thanks", "thank", "than", "tha"... down the page.
+        // /{slug}/registry) and show the couple's text above it.
+        // ASSIGNED, not appended: hydrate runs on every keystroke in the
+        // preview, so insertAdjacentHTML stacked one copy per keypress.
         infoEl.textContent = 'View Our Registry';
         var noteEl = document.getElementById('registryInfo');
         if (noteEl) noteEl.innerHTML = d.registry_info;

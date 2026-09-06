@@ -4840,9 +4840,11 @@
          useful shape there is for browsing gifts. Two columns shows a real
          selection without shrinking the pictures to nothing. */
       '@media(max-width:640px){' +
-        '#registryGrid{display:grid!important;grid-template-columns:1fr 1fr!important;' +
+        /* minmax(0,1fr): a 1fr track will not shrink below its content's minimum
+   width, so a wide Purchase button pushed the second column off the edge. */
+        '#registryGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;' +
           'gap:0.9rem!important;align-items:start}' +
-        '#registryGrid .registry-card{width:auto!important;max-width:none!important;' +
+        '#registryGrid .registry-card{width:auto!important;max-width:none!important;min-width:0!important;' +
           'flex:none!important;margin:0!important}' +
       '}' +
       '.mp-reg-more{grid-column:1/-1;display:block;text-align:center;' +
