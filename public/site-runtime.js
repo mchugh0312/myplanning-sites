@@ -2643,22 +2643,35 @@
          script face, Coastal Chic in bold uppercase body. The editor was marking
          that first line in the heading face for every template, so on Coastal
          Chic the box showed a flowing script where the page showed bold caps. */
-      var _labelFont = '', _labelWeight = '', _labelCaps = '';
-      try {
-        var _lab = document.querySelector(
-          '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
-        if (_lab) {
-          var cs = getComputedStyle(_lab);
-          _labelFont = (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim();
-          _labelWeight = cs.fontWeight || '';
-          _labelCaps = cs.textTransform || '';
-        }
-      } catch (e) {}
+      var _styleOf = function (sel) {
+        try {
+          var el = document.querySelector(sel);
+          if (!el) return null;
+          var cs = getComputedStyle(el);
+          return {
+            font: (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim(),
+            weight: cs.fontWeight || '',
+            caps: cs.textTransform || ''
+          };
+        } catch (e) { return null; }
+      };
+      /* Two different things, reported separately because a design can style
+         them differently. A block LABEL is the "Hotel"/"Flights" over the
+         accommodation columns; a block TITLE is an event name or an FAQ
+         question. Coastal Chic is the reason both are needed: it sets both in
+         bold uppercase BODY where every other design uses its script or display
+         face, so the editor marking them in the heading face made its Content
+         boxes look nothing like its page. */
+      var _labelStyle = _styleOf(
+        '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
+      var _titleStyle = _styleOf(
+        '.schedule-event-name,.event-card-name,.event-name,.wedding-card-name,' +
+        '.faq-question,.faq-q,.ntk-question,.other-event-name');
 
       parent.postMessage({
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
         rsvpLine: _rsvpLine, registryGrid: _hasGifts,
-        labelFont: _labelFont, labelWeight: _labelWeight, labelCaps: _labelCaps
+        labelStyle: _labelStyle, titleStyle: _titleStyle
       }, '*');
     } catch (e) {}
   }
