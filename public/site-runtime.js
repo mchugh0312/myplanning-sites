@@ -5097,7 +5097,14 @@
   }
 
   var BRAND_FOOTER_CSS =
-    '.mp-brand-footer{background:var(--mp-bf-bg,#F9F7F5);width:100%;margin:0;padding:0;' +
+    /* position + z-index so nothing above can paint over the footer.
+   Modern Minimal's RSVP band ends with margin-bottom:-14px and
+   position:relative, to pull itself into the page's blue frame. That drags
+   the footer up underneath it and, being positioned, the band painted on
+   top - covering exactly the 8px stitch at the footer's top edge. Raising
+   the dot contrast twice did nothing because the line was never visible to
+   begin with, whatever colour it was. */
+    '.mp-brand-footer{position:relative;z-index:1;background:var(--mp-bf-bg,#F9F7F5);width:100%;margin:0;padding:0;' +
       'font-family:"Instrument Serif",Georgia,serif;color:var(--mp-bf-ink,#121212);' +
       '-webkit-font-smoothing:antialiased;box-sizing:border-box}' +
     '.mp-brand-footer *{box-sizing:border-box}' +

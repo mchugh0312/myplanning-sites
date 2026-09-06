@@ -1575,12 +1575,12 @@ function hydrateTemplate(d){
           // If no label was found in the first section, fall back to the
           // caller-supplied label (e.g. "Accommodations") so we never render
           // a labelless block.
-          if (out.length === 0 && fallbackLabel) {
-            // Section label is fixed by the design. Anything the couple bolded
-            // is content, so fold it back into the detail rather than losing it.
-            if (label) detail = '<strong>' + label + '</strong><br>' + detail;
-            label = fallbackLabel;
-          }
+          /* Their heading wins. This used to replace it with the design's fixed
+             word and fold what they wrote back into the body, so "Hotel" became
+             body text under an invented "HOTEL" - the couple's own wording
+             demoted by the template. The fallback is for copy with no heading
+             at all. */
+          if (!label && out.length === 0 && fallbackLabel) label = fallbackLabel;
           // A trailing <em>…</em> is the room-block note in the design
           // ("*Request the Liz & Nic room block"), styled separately.
           var noteHtml = '';
@@ -1601,21 +1601,27 @@ function hydrateTemplate(d){
       }
 
       var parts = [];
-      // Labels match the design: AIRPORT for travel, HOTEL for accommodation.
-      if (menu.travel && d.travel_info){
-        parts.push(_renderRichTravel(d.travel_info, 'Airport'));
-      }
+      /* ACCOMMODATIONS FIRST, then travel - the order the sections appear in
+         everywhere else and the order the menu lists them in. This read the
+         other way round, so the page said Flights before Hotel while the
+         Content tab said the opposite.
+
+         And the labels are the couple's own. _renderRichTravel used to be
+         handed 'Airport' and 'Hotel' as fallbacks and applied them over
+         whatever the couple had written, so their heading was demoted into the
+         body and a word nobody typed appeared above it. They are passed as
+         fallbacks only, used when there is no heading in the copy at all. */
       if (menu.accommodations && d.accommodation_info){
-        var hotelHtml = d.accommodation_info;
-        // The design carries a room-block line under the hotel. If the couple
-        // hasn't written one, build it from their names rather than dropping
-        // the line the template shows.
-        if (!/<em[^>]*>/i.test(hotelHtml)) {
-          var _names = (d.couple_names || '').trim();
-          if (_names) hotelHtml += '<br><em>*Request the ' + _names + ' room block</em>';
-        }
-        var _h = _mpColParts(hotelHtml, 'Hotel');
-        parts.push(_renderRichTravel(_h.rest, _h.title));
+        var _h = _mpColParts(d.accommodation_info, '');
+        parts.push(_renderRichTravel(_h.title
+          ? '<strong>' + _h.title + '</strong><br>' + _h.rest
+          : _h.rest, ''));
+      }
+      if (menu.travel && d.travel_info){
+        var _t = _mpColParts(d.travel_info, '');
+        parts.push(_renderRichTravel(_t.title
+          ? '<strong>' + _t.title + '</strong><br>' + _t.rest
+          : _t.rest, ''));
       }
       // Keep the template's placeholder blocks when the couple hasn't written
       // anything — an empty Travel Info section looks broken.
