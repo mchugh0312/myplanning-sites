@@ -4783,7 +4783,7 @@
 
      Built empty. The cards are cloned from it by the caller, which is what
      happens on Modern Minimal too, so both paths render identically. */
-  function ensureRegistryGrid() {
+  function ensureRegistryGrid(cardCount) {
     var grid = document.getElementById('registryGrid');
     if (grid) return grid;
     try {
@@ -4798,11 +4798,14 @@
       grid = document.createElement('div');
       grid.id = 'registryGrid';
       grid.setAttribute('data-mp-built', '1');
-      var card = document.createElement('div');
-      card.className = 'registry-card';
-      card.innerHTML = '<img alt=""><div class="registry-card-name"></div>' +
-        '<a class="registry-buy-btn" href="#" target="_blank" rel="noopener">Purchase this Item</a>';
-      grid.appendChild(card);
+      var want = Math.max(1, cardCount || 1);
+      for (var c = 0; c < want; c++) {
+        var card = document.createElement('div');
+        card.className = 'registry-card';
+        card.innerHTML = '<img alt=""><div class="registry-card-name">Gift ' + (c + 1) + '</div>' +
+          '<a class="registry-buy-btn" href="#" target="_blank" rel="noopener">Purchase this Item</a>';
+        grid.appendChild(card);
+      }
       if (copy && copy.parentNode) copy.parentNode.insertBefore(grid, copy.nextSibling);
       else sec.appendChild(grid);
       return grid;
@@ -4816,6 +4819,16 @@
        created further down, once there is something to put in it. */
     var grid = document.getElementById('registryGrid');
     if (!grid && d && d.registry_preview === false) return;
+
+    /* In the EDITOR, build the grid with placeholder cards. The real gifts come
+       from a live fetch that is skipped here, so a design without its own grid
+       showed nothing at all while Modern Minimal - which ships sample cards -
+       showed a preview. The couple switched template and the same switch
+       appeared to stop working. */
+    if (!grid && _isPreview && !(d && d.registry_preview === false)) {
+      grid = ensureRegistryGrid(4);
+      if (!grid) return;
+    }
 
     /* The couple asked for a link only. Take the sample tiles down and leave the
        section as its heading, their words and the button - the same shape a
@@ -5188,7 +5201,11 @@
    top - covering exactly the 8px stitch at the footer's top edge. Raising
    the dot contrast twice did nothing because the line was never visible to
    begin with, whatever colour it was. */
-    '.mp-brand-footer{position:relative;z-index:1;background:var(--mp-bf-bg,#F9F7F5);width:100%;margin:0;padding:0;' +
+    /* width:100vw with a centring pull, so the footer reaches the window edges
+   whatever the page is sitting in. Modern Minimal draws a 14px frame with
+   body{border}, and a plain width:100% stopped inside it - leaving a thin
+   line of page background down each side of the footer. */
+    '.mp-brand-footer{position:relative;z-index:1;background:var(--mp-bf-bg,#F9F7F5);width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);margin-top:0;margin-bottom:0;padding:0;box-sizing:border-box;' +
       'font-family:"Instrument Serif",Georgia,serif;color:var(--mp-bf-ink,#121212);' +
       '-webkit-font-smoothing:antialiased;box-sizing:border-box}' +
     '.mp-brand-footer *{box-sizing:border-box}' +
