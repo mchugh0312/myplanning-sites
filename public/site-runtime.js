@@ -5042,7 +5042,16 @@
     return {
       bg: 'rgb(' + Math.round(bg.r) + ',' + Math.round(bg.g) + ',' + Math.round(bg.b) + ')',
       ink: 'rgb(' + Math.round(ink.r) + ',' + Math.round(ink.g) + ',' + Math.round(ink.b) + ')',
-      rule: rgba(ink, 0.22),
+      /* The stitched rule, dialled up on a dark ground.
+
+         A flat 0.22 was set for the pale footers this started with, where a
+         faint line is all that is wanted. On a saturated dark ground the same
+         alpha disappears: Modern Minimal's footer sits on its blue, and the
+         pattern above it simply could not be seen. Tying the alpha to the
+         ground rather than exempting one template fixes it everywhere the
+         footer is dark - Black Tie, Coastal Chic and Vintage are the same
+         case. */
+      rule: rgba(ink, relLuminance(bg) < 0.4 ? 0.55 : 0.22),
       // The wordmark is dark artwork on transparency. Invert it only when the
       // resolved INK is light — tying it to the ink rather than the ground
       // keeps the logo and the link text the same colour on mid-tone grounds.
