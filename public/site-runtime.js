@@ -2631,8 +2631,16 @@
         _rsvpLine = _dl ? (_dl.textContent || '').replace(/\s+/g, ' ').trim() : '';
       } catch (e) {}
 
+      /* Whether this design has anywhere to SHOW gifts. Only one of the ten
+         ships a registry grid, so on the rest the Include preview switch had
+         nothing to reveal and looked broken when it was turned on. The editor
+         hides it where there is no grid. */
+      var _hasGifts = false;
+      try { _hasGifts = !!document.getElementById('registryGrid'); } catch (e) {}
+
       parent.postMessage({
-        type: 'MP_SECTION_HEADINGS', headings: out, template: _file, rsvpLine: _rsvpLine
+        type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
+        rsvpLine: _rsvpLine, registryGrid: _hasGifts
       }, '*');
     } catch (e) {}
   }
