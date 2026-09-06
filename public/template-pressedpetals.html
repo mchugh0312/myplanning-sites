@@ -1047,7 +1047,13 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 @media(max-width:400px){
   .hero{aspect-ratio:5/4;}
   .hero-couple-name{font-size:clamp(1.7rem,9vw,2.4rem);}
-  .story-flower-r,.flower-mid-right{display:none;}
+  /* Smaller, not gone. This hid both right-hand flowers below 400px, and 390
+     is the commonest phone width there is - so an iPhone lost them while a
+     slightly wider handset kept them, and the left-hand ones stayed either way,
+     which read as half the decoration having failed to load. They shrink here
+     and only go below 340, where there genuinely is no room. */
+  .story-flower-r{width:70px;right:-12px;}
+  .flower-mid-right{width:62px;right:-10px;}
 }
 
 /* ── One size for every section title on mobile ───────────────────────
@@ -1062,6 +1068,10 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   a.registry-title{
     font-size:clamp(2rem,8.5vw,2.8rem);
   }
+}
+/* Below 340px there really is no room beside the content. */
+@media(max-width:340px){
+  .story-flower-r,.flower-mid-right{display:none;}
 }
 </style>
 <script>
