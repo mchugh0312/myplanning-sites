@@ -115,6 +115,11 @@ body.hydrating{visibility:hidden;}
 }
 .hero-couple-name{
   position:absolute;
+  /* Centred as a BLOCK, not just shifted by half its width. A long pair of
+     names breaks onto two lines and translateX only centres the box - the
+     lines inside it stayed left-aligned, which put the ampersand off to one
+     side instead of under the middle. */
+  text-align:center;
   left:50%;
   bottom:14%;
   transform:translateX(-50%);

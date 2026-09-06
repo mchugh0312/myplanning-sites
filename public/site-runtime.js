@@ -2619,8 +2619,20 @@
          showing. */
       var _file = '';
       try { _file = (location.pathname.split('/').pop() || ''); } catch (e) {}
+      /* The RSVP line rides along with the headings.
+
+         Every template words it differently ("Please let us know if you can
+         make it by...", "Kindly send your response by...", "By..."), so the
+         editor cannot seed its box without being told. Same channel, same
+         template check - there is no reason for a second one. */
+      var _rsvpLine = '';
+      try {
+        var _dl = document.getElementById('rsvpDeadline');
+        _rsvpLine = _dl ? (_dl.textContent || '').replace(/\s+/g, ' ').trim() : '';
+      } catch (e) {}
+
       parent.postMessage({
-        type: 'MP_SECTION_HEADINGS', headings: out, template: _file
+        type: 'MP_SECTION_HEADINGS', headings: out, template: _file, rsvpLine: _rsvpLine
       }, '*');
     } catch (e) {}
   }
@@ -5070,7 +5082,9 @@
          ground rather than exempting one template fixes it everywhere the
          footer is dark - Black Tie, Coastal Chic and Vintage are the same
          case. */
-      rule: rgba(ink, relLuminance(bg) < 0.4 ? 0.55 : 0.22),
+      /* 0.7 on a dark ground. The stitch is a 1px dot every 8px - fine enough
+         that 0.55 white on a saturated blue still read as nothing. */
+      rule: rgba(ink, relLuminance(bg) < 0.4 ? 0.7 : 0.22),
       // The wordmark is dark artwork on transparency. Invert it only when the
       // resolved INK is light — tying it to the ink rather than the ground
       // keeps the logo and the link text the same colour on mid-tone grounds.
