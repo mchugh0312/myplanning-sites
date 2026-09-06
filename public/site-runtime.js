@@ -4843,8 +4843,14 @@
        showed nothing at all while Modern Minimal - which ships sample cards -
        showed a preview. The couple switched template and the same switch
        appeared to stop working. */
+    /* The couple's real gifts, in the editor too.
+
+       The slug is in the payload, so the same fetch the live site makes works
+       here - the preview showed placeholder cards only because this code was
+       reading the slug off the URL, which the editor's iframe has not got.
+       Placeholders remain the fallback for a record with no slug yet. */
     if (!grid && _isPreview && !(d && d.registry_preview === false)) {
-      grid = ensureRegistryGrid(4);
+      grid = ensureRegistryGrid((d && d.slug) ? 1 : 4);
       if (!grid) return;
     }
 
@@ -4867,8 +4873,10 @@
        the couple turned the preview on and the section stayed empty. */
     for (var u = 0; u < tiles.length; u++) tiles[u].style.display = '';
 
-    if (_isPreview) return;
-    var slug = window._weddingSlug || _liveSlug || '';
+    /* No _isPreview bail-out. The slug comes from the payload, so the editor can
+       fetch the same gifts the live site does; without one there is nothing to
+       ask for and the placeholder cards stand. */
+    var slug = window._weddingSlug || _liveSlug || (d && d.slug) || '';
     if (!slug) return;
 
     /* Now build it, if the design has none of its own - we are about to fetch

@@ -1452,8 +1452,19 @@ function hydrateTemplate(d){
     if (grid){
       // Build event list: prefer structured d.events, otherwise parse weddings_info + events_info
       var allEvents = [];
-      if (d.events && d.events.length){
-        allEvents = d.events.map(function(ev){
+      /* d.events is the Final Events rollup, and it carries only an id and a
+         name - no date, time or venue. Preferring it outright meant the
+         couple's own copy was ignored, and then the "does this have real
+         content" test below failed for want of a date, so the template's SAMPLE
+         schedule stayed on screen. The page showed Welcome Drinks in Providence
+         while the Content boxes said The Ceremony in La Jolla.
+
+         So it is only preferred when its entries actually carry detail. */
+      var _structured = (d.events || []).filter(function (ev) {
+        return ev && (ev.date || ev.time || ev.venue || ev.address);
+      });
+      if (_structured.length){
+        allEvents = _structured.map(function(ev){
           return {
             name: ev.name || '',
             date: ev.date ? fmtDateShort(ev.date) : '',
