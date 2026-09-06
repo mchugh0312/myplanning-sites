@@ -396,6 +396,11 @@ body.hydrating{visibility:hidden;}
   letter-spacing:0.02em;
   margin-bottom:2rem;
 }
+/* The couple's registry words, under the heading and above the gifts - which
+   is where a note like "we are registered at..." belongs. It used to be
+   pushed in above the button at the very bottom, after every item. */
+.registry-note{font-family:var(--body);font-size:0.92rem;line-height:1.7;
+  color:var(--ink);max-width:520px;margin:0 auto 1.6rem;text-align:center;}
 .registry-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -865,14 +870,12 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   /* The decorations overlap the photo on desktop; at phone width there's no
      margin for them to sit in, so they tuck against the frame's corners. */
   .hero-deco-left{
-    /* Anchored to the TOP, not the bottom. At this width .hero-pair becomes a
-       grid and the two photos stack, so `bottom` put this below BOTH of them -
-       it read as a stray motif under the last picture rather than beside the
-       hero. */
-    /* 300px puts it about three-quarters down the first photo, which is where
-       it sits on desktop (top:250 against a pair 340 tall). At 70px it was up
-       by the couple's heads instead. */
-    left:-10px;top:300px;bottom:auto;width:88px;}
+    /* A PERCENTAGE, not a pixel offset. .hero-pair is a grid of two stacked
+       photos here and its height changes with the screen, so 70px sat up by
+       the couple's heads and 300px hung below the picture - every fixed
+       number is only right at one width. 34% lands in the lower left of the
+       FIRST photo, where it sits on desktop, at any size. */
+    left:-10px;top:34%;bottom:auto;width:88px;}
   .hero-deco-right{
     /* Bigger: at 68px the glasses read as a smudge beside a full-width photo. */
     right:-10px;top:-14px;width:96px;}
@@ -890,7 +893,11 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   }
 
   /* Event blocks and photo strips stack */
-  .events-grid,.photo-strip,.registry-grid{grid-template-columns:1fr;gap:1.2rem;}
+  .events-grid,.photo-strip{grid-template-columns:1fr;gap:1.2rem;}
+  /* The registry stays TWO columns on a phone. One column turns a gift list
+     into a page of scrolling, one item per screenful. The events and the
+     photo strip do want a single column, which is why they keep it. */
+  .registry-grid{grid-template-columns:repeat(2,1fr);gap:1rem;}
   .event-block{padding:1.4rem 0;}
   .event-name{font-size:1.25rem;}
   .event-detail{font-size:0.88rem;line-height:1.7;}
@@ -1185,6 +1192,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
       <img src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8f241d25-335e-4043-bf8f-110e15494f21.svg" alt="">
     </div>
     <h2 class="registry-title">Our Registry</h2>
+      <div class="registry-note" id="registryInfo"></div>
     <div class="registry-grid" id="registryGrid">
       <div class="registry-card">
         <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" alt="Item 1">
@@ -1663,6 +1671,8 @@ function hydrateTemplate(d){
   const registrySection = document.getElementById('registry-section');
   if (registrySection) registrySection.style.display = menu.registry ? '' : 'none';
   if (menu.registry){
+    var _note = document.getElementById('registryInfo');
+    if (_note) _note.innerHTML = '';          // cleared each pass, then rewritten
     // If user provides registry_info as HTML with links, use it as the bottom CTA.
     if (d.registry_info){
       var infoEl = document.getElementById('registryCta');
@@ -1674,10 +1684,15 @@ function hydrateTemplate(d){
         infoEl.textContent = 'View Our Registry';
       } else {
         // No external link: keep the button (the runtime points it at
-        // /{slug}/registry) and show the couple's text above it.
+        // /{slug}/registry) and show the couple's text under the heading.
+        //
+        // ASSIGNED, not appended. This used insertAdjacentHTML('afterbegin') on
+        // a wrapper, and hydrate runs on every keystroke in the preview - so the
+        // note stacked up, one copy per keypress, each holding what had been
+        // typed so far: "thanks", "thank", "than", "tha"... down the page.
         infoEl.textContent = 'View Our Registry';
-        ctaWrap.insertAdjacentHTML('afterbegin',
-          '<div style="font-family:var(--body);font-size:0.92rem;line-height:1.7;color:var(--ink);max-width:520px;margin:0 auto 1rem;">' + d.registry_info + '</div>');
+        var noteEl = document.getElementById('registryInfo');
+        if (noteEl) noteEl.innerHTML = d.registry_info;
       }
     }
   }
