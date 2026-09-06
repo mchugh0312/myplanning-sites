@@ -4810,8 +4810,12 @@
   }
 
   function hydrateRegistryPreview(d) {
-    var grid = ensureRegistryGrid();
-    if (!grid) return;
+    /* NOT built yet. A grid this code creates is empty until the gifts arrive,
+       and they are fetched live - so in the editor preview a built grid sat
+       there as one blank card with a "Purchase this Item" link under it. It is
+       created further down, once there is something to put in it. */
+    var grid = document.getElementById('registryGrid');
+    if (!grid && d && d.registry_preview === false) return;
 
     /* The couple asked for a link only. Take the sample tiles down and leave the
        section as its heading, their words and the button - the same shape a
@@ -4822,7 +4826,7 @@
        live and so are skipped in the editor, but the template ships sample tiles
        in its markup: bailing out first left those on screen, so the toggle did
        nothing in the preview and the couple saw gifts they had just turned off. */
-    var tiles = grid.querySelectorAll('.registry-card');
+    var tiles = grid ? grid.querySelectorAll('.registry-card') : [];
     if (d && d.registry_preview === false) {
       for (var k = 0; k < tiles.length; k++) tiles[k].style.display = 'none';
       return;
@@ -4836,6 +4840,10 @@
     var slug = window._weddingSlug || _liveSlug || '';
     if (!slug) return;
 
+    /* Now build it, if the design has none of its own - we are about to fetch
+       real gifts to fill it. */
+    grid = grid || ensureRegistryGrid();
+    if (!grid) return;
     var cards = grid.querySelectorAll('.registry-card');
     if (!cards.length) return;
 
