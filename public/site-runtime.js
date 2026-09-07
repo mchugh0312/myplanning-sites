@@ -5450,7 +5450,17 @@
          band's own text colour, which is by definition the colour that design
          uses ON that background, so it cannot clash with it. */
       var readable = _solid ? '' : 'color:inherit;background-color:transparent;';
-      var rule = '#registryGrid .registry-buy-btn{' + css + readable +
+      /* The layout, restated in THIS sheet rather than only in the fallback.
+
+         The fallback is deliberately injected first so the copied colours win -
+         which also means anything it says about layout can be overridden by a
+         template's own rules loaded after it. Buttons drifted off a common
+         baseline on the one template that ships its own registry CSS. These
+         three are the whole pinning contract, so they belong in the sheet that
+         is guaranteed to be last. */
+      var rule = '#registryGrid{align-items:stretch}' +
+                 '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
+                 '#registryGrid .registry-buy-btn{margin-top:auto;align-self:center;' + css + readable +
                  'display:inline-block;text-align:center;max-width:100%}' +
         /* Smaller on a phone. The design's button is sized to sit alone under a
            hotel card; four of them in a two-column grid are far too heavy, and
