@@ -4225,13 +4225,21 @@
     blacktietimeless: ['.other-event-photo'],
     coastalchic:      ['#heroImg', '#travelImg'],
     goldenhour:       ['#accomPhoto', '#travelPhoto'],
-    heirloombloom:    [],
+    heirloombloom:    ['#heroCarousel .hero-slide img'],
     modernminimal:    ['#heroImg', '#heroPairA', '#heroPairB'],
     pressedpetals:    ['#heroImg'],
     regalboho:        ['#heroImg'],
     sageandstill:     ['#heroImg'],
-    vintagelovestory: [],
+    vintagelovestory: ['#storyPhotos img'],
     whimsicalromance: ['#heroImg', '.accom-photo']
+  };
+
+  /* The same policy for slots a design paints as a CSS background rather than
+     an <img>. Pressed Petals sets its Need to Knows photograph this way, so
+     img.src never reached it and a stock picture sat behind that band however
+     many photographs the couple had uploaded. */
+  var CONTENT_BACKGROUNDS = {
+    pressedpetals: ['#needToKnowBg']
   };
 
   /* A stock photograph is not licensed for a couple's live site. Once they have
@@ -4266,6 +4274,22 @@
           img.src = own[n % own.length];
           img.removeAttribute('srcset');
           img.style.visibility = '';
+          n++;
+        });
+      });
+
+      (CONTENT_BACKGROUNDS[TID] || []).forEach(function (sel) {
+        var nodes;
+        try { nodes = document.querySelectorAll(sel); } catch (e) { return; }
+        Array.prototype.forEach.call(nodes, function (el) {
+          if (!el || !el.style) return;
+          /* Read the inline value only. A background set from the stylesheet is
+             the design's own, and rewriting it here would paint over ornament. */
+          var cur = el.style.backgroundImage || '';
+          if (!cur) return;
+          var m = cur.match(/url\(['"]?([^'")]+)/);
+          if (m && theirs[m[1]]) return;           // already their own
+          el.style.backgroundImage = "url('" + own[n % own.length] + "')";
           n++;
         });
       });
