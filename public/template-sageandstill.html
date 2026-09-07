@@ -552,6 +552,10 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1rem;
   line-height:1.5;
 }
+/* The button is pinned to the bottom of the card by margin-top:auto, so a gap
+   cannot come from its own margin - a fixed margin-top would break the pinning.
+   It comes from the copy instead, which is the last thing above it. */
+.accom-card-place,.accom-card-meta{margin-bottom:1.5rem;}
 .accom-card-cta{
   display:inline-block;
   margin-top:auto;
@@ -934,6 +938,23 @@ footer{
   .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px;padding:0 0.5rem;}
   .gallery-lb-prev{left:6px;padding:10px 12px;}
   .gallery-lb-next{right:6px;padding:10px 12px;}
+}
+
+/* The hero photo is an ABSOLUTE panel in this design, inset on the right of the
+   hero box. The 768px block above switches it to position:static for tablet
+   width, and because that block sits LATER in the file than the phone rules at
+   640px it won there too - a static panel inside a hero with a fixed aspect
+   ratio and overflow:hidden, which is why the photograph vanished entirely on a
+   phone rather than merely moving. Restated here, after it. */
+@media (max-width:640px){
+  .hero-photo-wrap{
+    position:absolute;
+    top:13%;
+    right:0;
+    width:40%;
+    height:78%;
+    aspect-ratio:auto;
+  }
 }
 
 /* ── MOBILE PASS (phones) ─────────────────────────────────────────────
@@ -1365,7 +1386,17 @@ function renderAccomCard(title, html, fieldUrl) {
 
   // Anything left after stripping leading/trailing <br>s = secondary place text
   rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
-  var place = rest.replace(/<[^>]+>/g, '').trim();
+  /* The couple's line breaks, kept. Stripping every tag took the <br>s with
+     it, so three lines of an address ran together as one - "Resort Block3777
+     La Jolla Village Drive". Turn the breaks into newlines FIRST, strip the
+     rest, then put the breaks back. */
+  var place = rest
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .split('\n')
+    .map(function (l) { return l.trim(); })
+    .filter(Boolean)
+    .join('<br>');
 
   var bookUrl = _mpBookUrl(html, fieldUrl);
 
