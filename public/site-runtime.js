@@ -4247,17 +4247,58 @@
     pressedpetals: ['#needToKnowBg']
   };
 
+  /* Called HERE, not near the top of the file: CONTENT_IMAGES is a var, so up
+     there it is hoisted but still undefined and the hold would silently do
+     nothing. Called as early as it can actually work, which is immediately
+     after the map it reads. */
+  holdContentImages();
+
   /* A stock photograph is not licensed for a couple's live site. Once they have
      given us a photograph of their own, no sample may survive in a slot meant
      for one - repetition of their picture is theirs to repeat, a stranger's
      kitchen is not. With NO photograph of theirs, the samples stand: that is
      the template being previewed, which is what the couple asked to see. */
+  /* The sample is in the markup, so the browser paints it the moment the page
+     loads - a beat before any payload arrives to say whether the couple has a
+     photograph of their own. That beat is the flash: a stranger's picture on
+     the couple's hero, then their own. Held back until hydrate has decided.
+
+     PREVIEW ONLY. A payload is guaranteed there. On the live site nothing may
+     ever post one, and a hero that stays blank forever is far worse than a
+     sample that never flashed. */
+  function holdContentImages() {
+    try {
+      if (!_isPreview) return;
+      var sels = CONTENT_IMAGES[TID] || [];
+      if (!sels.length) return;
+      if (document.getElementById('mp-ci-hold')) return;
+      var st = document.createElement('style');
+      st.id = 'mp-ci-hold';
+      /* visibility, not display: the slot keeps its size, so nothing reflows
+         when the picture appears and the fold does not jump. */
+      st.textContent = sels.join(',') + '{visibility:hidden}';
+      (document.head || document.documentElement).appendChild(st);
+      /* Belt and braces. If hydrate never runs - a payload that never arrives,
+         an error upstream - the images must still appear. */
+      setTimeout(releaseContentImages, 2500);
+    } catch (e) {}
+  }
+
+  function releaseContentImages() {
+    try {
+      var st = document.getElementById('mp-ci-hold');
+      if (st && st.parentNode) st.parentNode.removeChild(st);
+    } catch (e) {}
+  }
+
   function purgeSampleImages(d) {
     try {
       var own = (d && Array.isArray(d.hero_images)) ? d.hero_images.filter(Boolean) : [];
-      if (!own.length) return;
       var sels = CONTENT_IMAGES[TID] || [];
-      if (!sels.length) return;
+      /* Released on EVERY path, including the two early returns below: with no
+         photograph of their own the sample is the right thing to show, and it
+         must not stay hidden because of that. */
+      if (!own.length || !sels.length) { releaseContentImages(); return; }
 
       /* Every URL anywhere in the couple's own record. A slot already showing
          one of their pictures - a gallery shot, an event photo they uploaded -
@@ -4298,7 +4339,9 @@
           n++;
         });
       });
-    } catch (e) {}
+
+      releaseContentImages();
+    } catch (e) { releaseContentImages(); }
   }
 
   function syncMenuLinks(d) {
