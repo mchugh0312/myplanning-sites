@@ -5109,7 +5109,13 @@
        reading the slug off the URL, which the editor's iframe has not got.
        Placeholders remain the fallback for a record with no slug yet. */
     if (!grid && _isPreview && !(d && d.registry_preview === false)) {
-      grid = ensureRegistryGrid((d && d.slug) ? 1 : 4);
+      /* Four, always. With a slug this built ONE card and relied on the gift
+         fetch to clone it up - so a registry that returns nothing, is gated, or
+         is still loading showed a single lonely tile where every template that
+         ships its own markup showed a row of four. applyRegistry hides the
+         cards it has no gift for, so building four costs nothing when there
+         are fewer. */
+      grid = ensureRegistryGrid(4);
       if (!grid) return;
     }
 

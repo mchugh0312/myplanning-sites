@@ -265,7 +265,11 @@ img{max-width:100%;display:block;}
   display:grid;grid-template-columns:1fr 1fr;
   /* stretch, so an arch with less copy is still the same height and the
      stretched PNG keeps its true shape. */
-  gap:1.5rem;max-width:680px;margin:0 auto;align-items:stretch;
+  /* grid-auto-rows, not just align-items: stretch matches cards that SHARE a
+     row, but each row gets its own height - so once they stack on a phone the
+     shorter card shrank and the rule, set as a percentage, landed at a
+     different height on each. That is why Flights did not match Hotel. */
+  gap:1.5rem;max-width:680px;margin:0 auto;align-items:stretch;grid-auto-rows:1fr;
 }
 /* The arch shape is provided by the PNG (set inline as background-image
    on each card via JS). Card has a fixed aspect ratio so the arch always
@@ -275,7 +279,7 @@ img{max-width:100%;display:block;}
    than baked into the PNG so it stays crisp at every card width. 30% down
    matches the spring point of the arch artwork. */
 .arch-card::before{
-  content:'';position:absolute;left:19%;right:19%;top:35%;
+  content:'';position:absolute;left:19%;right:19%;top:38%;
   height:2px;background:var(--black);
 }
 .arch-card{
@@ -311,7 +315,7 @@ img{max-width:100%;display:block;}
   font-family:var(--serif);font-size:1rem;font-weight:400;
   /* Further down than the rule above it, so the gap opens between the two
      rather than the whole group sliding together. */
-  color:var(--ink);line-height:1.6;margin:2.1rem 0 0.9rem;
+  color:var(--ink);line-height:1.6;margin:2.6rem 0 0.9rem;
   text-align:center;
 }
 .arch-card-note{
@@ -753,7 +757,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .other-event-dress{font-size:1.5rem;margin-top:1.1rem;}
 
   /* Arch cards stack, and stop being taller than the screen. */
-  .travel-cards{grid-template-columns:1fr;max-width:320px;gap:1.6rem;align-items:stretch;}
+  .travel-cards{grid-template-columns:1fr;max-width:320px;gap:1.6rem;align-items:stretch;grid-auto-rows:1fr;}
   /* NOT min-height:0. The arch is a stretched background image, so letting
      a card shrink to its copy skews the artwork - the flights card has less
      text and often no button, so it drew visibly squatter than the hotel one
