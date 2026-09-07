@@ -5507,9 +5507,21 @@
          baseline on the one template that ships its own registry CSS. These
          three are the whole pinning contract, so they belong in the sheet that
          is guaranteed to be last. */
+      /* SPECIFICITY, not order - this is why five attempts at the colours made
+         no difference. The fallback rule in injectPreviewStyles is written as
+         #registryGrid[data-mp-built] .registry-buy-btn: one id, one attribute,
+         one class = (1,2,0). This sheet was #registryGrid .registry-buy-btn =
+         (1,1,0). Lower specificity loses however late it is loaded, so on every
+         template whose grid this code builds, the accent fallback overrode each
+         copied property - accent ink, a hairline border, no fill, which on a
+         band of the same tone is the dark-on-dark that kept being reported.
+         Matching both selectors makes this at least as specific either way. */
+      var BTN = '#registryGrid[data-mp-built] .registry-buy-btn,' +
+                '#registryGrid .registry-buy-btn';
       var rule = '#registryGrid{align-items:stretch}' +
+                 '#registryGrid[data-mp-built] .registry-card,' +
                  '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
-                 '#registryGrid .registry-buy-btn{margin-top:auto;align-self:center;' + css + readable +
+                 BTN + '{margin-top:auto;align-self:center;' + css + readable +
                  'display:inline-block;text-align:center;max-width:100%}' +
         /* Smaller on a phone. The design's button is sized to sit alone under a
            hotel card; four of them in a two-column grid are far too heavy, and
@@ -5520,7 +5532,7 @@
            This lives in the copied sheet, not the fallback one: the fallback is
            deliberately loaded first so this wins, and a media query over there
            would lose to the rule above. */
-        '@media(max-width:640px){#registryGrid .registry-buy-btn{' +
+        '@media(max-width:640px){' + BTN + '{' +
           'font-size:' + _scale(cs.fontSize, 0.82, 11) + ';' +
           'padding:' + _scale(cs.paddingTop, 0.7, 6) + ' ' +
             _scale(cs.paddingRight, 0.55, 8) + ';' +

@@ -288,11 +288,18 @@ img{max-width:100%;display:block;}
   background-repeat:no-repeat;
   background-position:center top;
   background-size:100% 100%;
-  /* Contents sit lower in the arch AND are centred as a block. flex-start left
-     the whole group hanging from the top of the card whatever its height. */
+  /* Measured from the TOP, not centred.
+
+     Centring made every element's position depend on how much copy the card
+     held: the hotel card has three lines and a button, the flights card two
+     lines and none, so the same layout put their titles at different heights
+     while the rule - positioned as a percentage of the card - stayed put. That
+     is why the two never matched. Anchoring the group to the top means the
+     title and the rule land at the same place on both cards whatever is written
+     below them, which is what the design does. */
   padding:5.4rem 2rem 3rem;
   min-height:clamp(360px,32vw,420px);
-  justify-content:center;
+  justify-content:flex-start;
   text-align:center;
   display:flex;flex-direction:column;align-items:center;
   /* the PNG already provides the arch outline + interior fill */
