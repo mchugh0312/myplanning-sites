@@ -1371,8 +1371,9 @@ function renderAccomCard(title, html, fieldUrl) {
 
   var nameHtml = name || (place ? place : title);
   card.innerHTML =
-    '<div class="accom-card-title">' + title + '</div>' +
-    '<div class="accom-card-rule"></div>' +
+    // The rule underlines the title, so it goes when the title does.
+    (title ? '<div class="accom-card-title">' + title + '</div>' +
+             '<div class="accom-card-rule"></div>' : '') +
     '<div class="accom-card-name">' + nameHtml + '</div>' +
     (place && name ? '<div class="accom-card-place">' + place + '</div>' : '') +
     (meta ? '<div class="accom-card-meta"><em>' + meta + '</em></div>' : '') +
@@ -1614,12 +1615,14 @@ function hydrateTemplate(d) {
         accomInner.style.gridTemplateColumns = '1fr 1fr';
 
         if (hotelHtml) {
-          var _h = _mpColParts(hotelHtml, 'Hotel');
+          /* No invented label: the card title is the couple's first line,
+             or the card has no title. */
+          var _h = _mpColParts(hotelHtml, '');
           var hotelCard = renderAccomCard(_h.title, _h.rest, d.accommodation_url);
           accomInner.appendChild(hotelCard);
         }
         if (flightHtml) {
-          var _f = _mpColParts(flightHtml, 'Flights');
+          var _f = _mpColParts(flightHtml, '');
           var flightCard = renderAccomCard(_f.title, _f.rest, d.travel_url);
           accomInner.appendChild(flightCard);
         } else if (hotelHtml) {

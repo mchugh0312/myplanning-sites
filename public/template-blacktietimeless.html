@@ -1483,23 +1483,39 @@ function hydrateTemplate(d) {
         ((menu.accommodations && d.accommodation_info && menu.travel && d.travel_info) ? '<br><br>' : '') +
         (menu.travel && d.travel_info ? d.travel_info : '')
       );
-      // Labels for the first and second card when the couple hasn't titled
-      // their own blocks.
-      var _defaultLabels = [];
-      if (menu.accommodations && d.accommodation_info)
-        _defaultLabels.push(_mpColParts(d.accommodation_info, 'Hotel').title);
-      if (menu.travel && d.travel_info)
-        _defaultLabels.push(_mpColParts(d.travel_info, 'Flights').title);
-      var tParts = tinfoNorm.replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
-                            .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
-                            .split('||SPLIT||')
-                            .map(function(p) { return p.trim(); })
-                            .filter(function(p) { return p.length > 3; });
+      /* No invented labels. The card title is the FIRST LINE of what the couple
+         wrote, exactly as the event lists and Pressed Petals' columns work, and
+         if there is no title line the card simply has none. The words "Hotel"
+         and "Flights" used to be pushed in here as fallbacks, which made them
+         the only text on this band the couple could not change - the Content
+         tab offered a body box and nothing else.
+
+         Splitting each field SEPARATELY, rather than concatenating them first,
+         is what lets each card still remember which field it came from - the
+         hotel card needs Accommodation URL and the flights card Travel URL, and
+         that used to be recovered by comparing the label text against the word
+         "Hotel". With the label now being the couple's own words, that test
+         would have failed the moment they wrote anything else. */
+      var tParts = [], _partIsHotel = [];
+      var _pushParts = function (html, isHotel) {
+        if (!html) return;
+        _normalise(html)
+          .replace(/<br\s*\/?> *<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*<br\s*\/?>\s*/gi, '||SPLIT||')
+          .replace(/<br\s*\/?> *<br\s*\/?>\s*/gi, '||SPLIT||')
+          .split('||SPLIT||')
+          .map(function(p) { return p.trim(); })
+          .filter(function(p) { return p.length > 3; })
+          .forEach(function(p) { tParts.push(p); _partIsHotel.push(isHotel); });
+      };
+      _pushParts(menu.accommodations && d.accommodation_info ? d.accommodation_info : '', true);
+      _pushParts(menu.travel && d.travel_info ? d.travel_info : '', false);
       const archBgStyle = "background-image:url('" + _ARC + "');";
       const buildArch = function(label, name, note, linkHref, linkText) {
         return '<div class="arch-card" style="' + archBgStyle + '">' +
           (label ? '<div class="arch-card-label">' + label + '</div>' : '') +
-          '<div class="arch-card-rule"></div>' +
+          /* The rule underlines the label, so with no label there is nothing to
+             underline - it used to draw regardless and left a floating bar. */
+          (label ? '<div class="arch-card-rule"></div>' : '') +
           (name ? '<div class="arch-card-name">' + name + '</div>' : '') +
           (note ? '<div class="arch-card-note">' + note + '</div>' : '') +
           (linkHref ? '<a class="arch-card-btn" href="' + linkHref + '" target="_blank" rel="noopener">' + (linkText || 'Book Now') + '</a>' : '') +
@@ -1507,26 +1523,20 @@ function hydrateTemplate(d) {
       };
       if (tParts.length) {
         tParts.forEach(function(part, _idx) {
-          // Extract label = first <strong>, else the design's fixed label for
-          // this card (Hotel then Flights). Cards were coming out untitled
-          // whenever the couple hadn't bolded a heading of their own.
-          // The section label is fixed by the design (Hotel / Flights). Anything
-          // the couple bolded is content, so it stays in the body rather than
-          // being promoted into the label.
-          var labelMatch = part.match(/<strong>([^<]+)<\/strong>/i);
-          var _fixedLabel = _defaultLabels[_idx] || '';
-          var label = _fixedLabel || (labelMatch ? labelMatch[1] : '');
-          var rest  = part;
-          if (labelMatch && !_fixedLabel) {
-            rest = part.replace(labelMatch[0], '').replace(/^<br\s*\/?>\s*/i, '');
-          }
+          /* First line is the title, and it is REMOVED from the body. Both
+             halves matter: the old code promoted a fixed label but left rest
+             untouched, so a couple who did title their block saw that title
+             printed as the label and again at the top of the card. */
+          var _col  = _mpColParts(part, '');
+          var label = _col.title;
+          var rest  = _col.rest;
           // Extract link (first <a href="…">…</a>)
           var linkMatch = rest.match(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/i);
           var linkHref = linkMatch ? linkMatch[1] : '';
           // Dedicated field for THIS card takes precedence — the hotel card
-          // gets Accomodation URL, the flights card gets Travel URL.
-          var _isHotel = /hotel|accommodat|stay|room/i.test(label) ||
-                         (_defaultLabels[_idx] === 'Hotel');
+          // gets Accomodation URL, the flights card gets Travel URL. Read from
+          // the part's own source, not from what the label happens to say.
+          var _isHotel = _partIsHotel[_idx];
           var _fieldUrl = _isHotel ? d.accommodation_url : d.travel_url;
           if (_fieldUrl) linkHref = _fieldUrl;
           var linkText  = linkMatch ? linkMatch[2] : '';

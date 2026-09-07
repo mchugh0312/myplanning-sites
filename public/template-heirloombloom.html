@@ -1338,8 +1338,9 @@ function hydrateTemplate(d) {
   if(menu.accommodations&&d.accommodation_info){
     var acContent=document.getElementById('accomContent');
     if(acContent){
-      var acName='Hotel';
-      var rest=d.accommodation_info;
+      /* Already on the shared rule: _mpColBlock takes the first line as the
+         column title and invents nothing. The old acName='Hotel' and its rest
+         variable were left behind unused when that change was made. */
       var _acUrl=_mpBookUrl(d.accommodation_info, d.accommodation_url);
       acContent.innerHTML=
         _mpColBlock(d.accommodation_info)+

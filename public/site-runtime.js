@@ -5080,8 +5080,12 @@
       /* A grid the runtime built has none of the template's own card styling,
          so it gets a plain, neutral treatment that inherits the section's
          colours. Templates that ship their own grid are untouched. */
+      /* margin-bottom, not 0: the row sat hard against the section's own
+         "View our registry" button with nothing between them. Modern Minimal,
+         which ships its own grid, already carries 2rem here - this brings the
+         built grids into line with it. */
       '#registryGrid[data-mp-built]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));' +
-        'gap:1.2rem;max-width:720px;margin:1.6rem auto 0;align-items:start}' +
+        'gap:1.2rem;max-width:720px;margin:1.6rem auto 2rem;align-items:start}' +
       '@media(max-width:900px){#registryGrid[data-mp-built]{grid-template-columns:repeat(2,minmax(0,1fr))}}' +
       '#registryGrid[data-mp-built] .registry-card{display:flex;flex-direction:column;' +
         'align-items:center;text-align:center;gap:0.5rem;min-width:0}' +
@@ -5110,6 +5114,20 @@
 
   function renderPreviewCard(card, it, registryUrl) {
     var img = card.querySelector('img');
+    /* The nine designs without their own registry markup get a grid this code
+       builds, and its placeholder card carries a .mp-reg-thumb DIV rather than
+       an <img> - so this lookup found nothing and the picture was the one field
+       that never filled in. Name, price and button all use different selectors,
+       which is why everything EXCEPT the image looked correct. Promote the
+       thumb to a real image the first time a gift with a picture lands on it;
+       idempotent, because the next pass finds the <img> and skips this. */
+    if (!img && it.image_url) {
+      var thumb = card.querySelector('.mp-reg-thumb');
+      if (thumb && thumb.parentNode) {
+        img = document.createElement('img');
+        thumb.parentNode.replaceChild(img, thumb);
+      }
+    }
     var name = card.querySelector('.registry-card-name, .registry-item-name');
     var btn = card.querySelector('a');
 

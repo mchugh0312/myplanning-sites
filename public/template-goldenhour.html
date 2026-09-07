@@ -948,9 +948,11 @@ function hydrateTemplate(d){
   if(menu.accommodations&&d.accommodation_info){
     var acContent=el('accomContent');
     if(acContent){
-      // The label is fixed by the design. A <strong> in the couple's copy is
-      // the venue NAME, so it stays in the body instead of replacing "Hotel".
-      var _ac=_mpColParts(d.accommodation_info,'Hotel');
+      /* Nothing invented. The label is the FIRST LINE of the couple's copy and
+         if there is no title line the column has no label - "Hotel" used to be
+         pushed in here, which made it the one word on this band they could not
+         change from the Content tab. */
+      var _ac=_mpColParts(d.accommodation_info,'');
       var acName=_ac.title;
       var rest=_ac.rest;
       // Dedicated field first (Accomodation URL / MXzO9); a link pasted into
@@ -962,8 +964,9 @@ function hydrateTemplate(d){
       var venueName=lines.slice(0,2).join('<br>');
       var note=lines.slice(2).join(' ');
       acContent.innerHTML=
-        '<div class="split-label">'+acName+'</div>'+
-        '<div class="split-rule"></div>'+
+        // The rule underlines the label, so it goes when the label does.
+        (acName?'<div class="split-label">'+acName+'</div>'+
+                '<div class="split-rule"></div>':'')+
         '<div class="split-name">'+venueName+'</div>'+
         (note?'<div class="split-note">'+note+'</div>':'')+
         _ctaHtml(acUrl,'Book Now');
@@ -976,13 +979,20 @@ function hydrateTemplate(d){
     var trContent=el('travelContent');
     if(trContent){
       var trUrl=d.travel_url||_extractUrl(d.travel_info);
-      var tText=_stripUrl(d.travel_info.replace(/<[^>]+>/g,'').trim(),trUrl);
-      var airportMatch=tText.match(/([A-Z][^.,(]+(?:airport|Airport)[^.,)]*)/);
-      var tName=airportMatch?airportMatch[0].trim():'Airport';
-      var tNote=tText.replace(tName,'').replace(/^[.,\s]+/,'').trim();
+      /* Same shape as the accommodations column above: first line is the label,
+         what follows is the body. This used to invent BOTH words on the card -
+         "Flights" as the label, and "Airport" whenever a regex hunting for an
+         airport name in the couple's prose came up empty. */
+      var _tr=_mpColParts(d.travel_info,'');
+      var trLabel=_tr.title;
+      var tLines=_tr.rest.split(/<br\s*\/?>/i).map(function(s){
+        return _stripUrl(s.replace(/<[^>]+>/g,'').trim(),trUrl);
+      }).filter(Boolean);
+      var tName=tLines.slice(0,2).join('<br>');
+      var tNote=tLines.slice(2).join(' ');
       trContent.innerHTML=
-        '<div class="split-label">'+_mpColParts(d.travel_info,'Flights').title+'</div>'+
-        '<div class="split-rule"></div>'+
+        (trLabel?'<div class="split-label">'+trLabel+'</div>'+
+                 '<div class="split-rule"></div>':'')+
         '<div class="split-name">'+tName+'</div>'+
         (tNote?'<div class="split-note">'+tNote+'</div>':'')+
         _ctaHtml(trUrl,'Book Now');
