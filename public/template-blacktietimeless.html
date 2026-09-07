@@ -194,6 +194,17 @@ img{max-width:100%;display:block;}
   margin-bottom:1.5rem;line-height:1.2;
   text-align:center;
 }
+/* The TRAILING <em> of an event block - the attire line - in the same face as
+   the event title above it. The dress_code FIELD already had this treatment in
+   .wedding-card-dress; the SEEDED copy carries its attire as a trailing <em>
+   inside the detail, so it inherited the address styling instead. :last-child
+   keeps a mid-sentence italic inline. */
+.wedding-card-detail em:last-child{
+  font-family:var(--script);
+  font-size:1.5rem;
+  font-style:normal;
+  line-height:1.2;
+}
 .wedding-card-detail{
   font-family:var(--serif);font-size:1rem;
   color:var(--on-dark);line-height:2.1;
@@ -264,7 +275,7 @@ img{max-width:100%;display:block;}
    than baked into the PNG so it stays crisp at every card width. 30% down
    matches the spring point of the arch artwork. */
 .arch-card::before{
-  content:'';position:absolute;left:19%;right:19%;top:30%;
+  content:'';position:absolute;left:19%;right:19%;top:35%;
   height:2px;background:var(--black);
 }
 .arch-card{
@@ -273,12 +284,11 @@ img{max-width:100%;display:block;}
   background-repeat:no-repeat;
   background-position:center top;
   background-size:100% 100%;
-  /* Contents sit lower in the arch. At 3.2rem the label crowded the curve at
-     the top of the PNG; the design has it clear of the spring point, with the
-     name, note and button following it down. */
-  padding:4.6rem 2rem 2.6rem;
+  /* Contents sit lower in the arch AND are centred as a block. flex-start left
+     the whole group hanging from the top of the card whatever its height. */
+  padding:5.4rem 2rem 3rem;
   min-height:clamp(360px,32vw,420px);
-  justify-content:flex-start;
+  justify-content:center;
   text-align:center;
   display:flex;flex-direction:column;align-items:center;
   /* the PNG already provides the arch outline + interior fill */
@@ -299,7 +309,9 @@ img{max-width:100%;display:block;}
   /* Not bold in the design, and set a little lower with more room beneath so
      the card doesn't end in a block of empty white. */
   font-family:var(--serif);font-size:1rem;font-weight:400;
-  color:var(--ink);line-height:1.6;margin:0.4rem 0 0.9rem;
+  /* Further down than the rule above it, so the gap opens between the two
+     rather than the whole group sliding together. */
+  color:var(--ink);line-height:1.6;margin:2.1rem 0 0.9rem;
   text-align:center;
 }
 .arch-card-note{

@@ -5443,7 +5443,14 @@
           if (k.indexOf('border-top-') === 0) k = 'border-' + k.slice(11);
           return k + ':' + v + ';';
         }).join('');
-      var rule = '#registryGrid .registry-buy-btn{' + css +
+      /* With no solid fill to copy, the label must still be readable. The
+         accent fallback set its own ink, which on a band the same tone reads as
+         dark-on-dark - the "not readable" complaint, in every template whose
+         button is an outline rather than a filled pill. `inherit` takes the
+         band's own text colour, which is by definition the colour that design
+         uses ON that background, so it cannot clash with it. */
+      var readable = _solid ? '' : 'color:inherit;background-color:transparent;';
+      var rule = '#registryGrid .registry-buy-btn{' + css + readable +
                  'display:inline-block;text-align:center;max-width:100%}' +
         /* Smaller on a phone. The design's button is sized to sit alone under a
            hotel card; four of them in a two-column grid are far too heavy, and
