@@ -5084,6 +5084,11 @@
        there as one blank card with a "Purchase this Item" link under it. It is
        created further down, once there is something to put in it. */
     var grid = document.getElementById('registryGrid');
+    /* Here, not only in ensureRegistryGrid: that function returns early when a
+       grid already exists, which is exactly and only the case this lift is for.
+       Modern Minimal ships its own grid, so the lift sat in a branch that never
+       ran for the one template that needed it. */
+    if (grid) _liftRegistryGrid(grid);
     _syncRegistryBand();
     if (!grid && d && d.registry_preview === false) return;
 
@@ -5375,8 +5380,12 @@
 
   function styleRegistryCtas() {
     try {
+      /* ANY registry grid, not only one this code built. Gating on
+         data-mp-built meant the single template that ships its own grid kept a
+         Purchase button styled by its own stylesheet - larger than the other
+         nine, and untouched by the phone-width override below. */
       var grid = document.getElementById('registryGrid');
-      if (!grid || !grid.hasAttribute('data-mp-built')) return;
+      if (!grid) return;
       var src = document.querySelector(REG_CTA_SOURCES);
       if (!src) return;
       var cs = getComputedStyle(src);
@@ -5413,7 +5422,7 @@
           if (k.indexOf('border-top-') === 0) k = 'border-' + k.slice(11);
           return k + ':' + v + ';';
         }).join('');
-      var rule = '#registryGrid[data-mp-built] .registry-buy-btn{' + css +
+      var rule = '#registryGrid .registry-buy-btn{' + css +
                  'display:inline-block;text-align:center;max-width:100%}' +
         /* Smaller on a phone. The design's button is sized to sit alone under a
            hotel card; four of them in a two-column grid are far too heavy, and
@@ -5424,7 +5433,7 @@
            This lives in the copied sheet, not the fallback one: the fallback is
            deliberately loaded first so this wins, and a media query over there
            would lose to the rule above. */
-        '@media(max-width:640px){#registryGrid[data-mp-built] .registry-buy-btn{' +
+        '@media(max-width:640px){#registryGrid .registry-buy-btn{' +
           'font-size:' + _scale(cs.fontSize, 0.82, 11) + ';' +
           'padding:' + _scale(cs.paddingTop, 0.7, 6) + ' ' +
             _scale(cs.paddingRight, 0.55, 8) + ';' +
