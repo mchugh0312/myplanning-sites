@@ -5027,10 +5027,18 @@
       var cs = getComputedStyle(sec);
       band.style.display = (sec.style && sec.style.display === 'none') ? 'none' : '';
       band.style.background = cs.backgroundColor || '';
-      /* Left and right padding only, from the section, so the gifts line up
-         with the copy above them. Vertical spacing is the grid's own. */
       band.style.paddingLeft = cs.paddingLeft || '';
       band.style.paddingRight = cs.paddingRight || '';
+      /* Vertical padding on the BAND, not margins on the grid inside it.
+
+         The grid carried margin:1.6rem auto 2rem, and a margin collapses
+         straight through a parent that has no padding or border of its own - so
+         both margins escaped the band entirely. That is what put a white strip
+         between the section and the gifts, and left the last row of buttons
+         sitting on the bottom edge with the background stopping dead behind
+         them. Padding cannot collapse, so the band keeps its own height. */
+      band.style.paddingTop = '1.6rem';
+      band.style.paddingBottom = '2.6rem';
     } catch (e) {}
   }
 
@@ -5277,6 +5285,9 @@
          built grids into line with it. */
       '#registryGrid[data-mp-built]{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));' +
         'gap:1.2rem;max-width:720px;margin:1.6rem auto 2rem;align-items:start}' +
+      /* Inside the band those margins are the band's padding's job - left here
+         they would collapse out through it and reopen the white strip. */
+      '#mp-reg-band > #registryGrid[data-mp-built]{margin-top:0;margin-bottom:0}' +
       '@media(max-width:900px){#registryGrid[data-mp-built]{grid-template-columns:repeat(2,minmax(0,1fr))}}' +
       '#registryGrid[data-mp-built] .registry-card{display:flex;flex-direction:column;' +
         'align-items:center;text-align:center;gap:0.5rem;min-width:0}' +
@@ -5316,6 +5327,15 @@
     '.arch-card-btn', '.accom-card-cta', '.accom-btn', '.accom-cta',
     '.travel-cta', '.travel-btn', '.split-btn'
   ].join(',');
+
+  /* A px length scaled by a factor, never below a floor. Returns '' for
+     anything unparseable so the declaration is simply dropped rather than
+     written as NaN. */
+  function _scale(v, factor, floor) {
+    var n = parseFloat(v);
+    if (!isFinite(n) || n <= 0) return '';
+    return Math.max(floor, Math.round(n * factor)) + 'px';
+  }
 
   function styleRegistryCtas() {
     try {
@@ -5358,7 +5378,21 @@
           return k + ':' + v + ';';
         }).join('');
       var rule = '#registryGrid[data-mp-built] .registry-buy-btn{' + css +
-                 'display:inline-block;text-align:center;max-width:100%}';
+                 'display:inline-block;text-align:center;max-width:100%}' +
+        /* Smaller on a phone. The design's button is sized to sit alone under a
+           hotel card; four of them in a two-column grid are far too heavy, and
+           "Purchase this Item" wrapped to two lines inside a tall pill. Scaled
+           DOWN from whatever the design gave rather than set to a fixed size,
+           so a template with a small button does not get a larger one here.
+
+           This lives in the copied sheet, not the fallback one: the fallback is
+           deliberately loaded first so this wins, and a media query over there
+           would lose to the rule above. */
+        '@media(max-width:640px){#registryGrid[data-mp-built] .registry-buy-btn{' +
+          'font-size:' + _scale(cs.fontSize, 0.82, 11) + ';' +
+          'padding:' + _scale(cs.paddingTop, 0.7, 6) + ' ' +
+            _scale(cs.paddingRight, 0.55, 8) + ';' +
+          'line-height:1.25;letter-spacing:0.02em}}';
       if (st.textContent !== rule) st.textContent = rule;
     } catch (e) {}
   }
