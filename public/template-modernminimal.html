@@ -334,11 +334,25 @@ body.hydrating{visibility:hidden;}
   color:var(--ink);
   line-height:1.8;
 }
+/* The first line of the block is its title. The Content box already showed it
+   in the template's heading font; the page rendered it as bold body text, so
+   the two disagreed. Only the FIRST line - a bold word later in the copy is
+   still just bold. */
+.travel-content > strong:first-child{
+  display:block;
+  font-family:var(--heading);
+  font-size:1.35rem;
+  font-weight:600;
+  line-height:1.2;
+  margin-bottom:0.6rem;
+}
 .travel-content strong{font-weight:700;display:block;margin-bottom:0.3rem;}
 .travel-content em{font-style:italic;}
 .travel-btn{
   /* Same heavy black pill as the design's other buttons. */
   display:inline-block;
+  /* It was sitting on the last line of the copy above it. */
+  margin-top:1.8rem;
   padding:0.7rem 2.2rem;
   border:3px solid var(--black);
   border-radius:999px;
@@ -1140,6 +1154,10 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   <div class="accom-inner">
     <h2 class="section-title">Accommodations</h2>
     <div id="accomList" class="travel-content"></div>
+    <!-- Its own Book Now, from Accomodation URL. There used to be one button
+         for both sections, in Travel, which fell back to the accommodation
+         link - so a hotel booking link surfaced under Flights. -->
+    <a class="travel-btn" href="#" id="accomBtn" target="_blank">Book Now</a>
   </div>
 </div>
 
@@ -1564,6 +1582,18 @@ function hydrateTemplate(d){
     if (accomEl && d.accommodation_info){
       accomEl.innerHTML = d.accommodation_info;
     }
+    /* Accomodation URL only, plus a link pasted into the accommodation copy.
+       Never the travel link: these are two sections with two fields. */
+    var _accomBtn = document.getElementById('accomBtn');
+    if (_accomBtn){
+      var _ai = d.accommodation_info || '';
+      var _aa = _ai.match(/<a[^>]+href=["']([^"']+)["']/i);
+      var _abare = _ai.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
+      var _aUrl = d.accommodation_url ||
+        (_aa ? _aa[1] : (_abare ? _abare[0].replace(/[.,;)]+$/,'') : ''));
+      if (_aUrl){ _accomBtn.href = _aUrl; _accomBtn.style.display = ''; }
+      else { _accomBtn.style.display = 'none'; }
+    }
   }
 
   // ── Travel ──
@@ -1589,10 +1619,14 @@ function hydrateTemplate(d){
     // Dedicated fields (Travel URL / Accomodation URL) first; a link pasted
     // into the copy is the fallback. No link means no button, rather than a
     // button pointing at '#'.
-    var _src = d.travel_info + ' ' + (d.accommodation_info || '');
+    /* Travel's OWN field only. It used to fall back to accommodation_url, so a
+       hotel booking link entered under Accommodations appeared as a Book Now
+       under Flights - pointing at the right place from the wrong section, with
+       nothing under Accommodations at all. */
+    var _src = d.travel_info || '';
     var _a = _src.match(/<a[^>]+href=["']([^"']+)["']/i);
     var _bare = _src.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
-    var _bookUrl = d.travel_url || d.accommodation_url ||
+    var _bookUrl = d.travel_url ||
       (_a ? _a[1] : (_bare ? _bare[0].replace(/[.,;)]+$/,'') : ''));
     if (travelBtn){
       if (_bookUrl){ travelBtn.href = _bookUrl; travelBtn.style.display = ''; }

@@ -2680,7 +2680,12 @@
          face, so the editor marking them in the heading face made its Content
          boxes look nothing like its page. */
       var _labelStyle = _styleOf(
-        '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
+        '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label,' +
+        /* Modern Minimal names no label element - it renders the couple's copy
+           raw, so its block title is simply the first <strong>. It therefore
+           reported no label style at all and the Content box fell back to the
+           heading face while the page showed bold body text. */
+        '.travel-content > strong:first-child');
       /* Event names and FAQ questions were sampled from ONE list, so whichever
          came first in the document spoke for both. Black Tie sets its event
          names in the script face at clamp(2rem,4vw,3rem) and its questions in
@@ -4960,7 +4965,15 @@
      happens on Modern Minimal too, so both paths render identically. */
   function ensureRegistryGrid(cardCount) {
     var grid = document.getElementById('registryGrid');
-    if (grid) return grid;
+    if (grid) {
+      /* A template that ships its OWN grid still has it INSIDE the registry
+         section, above the View Our Registry button - so on that one template
+         the gifts came before the button and every other one showed them
+         after. Same treatment for all ten: lift it into the band below the
+         section. Its own card styling comes with it; only the position moves. */
+      _liftRegistryGrid(grid);
+      return grid;
+    }
     try {
       var sec = null;
       var ids = SECTION_ANCHORS.registry || [];
@@ -5008,6 +5021,29 @@
       _syncRegistryBand(sec, band);
       return grid;
     } catch (e) { return null; }
+  }
+
+  /* Moves a grid the TEMPLATE shipped out of the registry section and into the
+     band below it, so every design orders the section the same way: copy, then
+     the button, then the gifts. Idempotent - once it is in the band there is
+     nothing left to move. */
+  function _liftRegistryGrid(grid) {
+    try {
+      if (!grid || !grid.parentNode) return;
+      var band = document.getElementById('mp-reg-band');
+      if (band && band.contains(grid)) return;
+      var sec = null, ids = SECTION_ANCHORS.registry || [];
+      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      if (!sec || !sec.contains(grid) || !sec.parentNode) return;
+      if (!band) {
+        band = document.createElement('div');
+        band.id = 'mp-reg-band';
+        band.setAttribute('data-mp-reg-band', '1');
+        sec.parentNode.insertBefore(band, sec.nextSibling);
+      }
+      band.appendChild(grid);
+      _syncRegistryBand(sec, band);
+    } catch (e) {}
   }
 
   /* Keeps the added band in step with the section above it - hidden when the
