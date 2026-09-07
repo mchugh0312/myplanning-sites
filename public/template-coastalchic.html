@@ -332,6 +332,10 @@ body.hydrating{visibility:hidden;}
   color:var(--ink3);
   margin-top:1rem;
 }
+/* A per-block Book Now sits under the block it belongs to, so it needs a little
+   less room above it than the single button that used to close the section, and
+   room below it before the next block starts. */
+.mp-block-btn{margin-top:1.1rem;margin-bottom:2.2rem;}
 .travel-btn{
   display:inline-block;
   margin-top:1.5rem;
@@ -1623,17 +1627,39 @@ function hydrateTemplate(d){
          whatever the couple had written, so their heading was demoted into the
          body and a word nobody typed appeared above it. They are passed as
          fallbacks only, used when there is no heading in the copy at all. */
+      /* A Book Now under the block it belongs to. There was ONE button after
+         both blocks, taking travel_url or else accommodation_url - so a hotel
+         booking link rendered under Flights, because Flights is written last.
+         The link was right and the section was wrong. */
+      var _blockBtn = function (url, label) {
+        if (!url) return '';
+        return '<a class="travel-btn mp-block-btn" href="' + url +
+               '" target="_blank" rel="noopener">' + label + '</a>';
+      };
+      var _urlIn = function (html, field) {
+        if (field) return field;
+        var h = html || '';
+        var a = h.match(/<a[^>]+href=["']([^"']+)["']/i);
+        if (a) return a[1];
+        var bare = h.replace(/<[^>]+>/g, ' ').match(/https?:\/\/[^\s<>"']+/i);
+        return bare ? bare[0].replace(/[.,;)]+$/, '') : '';
+      };
+      var _anyBlockBtn = false;
       if (menu.accommodations && d.accommodation_info){
         var _h = _mpColParts(d.accommodation_info, '');
+        var _hUrl = _urlIn(d.accommodation_info, d.accommodation_url);
+        if (_hUrl) _anyBlockBtn = true;
         parts.push(_renderRichTravel(_h.title
           ? '<strong>' + _h.title + '</strong><br>' + _h.rest
-          : _h.rest, ''));
+          : _h.rest, '') + _blockBtn(_hUrl, 'Book Now'));
       }
       if (menu.travel && d.travel_info){
         var _t = _mpColParts(d.travel_info, '');
+        var _tUrl = _urlIn(d.travel_info, d.travel_url);
+        if (_tUrl) _anyBlockBtn = true;
         parts.push(_renderRichTravel(_t.title
           ? '<strong>' + _t.title + '</strong><br>' + _t.rest
-          : _t.rest, ''));
+          : _t.rest, '') + _blockBtn(_tUrl, 'Book Now'));
       }
       // Keep the template's placeholder blocks when the couple hasn't written
       // anything — an empty Travel Info section looks broken.
@@ -1645,15 +1671,25 @@ function hydrateTemplate(d){
     // default '#' href — preserves the design language ("there's a button
     // here") rather than leaving a visual gap. The button can be wired
     // later via the planner's rich-text editor.
+    /* The shared button steps aside once the blocks carry their own, or the
+       page would show a Book Now under the hotel AND a second one below both.
+       It stays for the untouched sample layout, which has no blocks of the
+       couple's to hang a button on. */
     var btn = document.getElementById('travelBtn');
-    if (btn){
+    if (btn && _anyBlockBtn){ btn.style.display = 'none'; }
+    else if (btn){
+      btn.style.display = '';
       var src = (menu.travel && d.travel_info ? d.travel_info : '')
              || (menu.accommodations && d.accommodation_info ? d.accommodation_info : '');
       var linkMatch = src.match(/<a[^>]+href=["']([^"']+)["']/i);
       var bareMatch = src.replace(/<[^>]+>/g,' ').match(/https?:\/\/[^\s<>"']+/i);
       // Dedicated fields (Travel URL / Accomodation URL) win; a link pasted
       // into the copy is the fallback.
-      var bookUrl = d.travel_url || d.accommodation_url ||
+      /* No cross-field fallback here either. This branch only runs when NO
+         block carried a button, which means neither field had a URL - so
+         reaching for the other one could never find anything, and leaving it in
+         made it look as though the two fields were still interchangeable. */
+      var bookUrl = d.travel_url ||
         (linkMatch ? linkMatch[1] : (bareMatch ? bareMatch[0].replace(/[.,;)]+$/,'') : ''));
       // The design always shows this button, so it stays visible. With no URL
       // configured it's inert rather than hidden, keeping the layout intact.

@@ -5675,6 +5675,14 @@
    top - covering exactly the 8px stitch at the footer's top edge. Raising
    the dot contrast twice did nothing because the line was never visible to
    begin with, whatever colour it was. */
+    /* 100vw is the VIEWPORT, and the viewport includes the vertical scrollbar -
+       so on any page long enough to scroll, a 100vw element is wider than the
+       space actually available and the page gains a thin horizontal scroll.
+       That is the small sideways drag: not a layout that is too wide, a
+       scrollbar counted twice. Paired with the full-bleed rule below rather
+       than left to each template, because the rule below is what causes it. */
+    'html,body{overflow-x:hidden}' +
+
     /* width:100vw with a centring pull, so the footer reaches the window edges
    whatever the page is sitting in. Modern Minimal draws a 14px frame with
    body{border}, and a plain width:100% stopped inside it - leaving a thin
