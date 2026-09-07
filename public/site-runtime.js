@@ -4967,9 +4967,16 @@
       for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
       if (!sec) return null;
 
-      /* Under the couple's words, above the button - the reading order the
-         section already has. */
-      var copy = sec.querySelector('#registryInfo,#registryText,#registryBody');
+      /* BESIDE the registry section, not inside it.
+
+         Injecting four cards into the section made that section far taller, and
+         a design whose decoration is anchored to its own box came apart:
+         Heirloom Bloom's corner flourishes are positioned against the section,
+         so they slid down into the middle of the gifts, and Sage & Still's
+         background image stretched to the new height. The section itself is
+         finished artwork - copy, then the View Our Registry button - and the
+         preview is an ADDITION to it, so it belongs after it as its own band.
+         Nothing in the section moves. */
       grid = document.createElement('div');
       grid.id = 'registryGrid';
       grid.setAttribute('data-mp-built', '1');
@@ -4986,10 +4993,45 @@
           '<span class="registry-buy-btn">Purchase this Item</span>';
         grid.appendChild(card);
       }
-      if (copy && copy.parentNode) copy.parentNode.insertBefore(grid, copy.nextSibling);
-      else sec.appendChild(grid);
+      /* Its own band, carrying the section's background colour so the seam does
+         not read as a different page. The band is what gets inserted; the grid
+         lives inside it, so the notice and the grid styling are unaffected. */
+      var band = document.createElement('div');
+      band.id = 'mp-reg-band';
+      band.setAttribute('data-mp-reg-band', '1');
+      band.appendChild(grid);
+      if (sec.parentNode) sec.parentNode.insertBefore(band, sec.nextSibling);
+      else sec.appendChild(band);
+      /* The band follows the section it belongs to: a registry switched off in
+         Design hides the section, and a stray row of gifts under a hidden
+         section would be worse than no preview at all. */
+      _syncRegistryBand(sec, band);
       return grid;
     } catch (e) { return null; }
+  }
+
+  /* Keeps the added band in step with the section above it - hidden when the
+     section is hidden, and wearing its background so the two read as one. */
+  function _syncRegistryBand(sec, band) {
+    try {
+      /* Called with nothing on later hydrates: ensureRegistryGrid returns early
+         once the grid exists, so without this the band would keep the display
+         it had when it was built and a registry switched off in Design would
+         leave its gifts behind. */
+      if (!band) band = document.getElementById('mp-reg-band');
+      if (!sec) {
+        var ids = SECTION_ANCHORS.registry || [];
+        for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      }
+      if (!sec || !band) return;
+      var cs = getComputedStyle(sec);
+      band.style.display = (sec.style && sec.style.display === 'none') ? 'none' : '';
+      band.style.background = cs.backgroundColor || '';
+      /* Left and right padding only, from the section, so the gifts line up
+         with the copy above them. Vertical spacing is the grid's own. */
+      band.style.paddingLeft = cs.paddingLeft || '';
+      band.style.paddingRight = cs.paddingRight || '';
+    } catch (e) {}
   }
 
   function hydrateRegistryPreview(d) {
@@ -4998,6 +5040,7 @@
        there as one blank card with a "Purchase this Item" link under it. It is
        created further down, once there is something to put in it. */
     var grid = document.getElementById('registryGrid');
+    _syncRegistryBand();
     if (!grid && d && d.registry_preview === false) return;
 
     /* In the EDITOR, build the grid with placeholder cards. The real gifts come
