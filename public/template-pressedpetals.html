@@ -345,10 +345,17 @@ body:has(.mp-std-bottom) .hero{
   color:rgba(255,255,255,0.92);
 }
 /* FIX 3: Dress code in Citadel Script, Title Case (not uppercase) */
-/* No rule for <em> inside a detail. A couple italicising one word mid-sentence
-   must get an italic word, not a new line - the attire line reads as its own
-   line because the SEEDED COPY puts a blank line before it, which is ordinary
-   text formatting and needs no styling rule behind it. */
+/* The TRAILING <em> of an event block - the attire line - in the same face as
+   the event title above it. :last-child is the whole trick: a couple
+   italicising a word mid-sentence is not the last thing in the detail, so it
+   stays an italic word inline. The space above it comes from the seeded copy,
+   not from here. */
+.event-card-detail em:last-child{
+  font-family:var(--script);
+  font-size:1.2rem;
+  font-style:normal;
+  letter-spacing:0.02em;
+}
 .event-card-dress{
   display:inline-block;margin-top:1.4rem;
   font-family:var(--script);
@@ -545,7 +552,12 @@ body:has(.mp-std-bottom) .hero{
   mask-image:linear-gradient(to bottom, #000 0 21px, transparent 21px calc(100% - 21px), #000 calc(100% - 21px) 100%);
 }
 @media(max-width:768px){
-  .accom-split{grid-template-columns:1fr;gap:2.4rem;}
+  /* The divider is a grid item between the two columns, so this gap applies
+     BOTH above and below it. At 2.4rem the Book Now button sat almost on the
+     rule while Flights was pushed far below it. The button carries its own
+     margin-bottom, so the space above comes from there and this only has to
+     set how close the next title sits. */
+  .accom-split{grid-template-columns:1fr;gap:1.3rem;}
   .accom-divider{width:60%;height:1px;margin:0 auto;justify-self:center;}
   .accom-divider::after{
     /* Same dotted ends, laid down. */
@@ -962,10 +974,6 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
   font-family:var(--serif);font-size:1.1rem;color:var(--ink);
   line-height:2;font-style:italic;text-align:center;
 }
-.story-heart{
-  margin:2rem auto 0;font-size:0.8rem;
-  color:var(--ink3);letter-spacing:0.3em;opacity:0.6;
-}
 
 @media(max-width:768px){
   .hero{height:65vw;min-height:320px}
@@ -1182,7 +1190,6 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
     <p class="story-text" id="storyText">
       We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.
     </p>
-    <div class="story-heart">✦ &nbsp; ✦ &nbsp; ✦</div>
   </div>
 </div>
 
