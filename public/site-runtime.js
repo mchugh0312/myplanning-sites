@@ -4209,24 +4209,45 @@
      drawer. */
   var MENU_SYNC_KEYS = ['accommodations', 'travel'];
 
-  function syncMenuLinks() {
+  function syncMenuLinks(d) {
     try {
+      /* What the couple typed, for sections whose design renders NO heading of
+         its own. Black Tie is the case: its accommodation and travel copy are
+         two arch cards in one band with no title above them and no
+         #accommodations element at all, so reading the label off the page found
+         nothing and a rename never reached the menu. The editor's own value is
+         the right source there - it is the same text the heading would have
+         carried if the design drew one. */
+      var _typed = (d && d.section_headings) || {};
       var wanted = [];
       MENU_SYNC_KEYS.forEach(function (key) {
         var ids = SECTION_ANCHORS[key] || [];
+        var sec = null, id = null;
         for (var i = 0; i < ids.length; i++) {
-          var sec = document.getElementById(ids[i]);
-          if (!sec) continue;
-          /* A section switched off keeps its markup but is hidden, and a link
-             to it would scroll nowhere. */
-          if (sec.style && sec.style.display === 'none') return;
-          var node = _headingNode(sec);
-          var text = node && (node.textContent || '').replace(/\s+/g, ' ').trim();
-          /* A menu label, not a paragraph. Anything long is the wrong node. */
-          if (!text || text.length > 40) return;
-          wanted.push({ id: ids[i], text: text, sec: sec });
-          return;
+          var el = document.getElementById(ids[i]);
+          if (!el) continue;
+          sec = el; id = ids[i];
+          break;
         }
+        /* A section switched off keeps its markup but is hidden, and a link to
+           it would scroll nowhere. */
+        if (sec && sec.style && sec.style.display === 'none') return;
+
+        /* The page wins where it has something to say: that is what the couple
+           can actually see. The typed value is the fallback, not the override. */
+        var node = sec && _headingNode(sec);
+        var text = node && (node.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text && Object.prototype.hasOwnProperty.call(_typed, key)) {
+          text = String(_typed[key] == null ? '' : _typed[key])
+            .replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+        }
+        /* A menu label, not a paragraph. Anything long is the wrong node.
+           Empty means the couple cleared the heading deliberately - leave the
+           template's own wording rather than blanking their menu. */
+        if (!text || text.length > 40) return;
+        /* id stays null for a design with no section element of its own; the
+           link is then matched on the key's anchors instead. */
+        wanted.push({ id: id, key: key, ids: ids, text: text, sec: sec });
       });
       /* In the editor only, say what this found. The menu is assembled by the
          template and relabelled here, so when the two disagree the useful
@@ -4250,7 +4271,10 @@
         var href = (a.getAttribute('href') || '').replace('#', '');
         if (!href) return;
         for (var i = 0; i < wanted.length; i++) {
-          if (wanted[i].id !== href) continue;
+          /* Match on ANY anchor this section is known by. Black Tie's menu
+             links to #accommodations, an element the template never renders -
+             matching only the one resolved id left that link untouched. */
+          if (wanted[i].ids.indexOf(href) === -1) continue;
           if ((a.textContent || '').trim() !== wanted[i].text) a.textContent = wanted[i].text;
           have[href] = a;
           hostFor[href] = a.closest ? (a.closest('li') || a) : a;
@@ -4268,11 +4292,18 @@
          Cloning the neighbour's entry carries the menu's own markup and
          styling across. */
       wanted.forEach(function (w) {
-        if (have[w.id]) return;
+        /* Already linked under any of this section's names. */
+        var linked = w.ids.some(function (x) { return have[x]; });
+        if (linked) return;
+        /* Nothing to place it against: a design with no section element of its
+           own has no position on the page to compare, and inventing a link to
+           an id that is not rendered would scroll nowhere. Relabelling such a
+           link is safe and has already happened above; ADDING one is not. */
+        if (!w.sec) return;
         var ref = null;
         for (var i = 0; i < wanted.length; i++) {
           var other = wanted[i];
-          if (other.id === w.id || !hostFor[other.id]) continue;
+          if (other.id === w.id || !other.sec || !hostFor[other.id]) continue;
           /* Only anchor to a section that comes BEFORE this one on the page, so
              the new link lands after it. */
           var pos = w.sec.compareDocumentPosition(other.sec);
@@ -5954,7 +5985,7 @@
     fitHeroNames();
     watchHeroNames();
 
-    syncMenuLinks();
+    syncMenuLinks(d);
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
 
     // 6. Save the Date trims the fully-rendered page down to its hero. It runs
