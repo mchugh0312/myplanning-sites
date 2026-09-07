@@ -5281,12 +5281,24 @@
       var src = document.querySelector(REG_CTA_SOURCES);
       if (!src) return;
       var cs = getComputedStyle(src);
+      /* ORDER MATTERS, and getting it wrong is why the copied styling never
+         showed. Both this sheet and injectPreviewStyles write a rule for
+         #registryGrid[data-mp-built] .registry-buy-btn - identical selectors,
+         identical specificity - so the LAST one in the document wins. This ran
+         first and injectPreviewStyles appended after it, which meant the accent
+         fallback quietly overrode every property copied off the design's own
+         button. Forcing the fallback sheet into the head first, then appending
+         ours, settles it whatever order the callers happen to run in. */
+      injectPreviewStyles();
       var st = document.getElementById('mp-regcta-css');
       if (!st) {
         st = document.createElement('style');
         st.id = 'mp-regcta-css';
-        document.head.appendChild(st);
       }
+      /* Appended every time, not only on creation: appendChild MOVES an
+         existing node, so this sheet stays last even if something else adds a
+         stylesheet later. */
+      document.head.appendChild(st);
       /* Not width or margin: those belong to the card this button sits in, and
          copying them across dragged the accommodation card's layout with it. */
       var css = ['font-family', 'font-size', 'font-weight', 'font-style',
