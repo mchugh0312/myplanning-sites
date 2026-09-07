@@ -280,13 +280,14 @@ body.hydrating{visibility:hidden;}
   line-height:1.7;
 }
 .event-dress{
-  /* Set in the heading face, a step below the event name, with room above
-     it - it is the last line of the block and was running on as part of
-     the address. */
+  /* Italic body text with room above it - it is the last line of the block and
+     was running on as part of the address. Not the heading face: this is a
+     normal line of the couple's copy, formatted, not a title. */
   display:block;
   margin-top:1.9rem;
-  font-family:var(--heading);
-  font-size:1.05rem;
+  font-family:var(--body);
+  font-style:italic;
+  font-size:0.95rem;
   color:var(--ink);
 }
 .event-dress strong{font-weight:600;font-style:italic;}

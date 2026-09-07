@@ -345,8 +345,12 @@ body:has(.mp-std-bottom) .hero{
   color:rgba(255,255,255,0.92);
 }
 /* FIX 3: Dress code in Citadel Script, Title Case (not uppercase) */
+/* No rule for <em> inside a detail. A couple italicising one word mid-sentence
+   must get an italic word, not a new line - the attire line reads as its own
+   line because the SEEDED COPY puts a blank line before it, which is ordinary
+   text formatting and needs no styling rule behind it. */
 .event-card-dress{
-  display:inline-block;margin-top:1rem;
+  display:inline-block;margin-top:1.4rem;
   font-family:var(--script);
   font-size:1.1rem;          /* was 0.72rem uppercase — now script at readable size */
   color:rgba(255,255,255,0.8);
@@ -1025,6 +1029,10 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   .accom-btn,.travel-btn{
     min-height:44px;padding:0.7rem 1.8rem;
     display:inline-flex;align-items:center;justify-content:center;
+    /* It sat hard against the dotted separator below it. Space above and
+       below, so the button is not touching either neighbour. */
+    margin-top:1.8rem;
+    margin-bottom:2rem;
   }
 
   /* The decorative flowers crowd the copy at phone width. */
@@ -1167,9 +1175,9 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
     src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d739d2eb-f460-4984-89fb-35511ea20510.png" alt="">
   <div class="story-inner">
     <div class="story-rule-wrap">
-      <div class="story-rule-line"></div>
+      <!-- The two short rules either side of the title are gone; the heading
+           carries itself. -->
       <h2 class="section-title" id="storyTitle">Our Story</h2>
-      <div class="story-rule-line"></div>
     </div>
     <p class="story-text" id="storyText">
       We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.
