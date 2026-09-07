@@ -302,11 +302,13 @@ body.hydrating{visibility:hidden;}
   letter-spacing:0.03em;
 }
 .weekend-event-dress{
+  /* Set in the heading face, a step below the event name, with room above
+     it - it is the last line of the block and was running on as part of
+     the address. */
   display:block;
-  margin-top:0.4rem;
-  font-family:var(--sub);
-  font-style:italic;
-  font-size:0.85rem;
+  margin-top:1.5rem;
+  font-family:var(--display);
+  font-size:1.05rem;
   color:rgba(255,255,255,0.7);
 }
 .weekend-flourish{
@@ -344,7 +346,7 @@ body.hydrating{visibility:hidden;}
 .story-text{
   font-family:var(--sub);
   font-style:italic;
-  font-size:1.05rem;
+  font-size:1.15rem;
   color:var(--ink);
   line-height:1.95;
 }
@@ -1095,7 +1097,6 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
 <div class="our-story" id="our-story" style="display:none">
   <div class="story-inner">
     <h2 class="story-title">Our Story</h2>
-    <div class="story-rule"></div>
     <p class="story-text" id="storyText">
       We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.
     </p>
@@ -1151,14 +1152,12 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
   <div class="accom-inner" id="accomInner">
     <div class="accom-card">
       <div class="accom-card-title">Hotel</div>
-      <div class="accom-card-rule"></div>
       <div class="accom-card-name">Hyatt Regency<br>La Jolla at Aventine</div>
       <div class="accom-card-meta"><em>Request the Maya<br>&amp; Jason room block</em></div>
       <a class="accom-card-cta" href="#" target="_blank">Book Now</a>
     </div>
     <div class="accom-card">
       <div class="accom-card-title">Flights</div>
-      <div class="accom-card-rule"></div>
       <div class="accom-card-name">San Diego<br>National Airport</div>
       <div class="accom-card-meta"><em>Approximately 30<br>minutes from the venue</em></div>
       <a class="accom-card-cta" href="#" target="_blank">Book Now</a>
@@ -1372,8 +1371,7 @@ function renderAccomCard(title, html, fieldUrl) {
   var nameHtml = name || (place ? place : title);
   card.innerHTML =
     // The rule underlines the title, so it goes when the title does.
-    (title ? '<div class="accom-card-title">' + title + '</div>' +
-             '<div class="accom-card-rule"></div>' : '') +
+    (title ? '<div class="accom-card-title">' + title + '</div>' : '') +
     '<div class="accom-card-name">' + nameHtml + '</div>' +
     (place && name ? '<div class="accom-card-place">' + place + '</div>' : '') +
     (meta ? '<div class="accom-card-meta"><em>' + meta + '</em></div>' : '') +

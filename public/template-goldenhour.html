@@ -185,7 +185,7 @@ body.thumbnail-mode .hero-names-text{
 .story-title,.ntk-title,.gallery-title,.registry-title,.rsvp-title{font-weight:400;}
 .story-title{font-family:var(--script);font-size:clamp(2rem,5vw,3rem);color:var(--on-dark);margin-bottom:0.5rem;}
 .story-rule{width:40px;height:1px;background:rgba(255,255,255,0.4);margin:0 auto 2rem;}
-.story-body{font-family:var(--serif);font-size:0.92rem;color:var(--on-dark);line-height:2;max-width:560px;margin:0 auto;}
+.story-body{font-family:var(--serif);font-size:1.02rem;color:var(--on-dark);line-height:2;max-width:560px;margin:0 auto;}
 
 /* ── THE WEDDING ──────────────────────────────────────────────── */
 .wedding-section{background:var(--blue);padding:4rem 2rem 2.5rem;}
@@ -965,8 +965,7 @@ function hydrateTemplate(d){
       var note=lines.slice(2).join(' ');
       acContent.innerHTML=
         // The rule underlines the label, so it goes when the label does.
-        (acName?'<div class="split-label">'+acName+'</div>'+
-                '<div class="split-rule"></div>':'')+
+        (acName?'<div class="split-label">'+acName+'</div>':'')+
         '<div class="split-name">'+venueName+'</div>'+
         (note?'<div class="split-note">'+note+'</div>':'')+
         _ctaHtml(acUrl,'Book Now');
@@ -991,8 +990,7 @@ function hydrateTemplate(d){
       var tName=tLines.slice(0,2).join('<br>');
       var tNote=tLines.slice(2).join(' ');
       trContent.innerHTML=
-        (trLabel?'<div class="split-label">'+trLabel+'</div>'+
-                 '<div class="split-rule"></div>':'')+
+        (trLabel?'<div class="split-label">'+trLabel+'</div>':'')+
         '<div class="split-name">'+tName+'</div>'+
         (tNote?'<div class="split-note">'+tNote+'</div>':'')+
         _ctaHtml(trUrl,'Book Now');

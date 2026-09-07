@@ -330,7 +330,7 @@ body.hydrating{visibility:hidden;}
 .story-inner{max-width:600px;margin:0 auto;}
 .story-text{
   font-family:var(--body);
-  font-size:0.95rem;
+  font-size:1.05rem;
   color:var(--ink);
   line-height:1.85;
   font-weight:400;
@@ -395,7 +395,8 @@ body.hydrating{visibility:hidden;}
 .itinerary-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:2rem;
+  /* More air between the two cards - they were reading as one block. */
+  gap:2rem 3.4rem;
   max-width:880px;
   margin:0 auto;
 }

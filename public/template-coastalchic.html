@@ -212,7 +212,8 @@ body.hydrating{visibility:hidden;}
 .schedule-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:2rem;
+  /* More air between the two cards - they were reading as one block. */
+  gap:2rem 3.4rem;
 }
 .schedule-event{
   text-align:center;
@@ -806,7 +807,7 @@ body.hydrating{visibility:hidden;}
 }
 .story-text{
   font-family:var(--body);font-weight:300;
-  font-size:0.92rem;color:var(--ink);
+  font-size:1.02rem;color:var(--ink);
   line-height:1.8;
 }
 

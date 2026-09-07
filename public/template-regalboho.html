@@ -323,7 +323,8 @@ body.hydrating{visibility:hidden;}
 .event-details-grid{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
-  gap:1.5rem;
+  /* More air between the two cards - they were reading as one block. */
+  gap:1.5rem 2.8rem;
 }
 .event-details-grid[data-event-count="1"]{grid-template-columns:1fr;}
 .event-details-grid[data-event-count="2"]{grid-template-columns:1fr 1fr;}
@@ -376,11 +377,14 @@ body.hydrating{visibility:hidden;}
 .event-col-meta .venue{display:block;font-weight:600;margin-top:0.3rem;}
 .event-col-meta .address{display:block;font-style:italic;}
 .event-col-dress{
-  font-family:var(--body);
-  font-size:0.78rem;
-  font-style:italic;
+  /* Set in the heading face, a step below the event name, with room above
+     it - it is the last line of the block and was running on as part of
+     the address. */
+  display:block;
+  font-family:var(--display);
+  font-size:1rem;
   color:var(--ink);
-  margin-top:0.9rem;
+  margin-top:1.6rem;
 }
 /* Carnation/poppy flower at bottom-right of frame */
 .event-details-flower{
