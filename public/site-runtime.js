@@ -4209,6 +4209,69 @@
      drawer. */
   var MENU_SYNC_KEYS = ['accommodations', 'travel'];
 
+  /* Which image slots hold a PHOTOGRAPH the couple can upload. Everything else
+     baked into a template - the arch outline, the candelabra, the pressed
+     flowers, the postage frames - is ornament and belongs to the design.
+
+     The distinction cannot be inferred: both arrive as the same baked URL on
+     the same CDN, and a rule keyed on "image the template shipped" would strip
+     Black Tie's arches along with its stock event photo. So it is declared,
+     per template, and kept here rather than in ten files.
+
+     Hero slots are NOT listed where the design fills them through CFG.heroSlots
+     - that path already cycles the couple's own photographs. These are the
+     slots beside it that nothing was governing. */
+  var CONTENT_IMAGES = {
+    blacktietimeless: ['.other-event-photo'],
+    coastalchic:      ['#heroImg', '#travelImg'],
+    goldenhour:       ['#accomPhoto', '#travelPhoto'],
+    heirloombloom:    [],
+    modernminimal:    ['#heroImg', '#heroPairA', '#heroPairB'],
+    pressedpetals:    ['#heroImg'],
+    regalboho:        ['#heroImg'],
+    sageandstill:     ['#heroImg'],
+    vintagelovestory: [],
+    whimsicalromance: ['#heroImg', '.accom-photo']
+  };
+
+  /* A stock photograph is not licensed for a couple's live site. Once they have
+     given us a photograph of their own, no sample may survive in a slot meant
+     for one - repetition of their picture is theirs to repeat, a stranger's
+     kitchen is not. With NO photograph of theirs, the samples stand: that is
+     the template being previewed, which is what the couple asked to see. */
+  function purgeSampleImages(d) {
+    try {
+      var own = (d && Array.isArray(d.hero_images)) ? d.hero_images.filter(Boolean) : [];
+      if (!own.length) return;
+      var sels = CONTENT_IMAGES[TID] || [];
+      if (!sels.length) return;
+
+      /* Every URL anywhere in the couple's own record. A slot already showing
+         one of their pictures - a gallery shot, an event photo they uploaded -
+         is left exactly as it is. */
+      var theirs = {};
+      try {
+        String(JSON.stringify(d) || '').replace(/https?:\/\/[^"'\\\s]+/g,
+          function (u) { theirs[u] = 1; return u; });
+      } catch (e) {}
+
+      var n = 0;
+      sels.forEach(function (sel) {
+        var nodes;
+        try { nodes = document.querySelectorAll(sel); } catch (e) { return; }
+        Array.prototype.forEach.call(nodes, function (img) {
+          if (!img || img.tagName !== 'IMG') return;
+          var src = img.getAttribute('src') || '';
+          if (src && theirs[src]) return;          // already their own
+          img.src = own[n % own.length];
+          img.removeAttribute('srcset');
+          img.style.visibility = '';
+          n++;
+        });
+      });
+    } catch (e) {}
+  }
+
   function syncMenuLinks(d) {
     try {
       /* What the couple typed, for sections whose design renders NO heading of
@@ -5978,6 +6041,8 @@
 
     // Renames run before the mobile nav is built, so the drawer copies the new
     // labels rather than the template's originals.
+    purgeSampleImages(d);
+
     applySectionHeadings(d);
 
     // After the template has drawn its own grid, so this replaces it rather
