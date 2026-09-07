@@ -1859,12 +1859,15 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'         },
     { show: !!(menu.wedding || menu.other_events),            href: '#itinerary',        label: 'Weekend Itinerary' },
     { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations'     },
+    /* Travel sits next to Accommodations, as the two boxes do in Content.
+       It was listed after Things to Do, which put it three entries away
+       from the section it belongs beside. */
+    { show: !!(menu.travel && !menu.accommodations),          href: '#travel-section',   label: 'Travel'            },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'FAQs'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on
     // could not find it from the menu.
     { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },
-    { show: !!(menu.travel && !menu.accommodations),          href: '#travel-section',   label: 'Travel'            },
     { show: !!menu.gallery && !!(d.gallery_images?.length),   href: '#gallery',          label: 'Gallery'           },
     { show: !!menu.registry,                                  href: '#registry-section', label: 'Our Registry'      },
     { show: !!rsvpOn && !!menu.rsvp,                          href: '#rsvp',             label: 'RSVP'              },
