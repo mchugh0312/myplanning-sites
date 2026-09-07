@@ -2662,7 +2662,13 @@
           return {
             font: (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim(),
             weight: cs.fontWeight || '',
-            caps: cs.textTransform || ''
+            caps: cs.textTransform || '',
+            /* Face and weight alone were not enough to make the box match the
+               page: a design can set its questions in italic, at a different
+               size, in a different ink. */
+            italic: cs.fontStyle || '',
+            size: cs.fontSize || '',
+            color: cs.color || ''
           };
         } catch (e) { return null; }
       };
@@ -2675,23 +2681,35 @@
          boxes look nothing like its page. */
       var _labelStyle = _styleOf(
         '.travel-block-label,.accom-col-title,.accom-card-title,.accom-title,.split-label');
+      /* Event names and FAQ questions were sampled from ONE list, so whichever
+         came first in the document spoke for both. Black Tie sets its event
+         names in the script face at clamp(2rem,4vw,3rem) and its questions in
+         bold serif at 1.1rem - the wedding card comes first, so the editor
+         marked FAQ questions in a huge script the page never used. One style
+         cannot describe two different treatments; they are reported apart. */
       var _titleStyle = _styleOf(
         '.schedule-event-name,.event-card-name,.event-name,.wedding-card-name,' +
-        '.faq-question,.faq-q,.ntk-question,.other-event-name,' +
+        '.other-event-name,' +
         /* Regal Boho, Vintage Love Story and Whimsical Romance matched NOTHING
            in this list, so they reported no title style and the editor fell
-           back to the heading face. Their question element is .faq-q-text -
-           note that .faq-q above does NOT match it, because a class selector
-           matches whole tokens, not prefixes. Each also names its event title
-           differently. In all three the older names above exist ONLY as CSS
-           rules with no element to match, which is why the list looked wider
-           than it was. Widened here rather than per-template, as agreed. */
-        '.faq-q-text,.event-col-name,.event-col-title,.itinerary-event-name');
+           back to the heading face - each names its event title differently.
+           The older names above exist in those three ONLY as CSS rules with no
+           element to match, which is why the list looked wider than it was.
+           Widened here rather than per-template, as agreed. */
+        '.event-col-name,.event-col-title,.itinerary-event-name,' +
+        /* Sage & Still was only ever matching through .faq-question, so once
+           questions moved to their own list it had no event name at all. */
+        '.weekend-event-name');
+      /* The FAQ question face, on its own. Note .faq-q does NOT match
+         class="faq-q-text" - a class selector matches whole tokens. */
+      var _questionStyle = _styleOf(
+        '.faq-question,.faq-q,.faq-q-text,.ntk-question');
 
       parent.postMessage({
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
         rsvpLine: _rsvpLine, registryGrid: _hasGifts,
-        labelStyle: _labelStyle, titleStyle: _titleStyle
+        labelStyle: _labelStyle, titleStyle: _titleStyle,
+        questionStyle: _questionStyle
       }, '*');
     } catch (e) {}
   }
