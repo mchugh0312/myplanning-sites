@@ -5089,6 +5089,11 @@
        Modern Minimal ships its own grid, so the lift sat in a branch that never
        ran for the one template that needed it. */
     if (grid) _liftRegistryGrid(grid);
+    /* Here too, not only inside applyRegistry. That runs when gifts arrive, so
+       a preview sitting on placeholder cards - no slug yet, or a gated registry
+       - never got the design's button and kept the accent fallback: accent ink
+       on no background, which on a card the same tone reads as invisible. */
+    styleRegistryCtas();
     _syncRegistryBand();
     if (!grid && d && d.registry_preview === false) return;
 
@@ -5342,7 +5347,10 @@
          pushed its button lower than its neighbours' and the row read as
          ragged. Equal-height cards plus margin-top:auto on the button pins
          every CTA to the same baseline whatever the name above it does. */
-      '#registryGrid[data-mp-built]{align-items:stretch}' +
+      /* Any grid, not only a built one: a template shipping its own grid had
+         cards at their natural height, so its buttons sat wherever the card
+         above them ended rather than on one line. */
+      '#registryGrid{align-items:stretch}' +
       '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
       '#registryGrid .registry-buy-btn{margin-top:auto;align-self:center}' +
       '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block;font-size:0.75rem;' +
@@ -5409,12 +5417,25 @@
       document.head.appendChild(st);
       /* Not width or margin: those belong to the card this button sits in, and
          copying them across dragged the accommodation card's layout with it. */
+      /* Ink and its background travel TOGETHER or not at all.
+
+         The design's button is often pale text meant to sit on a solid fill.
+         Copying the colour while the fill fails to come across - a background
+         painted with a shorthand, a gradient, an image - leaves pale ink on the
+         card's own tone, which is the "same colour as the button" complaint:
+         the label is there and unreadable. If there is no solid fill to copy,
+         the label keeps whatever the card already gives it. */
+      var _bg = cs.getPropertyValue('background-color') || '';
+      var _solid = _bg && !/transparent/i.test(_bg) &&
+                   !/rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(_bg);
+
       var css = ['font-family', 'font-size', 'font-weight', 'font-style',
                  'letter-spacing', 'text-transform', 'text-decoration-line',
                  'color', 'background-color', 'border-top-width',
                  'border-top-style', 'border-top-color', 'border-radius',
                  'padding-top', 'padding-right', 'padding-bottom', 'padding-left']
         .map(function (k) {
+          if ((k === 'color' || k === 'background-color') && !_solid) return '';
           var v = cs.getPropertyValue(k);
           if (!v) return '';
           /* border-* are read from one edge and written to all four: these

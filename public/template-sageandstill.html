@@ -496,6 +496,11 @@ body.hydrating{visibility:hidden;}
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:1.5rem;
+  /* Both cards the height of the taller one, side by side or stacked. Grid
+     stretches row-mates by default but gives each row its own height, so once
+     they stack the shorter card shrank. */
+  align-items:stretch;
+  grid-auto-rows:1fr;
 }
 .accom-card{
   background:var(--offwhite);
@@ -552,13 +557,14 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1rem;
   line-height:1.5;
 }
-/* The button is pinned to the bottom of the card by margin-top:auto, so a gap
-   cannot come from its own margin - a fixed margin-top would break the pinning.
-   It comes from the copy instead, which is the last thing above it. */
-.accom-card-place,.accom-card-meta{margin-bottom:1.5rem;}
+/* margin-top:auto pinned the button to the bottom of the card, which fought
+   the card's own justify-content:center and left the block of text sitting
+   high. Centred as a whole instead, with the gap above the button set
+   explicitly rather than eaten by the auto margin. */
+.accom-card-place,.accom-card-meta{margin-bottom:0;}
 .accom-card-cta{
   display:inline-block;
-  margin-top:auto;
+  margin-top:1.6rem;
   padding:0.7rem 2.2rem;
   background:var(--dark-green);
   color:#ffffff;
