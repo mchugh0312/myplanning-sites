@@ -4972,6 +4972,7 @@
           return;
         }
         clearRegistryNotice();
+        styleRegistryCtas();
         // The API already returns items in the couple's arranged order
         // (sort_order). Take them as they come — filtering out image-less items
         // reordered the preview relative to the registry itself, which is why
@@ -5102,10 +5103,15 @@
     // templates have no markup for.
     st.textContent =
       '.registry-card{position:relative}' +
-      '.mp-reg-badge{position:absolute;top:8px;right:8px;z-index:2;' +
-        'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;' +
-        'justify-content:center;background:rgba(255,255,255,0.92);' +
-        'box-shadow:0 1px 4px rgba(0,0,0,0.18);font-size:13px;line-height:1;color:#c0392b}' +
+      /* Geometry and colour taken from the registry page itself, so the two
+         are the same badge rather than two attempts at one. It was a red
+         heart character at 26px; the registry draws an SVG at 28px in
+         #A9BDC4, which is the only place that colour comes from. */
+      '.mp-reg-badge{position:absolute;top:10px;right:10px;z-index:4;' +
+        'width:28px;height:28px;border-radius:50%;display:flex;align-items:center;' +
+        'justify-content:center;background:rgba(255,255,255,0.95);' +
+        'box-shadow:0 1px 4px rgba(0,0,0,0.14);line-height:1}' +
+      '.mp-reg-badge svg{display:block}' +
       '.mp-reg-price{font-size:0.86rem;opacity:0.85;margin-top:2px}' +
       '.mp-reg-meta{font-size:0.72rem;opacity:0.65;margin-top:2px}' +
       /* Deliberately quiet and unstyled-looking: this is a note to the couple
@@ -5161,6 +5167,54 @@
     document.head.appendChild(st);
   }
 
+  /* The Purchase button, wearing the design's OWN section button.
+
+     Every template already draws a "Book Now" on its accommodation and travel
+     cards, styled to fit that design - Black Tie's is a black rectangle, Regal
+     Boho's a bordered pill. The registry preview drew its own approximation
+     from the accent colour, so it read as a visitor on the page. Rather than
+     keep a table of ten button styles in here, copy the one the page is
+     already showing: the class list below is only used to FIND that button,
+     and everything visual comes off the live element. */
+  var REG_CTA_SOURCES = [
+    '.arch-card-btn', '.accom-card-cta', '.accom-btn', '.accom-cta',
+    '.travel-cta', '.travel-btn', '.split-btn'
+  ].join(',');
+
+  function styleRegistryCtas() {
+    try {
+      var grid = document.getElementById('registryGrid');
+      if (!grid || !grid.hasAttribute('data-mp-built')) return;
+      var src = document.querySelector(REG_CTA_SOURCES);
+      if (!src) return;
+      var cs = getComputedStyle(src);
+      var st = document.getElementById('mp-regcta-css');
+      if (!st) {
+        st = document.createElement('style');
+        st.id = 'mp-regcta-css';
+        document.head.appendChild(st);
+      }
+      /* Not width or margin: those belong to the card this button sits in, and
+         copying them across dragged the accommodation card's layout with it. */
+      var css = ['font-family', 'font-size', 'font-weight', 'font-style',
+                 'letter-spacing', 'text-transform', 'text-decoration-line',
+                 'color', 'background-color', 'border-top-width',
+                 'border-top-style', 'border-top-color', 'border-radius',
+                 'padding-top', 'padding-right', 'padding-bottom', 'padding-left']
+        .map(function (k) {
+          var v = cs.getPropertyValue(k);
+          if (!v) return '';
+          /* border-* are read from one edge and written to all four: these
+             buttons are uniform, and a one-sided border would look broken. */
+          if (k.indexOf('border-top-') === 0) k = 'border-' + k.slice(11);
+          return k + ':' + v + ';';
+        }).join('');
+      var rule = '#registryGrid[data-mp-built] .registry-buy-btn{' + css +
+                 'display:inline-block;text-align:center;max-width:100%}';
+      if (st.textContent !== rule) st.textContent = rule;
+    } catch (e) {}
+  }
+
   function renderPreviewCard(card, it, registryUrl) {
     var img = card.querySelector('img');
     /* The nine designs without their own registry markup get a grid this code
@@ -5193,7 +5247,12 @@
       var badge = document.createElement('span');
       badge.className = 'mp-reg-badge';
       badge.setAttribute('title', 'Most wanted');
-      badge.textContent = '\u2665';
+      /* The registry's own mark: same path, same 17px box, same #A9BDC4. */
+      badge.innerHTML =
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="#A9BDC4" ' +
+        'stroke="#A9BDC4" stroke-width="1.8" aria-hidden="true">' +
+        '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 ' +
+        '7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
       card.insertBefore(badge, card.firstChild);
     }
 
