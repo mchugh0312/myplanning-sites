@@ -4877,8 +4877,14 @@
   }
 
   function fitCoupleNames() {
+    /* 'storyNames' for Regal Boho, whose hero is a full-bleed photograph with
+       no names over it - heroNamesId is null there, correctly, but the couple's
+       names still appear, as the Our Story <h1> at clamp(2.2rem,13vw,4.5rem).
+       A vw clamp tracks the viewport, not the length of the name, so a long one
+       ran off the page with nothing measuring it. It was the only template with
+       no fittable element at all. */
     var ids = [CFG.heroNamesId, 'heroCoupleNames', 'heroNames', 'heroInitialsWrap',
-               'footerNames', 'footerCouple', 'menuCoupleName'];
+               'storyNames', 'footerNames', 'footerCouple', 'menuCoupleName'];
     var seen = {};
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i];
