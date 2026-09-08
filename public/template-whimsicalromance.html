@@ -265,6 +265,15 @@ body.hydrating{visibility:hidden;}
   line-height:1;
   font-weight:400;
   text-shadow:0 2px 18px rgba(0,0,0,0.45);
+  /* THE SIZE LIVES HERE, not on the two name lines.
+
+     fitOneName measures #heroCoupleNames and writes a smaller font-size onto
+     it when a long name overflows the hero. The lines below used to carry
+     their own clamp in rem and vw, which is absolute - so the fitter's write
+     landed on a parent nothing inherited from and the names were clipped at
+     full size however long they were. Everything under here is in em now, so
+     one write scales the whole lockup, ampersand included. */
+  font-size:clamp(3.33rem, 14.08vw, 8.96rem);
 }
 .hero-couple-name .name-1,
 .hero-couple-name .name-2{
@@ -273,9 +282,12 @@ body.hydrating{visibility:hidden;}
   /* Doubled at every width: the vw term and the ceiling are both twice what
      they were. Weight unchanged; leading tightened so two lines still sit
      inside the shortened frame. */
-  font-size:clamp(3.33rem, 14.08vw, 8.96rem);
+  font-size:1em;
   line-height:0.8;
   letter-spacing:0.005em;
+  /* A single name longer than the frame has no space to break at. Without
+     this it ran straight past the edge and the hero clipped it. */
+  overflow-wrap:break-word;
 }
 .hero-couple-name .name-1{ text-align:center; }
 .hero-couple-name .name-2{
@@ -290,7 +302,10 @@ body.hydrating{visibility:hidden;}
 }
 .hero-couple-name .ampersand{
   font-family:var(--script);
-  font-size:clamp(2.08rem, 6.5vw, 4.16rem);
+  /* 0.464em is the ratio the clamp above already had at both the vw term and
+     the ceiling (6.5/14.08, 4.16/8.96), so this is the same size it was - it
+     now just follows the fitter down instead of staying put. */
+  font-size:0.464em;
   display:inline-block;
   margin:-0.2em 0.3em 0;
   font-style:italic;
@@ -990,8 +1005,8 @@ footer{
     bottom:-0.35rem;
     border-radius:clamp(26px, 7vw, 48px);
   }
-  .hero-couple-name .name-1,
-  .hero-couple-name .name-2{font-size:clamp(1.9rem, 12vw, 4.5rem);}
+  /* On the element the fitter writes to, for the same reason as the base rule. */
+  .hero-couple-name{font-size:clamp(1.9rem, 12vw, 4.5rem);}
   /* Less air around the story: the desktop block centres it in leftover space,
      which on a phone reads as a large empty gap. */
   .our-story{padding:1.6rem 1.4rem 2.2rem;}

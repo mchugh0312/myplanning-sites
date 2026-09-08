@@ -224,10 +224,13 @@ body.hydrating{visibility:hidden;}
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
      second name line. */
-  top:12%;
+  /* Both dimensions up 15% (40->46, 80->92). top follows so the panel keeps
+     the vertical centre it had at 52%: 52 - 92/2 = 6. Raising height without
+     moving top would have pushed the bottom edge past the hero box. */
+  top:6%;
   right:0;
-  width:40%;
-  height:80%;
+  width:46%;
+  height:92%;
   overflow:hidden;
   z-index:2;
   background:#d8d4cb;
@@ -245,7 +248,9 @@ body.hydrating{visibility:hidden;}
   .hero{padding:2rem 1.25rem 1.5rem;}
   .hero-inner{aspect-ratio:1.55 / 1;min-height:230px;}
   .hero-couple-name{font-size:clamp(2rem, 17vw, 4.6rem);}
-  .hero-photo-wrap{width:40%;height:78%;top:13%;}
+  /* Up 30% on a phone, where the panel was smallest against the names beside
+     it. Same centring arithmetic: 52 - 94/2 = 5. */
+  .hero-photo-wrap{width:52%;height:94%;top:5%;}
 }
 
 /* ── THE WEEKEND (green-gray bg, single column) ───────────── */
@@ -955,10 +960,10 @@ footer{
 @media (max-width:640px){
   .hero-photo-wrap{
     position:absolute;
-    top:13%;
+    top:5%;
     right:0;
-    width:40%;
-    height:78%;
+    width:52%;
+    height:94%;
     aspect-ratio:auto;
   }
 }
