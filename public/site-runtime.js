@@ -2427,6 +2427,23 @@
            now, so the section falls back to its own name. */
         var cn = String(c.className || '');
         if (/(^|[\s-])(col|card|item|event|slide|cell)-title/i.test(cn)) continue;
+        /* A wrapper around ARTWORK is not the heading either.
+
+           Whimsical Romance draws its itinerary title as an SVG textPath with
+           a screen-reader <h2> beside it carrying the same words, both inside
+           one .itinerary-title-wrap. That wrapper matched on [class*="title"]
+           and holds BOTH copies, so it reported "Weekend Itinerary Weekend
+           Itinerary" to the Content tab - and once that doubled string came
+           back as the section's heading, _writeHeading set textContent on the
+           wrapper and replaced the arched artwork with the doubled words as
+           plain text. The loop closed and it was on screen.
+
+           Skipping the wrapper leaves the <h2> as the candidate: it reports
+           the right words, and writing to it cannot destroy anything. The
+           arched title stays as drawn, which it has to - the words live inside
+           a path and are not editable at all. */
+        try { if (c.querySelector && c.querySelector('svg')) continue; } catch (e) {}
+        try { if (c.closest && c.closest('svg')) continue; } catch (e) {}
         /* The couple's NAMES are not a section heading. Regal Boho's Our Story
            opens with <h1 class="our-story-names">, so the Content tab labelled
            that section with the sample couple's names and offered no way to

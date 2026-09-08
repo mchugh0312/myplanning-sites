@@ -781,9 +781,22 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   .arch-card{min-height:360px;padding:3.4rem 1.4rem 2rem;}
   .arch-card-label{font-size:1.7rem;}
   .arch-card-rule{width:84px;}
-  /* The drop is scaled for the shorter phone card rather than inherited: 4.6rem
-     under a 3.4rem top padding would push the button off a 360px arch. */
-  .arch-card-name{font-size:0.95rem;margin-top:2.6rem;}
+  /* THE RULE IS ANCHORED TO THE TOP ON A PHONE, NOT TO A PERCENTAGE.
+
+     top:38% is a share of the CARD's height, while the title is a fixed
+     distance down from the top - so the two only line up at one card height.
+     Stacked on a phone the cards grow with the hotel's address, 38% moves down
+     with them, and the rule came to rest through the first line of the copy.
+     Both screenshots show it struck through the hotel name and the airport
+     line.
+
+     Measuring the rule from the same edge the title is measured from makes the
+     order fixed at every card height: 3.4rem of padding, then a 1.7rem label at
+     line-height 1.1, then the rule, then the copy. Desktop keeps 38%, where the
+     cards are side by side, shorter, and it lines up with the arch as drawn. */
+  .arch-card::before{top:calc(3.4rem + 2.6rem);}
+  /* Below the rule above, not merely below the title. */
+  .arch-card-name{font-size:0.95rem;margin-top:2.8rem;}
   .arch-card-btn{padding:0.8rem 1.8rem;min-height:44px;display:inline-flex;
     align-items:center;justify-content:center;}
 
