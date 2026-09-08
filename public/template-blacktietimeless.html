@@ -916,7 +916,7 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
       <li><a href="#our-story"        onclick="handleMenuClick(this)">Our Story</a></li>
       <li><a href="#events-primary"   onclick="handleMenuClick(this)">The Wedding</a></li>
       <li><a href="#other-events"     onclick="handleMenuClick(this)">Other Events</a></li>
-      <li><a href="#travel-section"   onclick="handleMenuClick(this)">Accommodations &amp; Travel</a></li>
+      <li><a href="#travel-section"   onclick="handleMenuClick(this)">Travel</a></li>
       <li><a href="#need-to-know"     onclick="handleMenuClick(this)">Need to Knows</a></li>
       <li><a href="#gallery"          onclick="handleMenuClick(this)">Gallery</a></li>
       <li><a href="#registry-section" onclick="handleMenuClick(this)">Our Registry</a></li>
@@ -1702,11 +1702,14 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'      },
     { show: !!menu.wedding,                                   href: '#events-primary',   label: 'The Wedding'    },
     { show: !!menu.other_events,                              href: '#other-events',     label: 'Other Events'   },
-    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
     /* Travel sits next to Accommodations, as the two boxes do in Content.
        It was listed after Things to Do, which put it three entries away
        from the section it belongs beside. */
-    { show: !!menu.travel,                                    href: '#travel-section',   label: 'Travel'         },
+    /* ONE entry, labelled Travel. Accommodations and Travel are a single
+       section with a single toggle and a single box of copy now, so a second
+       link would point at half of it - and on the designs where both entries
+       showed, a couple saw two menu items for one thing. */
+    { show: !!(menu.accommodations || menu.travel),           href: '#travel-section',   label: 'Travel'         },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'Need to Knows'  },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on

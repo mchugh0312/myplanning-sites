@@ -858,7 +858,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
       <li><a href="#story"          onclick="handleMenuClick(this)">Our Story</a></li>
       <li><a href="#wedding"        onclick="handleMenuClick(this)">The Wedding</a></li>
       <li><a href="#events"         onclick="handleMenuClick(this)">Other Events</a></li>
-      <li><a href="#accommodations" onclick="handleMenuClick(this)">Accommodations</a></li>
+      <li><a href="#accommodations" onclick="handleMenuClick(this)">Travel</a></li>
       <li><a href="#travel"         onclick="handleMenuClick(this)">Travel</a></li>
       <li><a href="#ntk"            onclick="handleMenuClick(this)">Need to Know</a></li>
       <li><a href="#gallery"        onclick="handleMenuClick(this)">Gallery</a></li>
@@ -1234,7 +1234,11 @@ function hydrateTemplate(d) {
       {href:'#story',show:menu.story,label:'Our Story'},
       {href:'#wedding',show:menu.wedding,label:'The Wedding'},
       {href:'#events',show:menu.other_events,label:'Other Events'},
-      {href:'#accommodations',show:menu.accommodations,label:'Accommodations'},
+      /* ONE entry, labelled Travel. Accommodations and Travel are a single
+         section with a single toggle and a single box of copy now, so a second
+         link would point at half of it - and on the designs where both entries
+         showed, a couple saw two menu items for one thing. */
+      {href:'#accommodations',show:(menu.accommodations||menu.travel),label:'Travel'},
       {href:'#travel',show:menu.travel,label:'Travel'},
       {href:'#ntk',show:menu.faqs,label:'Need to Know'},
       {href:'#things-to-do',show:menu.things_to_do,label:'Things to Do'},

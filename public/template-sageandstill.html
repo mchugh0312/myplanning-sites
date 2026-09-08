@@ -1096,7 +1096,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
       <li><a href="#hero"             onclick="handleMenuClick(this)">Home</a></li>
       <li><a href="#weekend"          onclick="handleMenuClick(this)">The Wedding</a></li>
       <li><a href="#weekend"          onclick="handleMenuClick(this)">Other Events</a></li>
-      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Accommodations</a></li>
+      <li><a href="#accommodations"   onclick="handleMenuClick(this)">Travel</a></li>
       <li><a href="#need-to-know"     onclick="handleMenuClick(this)">Need to Knows</a></li>
       <li><a href="#registry-section" onclick="handleMenuClick(this)">Our Registry</a></li>
       <li><a href="#rsvp"             onclick="handleMenuClick(this)">RSVP</a></li>
@@ -1843,7 +1843,7 @@ function _buildMenu(menu, rsvpOn, d) {
        link would point at a section that is never shown - which is what the
        old `travel && !accommodations` entry did: switching Accommodations on
        silently took the Travel link away. */
-    { show: !!(menu.accommodations || menu.travel),           href: '#accommodations',   label: 'Accommodations' },
+    { show: !!(menu.accommodations || menu.travel),           href: '#accommodations',   label: 'Travel' },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'Need to Knows'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on

@@ -860,8 +860,12 @@ function hydrateTemplate(d){
       {h:'#story',l:'Our Story',s:menu.story},
       {h:'#wedding',l:'The Wedding',s:menu.wedding},
       {h:'#events',l:'Other Events',s:menu.other_events},
-      {h:'#accommodations',l:'Accommodations',s:menu.accommodations},
-      {h:'#travel',l:'Travel',s:menu.travel},
+      /* ONE entry, labelled Travel. Accommodations and Travel are a single
+         section with a single toggle and a single box of copy now; this design
+         still draws the hotel and the flights as two bands, so the link goes to
+         the first of them and the second follows it down the page. A second
+         entry would have pointed at half of one section. */
+      {h:'#accommodations',l:'Travel',s:(menu.accommodations||menu.travel)},
       {h:'#ntk',l:'Need to Knows',s:menu.faqs},
       {h:'#things-to-do',l:'Things to Do',s:menu.things_to_do},
       {h:'#gallery',l:'Gallery',s:menu.gallery},
