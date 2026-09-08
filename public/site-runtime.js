@@ -6427,6 +6427,50 @@
     return String(d && d.website_mode || 'Full').toLowerCase().indexOf('save') !== -1;
   }
 
+  /* ── ONE TRAVEL BOX, TWO CARDS ─────────────────────────────────────────────
+     Accommodations and Travel are one section now: one toggle, one box, one
+     booking link. But all ten designs draw the hotel and the flights as two
+     separate things, and every one of them reads BOTH accommodation_info and
+     travel_info to do it - so handing the merged blob to both keys would
+     render the whole of it twice, on all ten.
+
+     Cutting it here instead means no template changes at all. The first card
+     goes where each design already puts the hotel, the rest where it puts the
+     flights, and every existing layout - Sage's two-card row, Black Tie's pair
+     of arches, Regal Boho's two columns - keeps working untouched.
+
+     FIRST card to accommodation, remainder to travel. It is a structural rule,
+     not a reading of the couple's words: nothing here guesses that a block
+     "looks like" a hotel by hunting for words in it, which would be the same
+     mistake as the invented attire line. The seed is written hotel-first and
+     the editor renders it in that order, so the couple can see which is which.
+
+     Splits on TWO or more <br>, the separator the editor's own block toolbar
+     inserts. Several templates then split accommodation_info again on three or
+     more; a single card gives them one part and they cope with that already. */
+  function _splitTravelBlob(d) {
+    try {
+      if (!d) return;
+      var blob = d.travel_info;
+      if (typeof blob !== 'string' || !blob.trim()) return;
+      /* Only when there is nothing there already. A record still carrying its
+         own accommodation_info - or a second hydrate on a payload this has
+         already cut - must be left exactly as it is. */
+      if (typeof d.accommodation_info === 'string' && d.accommodation_info.trim()) return;
+      var parts = blob.split(/(?:<br\s*\/?>\s*){2,}/i)
+        .map(function (p) { return p.trim(); })
+        .filter(function (p) { return p.length; });
+      if (!parts.length) return;
+      d.accommodation_info = parts[0];
+      /* Rejoined with the separator they were cut on, so a design that splits
+         its travel copy into several cards still finds its own boundaries. */
+      d.travel_info = parts.slice(1).join('<br><br>');
+      /* One card only: it goes in the hotel slot and the flights slot stays
+         empty, which every design already handles - it is the same state as a
+         couple who has written about a hotel and not about airports. */
+    } catch (e) {}
+  }
+
   function hydrate(d) {
     if (!d) return;
 
@@ -6439,6 +6483,10 @@
     // Every template and the save-the-date screen read d.couple_names, so
     // normalise it here rather than in ten places.
     d.couple_names = coupleNames(d);
+
+    /* Before markTitles, before any template sees the payload: the two fields
+       downstream code reads have to exist by the time it reads them. */
+    _splitTravelBlob(d);
 
     /* The couple's event order, taken from the payload before any template
        has had a chance to reshape it. Templates build their own array for the
