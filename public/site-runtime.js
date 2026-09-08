@@ -5522,7 +5522,11 @@
                  '#registryGrid[data-mp-built] .registry-card,' +
                  '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
                  BTN + '{margin-top:auto;align-self:center;' + css + readable +
-                 'display:inline-block;text-align:center;max-width:100%}' +
+                 /* The label centres inside the button, not just the button
+                    inside the card. A wrapped two-line label sat left in a
+                    button whose width came from the card. */
+                 'display:flex;align-items:center;justify-content:center;' +
+                 'text-align:center;max-width:100%}' +
         /* Smaller on a phone. The design's button is sized to sit alone under a
            hotel card; four of them in a two-column grid are far too heavy, and
            "Purchase this Item" wrapped to two lines inside a tall pill. Scaled
