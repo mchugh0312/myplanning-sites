@@ -285,6 +285,17 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1rem;
   color:var(--ink);
 }
+/* The TRAILING <em> of an event block - the attire line - in the same face as
+   the event title above it. The dress_code FIELD already had this treatment in
+   other templates; the SEEDED copy carries its attire as a trailing <em> inside the
+   detail, so it inherited the address styling instead. :last-child is the whole
+   trick: a couple italicising a word mid-sentence is not the last thing in the
+   detail, so it stays an italic word inline. */
+.wedding-col-meta em:last-child{
+  font-family:var(--display);
+  font-size:1.05rem;
+  font-style:normal;
+}
 .wedding-col-meta{
   font-family:var(--sans);
   font-size:0.82rem;
@@ -404,6 +415,11 @@ body.hydrating{visibility:hidden;}
   margin-bottom:1rem;
   color:var(--ink);
   font-weight:400;
+}
+.event-col-meta em:last-child{
+  font-family:var(--display);
+  font-size:1.05rem;
+  font-style:normal;
 }
 .event-col-meta{
   font-family:var(--sans);

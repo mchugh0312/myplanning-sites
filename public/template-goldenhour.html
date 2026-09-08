@@ -198,6 +198,13 @@ body.thumbnail-mode .hero-names-text{
 .wedding-card{padding:2rem 1.75rem;text-align:center;}
 .wedding-card + .wedding-card{border-left:1px solid rgba(255,255,255,0.45);}
 .wedding-card-name{font-family:var(--script);font-size:clamp(1.5rem,3.5vw,2.2rem);color:var(--on-dark);margin-bottom:1.2rem;line-height:1.2;}
+/* The TRAILING <em> of an event block - the attire line - in the same face as
+   the event title above it. The dress_code FIELD already had this treatment in
+   .wedding-card-dress; the SEEDED copy carries its attire as a trailing <em> inside the
+   detail, so it inherited the address styling instead. :last-child is the whole
+   trick: a couple italicising a word mid-sentence is not the last thing in the
+   detail, so it stays an italic word inline. */
+.wedding-card-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
 .wedding-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);line-height:2;}
 .wedding-card-dress{display:block;margin-top:1rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
@@ -207,6 +214,7 @@ body.thumbnail-mode .hero-names-text{
 .event-box{padding:2rem 1.75rem;text-align:center;margin-bottom:1.5rem;
   border:1px solid rgba(255,255,255,0.45);}
 .event-name{font-family:var(--script);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--on-dark);margin-bottom:1.4rem;line-height:1.2;}
+.event-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
 .event-detail{font-family:var(--serif);font-size:0.83rem;color:rgba(255,255,255,0.88);line-height:2;}
 .event-dress{display:block;margin-top:1.2rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 

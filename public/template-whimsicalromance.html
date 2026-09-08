@@ -445,6 +445,17 @@ body.hydrating{visibility:hidden;}
    address rules above still dress the d.events database path, which has real
    columns to put in them. The responsive override for this class already
    existed further down; only the base rule was missing. */
+/* The TRAILING <em> of an event block - the attire line - in the same face as
+   the event title above it. The dress_code FIELD already had this treatment in
+   .itinerary-event-dress; the SEEDED copy carries its attire as a trailing <em> inside the
+   detail, so it inherited the address styling instead. :last-child is the whole
+   trick: a couple italicising a word mid-sentence is not the last thing in the
+   detail, so it stays an italic word inline. */
+.itinerary-event-detail em:last-child{
+  font-family:var(--script);
+  font-size:1rem;
+  font-style:normal;
+}
 .itinerary-event-detail{
   font-family:var(--body);
   font-size:0.78rem;
