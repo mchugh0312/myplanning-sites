@@ -6451,16 +6451,43 @@
   function _splitTravelBlob(d) {
     try {
       if (!d) return;
+      /* Cut once per payload. The old guard used "accommodation_info is empty"
+         to mean "not cut yet", and on the LIVE site that was wrong in the one
+         way that mattered - see below - so idempotency gets its own flag and
+         stops sharing a signal with something else. */
+      if (d._mpTravelCut) return;
       var blob = d.travel_info;
       if (typeof blob !== 'string' || !blob.trim()) return;
-      /* Only when there is nothing there already. A record still carrying its
-         own accommodation_info - or a second hydrate on a payload this has
-         already cut - must be left exactly as it is. */
-      if (typeof d.accommodation_info === 'string' && d.accommodation_info.trim()) return;
       var parts = blob.split(/(?:<br\s*\/?>\s*){2,}/i)
         .map(function (p) { return p.trim(); })
         .filter(function (p) { return p.length; });
       if (!parts.length) return;
+
+      /* THE STALE COLUMN IS NOT AUTHORITATIVE.
+
+         accommodation_info still HOLDS the hotel on every record written before
+         the merge - the editor stopped writing that column but nothing cleared
+         it. The preview never sees that, because the editor builds its payload
+         fresh and sends accommodation_info: ''. The live site reads the record,
+         so it arrives full.
+
+         The old guard bailed out on exactly that, which is why this was live-
+         only: the hotel column was left standing AND travel_info kept the whole
+         merged blob, so Pressed Petals drew the hotel on the left and the hotel
+         plus the flights on the right.
+
+         Travel is the field the couple edits, so it wins. When it carries more
+         than one card it is a merged blob by definition and is cut, whatever
+         the old column happens to say. */
+      if (parts.length < 2 &&
+          typeof d.accommodation_info === 'string' && d.accommodation_info.trim()) {
+        /* One card and a populated old column: a record from before the merge
+           whose two columns are still genuinely separate, hotel in one and
+           flights in the other. Nothing to cut - leave both alone. */
+        d._mpTravelCut = true;
+        return;
+      }
+      d._mpTravelCut = true;
       d.accommodation_info = parts[0];
       /* Rejoined with the separator they were cut on, so a design that splits
          its travel copy into several cards still finds its own boundaries. */
@@ -6489,7 +6516,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-09-09-travel-merge';
+  var MP_RUNTIME_BUILD = '2026-09-09-travel-merge-b';
   try {
     window.MP_RUNTIME_BUILD = MP_RUNTIME_BUILD;
     console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD);
