@@ -1125,7 +1125,13 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
   <span class="top-nav-brand" id="navBrand">Iris <span class="ampersand">&amp;</span> Nathan</span>
   <a href="#hero">Home</a>
   <a href="#our-story">Our Story</a>
-  <a href="#wedding">Event Details</a>
+  <!-- "The Wedding", matching the Content box that fills it. The link said
+       "Event Details", so the couple edited a box called The Wedding and looked
+       for it in a menu that had no such entry. -->
+  <a href="#wedding">The Wedding</a>
+  <!-- #events had no entry at all: a couple switching Other Events on got a
+       section on their site with no way to reach it from the menu. -->
+  <a href="#events">Other Events</a>
   <a href="#travel-section">Travel</a>
   <a href="#need-to-know">FAQs</a>
   <a href="#things-to-do">Things to Do</a>
@@ -1208,7 +1214,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 <section class="events-section" id="events" style="display:none">
   <div class="oval-title-wrap">
     <span class="oval-title-line"></span>
-    <span class="oval-title"><span>Events</span></span>
+    <span class="oval-title"><span>Other Events</span></span>
     <span class="oval-title-line"></span>
   </div>
   <div class="events-grid" id="eventsGrid">
@@ -2088,6 +2094,7 @@ function _hideNavLinks(menu, rsvpOn, d) {
     { href:'#hero',             show:true                                 },
     { href:'#our-story',        show:!!menu.story && !!d.story            },
     { href:'#wedding',          show:!!menu.wedding                       },
+    { href:'#events',           show:!!menu.other_events                  },
     { href:'#travel-section',   show:!!(menu.accommodations || menu.travel) },
     { href:'#need-to-know',     show:!!menu.faqs                          },
     { href:'#things-to-do',     show:!!menu.things_to_do                  },

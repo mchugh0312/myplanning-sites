@@ -297,12 +297,11 @@ img{max-width:100%;display:block;}
      is why the two never matched. Anchoring the group to the top means the
      title and the rule land at the same place on both cards whatever is written
      below them, which is what the design does. */
-  /* +20%, 6.4 -> 7.68. This distance IS the gap between the top of the arch
-     and the card's title, and everything below the title is anchored to it, so
-     one number moves the label, the name, the note and the button together.
-     The rule across the arch (.arch-card::before) is NOT moved: it marks the
-     spring point of the arch artwork, which has not changed. */
-  padding:7.68rem 2rem 3rem;
+  /* Back to 6.4rem. This distance is where the TITLE sits, and the title and
+     the rule across the arch are both staying put - only the copy beneath them
+     moves down, which .arch-card-name does on its own. Raising this moved the
+     title too, and at the card's min-height it was heading for the rule. */
+  padding:6.4rem 2rem 3rem;
   min-height:clamp(360px,32vw,420px);
   justify-content:flex-start;
   text-align:center;
@@ -327,9 +326,12 @@ img{max-width:100%;display:block;}
   font-family:var(--serif);font-size:1rem;font-weight:400;
   /* Further down than the rule above it, so the gap opens between the two
      rather than the whole group sliding together. */
-  /* The content below the title drops further than the title itself:
-     2.6 -> 3.12rem, the same +20%. */
-  color:var(--ink);line-height:1.6;margin:3.12rem 0 0.9rem;
+  /* 2.6 -> 4.6rem. The whole distance now lives here rather than being split
+     with the card's top padding: the title and the rule across the arch hold
+     their positions and the gap opens below them, which is what moving "the
+     content" means. The card has room for it - .arch-card-note is flex:1, so
+     it absorbs the change instead of the card growing. */
+  color:var(--ink);line-height:1.6;margin:4.6rem 0 0.9rem;
   text-align:center;
 }
 .arch-card-note{
@@ -776,11 +778,12 @@ a.registry-title:hover{border-bottom-color:currentColor;}
      a card shrink to its copy skews the artwork - the flights card has less
      text and often no button, so it drew visibly squatter than the hotel one
      beside it. A floor plus stretch keeps both arches the same true shape. */
-  /* +20% here too, 3.4 -> 4.08, or the phone arches keep the old spacing. */
-  .arch-card{min-height:360px;padding:4.08rem 1.4rem 2rem;}
+  .arch-card{min-height:360px;padding:3.4rem 1.4rem 2rem;}
   .arch-card-label{font-size:1.7rem;}
   .arch-card-rule{width:84px;}
-  .arch-card-name{font-size:0.95rem;}
+  /* The drop is scaled for the shorter phone card rather than inherited: 4.6rem
+     under a 3.4rem top padding would push the button off a 360px arch. */
+  .arch-card-name{font-size:0.95rem;margin-top:2.6rem;}
   .arch-card-btn{padding:0.8rem 1.8rem;min-height:44px;display:inline-flex;
     align-items:center;justify-content:center;}
 

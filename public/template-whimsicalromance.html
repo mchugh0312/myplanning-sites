@@ -379,9 +379,20 @@ body.hydrating{visibility:hidden;}
   fill:var(--yellow);
   letter-spacing:0.01em;
 }
+/* !important on every declaration, because this class is always worn ALONGSIDE
+   a visible-element class and loses to it on source order at equal specificity.
+
+   .itinerary-title comes later in this file and sets position:relative, which
+   beat the position:absolute here - and clip only applies to an absolutely
+   positioned box, so the clip went inert and the screen-reader copy of
+   "Weekend Itinerary" rendered under the arched SVG one. The heading appeared
+   twice. Anything wearing this class is meant to be unreachable by eye no
+   matter what else it wears. */
 .visually-hidden{
-  position:absolute;width:1px;height:1px;overflow:hidden;
-  clip:rect(0 0 0 0);white-space:nowrap;
+  position:absolute!important;width:1px!important;height:1px!important;
+  overflow:hidden!important;clip:rect(0 0 0 0)!important;
+  clip-path:inset(50%)!important;white-space:nowrap!important;
+  margin:-1px!important;padding:0!important;border:0!important;
 }
 @media(max-width:640px){
   .itinerary-title-text{font-size:92px;}
@@ -925,7 +936,9 @@ body.hydrating{visibility:hidden;}
   font-size:clamp(1.8rem, 4vw, 2.4rem);
   color:var(--ink);
   margin-bottom:2rem;
-  font-weight:700;
+  /* 400, like .ntk-title, .accom-title and every other section heading here.
+     Corben at 700 is very heavy, and this was the only one carrying it. */
+  font-weight:400;
 }
 .gallery-grid{
   display:grid;

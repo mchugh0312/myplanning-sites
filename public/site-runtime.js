@@ -5032,6 +5032,26 @@
       window.addEventListener('resize', function () {
         clearTimeout(t); t = setTimeout(run, 150);
       });
+      /* The carousel thumbnails are iframes the editor RESIZES after they have
+         loaded - it sets the render width and then scales them down - and a
+         resize of the iframe element does not always reach a window listener
+         inside it before the timers above have all fired. The name was measured
+         against whatever width the frame happened to have at hydrate and never
+         measured again, so a long one stayed clipped in the thumbnail while the
+         preview shrank it correctly.
+
+         Watching the element settles it without needing to know which resize
+         path a given surface takes: whenever the box the name has to fit inside
+         changes size, measure again. */
+      try {
+        if (window.ResizeObserver) {
+          var ro = new ResizeObserver(function () {
+            clearTimeout(t); t = setTimeout(run, 100);
+          });
+          if (document.documentElement) ro.observe(document.documentElement);
+          if (document.body) ro.observe(document.body);
+        }
+      } catch (e) {}
     }
   }
 
@@ -5258,8 +5278,36 @@
          between the section and the gifts, and left the last row of buttons
          sitting on the bottom edge with the background stopping dead behind
          them. Padding cannot collapse, so the band keeps its own height. */
-      band.style.paddingTop = '1.6rem';
+      band.style.paddingTop = 'calc(1.6rem + 1px)';
       band.style.paddingBottom = '2.6rem';
+      /* One pixel of overlap, which is what the white line actually was.
+
+         The preview and the thumbnails render in an iframe that the editor
+         scales with a CSS transform, so the boundary between the section and
+         the band lands on a fractional device pixel and the browser leaves a
+         hairline of whatever is behind them. Three passes went into making the
+         two colours match; they already matched. Colour was never the problem,
+         which is why matching it harder never helped.
+
+         Overlapping removes the seam whatever the cause - there is no longer a
+         boundary for it to appear on. The pixel is taken back out of the top
+         padding above, and it lands inside the section's own bottom padding,
+         which is 4.5rem of solid colour on the templates that showed this. */
+      band.style.marginTop = '-1px';
+      /* The band's own ink, chosen against the band's own background.
+
+         The band is a bare div appended after the section, so it inherited the
+         page's text colour rather than the section's. On a dark registry -
+         Vintage Love Story's is #513229 - the gift names and anything drawn in
+         currentColor came out near-black on brown. Nothing here is hardcoded
+         per template: the same luminance comparison the RSVP banner uses picks
+         whichever of white or ink reads on the colour the band ended up with. */
+      try {
+        var _bandBg = effectiveBackground(band);
+        var _white = { r: 255, g: 255, b: 255 }, _ink = { r: 26, g: 26, b: 26 };
+        band.style.color = (contrastRatio(_white, _bandBg) >= contrastRatio(_ink, _bandBg))
+          ? '#ffffff' : '#1a1a1a';
+      } catch (e) {}
       /* Says what the band actually resolved to, in the preview only.
 
          The white strip on Pressed Petals and Heirloom Bloom has now survived
