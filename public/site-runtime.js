@@ -5006,6 +5006,55 @@
 
      Built empty. The cards are cloned from it by the caller, which is what
      happens on Modern Minimal too, so both paths render identically. */
+  /* The registry SECTION, not the clickable title inside it.
+
+     SECTION_ANCHORS.registry tries 'registry-section' first, and on four
+     designs that id is on an <a> nested inside the band it sits in - Vintage
+     Love Story and Regal Boho put it inside <section class="registry-wrap">,
+     Whimsical Romance inside a wrapper div. Inserting the preview band next to
+     that link puts it INSIDE the registry section, which is the one layout the
+     band exists to avoid: the four cards land in the middle of the design's own
+     artwork. Climb off an inline element onto the block that contains it, which
+     is the section on all four and is already the section on the other six. */
+  function _regSection() {
+    try {
+      var sec = null, ids = SECTION_ANCHORS.registry || [];
+      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      if (!sec) return null;
+      /* Bounded, and by SHAPE rather than by a list of class names: a template
+         that nests its link one level deeper needs no entry here. Stops at the
+         first block-level ancestor, so it can never climb past the section into
+         <body> and hand back the whole page. */
+      for (var hop = 0; hop < 3; hop++) {
+        var p = sec.parentElement;
+        if (!p || p === document.body || p === document.documentElement) break;
+        var disp = '';
+        try { disp = getComputedStyle(sec).display; } catch (e) {}
+        /* An <a> with no computed style available (jsdom, or a frame mid-load)
+           is still a link, and a link is never the band. */
+        var inline = sec.tagName === 'A' || disp === 'inline' || disp === 'inline-block' ||
+                     disp === 'inline-flex' || disp === 'contents';
+        if (!inline) break;
+        sec = p;
+      }
+      return sec;
+    } catch (e) { return null; }
+  }
+
+  /* The first painted background at or above this element. A section whose
+     colour sits on an inner wrapper, or whose art is a background-image, has a
+     transparent background-color of its own, and copying that gives the band
+     the page instead of the section. */
+  function _paintUnder(el) {
+    try {
+      for (var n = el; n && n.nodeType === 1; n = n.parentElement) {
+        var c = getComputedStyle(n).backgroundColor;
+        if (c && !/^(transparent|rgba\(0,\s*0,\s*0,\s*0\))$/i.test(c)) return c;
+      }
+    } catch (e) {}
+    return '';
+  }
+
   function ensureRegistryGrid(cardCount) {
     var grid = document.getElementById('registryGrid');
     if (grid) {
@@ -5018,9 +5067,7 @@
       return grid;
     }
     try {
-      var sec = null;
-      var ids = SECTION_ANCHORS.registry || [];
-      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      var sec = _regSection();
       if (!sec) return null;
 
       /* BESIDE the registry section, not inside it.
@@ -5075,8 +5122,7 @@
       if (!grid || !grid.parentNode) return;
       var band = document.getElementById('mp-reg-band');
       if (band && band.contains(grid)) return;
-      var sec = null, ids = SECTION_ANCHORS.registry || [];
-      for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
+      var sec = _regSection();
       if (!sec || !sec.contains(grid) || !sec.parentNode) return;
       if (!band) {
         band = document.createElement('div');
@@ -5098,16 +5144,41 @@
          it had when it was built and a registry switched off in Design would
          leave its gifts behind. */
       if (!band) band = document.getElementById('mp-reg-band');
-      if (!sec) {
-        var ids = SECTION_ANCHORS.registry || [];
-        for (var i = 0; i < ids.length && !sec; i++) sec = document.getElementById(ids[i]);
-      }
+      if (!sec) sec = _regSection();
       if (!sec || !band) return;
       var cs = getComputedStyle(sec);
-      band.style.display = (sec.style && sec.style.display === 'none') ? 'none' : '';
-      band.style.background = cs.backgroundColor || '';
+      var hidden = (sec.style && sec.style.display === 'none');
+      band.style.display = hidden ? 'none' : '';
+      /* The nearest ancestor-or-self that actually PAINTS something, not
+         whatever the section's own background-color happens to be.
+
+         Sage & Still's registry is a full-bleed photograph set as a
+         background-IMAGE, so its background-color is transparent and the band
+         copied nothing - gifts on bare page. Walking up finds the colour the
+         section is really sitting on, which is what the band should wear.
+         Deliberately NOT copying the image itself: repeating a full-bleed
+         flower behind four cards is worse than the plain ground under it. */
+      band.style.background = _paintUnder(sec) || '';
       band.style.paddingLeft = cs.paddingLeft || '';
       band.style.paddingRight = cs.paddingRight || '';
+      /* A rule the design draws under the registry belongs under the BAND now.
+
+         Black Tie ends its registry with border-bottom:2px solid black,
+         because Registry and RSVP share a background and need separating. With
+         the band inserted after the section that rule fell between the copy and
+         its own gifts - the black line - and RSVP lost the separator it was
+         drawn for. Moved rather than duplicated, and read once so re-running
+         this cannot lose it. */
+      if (!sec.hasAttribute('data-mp-reg-bb')) {
+        var _w = parseFloat(cs.borderBottomWidth) || 0;
+        sec.setAttribute('data-mp-reg-bb',
+          (_w > 0 && cs.borderBottomStyle && cs.borderBottomStyle !== 'none')
+            ? cs.borderBottomWidth + ' ' + cs.borderBottomStyle + ' ' + cs.borderBottomColor
+            : '');
+      }
+      var _bb = sec.getAttribute('data-mp-reg-bb');
+      if (_bb && !hidden) { band.style.borderBottom = _bb; sec.style.borderBottom = '0'; }
+      else { band.style.borderBottom = ''; sec.style.borderBottom = ''; }
       /* Vertical padding on the BAND, not margins on the grid inside it.
 
          The grid carried margin:1.6rem auto 2rem, and a margin collapses
@@ -5444,6 +5515,21 @@
       var grid = document.getElementById('registryGrid');
       if (!grid) return;
       var src = document.querySelector(REG_CTA_SOURCES);
+      /* Not every design draws a Book Now. Vintage Love Story's travel cards
+         are a name and an address and nothing else, so this returned here and
+         the button kept the accent fallback - var(--ink3), which on that
+         template is #513229, the same value as the registry's own background.
+         Dark on dark, invisible.
+
+         The View Our Registry button is the fallback: every design has one, it
+         is styled by that design, and it sits directly above the gifts on the
+         same colour - so it is the one button on the page guaranteed to read
+         against the band. A SECOND query rather than another entry in
+         REG_CTA_SOURCES: querySelector returns the first match in DOCUMENT
+         order, not selector order, so a template whose registry markup precedes
+         its travel cards would have taken this in preference to its own Book
+         Now. */
+      if (!src) src = document.querySelector('.registry-cta');
       if (!src) return;
       var cs = getComputedStyle(src);
       /* ORDER MATTERS, and getting it wrong is why the copied styling never
