@@ -6468,8 +6468,32 @@
       /* One card only: it goes in the hotel slot and the flights slot stays
          empty, which every design already handles - it is the same state as a
          couple who has written about a hotel and not about airports. */
+      if (_isPreview) {
+        try {
+          console.log('[mp-travel] cut into', parts.length, 'card(s):',
+            { hotel: d.accommodation_info.slice(0, 60),
+              rest: d.travel_info.slice(0, 60) });
+        } catch (e) {}
+      }
     } catch (e) {}
   }
+
+  /* WHICH BUILD IS ACTUALLY DEPLOYED.
+
+     Bumped by hand whenever a change here needs a matching change in the
+     editor block or a template. Two sessions have now lost time to a bug that
+     was fixed in the source and stale on the server - most recently a Pressed
+     Petals travel section rendering the hotel twice, which was a build without
+     _splitTravelBlob paired with an editor block that had already stopped
+     sending accommodation_info.
+
+     Logged unconditionally, not only in preview: the live site is where a
+     stale deploy is hardest to spot. */
+  var MP_RUNTIME_BUILD = '2026-09-09-travel-merge';
+  try {
+    window.MP_RUNTIME_BUILD = MP_RUNTIME_BUILD;
+    console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD);
+  } catch (e) {}
 
   function hydrate(d) {
     if (!d) return;
