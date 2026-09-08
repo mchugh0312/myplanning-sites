@@ -285,7 +285,15 @@ img{max-width:100%;display:block;}
 .accom-inner{
   /* Hotel | Flights, split by a hairline. */
   max-width:820px;margin:0 auto;text-align:center;
-  display:grid;grid-template-columns:1fr 1px 1fr;gap:2.5rem;align-items:center;
+  /* align-items:START, not center. Centring each column made every element's
+     height depend on how much copy the OTHER column held: Hotel and Flights
+     carry different amounts, so the two "Hotel" and "Flights" titles sat at
+     different heights and the cards read as misaligned.
+
+     Anchoring to the top lines the titles up whatever either card says. The
+     divider keeps its own align-self:center, so the hairline stays centred on
+     the band rather than following the cards up. */
+  display:grid;grid-template-columns:1fr 1px 1fr;gap:2.5rem;align-items:start;
 }
 /* One card left: a single centred track.
 
@@ -303,6 +311,9 @@ img{max-width:100%;display:block;}
 .accom-divider{
   position:relative;
   width:1px;
+  /* Load-bearing now that the grid anchors to the top: without it the hairline
+     would start at the top edge and stop short, since 104% of the tallest
+     column is measured from wherever the item begins. */
   align-self:center;
   height:104%;
   background:rgba(103,61,69,0.32);

@@ -322,6 +322,21 @@ body.hydrating{visibility:hidden;}
 }
 
 /* ── TRAVEL ───────────────────────────────────────────────── */
+/* Two cards in one band. align-items:start, not stretch or centre: the two
+   hold different amounts of copy, and anything that centres them vertically
+   makes each card's position depend on how much the OTHER one says. */
+.travel-cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.4rem;
+  align-items:start;
+  max-width:720px;
+  margin:0 auto;
+}
+.travel-card{display:flex;flex-direction:column;align-items:center;text-align:center;}
+@media(max-width:640px){
+  .travel-cards{grid-template-columns:1fr;gap:1.8rem;}
+}
 .travel-section{
   background:var(--ivory);
   padding:2rem 2rem 2.4rem;
@@ -1150,27 +1165,37 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   </div>
 </div>
 
-<!-- ACCOMMODATIONS (compatibility — placed before Travel) -->
-<div class="accommodations" id="accommodations" style="display:none">
-  <div class="accom-inner">
-    <h2 class="section-title">Accommodations</h2>
-    <div id="accomList" class="travel-content"></div>
-    <!-- Its own Book Now, from Accomodation URL. There used to be one button
-         for both sections, in Travel, which fell back to the accommodation
-         link - so a hotel booking link surfaced under Flights. -->
-    <a class="travel-btn" href="#" id="accomBtn" target="_blank">Book Now</a>
-  </div>
-</div>
+<!-- TRAVEL — one band, two cards.
 
-<!-- TRAVEL -->
+     This was two bands: Accommodations, then Travel, each with its own
+     <h2 class="section-title">. With the two merged into one section they both
+     took the same name, so the page carried two headings reading "Travel" and
+     the runtime added a second menu link for the second one.
+
+     One heading now, and the hotel and the flights sit under it as two cards.
+     #accommodations stays as an empty anchor so a menu link or a saved scroll
+     position pointing at it still lands in the right place. -->
+<div class="accommodations" id="accommodations" style="display:none"></div>
+
 <div class="travel-section" id="travel-section">
   <div class="travel-inner">
     <h2 class="section-title">Travel</h2>
-    <div class="travel-content" id="travelContent">
-      The Penny Hotel Williamsburg<br>
-      <em>Request the Kira &amp; Jay room block</em>
+    <div class="travel-cards">
+      <div class="travel-card">
+        <div class="travel-content" id="accomList">
+          The Penny Hotel Williamsburg<br>
+          <em>Request the Kira &amp; Jay room block</em>
+        </div>
+        <!-- Its own Book Now, from the Travel booking link. There used to be one
+             button for both sections which fell back to the accommodation link,
+             so a hotel booking link surfaced under Flights. -->
+        <a class="travel-btn" href="#" id="accomBtn" target="_blank">Book Now</a>
+      </div>
+      <div class="travel-card">
+        <div class="travel-content" id="travelContent"></div>
+        <a class="travel-btn" href="#" id="travelBtn" target="_blank">Book Now</a>
+      </div>
     </div>
-    <a class="travel-btn" href="#" id="travelBtn" target="_blank">Book Now</a>
   </div>
 </div>
 
@@ -1576,8 +1601,9 @@ function hydrateTemplate(d){
   }
 
   // ── Accommodations ──
+  /* The anchor only; the copy lives in the one Travel band below. */
   const accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
+  if (accomSection) accomSection.style.display = 'none';
   if (menu.accommodations){
     var accomEl = document.getElementById('accomList');
     if (accomEl && d.accommodation_info){
@@ -1598,8 +1624,12 @@ function hydrateTemplate(d){
   }
 
   // ── Travel ──
+  /* Either toggle keeps the merged band on - they are one switch now, but a
+     record saved before the merge can still carry them apart. */
   const travelSection = document.getElementById('travel-section');
-  if (travelSection) travelSection.style.display = menu.travel ? '' : 'none';
+  if (travelSection) {
+    travelSection.style.display = (menu.travel || menu.accommodations) ? '' : 'none';
+  }
   // Hero photo pair — gallery images if the couple has them, else the hero.
   // MP-504. The pair is the WEBSITE set, not the gallery.
   var _gal = (Array.isArray(d.hero_images) && d.hero_images.length)
