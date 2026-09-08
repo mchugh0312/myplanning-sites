@@ -559,6 +559,22 @@ body.hydrating{visibility:hidden;}
   line-height:1.65;
   margin-bottom:1.2rem;
 }
+/* The travel half of the merged section: a subtitle in the design's own title
+   face, one step down from the section heading so it reads as the second half
+   of this card rather than a second section. */
+.accom-travel{
+  margin-top:1.8rem;
+  padding-top:1.6rem;
+  border-top:1px solid rgba(83,20,30,0.18);
+}
+.accom-travel-title{
+  font-family:var(--display);
+  font-size:clamp(1.1rem, 2.2vw, 1.4rem);
+  color:var(--ink);
+  font-weight:400;
+  margin-bottom:0.7rem;
+  letter-spacing:-0.005em;
+}
 .accom-meta{
   font-family:var(--body);
   font-size:0.86rem;
@@ -1478,7 +1494,18 @@ function renderItineraryBlock(part) {
 
 // Render an accommodation block from an HTML blob.
 // Convention: <strong>Hotel Name</strong> ... <em>note</em>
-function renderAccomContent(html) {
+/* ONE section for hotel and flights.
+
+   This design has a single menu link, "Accommodations", and a single card
+   beside a framed photograph - there is no second card for the travel copy to
+   go in. Travel used to get its own section, shown only when Accommodations
+   was switched OFF, so a couple who filled in both saw the hotel and lost the
+   flights entirely, and the Travel menu link vanished with them.
+
+   The menu names the section, so the header stays "Accommodations" and the
+   travel copy is clubbed in underneath the hotel. Hotel first: where guests
+   book is what they act on, the airport is reference. */
+function renderAccomContent(html, travelHtml) {
   var content = document.getElementById('accomContent');
   if (!content) return;
 
@@ -1505,14 +1532,32 @@ function renderAccomContent(html) {
     var _names = (window.MP_DATA && window.MP_DATA.couple_names) || '';
     meta = _names ? 'Request the ' + _names + ' room block' : 'Request the room block';
   }
+  var hotelBlock = html
+    ? (name ? '<div class="accom-name">' + name + '</div>' : '') +
+      (address ? '<div class="accom-address">' + address + '</div>' : '') +
+      '<div class="accom-meta">' + meta + '</div>' +
+      (bookUrl
+        ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
+        : '<a class="accom-cta" href="#">Book Now</a>')
+    : '';
+
+  /* The couple's travel words in one piece, exactly as written - no parsing
+     into name/address/meta, because travel copy is prose, not an address. */
+  var travelUrl = travelHtml
+    ? _mpBookUrl(travelHtml, (window.MP_DATA && window.MP_DATA.travel_url) || '') : '';
+  var travelBlock = (travelHtml && String(travelHtml).trim())
+    ? '<div class="accom-travel">' +
+        '<div class="accom-travel-title">Travel</div>' +
+        '<div class="accom-address">' + travelHtml + '</div>' +
+        (travelUrl
+          ? '<a class="accom-cta" href="' + travelUrl + '" target="_blank" rel="noopener">Book Now</a>'
+          : '') +
+      '</div>'
+    : '';
+
+  if (!hotelBlock && !travelBlock) return;
   content.innerHTML =
-    '<h2 class="accom-title">Accommodations</h2>' +
-    (name ? '<div class="accom-name">' + name + '</div>' : '') +
-    (address ? '<div class="accom-address">' + address + '</div>' : '') +
-    '<div class="accom-meta">' + meta + '</div>' +
-    (bookUrl
-      ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
-      : '<a class="accom-cta" href="#">Book Now</a>');
+    '<h2 class="accom-title">Accommodations</h2>' + hotelBlock + travelBlock;
 }
 
 // ── Hydration ─────────────────────────────────────────────────
@@ -1713,9 +1758,13 @@ function hydrateTemplate(d) {
 
   // ── Accommodations ────────────────────────────────────────────────────
   const accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
-  if (menu.accommodations && d.accommodation_info) {
-    renderAccomContent(d.accommodation_info);
+  // Either toggle keeps the merged section on: travel has nowhere else to go.
+  const showAccom = !!(menu.accommodations || menu.travel);
+  if (accomSection) accomSection.style.display = showAccom ? '' : 'none';
+  if (showAccom) {
+    renderAccomContent(
+      menu.accommodations ? (d.accommodation_info || '') : '',
+      menu.travel ? (d.travel_info || '') : '');
   }
 
   // ── FAQs ──────────────────────────────────────────────────────────────
@@ -1768,16 +1817,9 @@ function hydrateTemplate(d) {
 }
   }
 
-  // ── Travel (only show if accommodations is hidden) ───────────────────
+  // ── Travel — merged into Accommodations above, never its own section ──
   const travelSection = document.getElementById('travel-section');
-  if (travelSection) {
-    const showStandaloneTravel = menu.travel && d.travel_info && !menu.accommodations;
-    travelSection.style.display = showStandaloneTravel ? '' : 'none';
-    if (showStandaloneTravel) {
-      const travelContent = document.getElementById('travelContent');
-      if (travelContent) travelContent.innerHTML = d.travel_info;
-    }
-  }
+  if (travelSection) travelSection.style.display = 'none';
 
   // ── Accommodation photograph ─────────────────────────────────────────
   // MP-322. .accom-photo was a fixed sample in the markup with nothing writing
@@ -1884,11 +1926,11 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.home,                                      href: '#hero',             label: 'Home'              },
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'         },
     { show: !!(menu.wedding || menu.other_events),            href: '#itinerary',        label: 'Weekend Itinerary' },
-    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations'     },
-    /* Travel sits next to Accommodations, as the two boxes do in Content.
-       It was listed after Things to Do, which put it three entries away
-       from the section it belongs beside. */
-    { show: !!(menu.travel && !menu.accommodations),          href: '#travel-section',   label: 'Travel'            },
+    /* One entry for both. The design has one section for them, so a second
+       link would point at a section that is never shown - which is what the
+       old `travel && !accommodations` entry did: switching Accommodations on
+       silently took the Travel link away. */
+    { show: !!(menu.accommodations || menu.travel),           href: '#accommodations',   label: 'Accommodations'     },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'FAQs'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on

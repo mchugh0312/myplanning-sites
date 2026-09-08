@@ -226,7 +226,10 @@ body.hydrating{visibility:hidden;}
   max-width:520px;
   margin:0 auto;
   padding:0;
-  text-align:left;
+  /* Centred, like the names above it and the rest of the section. The box was
+     already centred on the page; only its text was ranged left, which read as
+     a misalignment rather than a choice. */
+  text-align:center;
 }
 .our-story::before{
   content:'';
@@ -1213,7 +1216,19 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
 <!-- TRAVEL INFO -->
 <section class="travel-section" id="travel-section">
   <h2 class="travel-title">Travel</h2>
+  <!-- Hotel first here too, or the sample the couple sees before their payload
+       arrives is in the opposite order to the one they get after it. -->
   <div class="travel-grid" id="travelGrid">
+    <div class="travel-col">
+      <h3 class="travel-col-title">Hotel</h3>
+      <div class="travel-col-divider"></div>
+      <div class="travel-item">
+        <span class="travel-item-name">Fairmont San Francisco</span>
+        <span class="travel-item-meta">950 Mason St<br>San Francisco, CA 94108</span>
+      </div>
+      <div class="travel-note">Request the Nisha &amp; Rohan room block</div>
+      <a class="travel-cta" href="#" target="_blank">Book Now</a>
+    </div>
     <div class="travel-col">
       <h3 class="travel-col-title">Airports</h3>
       <div class="travel-col-divider"></div>
@@ -1225,16 +1240,6 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
         <span class="travel-item-name">Oakland San Francisco Bay Airport</span>
         <span class="travel-item-meta">(OAK)</span>
       </div>
-    </div>
-    <div class="travel-col">
-      <h3 class="travel-col-title">Hotel</h3>
-      <div class="travel-col-divider"></div>
-      <div class="travel-item">
-        <span class="travel-item-name">Fairmont San Francisco</span>
-        <span class="travel-item-meta">950 Mason St<br>San Francisco, CA 94108</span>
-      </div>
-      <div class="travel-note">Request the Nisha &amp; Rohan room block</div>
-      <a class="travel-cta" href="#" target="_blank">Book Now</a>
     </div>
   </div>
 </section>
@@ -1606,9 +1611,11 @@ function hydrateTravelInfo(d, menu) {
     '</div>';
   }
 
-  // If only one column has data, span both columns with the populated one
+  // Hotel first, then airports. Where the couple books is the thing they act
+  // on; the airport is reference. leftHtml/rightHtml keep their names because
+  // they describe which BLOB each was built from, not which column it lands in.
   if (leftHtml && rightHtml) {
-    grid.innerHTML = leftHtml + rightHtml;
+    grid.innerHTML = rightHtml + leftHtml;
     grid.dataset.travelCols = '2';
   } else {
     grid.innerHTML = leftHtml || rightHtml;

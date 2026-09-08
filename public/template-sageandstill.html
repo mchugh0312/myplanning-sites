@@ -1629,9 +1629,19 @@ function hydrateTemplate(d) {
   }
 
   // ── Accommodations (two-card row) ─────────────────────────────────────
+  /* ONE section for hotel and flights.
+
+     This design has a single menu link, "Accommodations", and the section
+     already renders the flights card from travel_info - but only while
+     Accommodations was switched on, and the standalone Travel section only
+     while it was switched OFF. A couple with travel copy and the hotel toggle
+     off lost the merged layout; with it on, the Travel menu link disappeared.
+     Either toggle now keeps the one section on, because travel has nowhere
+     else to go. Hotel stays first. */
   const accomSection = document.getElementById('accommodations');
-  if (accomSection) accomSection.style.display = menu.accommodations ? '' : 'none';
-  if (menu.accommodations) {
+  const showAccom = !!(menu.accommodations || menu.travel);
+  if (accomSection) accomSection.style.display = showAccom ? '' : 'none';
+  if (showAccom) {
     let accomInner = document.getElementById('accomInner');
     if (accomInner) {
       var accomBlob = d.accommodation_info || '';
@@ -1644,8 +1654,12 @@ function hydrateTemplate(d) {
                                   .map(function(p){ return p.trim(); })
                                   .filter(function(p){ return p.length > 3; });
 
-        var hotelHtml  = accomParts[0] || accomBlob;
-        var flightHtml = accomParts[1] || (menu.travel ? travelBlob : '');
+        /* Each half answers to its own toggle: the section is on because at
+           least one of them is, not because both are. */
+        var hotelHtml  = menu.accommodations ? (accomParts[0] || accomBlob) : '';
+        var flightHtml = menu.accommodations
+          ? (accomParts[1] || (menu.travel ? travelBlob : ''))
+          : (menu.travel ? travelBlob : '');
 
         // Placeholder retention: render into a detached node and only
         // replace the template's own content if something is produced.
@@ -1666,7 +1680,7 @@ function hydrateTemplate(d) {
           var _f = _mpColParts(flightHtml, '');
           var flightCard = renderAccomCard(_f.title, _f.rest, d.travel_url);
           accomInner.appendChild(flightCard);
-        } else if (hotelHtml) {
+        } else if (hotelHtml || flightHtml) {
           // Only one card — let it span and centre
           accomInner.style.gridTemplateColumns = '1fr';
           var first = accomInner.firstElementChild;
@@ -1748,17 +1762,9 @@ function hydrateTemplate(d) {
 }
   }
 
-  // ── Travel (only show if accommodations is hidden — otherwise travel
-  //   info goes into the Flights card) ─────────────────────────────────
+  // ── Travel — merged into Accommodations above, never its own section ──
   const travelSection = document.getElementById('travel-section');
-  if (travelSection) {
-    const showStandaloneTravel = menu.travel && d.travel_info && !menu.accommodations;
-    travelSection.style.display = showStandaloneTravel ? '' : 'none';
-    if (showStandaloneTravel) {
-      const travelContent = document.getElementById('travelContent');
-      if (travelContent) travelContent.innerHTML = d.travel_info;
-    }
-  }
+  if (travelSection) travelSection.style.display = 'none';
 
   // ── Gallery ──────────────────────────────────────────────────────────
   const gallerySection = document.getElementById('gallery');
@@ -1833,11 +1839,11 @@ function _buildMenu(menu, rsvpOn, d) {
     { show: !!menu.home,                                      href: '#hero',             label: 'Home'                       },
     { show: !!menu.story && !!d.story,                        href: '#our-story',        label: 'Our Story'                  },
     { show: !!(menu.wedding || menu.other_events),            href: '#weekend',          label: 'The Weekend'                },
-    { show: !!menu.accommodations,                            href: '#accommodations',   label: 'Accommodations' },
-    /* Travel sits next to Accommodations, as the two boxes do in Content.
-       It was listed after Things to Do, which put it three entries away
-       from the section it belongs beside. */
-    { show: !!(menu.travel && !menu.accommodations),          href: '#travel-section',   label: 'Travel'                     },
+    /* One entry for both. The design has one section for them, so a second
+       link would point at a section that is never shown - which is what the
+       old `travel && !accommodations` entry did: switching Accommodations on
+       silently took the Travel link away. */
+    { show: !!(menu.accommodations || menu.travel),           href: '#accommodations',   label: 'Accommodations' },
     { show: !!(menu.things_to_do || menu.faqs),               href: '#need-to-know',     label: 'Need to Knows'              },
     // Things to Do renders as an item inside that accordion, so it points at
     // the same section — without its own entry a couple who switched it on

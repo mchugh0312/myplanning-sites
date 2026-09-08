@@ -1051,6 +1051,8 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   <nav class="site-nav" id="siteNav">
     <a href="#hero"            onclick="handleNavClick(this)" class="active">Home</a>
     <a href="#events-primary"  onclick="handleNavClick(this)">Events</a>
+    <a href="#other-events"    onclick="handleNavClick(this)">Other Events</a>
+    <a href="#accommodations"  onclick="handleNavClick(this)">Accommodations</a>
     <a href="#travel-section"  onclick="handleNavClick(this)">Travel</a>
     <a href="#faq-section"     onclick="handleNavClick(this)">FAQs</a>
     <a href="#registry-section" onclick="handleNavClick(this)">Registry</a>
@@ -1774,8 +1776,19 @@ function _buildNav(menu, rsvpOn, d){
   if (!nav) return;
   var links = [
     { show: !!menu.home,                                href:'#hero',              label:'Home'        },
-    { show: !!menu.wedding || !!menu.other_events,      href:'#events-primary',    label:'Events'      },
-    { show: !!menu.travel || !!menu.accommodations,     href:'#travel-section',    label:'Travel' },
+    /* FOUR sections, four links.
+
+       Unlike the designs that merge these pairs, this one keeps
+       #events-primary, #other-events, #accommodations and #travel-section as
+       separate sections, each with its own toggle - but the nav offered two
+       entries, each standing for a pair. A couple who switched Other Events or
+       Accommodations on got a section on the page with no way to reach it from
+       the menu, and the entry that WAS there scrolled past it to the wrong
+       one. Each link now answers to the section it points at. */
+    { show: !!menu.wedding,                             href:'#events-primary',    label:'Events'      },
+    { show: !!menu.other_events,                        href:'#other-events',      label:'Other Events' },
+    { show: !!menu.accommodations,                      href:'#accommodations',    label:'Accommodations' },
+    { show: !!menu.travel,                              href:'#travel-section',    label:'Travel' },
     { show: !!(menu.faqs || menu.things_to_do),         href:'#faq-section',       label:'FAQs'        },
     // Things to Do has its own section now, so it gets its own entry.
     { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },

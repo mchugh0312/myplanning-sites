@@ -5260,6 +5260,33 @@
          them. Padding cannot collapse, so the band keeps its own height. */
       band.style.paddingTop = '1.6rem';
       band.style.paddingBottom = '2.6rem';
+      /* Says what the band actually resolved to, in the preview only.
+
+         The white strip on Pressed Petals and Heirloom Bloom has now survived
+         two fixes, and nothing in either template's source explains it - both
+         resolve to a real section with a solid background colour. Asking for a
+         DevTools reading inside the preview iframe has not worked twice, so
+         the page reports it itself. Everything a diagnosis needs, on one line,
+         in a console the owner is already reading. */
+      if (_isPreview) {
+        try {
+          console.log('[mp-reg-band]', {
+            sec: sec.tagName + '#' + (sec.id || ''),
+            parent: sec.parentElement
+              ? sec.parentElement.tagName + '.' + (sec.parentElement.className || '') : null,
+            bandInsideSec: sec.contains(band),
+            prev: band.previousElementSibling
+              ? band.previousElementSibling.tagName + '#' + (band.previousElementSibling.id || '') : null,
+            secBg: cs.backgroundColor,
+            secBgImage: (cs.backgroundImage || '').slice(0, 40),
+            secMarginBottom: cs.marginBottom,
+            secPaddingBottom: cs.paddingBottom,
+            bandBg: band.style.background,
+            bandBorderBottom: band.style.borderBottom || '(none)',
+            hidden: hidden,
+          });
+        } catch (e) {}
+      }
     } catch (e) {}
   }
 

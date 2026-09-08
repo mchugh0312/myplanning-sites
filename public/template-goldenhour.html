@@ -189,7 +189,12 @@ body.thumbnail-mode .hero-names-text{
 
 /* ── THE WEDDING ──────────────────────────────────────────────── */
 .wedding-section{background:var(--blue);padding:4rem 2rem 2.5rem;}
-.wedding-invite{font-family:var(--serif);font-size:1rem;color:var(--on-dark);text-align:center;line-height:1.7;max-width:560px;margin:0 auto 3rem;}
+/* Same blue and the same centred measure as the sections around it, so the
+   invitation reads as part of the run rather than a card dropped in. */
+.invite-section{background:var(--blue);padding:3.5rem 2rem 0.5rem;text-align:center;}
+/* No bottom margin now that nothing follows it inside its own band - the 3rem
+   was the gap down to the wedding cards, which are a section away. */
+.wedding-invite{font-family:var(--serif);font-size:1rem;color:var(--on-dark);text-align:center;line-height:1.7;max-width:560px;margin:0 auto;}
 .wedding-invite em,.wedding-invite i{font-family:var(--script);font-size:1.4em;font-style:normal;}
 /* One framed block containing both cards, divided by a single vertical rule —
    border on all four sides as in the design. */
@@ -574,6 +579,17 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
   </div>
 </section>
 
+<!-- INVITATION — the closing line of the hero, not the opening line of the
+     wedding section. It reads "<names> lovingly invite you to celebrate their
+     wedding", which is addressed to the guest arriving at the page; sitting
+     inside #wedding put Our Story between the photograph and the invitation
+     and it read as an aside three sections down. Its own band, directly under
+     the hero, in the same blue the sections either side of it use so the
+     change is one of ORDER and not of colour. -->
+<section class="invite-section" id="invite" style="display:none">
+  <div class="wedding-invite" id="weddingInvite"></div>
+</section>
+
 <!-- OUR STORY -->
 <section class="story-section" id="story" style="display:none">
   <div class="story-title">Our Story</div>
@@ -582,7 +598,6 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
 
 <!-- THE WEDDING -->
 <section class="wedding-section" id="wedding" style="display:none">
-  <div class="wedding-invite" id="weddingInvite"></div>
   <div class="wedding-cards" id="weddingCards"></div>
 </section>
 
@@ -864,6 +879,10 @@ function hydrateTemplate(d){
 
   // The Wedding
   var wEl=el('wedding');if(wEl)wEl.style.display=menu.wedding?'':'none';
+  /* The invitation is its own band under the hero now, so it needs its own
+     display - it used to inherit the wedding section's. Same toggle: the line
+     is built from the Wedding content, so it belongs to that switch. */
+  var iEl=el('invite');if(iEl)iEl.style.display=menu.wedding?'':'none';
   if(menu.wedding){
     // Invitation line: "Name and Name lovingly invite you to celebrate their wedding."
     var invite=el('weddingInvite');

@@ -1241,19 +1241,9 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
     <span class="oval-title"><span>Travel</span></span>
     <span class="oval-title-line"></span>
   </div>
+  <!-- Hotels first here too, or the sample the couple sees before their payload
+       arrives is in the opposite order to the one they get after it. -->
   <div class="travel-grid" id="travelGrid">
-    <div class="travel-col">
-      <h3 class="travel-col-title">Airports</h3>
-      <div class="travel-item">
-        <span class="travel-item-name">Chicago O'Hare International<br>Airport</span>
-        <span class="travel-item-meta">(ORD)</span>
-      </div>
-      <div class="travel-item">
-        <span class="travel-item-name">Chicago Midway International<br>Airport</span>
-        <span class="travel-item-meta">(MDW)</span>
-      </div>
-    </div>
-    <div class="travel-divider"></div>
     <div class="travel-col">
       <h3 class="travel-col-title">Hotels</h3>
       <div class="travel-item">
@@ -1265,6 +1255,18 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
         <span class="travel-item-meta">680 N Lake Shore Dr<br>Chicago, IL 60611</span>
       </div>
       <div class="travel-note" id="travelRoomBlock">*Request the Iris &amp; Nathan room block</div>
+    </div>
+    <div class="travel-divider"></div>
+    <div class="travel-col">
+      <h3 class="travel-col-title">Airports</h3>
+      <div class="travel-item">
+        <span class="travel-item-name">Chicago O'Hare International<br>Airport</span>
+        <span class="travel-item-meta">(ORD)</span>
+      </div>
+      <div class="travel-item">
+        <span class="travel-item-name">Chicago Midway International<br>Airport</span>
+        <span class="travel-item-meta">(MDW)</span>
+      </div>
     </div>
   </div>
 </section>
@@ -1647,8 +1649,11 @@ function hydrateTravelInfo(d, menu) {
   // leaving the columns sparse.
   var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
   var _newItems = airportItems.length + hotelItems.length;
+  // Hotels first, then airports. Where the couple books is the thing guests act
+  // on; the airport is reference. left/right keep their names because they say
+  // which BLOB each was built from, not which column it lands in.
   if (_newItems >= _phItems || _phItems === 0) {
-    grid.innerHTML = leftHtml + dividerHtml + rightHtml;
+    grid.innerHTML = rightHtml + dividerHtml + leftHtml;
   } else {
     window.MP_SHOWING_PLACEHOLDERS = true;
   }
