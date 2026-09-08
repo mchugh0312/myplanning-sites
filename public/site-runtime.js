@@ -2427,6 +2427,13 @@
            now, so the section falls back to its own name. */
         var cn = String(c.className || '');
         if (/(^|[\s-])(col|card|item|event|slide|cell)-title/i.test(cn)) continue;
+        /* The couple's NAMES are not a section heading. Regal Boho's Our Story
+           opens with <h1 class="our-story-names">, so the Content tab labelled
+           that section with the sample couple's names and offered no way to
+           edit the word - and anything writing a heading here would have
+           written over the couple's own names. Falls through to the section's
+           own name, as the accommodations case above does. */
+        if (/(^|[\s-])(names|couple-name|couple-names)(\s|$)/i.test(cn)) continue;
         var t = (c.textContent || '').trim();
         if (t && t.length <= 60) { el = c; break; }
       }
@@ -2844,8 +2851,72 @@
     delete _blankedNodes[key];
   }
 
+  /* ── THE MENU NAMES THE SECTION ────────────────────────────────────────────
+     One section, one name, everywhere the couple can see it: the nav link, the
+     heading on the page, and the Content tab box.
+
+     They disagreed on every template. Coastal Chic's menu said "Event
+     Schedule" over a heading reading "Our Wedding Weekend"; Modern Minimal's
+     said "Events" over "The Main Event". A couple looking for the box that
+     edits what they can see had three names to choose between.
+
+     The MENU wins. A nav label is the shortest true name a design has for a
+     section, and it is the one the couple navigates by.
+
+     Runs BEFORE _designHeadings is captured, so the menu wording becomes the
+     design's own as far as everything downstream is concerned: a rename still
+     overrides it, and clearing that rename restores the menu wording rather
+     than the heading the template happened to ship with. */
+  function _menuLabelFor(ids) {
+    var best = null;
+    try {
+      var links = document.querySelectorAll(NAV_LINK_SOURCES);
+      for (var i = 0; i < links.length && !best; i++) {
+        var href = (links[i].getAttribute('href') || '').replace('#', '');
+        if (!href || ids.indexOf(href) === -1) continue;
+        var t = (links[i].textContent || '').replace(/\s+/g, ' ').trim();
+        /* A menu label, not a paragraph - the same ceiling syncMenuLinks uses
+           when it reads in the other direction. */
+        if (t && t.length <= 40) best = t;
+      }
+    } catch (e) {}
+    return best;
+  }
+
+  function _alignHeadingsToMenu() {
+    Object.keys(SECTION_ANCHORS).forEach(function (key) {
+      /* The hero's first title-ish element is the couple's names. */
+      if (key === 'home') return;
+      var ids = SECTION_ANCHORS[key] || [];
+      var label = _menuLabelFor(ids);
+      if (!label) return;                    /* no link: keep the design's own */
+      for (var i = 0; i < ids.length; i++) {
+        var sec = document.getElementById(ids[i]);
+        if (!sec) continue;
+        var node = _headingNode(sec);
+        /* ONLY a node that holds its text and nothing else.
+
+           Whimsical Romance draws its itinerary title as an SVG textPath with a
+           visually-hidden <h2> beside it for screen readers, so the node found
+           there is the wrapper around both - and setting textContent on it
+           would delete the artwork and the accessible name together. Same for
+           any heading with a decorative span inside. A heading we cannot write
+           safely keeps the template's wording; it is not worth breaking a
+           design to win an argument about a word. */
+        if (node && node.children && node.children.length === 0 &&
+            (node.textContent || '').trim() !== label) {
+          node.textContent = label;
+        }
+        break;
+      }
+    });
+  }
+
   function applySectionHeadings(d) {
     var map = (d && d.section_headings) || {};
+
+    /* First, before anything is captured or written. */
+    try { _alignHeadingsToMenu(); } catch (e) {}
 
     /* Capture the design's wording for EVERY section before anything is
        written over it, not just the ones being renamed. reportSectionHeadings
