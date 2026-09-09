@@ -565,7 +565,17 @@ body.hydrating{visibility:hidden;}
   align-items:center;
   justify-content:center;
   padding:1.1rem 3.2rem;
-  border:1px solid var(--ivory);
+  /* 2px, the stroke every OUTLINED control on this design is drawn with -
+     .rsvp-add-guest, .rsvp-name-input, .rsvp-select, .rsvp-textarea are all
+     2px solid. (.rsvp-submit is not a comparator: it is a filled pill with
+     border:none.) At 1px this ring read as a hairline beside them.
+
+     It also sets the ring on the registry preview's Purchase buttons.
+     styleRegistryCtas copies border-width off the design's own button, and
+     this design ships no Book Now, so .registry-cta IS the button it copies -
+     which is why the fix belongs here and not in a list of ten button styles
+     in the runtime. */
+  border:2px solid var(--ivory);
   border-radius:50%;
   font-family:var(--display);
   font-size:clamp(1.3rem, 2.6vw, 1.7rem);
