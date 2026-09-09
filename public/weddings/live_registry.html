@@ -1866,10 +1866,15 @@ function updateFeeLine(){
   if(cents < 1){ line.textContent = ""; return; }
   const rail = selectedRail();
   const f = grossUp(cents, rail);
-  line.innerHTML = "The couple receives <strong>" + fmt(f.gift) + "</strong>. "
-    + "You'll be charged " + fmt(f.total) + ", which includes a "
-    + fmt(f.fee) + " " + (rail === "ach" ? "bank transfer" : "card") + " processing fee. "
-    + "MyPlanning doesn't charge or keep any part of it."
+  /* MP-367. The label already said "card" or "bank transfer" rather than
+     "Stripe", and the figures were already right. The couple is named so it is
+     clear who receives the gift, and the fee is stated as passed on at cost.
+     Nothing beyond that: the guest is looking at the exact amount they will be
+     charged, which is the only thing they need. */
+  const railWord = rail === "ach" ? "bank transfer" : "card";
+  line.innerHTML = "<strong>" + esc(coupleLabel()) + "</strong> receives your full gift of <strong>"
+    + fmt(f.gift) + "</strong>. You'll be charged " + fmt(f.total) + ", which includes a "
+    + fmt(f.fee) + " " + railWord + " processing fee, passed on at cost."
     + (rail === "ach" ? " Bank transfers take a few days to clear." : "");
 }
 
