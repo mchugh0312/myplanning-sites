@@ -1065,7 +1065,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
   </button>
   <nav class="site-nav" id="siteNav">
     <a href="#hero"            onclick="handleNavClick(this)" class="active">Home</a>
-    <a href="#events-primary"  onclick="handleNavClick(this)">Events</a>
+    <a href="#events-primary"  onclick="handleNavClick(this)">The Main Event</a>
     <a href="#other-events"    onclick="handleNavClick(this)">Other Events</a>
     <a href="#accommodations"  onclick="handleNavClick(this)">Travel</a>
     <a href="#faq-section"     onclick="handleNavClick(this)">FAQs</a>
@@ -1814,7 +1814,7 @@ function _buildNav(menu, rsvpOn, d){
        Accommodations on got a section on the page with no way to reach it from
        the menu, and the entry that WAS there scrolled past it to the wrong
        one. Each link now answers to the section it points at. */
-    { show: !!menu.wedding,                             href:'#events-primary',    label:'Events'      },
+    { show: !!menu.wedding,                             href:'#events-primary',    label:'The Main Event' },
     { show: !!menu.other_events,                        href:'#other-events',      label:'Other Events' },
     /* ONE entry, labelled Travel. Accommodations and Travel are a single
        section with a single toggle and a single box of copy now, so a second

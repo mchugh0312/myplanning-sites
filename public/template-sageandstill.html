@@ -512,7 +512,13 @@ body.hydrating{visibility:hidden;}
   /* Design has larger labels and tighter boxes than my first attempt. */
   padding:2rem 1.4rem 1.8rem;
   min-height:clamp(250px, 21vw, 300px);
-  justify-content:center;
+  /* flex-START, not center. The two cards are the same HEIGHT - grid stretches
+     them - but centring their contents inside that height makes each title's
+     position depend on how much copy sits under it, so Hotel and Flights sat at
+     different heights. Anchoring to the top lines the titles up across the row
+     whatever either card says; the boxes stay equal, which is what the stretch
+     above is for. */
+  justify-content:flex-start;
   text-align:center;
   display:flex;
   flex-direction:column;
@@ -979,7 +985,15 @@ footer{
 
   /* Hotel and Flights were still two-up at 320–430px, which left each card
      about 130px wide — narrower than its own Book Now button. */
-  .accom-inner{grid-template-columns:1fr;gap:1.2rem;max-width:340px;margin:0 auto;}
+  /* grid-auto-rows:auto, undoing the 1fr from the base rule.
+
+     1fr makes every row the height of the tallest, which is what keeps the two
+     cards level while they sit side by side. Stacked there is no row to be
+     level with - it just made the Hotel card as tall as the taller of the two
+     and left a band of empty card under it, so Flights began a long way down
+     the page. Nothing is being compared vertically, so nothing needs padding
+     out. */
+  .accom-inner{grid-template-columns:1fr;grid-auto-rows:auto;gap:1.2rem;max-width:340px;margin:0 auto;}
   .accom-card{min-height:0;padding:2rem 1.4rem 1.8rem;}
   .accom-card-title{font-size:1.15rem;}
   .accom-card-rule{width:clamp(96px,50%,150px);}
@@ -1667,7 +1681,12 @@ function hydrateTemplate(d) {
         var _orig_accomInner = accomInner;
         accomInner = document.createElement('div');
 
-        accomInner.style.gridTemplateColumns = '1fr 1fr';
+        /* NOT set inline for the two-card case. The stylesheet already says
+           1fr 1fr, and an inline value beats a media query - so this defeated
+           the @640 rule that stacks the cards and they stayed two-up at 320px,
+           each card narrower than its own Book Now button. Only the one-card
+           case below sets it, because that is a state no media query knows
+           about. */
 
         if (hotelHtml) {
           /* No invented label: the card title is the couple's first line,

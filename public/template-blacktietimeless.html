@@ -778,7 +778,13 @@ a.registry-title:hover{border-bottom-color:currentColor;}
      a card shrink to its copy skews the artwork - the flights card has less
      text and often no button, so it drew visibly squatter than the hotel one
      beside it. A floor plus stretch keeps both arches the same true shape. */
-  .arch-card{min-height:360px;padding:3.4rem 1.4rem 2rem;}
+  /* 3.4 -> 5.4rem. The title, the rule and the copy are all measured from this
+     one edge, so raising it moves the group down INSIDE the arch as a unit
+     rather than opening a gap between its parts - which is what changing only
+     the copy's margin did. The rule below is measured from the same edge and
+     moves with it. Desktop is untouched: it renders correctly and the two
+     surfaces have different arch proportions. */
+  .arch-card{min-height:360px;padding:5.4rem 1.4rem 2rem;}
   .arch-card-label{font-size:1.7rem;}
   .arch-card-rule{width:84px;}
   /* THE RULE IS ANCHORED TO THE TOP ON A PHONE, NOT TO A PERCENTAGE.
@@ -794,7 +800,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
      order fixed at every card height: 3.4rem of padding, then a 1.7rem label at
      line-height 1.1, then the rule, then the copy. Desktop keeps 38%, where the
      cards are side by side, shorter, and it lines up with the arch as drawn. */
-  .arch-card::before{top:calc(3.4rem + 2.6rem);}
+  .arch-card::before{top:calc(5.4rem + 2.6rem);}
   /* Below the rule above, not merely below the title. */
   .arch-card-name{font-size:0.95rem;margin-top:2.8rem;}
   .arch-card-btn{padding:0.8rem 1.8rem;min-height:44px;display:inline-flex;
