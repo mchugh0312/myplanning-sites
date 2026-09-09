@@ -188,7 +188,14 @@ body.hydrating{visibility:hidden;}
      size. It used to be sized in vw while the box itself was capped at 1100px,
      so past that width the photo and names kept growing while their container
      didn't — which is why the template card and the live site disagreed. */
-  aspect-ratio:2.15 / 1;
+  /* 2.15 -> 1.947. The hero grows 10.4% taller so the photograph below can grow
+     20% in BOTH directions without leaving the box: it was 92% of the old
+     height, and 1.2 x 92% is 110%, which does not fit. Raising the box by the
+     10.4% that makes 110% into 100% is what buys the room.
+
+     Change this and the photo's two numbers together, or the panel's own
+     proportions drift - the gate checks its aspect ratio, not its size. */
+  aspect-ratio:1.947 / 1;
   min-height:250px;
 }
 /* Names sit in normal flow, taking the full width, big and bold.
@@ -224,13 +231,19 @@ body.hydrating{visibility:hidden;}
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
      second name line. */
-  /* Both dimensions up 15% (40->46, 80->92). top follows so the panel keeps
-     the vertical centre it had at 52%: 52 - 92/2 = 6. Raising height without
-     moving top would have pushed the bottom edge past the hero box. */
-  top:6%;
+  /* Up 20% on both dimensions, on top of the earlier 15%.
+
+     46 -> 55.2 is the width. The height is the part that needs the box above:
+     the panel was 92% of a 2.15 box, and 1.2x that is 110% - past the bottom
+     edge. With the box at 1.947 the same absolute height IS 100%, so the panel
+     now runs the full height of the hero and its top inset goes to 0.
+
+     Both dimensions scale by exactly 1.2, so the photograph's own proportions
+     are unchanged and object-fit:cover crops it the same way it did. */
+  top:0;
   right:0;
-  width:46%;
-  height:92%;
+  width:55.2%;
+  height:100%;
   overflow:hidden;
   z-index:2;
   background:#d8d4cb;
