@@ -6517,9 +6517,36 @@
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
   var MP_RUNTIME_BUILD = '2026-09-09-travel-merge-b';
+
+  /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
+
+     The runtime stamp above is bumped by hand and only covers this file. Three
+     separate reports have now turned out to be a stale TEMPLATE rather than a
+     stale runtime - a "Travel" subtitle above the flights card that had been
+     deleted from the source two passes earlier, twice. Arguing about it from a
+     screenshot costs a round each time.
+
+     A hash of the template's own <style> text, so it needs no hand-bumping and
+     no per-file constant: any edit to a template's CSS moves it, and CSS is
+     what nearly every one of these changes touches. djb2, xor variant - not a
+     cryptographic hash, just something short, stable and quick enough to run
+     during boot. */
+  function _templateFingerprint() {
+    try {
+      var t = '', sheets = document.querySelectorAll('style');
+      for (var i = 0; i < sheets.length; i++) t += sheets[i].textContent || '';
+      if (!t) return 'none';
+      var h = 5381;
+      for (var j = 0; j < t.length; j++) h = ((h * 33) ^ t.charCodeAt(j)) >>> 0;
+      return ('0000000' + h.toString(16)).slice(-8);
+    } catch (e) { return 'error'; }
+  }
+
   try {
     window.MP_RUNTIME_BUILD = MP_RUNTIME_BUILD;
-    console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD);
+    var _tfp = _templateFingerprint();
+    window.MP_TEMPLATE_FINGERPRINT = _tfp;
+    console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD + '  template ' + _tfp);
   } catch (e) {}
 
   function hydrate(d) {
