@@ -570,21 +570,13 @@ body.hydrating{visibility:hidden;}
   line-height:1.65;
   margin-bottom:1.2rem;
 }
-/* The travel half of the merged section: a subtitle in the design's own title
-   face, one step down from the section heading so it reads as the second half
-   of this card rather than a second section. */
+/* The travel half of the merged section. No subtitle of its own: the couple's
+   first line is the card's title and it wears .accom-name, exactly as the hotel
+   card above it does. */
 .accom-travel{
   margin-top:1.8rem;
   padding-top:1.6rem;
   border-top:1px solid rgba(83,20,30,0.18);
-}
-.accom-travel-title{
-  font-family:var(--display);
-  font-size:clamp(1.1rem, 2.2vw, 1.4rem);
-  color:var(--ink);
-  font-weight:400;
-  margin-bottom:0.7rem;
-  letter-spacing:-0.005em;
 }
 .accom-meta{
   font-family:var(--body);
@@ -1518,10 +1510,14 @@ function renderItineraryBlock(part) {
    The menu names the section, so the header stays "Accommodations" and the
    travel copy is clubbed in underneath the hotel. Hotel first: where guests
    book is what they act on, the airport is reference. */
-function renderAccomContent(html, travelHtml) {
-  var content = document.getElementById('accomContent');
-  if (!content) return;
+/* ONE parse for both cards in this section.
 
+   The hotel card pulled its title out of the first <strong> and rendered it as
+   .accom-name; the flights card had no parse at all and went in whole under a
+   hardcoded subtitle - so the couple's own "Flights" line came out as body text
+   while "Hotel" above it was a heading. Shared here so the two treatments
+   cannot drift apart again. */
+function _mpAccomParts(html) {
   var nameMatch = html.match(/<strong>([\s\S]+?)<\/strong>/i);
   var name = nameMatch ? nameMatch[1].trim() : '';
   var rest = nameMatch ? html.replace(nameMatch[0], '').trim() : html;
@@ -1530,9 +1526,17 @@ function renderAccomContent(html, travelHtml) {
   var meta = emMatch ? emMatch[1].trim() : '';
   rest = emMatch ? rest.replace(emMatch[0], '').trim() : rest;
 
-  rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
   // Address is whatever is between name and meta — keep the <br>s
-  var address = rest;
+  rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
+  return { name: name, address: rest, meta: meta };
+}
+
+function renderAccomContent(html, travelHtml) {
+  var content = document.getElementById('accomContent');
+  if (!content) return;
+
+  var _h = _mpAccomParts(html || '');
+  var name = _h.name, address = _h.address, meta = _h.meta;
 
   var urlMatch = html.match(/href=["']([^"']+)["']/i);
   var bookUrl = _mpBookUrl(html, (window.MP_DATA && window.MP_DATA.accommodation_url) || '');
@@ -1554,14 +1558,25 @@ function renderAccomContent(html, travelHtml) {
         : '<a class="accom-cta" href="#">Book Now</a>')
     : '';
 
-  /* The couple's travel words in one piece, exactly as written - no parsing
-     into name/address/meta, because travel copy is prose, not an address. */
+  /* The flights card, parsed the same way the hotel card above it is: the
+     couple's own first line is its title, in the same .accom-name treatment,
+     and what follows is the body.
+
+     It used to be dumped whole into .accom-address under a hardcoded "Travel"
+     subtitle. That subtitle was a leftover from when this section was called
+     Accommodations and the travel copy needed announcing - now that the section
+     itself is called Travel it read as a stale second heading above Flights.
+     And with no title of its own, the couple's own "Flights" line rendered as
+     body text while "Hotel" above it was a heading. Same shape as the hotel
+     card, so the two match. */
   var travelUrl = travelHtml
     ? _mpBookUrl(travelHtml, (window.MP_DATA && window.MP_DATA.travel_url) || '') : '';
+  var _t = _mpAccomParts(travelHtml || '');
   var travelBlock = (travelHtml && String(travelHtml).trim())
     ? '<div class="accom-travel">' +
-        '<div class="accom-travel-title">Travel</div>' +
-        '<div class="accom-address">' + travelHtml + '</div>' +
+        (_t.name ? '<div class="accom-name">' + _t.name + '</div>' : '') +
+        (_t.address ? '<div class="accom-address">' + _t.address + '</div>' : '') +
+        (_t.meta ? '<div class="accom-meta">' + _t.meta + '</div>' : '') +
         (travelUrl
           ? '<a class="accom-cta" href="' + travelUrl + '" target="_blank" rel="noopener">Book Now</a>'
           : '') +
