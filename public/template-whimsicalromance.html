@@ -319,7 +319,22 @@ body.hydrating{visibility:hidden;}
 /* Hero and story share one full-height block; the story takes the remainder. */
 .home-block{
   background:var(--rose);
-  min-height:100vh;
+  /* CAPPED, because .our-story below takes whatever is left of this height and
+     centres its one paragraph in it - so every pixel this overshoots by becomes
+     empty pink above and below the text.
+
+     100vh alone is right on a real window and wrong in the editor's desktop
+     preview, which renders the page in a 1440-wide frame roughly 1150 tall to
+     fill its pane. That is a viewport shape no laptop has, so vh resolved about
+     45% larger than the live site and the story floated in the middle of a band
+     of pink. The live site was fine the whole time, which is what made it look
+     like a preview bug rather than a units one.
+
+     860px is a tall laptop screen. Below that nothing changes - a 1440x800
+     window still gets its full 800. Above it the block stops growing, which is
+     the same judgement the phone rule below already makes: past a screenful,
+     the extra is empty pink and not worth having. */
+  min-height:min(100vh, 860px);
   display:flex;
   flex-direction:column;
 }
