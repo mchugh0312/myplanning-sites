@@ -856,8 +856,11 @@
               '<select class="rsvp-select" data-field="attending" onchange="checkShowSubmit()">' +
                 '<option value="">Do you plan to attend?</option>' +
                 '<option value="yes">Yes</option>' +
-                '<option value="no">Cannot make it</option>' +
-                '<option value="maybe">Not sure yet</option>' +
+                /* Yes or no only. "Not sure" left a guest, and the couple, with an
+               answer nobody could act on: it is not a headcount and it is not a
+               refusal. Existing Maybe answers on the guest list are left alone. */
+              '<option value="no">Cannot make it</option>' +
+                
               '</select>' +
               /* No entrees for this event means no meal is served at it, so the
                  control is omitted rather than rendered empty. submitRSVP reads
@@ -903,7 +906,7 @@
                       (entreeOptionsFor(ev.id).length ? '' : 'style="width:100%"') + '>' +
                       '<option value="yes">Yes</option>' +
                       '<option value="no">Cannot make it</option>' +
-                      '<option value="maybe">Not sure yet</option>' +
+                      
                     '</select>' +
                     (entreeOptionsFor(ev.id).length
                       ? '<select class="rsvp-select" data-p-field="entree">' +
@@ -1475,7 +1478,7 @@
                   '<option value="">Attending?</option>' +
                   '<option value="yes">Yes</option>' +
                   '<option value="no">Cannot make it</option>' +
-                  '<option value="maybe">Not sure</option>' +
+                  
                 '</select>' +
                 (hasEntree
                   /* "Your entree choice" is right on the primary block, where
@@ -1499,7 +1502,7 @@
                     (hasEntree ? '' : ' style="width:100%"') + '>' +
                     '<option value="yes">Yes</option>' +
                     '<option value="no">Cannot make it</option>' +
-                    '<option value="maybe">Not sure yet</option>' +
+                    
                   '</select>' +
                   (hasEntree
                     ? '<select class="rsvp-select" data-hp-field="entree">' +
@@ -1909,8 +1912,15 @@
         var hEvents = [];
         hr.querySelectorAll('.rsvp-household-event').forEach(function (blk) {
           var a = blk.querySelector('[data-h-field="attending"]');
+          /* Every event is sent, answered or not.
+             An unanswered event used to be left out of the payload, and the
+             backend now REPLACES a guest's answers with what it receives. An
+             omitted event would therefore read as "no answer" and wipe what
+             they said last time, which is not what leaving a box alone means.
+             Sending it blank says "still no answer" explicitly, and the
+             backend stores nothing for it. Nobody is forced to fill anything
+             in. */
           var v = a ? (a.value || '').trim() : '';
-          if (!v) return;
           var e = blk.querySelector('[data-h-field="entree"]');
           var lab = blk.querySelector('.rsvp-household-event-label');
           hEvents.push({
@@ -1971,7 +1981,13 @@
            SUBMITTER's answer and record a reply that member never gave. That
            inheritance has to go before a note-only row can be accepted; until
            then, dropping the note is the lesser harm of the two. */
-        if (!hEvents.length) return; // member left entirely blank — untouched
+        /* "Left entirely blank" now means no event ANSWERED, not an empty
+           array. Every event is sent, so the array is never empty and this
+           check would have stopped skipping anyone: a member nobody filled in
+           would have been submitted with blank answers and had their record
+           written. */
+        var hAnswered = hEvents.filter(function (x) { return x.attending; });
+        if (!hAnswered.length) return; // member left entirely blank — untouched
 
         // No longer rendered: the guest is not asked for a meal preference, so
         // the household is not either. Any value already on the record stays as
@@ -2011,8 +2027,8 @@
     var events = [];
     document.querySelectorAll('#rsvpEventList .rsvp-event-block').forEach(function (block) {
       var attendingEl = block.querySelector('[data-field="attending"]');
+      // Sent whether answered or not; see the household loop above.
       var attending = attendingEl ? (attendingEl.value || '').trim() : '';
-      if (!attending) return;   // unanswered events aren't submitted
       var entreeEl = block.querySelector('[data-field="entree"]');
       var labelEl = block.querySelector('.rsvp-event-label');
       events.push({
@@ -2044,17 +2060,22 @@
        They still have things worth sending: their email, dietary requirements
        and a message for the couple. So the payload is built either way and the
        check below only fires when there ARE questions and none were answered. */
+    /* The top-level fields summarise the guest, so they must describe an event
+       they actually ANSWERED. events[0] is now whichever event happens to come
+       first, answered or not, so reading it directly would report a blank
+       answer for a guest who said yes to everything after it. */
+    var answered = events.filter(function (x) { return x.attending; });
     var payloads = [{
       slug: slug,
       guest_name: name.trim(),
       guest_id: _rsvpState.guestId,
-      attending: events.length ? events[0].attending : '',
+      attending: answered.length ? answered[0].attending : '',
       meal_preference: '',
-      entree_choice: events.length ? events[0].entree_choice : '',
+      entree_choice: answered.length ? answered[0].entree_choice : '',
       email: email,
       dietary_notes: dietary,
       message: message,
-      event_name: events.length ? events[0].event_name : '',
+      event_name: answered.length ? answered[0].event_name : '',
       events: events,
       plus_one: false,
       extra_guests: [],
@@ -2066,7 +2087,7 @@
        invitation is never told to answer questions they were never shown. */
     var askedCount = document.querySelectorAll(
       '#rsvpEventList .rsvp-event-block [data-field="attending"]').length;
-    if (askedCount > 0 && !events.length && !householdRsvps.length) {
+    if (askedCount > 0 && !answered.length && !householdRsvps.length) {
       rsvpNotice('Please let us know whether you can attend at least one event.');
       btn.disabled = false;
       btn.textContent = 'Send My RSVP';
