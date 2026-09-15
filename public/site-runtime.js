@@ -796,6 +796,10 @@
           '<input class="rsvp-text-input" type="email" id="rsvpEmail" ' +
             'placeholder="Email address (required) *" data-field="email" required ' +
             'oninput="checkShowSubmit()">' +
+          // Says where the card is going, next to the field that decides it.
+          '<div style="margin-top:0.35rem;font-size:0.8rem;color:#8C7D6E">' +
+            'We will email your RSVP card to this address.' +
+          '</div>' +
         '</div>' +
         /* Dietary needs, one row per person, after the events. Yours first,
            then your plus-one's: asking about a guest's allergies before your
@@ -1246,10 +1250,18 @@
           if (!isNaN(dt)) when = ' on ' + fmtDate(prev.submitted_at);
         }
       } catch (e) {}
+      /* Say what "replace" actually covers. "Answering again will replace
+         that" reads as replacing the one line above it. Since the backend now
+         rebuilds a guest's answers from the submission, every event they
+         previously answered is replaced too, and anything they leave blank
+         this time will no longer be recorded. A guest changing one event needs
+         to know the others are in play. */
       setStatus('ok',
         '\u2713 You have already replied' + when + ': ' +
         prev.status + (prev.meal ? ' (' + prev.meal + ')' : '') +
-        '. Answering again will replace that.');
+        '. Sending this form again replaces your whole reply, including the '
+        + 'events you have already answered, so please fill in everything you '
+        + 'want us to have.');
     } else {
       setStatus('ok', '\u2713 Found you on the list.');
     }
