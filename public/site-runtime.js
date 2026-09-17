@@ -1341,7 +1341,25 @@
         return r.json();
       })
       .then(function (json) {
-        if (json.found === true) {
+        if (json.found === true && json.exact_match === false) {
+          /* One match, but not the name they typed.
+             Applying it rewrote the box: typing "Ava" became "Ava Rodriguez"
+             with no say in it, and a guest who typed a name that is not on the
+             list at all was quietly turned into somebody else.
+             Confirming costs one tap and cannot pick the wrong person. The
+             same list the ambiguous case uses is reused, so there is one way
+             to choose yourself rather than two.
+             `exact_match === false` specifically, not falsy: an older backend
+             omits the field and must keep the previous behaviour rather than
+             start asking about every match. */
+          rejectGuest('ambiguous', 'Is this you? Pick your name to continue.');
+          // The row shape the ambiguous list already uses: id, name, hint.
+          showAmbiguousMatches([{
+            id: json.guest_id,
+            name: json.name,
+            hint: json.email_hint || ''
+          }]);
+        } else if (json.found === true) {
           applyFoundGuest(json, name);
         } else if (json.ambiguous) {
           rejectGuest('ambiguous', 'Multiple matches. Please pick yours below.');
