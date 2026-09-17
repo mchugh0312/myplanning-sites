@@ -1256,12 +1256,17 @@
          previously answered is replaced too, and anything they leave blank
          this time will no longer be recorded. A guest changing one event needs
          to know the others are in play. */
+      /* The date, not the answer.
+         Echoing "Attending (Vegetarian)" puts one guest's meal and reply on
+         screen for whoever is at the keyboard, and a shared family address or
+         a passed phone is enough for that to be the wrong person. The date is
+         all that is needed to tell them they have replied before, and it
+         reveals nothing about what they said. The card in their inbox is where
+         the detail belongs. */
       setStatus('ok',
-        '\u2713 You have already replied' + when + ': ' +
-        prev.status + (prev.meal ? ' (' + prev.meal + ')' : '') +
-        '. Sending this form again replaces your whole reply, including the '
-        + 'events you have already answered, so please fill in everything you '
-        + 'want us to have.');
+        '\u2713 You replied' + (when || ' earlier') + '. Sending this form again '
+        + 'replaces your whole reply, including the events you have already '
+        + 'answered, so please fill in everything you want us to have.');
     } else {
       setStatus('ok', '\u2713 Found you on the list.');
     }
