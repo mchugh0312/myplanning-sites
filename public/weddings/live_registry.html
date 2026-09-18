@@ -145,7 +145,9 @@
   .m-img{aspect-ratio:16/10;background:var(--white);position:relative;overflow:hidden}
   .m-img img{width:100%;height:100%;object-fit:cover}
   .m-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.92);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:15px}
-  .m-pad{padding:22px}
+  /* overflow-x hidden as a backstop: any full-bleed child added later cannot
+     reintroduce the sideways scroll this modal is not meant to have. */
+  .m-pad{padding:22px;overflow-x:hidden}
   .m-pad h3{font-size:25px;line-height:1.15;margin-bottom:4px}
   .m-sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
   .m-price{font-family:"Instrument Serif",serif;font-size:21px;margin:2px 0 6px}
@@ -263,8 +265,11 @@
 .modal-card .m-actions.col{flex-direction:column;align-items:center;}
 .m-cta{border-radius:999px;font-size:12px;font-weight:600;height:34px;padding:0 22px;cursor:pointer;
   border:none;display:inline-flex;align-items:center;justify-content:center;min-width:190px;}
-.m-cta.solid{background:#A9BDC4;color:#fff;}
-.m-cta.ghost{background:#fff;color:#4B5244;border:1px solid #EDE8E3;}
+/* Skinned for the same reason as .ship above: these sit inside a modal whose
+   type is already the couple's, so the buttons were the last unskinned thing
+   in it. */
+.m-cta.solid{background:var(--olive);color:var(--cream);}
+.m-cta.ghost{background:var(--white);color:var(--olive);border:1px solid var(--line);}
 .m-cta.dark{background:#4B5244;color:#fff;width:100%;margin-top:6px;}
 .m-cta:hover{opacity:.92;}
 .m-form{padding-bottom:22px;}
@@ -277,7 +282,19 @@
 .frow>div{flex:1;}
 
 /* Shipping-address callout */
-.ship{background:#A9BDC4;color:#fff;text-align:center;padding:14px 16px;margin:0 -22px;}
+/* Bleeds to the modal's edges. The -22px matches .m-pad's padding, but a
+   negative margin makes the element WIDER than its parent, and the modal then
+   scrolls sideways by those 44px. `width:auto` with box-sizing keeps it inside
+   its own box while the margins still pull it outwards, so it reaches the edges
+   without adding width.
+
+   Colours come from the skin, not from constants: this modal is styled to the
+   couple's template everywhere else, and a fixed celestial blue panel in the
+   middle of it belonged to the default theme only. --olive is the accent
+   applySkin() sets, and --cream the page behind it, so the pairing stays legible
+   whatever template is chosen. */
+.ship{background:var(--olive);color:var(--cream);text-align:center;
+      padding:14px 16px;margin-left:-22px;margin-right:-22px;width:auto;}
 .ship-head{font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;}
 .ship-copy{background:transparent;border:none;color:#fff;cursor:pointer;opacity:.85;}
 .ship-copy:hover{opacity:1;}
@@ -1463,6 +1480,16 @@ function openHow(id){
 }
 
 /* When they head off to buy, queue the "did you purchase?" prompt for return. */
+/* The detail card's own buy route. afterBuyClicked closes the FLOW modal, which
+   is the only one open when the guest came through "How This Works" — from here
+   the detail modal is what is open, so it has to be closed too or the prompt
+   appears stacked on top of the card it came from. */
+function buyFromDetail(id){
+  state.howItem = id;
+  closeModal("detail");
+  afterBuyClicked();
+}
+
 function afterBuyClicked(){
   if(state.howItem) state.pendingAsk = state.howItem;
   setTimeout(()=>{ closeFlow(); if(state.pendingAsk) openDidPurchase(state.pendingAsk); }, 400);
@@ -1599,7 +1626,19 @@ function openDetail(id){
   state.activeItem=it;
   const img=it.image_url||"";
   const buyUrl = safeUrl(it.source_url);
-  const buy = buyUrl ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'">Buy this gift →</a>' : "";
+  /* The buy link now behaves like the one in "How This Works": it remembers
+     which gift was being bought, so coming back raises the "Did you purchase
+     this?" prompt instead of leaving the guest on the detail card with a Mark
+     As Purchased button they have to find for themselves. That prompt is the
+     better of the two, and there was no reason this route missed it.
+
+     afterBuyClicked reads state.howItem, so that is set here as well — the
+     detail modal sets activeItem and nothing else, which is why the prompt
+     never fired from this path. */
+  const buy = buyUrl
+    ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'"'
+      + ' onclick="buyFromDetail(\''+it.id+'\')">Buy this gift &rarr;</a>'
+    : "";
   // MP-400: a gift already fully purchased must not still offer a buy link and
   // a second "mark as purchased" prompt.
   const done = isPurchased({ kind: "gift", raw: it });
@@ -1617,6 +1656,11 @@ function openDetail(id){
           ? '<div class="m-done">This one has already been purchased. Thank you.</div>'
           : '<div class="m-actions">'+buy+'<button class="cta '+(buyUrl?"out":"solid")+'" onclick="closeModal(\'detail\');openOffline(\''+it.id+'\')">Mark as purchased</button></div>')
     +   (done ? "" : '<div class="hint">'+(buyUrl?"Buy it anywhere you like, then let the couple know so it's marked off the list.":"Found it elsewhere? Buy it, then mark it purchased so it comes off the list.")+'</div>')
+    /* The address belongs wherever a guest is about to buy something, and this
+       card sends them to the retailer just as the other route does. Omitted
+       once the gift is purchased: at that point it is not information anyone
+       needs. */
+    +   (done ? "" : shipBlockHtml())
     + '</div>';
   openModal("detail");
 }
