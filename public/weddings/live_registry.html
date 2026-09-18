@@ -128,7 +128,11 @@
   .progress > i{display:block;height:100%;background:var(--gold);border-radius:999px}
   .cta-row{display:flex;gap:7px;margin-top:11px;padding:0 12px 14px;align-items:flex-start}
   .cta{flex:1;border:none;border-radius:999px;padding:9px 0;font-size:12.5px;font-weight:600;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:5px}
-  .cta.solid{background:var(--sage);color:#fff}
+  /* --olive, not --sage. applySkin() derives --sage by mixing the accent with
+     the background, so on a light template the primary button came out close to
+     the page colour and read as disabled. The accent is full strength by
+     definition and is what the modal buttons already use. */
+  .cta.solid{background:var(--olive);color:var(--cream)}
   .cta.solid:hover{opacity:.92}
   .cta.out{background:transparent;border:1px solid var(--olive);color:var(--olive)}
   .cta.out:hover{background:rgba(75,82,68,.06)}
@@ -142,7 +146,11 @@
   @media(min-width:640px){.m-scrim{align-items:center;padding:20px}}
   .modal{background:var(--cream);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
   @media(min-width:640px){.modal{border-radius:12px}}
-  .m-img{aspect-ratio:16/10;background:var(--white);position:relative;overflow:hidden}
+  /* 16/10 of a 580px modal is 362px of image before a word of text, which is
+     what pushes the detail card past its 92vh and produces the vertical scroll.
+     Capped: the aspect ratio still governs on narrow screens, the cap takes over
+     on wide ones. object-fit:cover already handles the crop. */
+  .m-img{aspect-ratio:16/10;max-height:240px;background:var(--white);position:relative;overflow:hidden}
   .m-img img{width:100%;height:100%;object-fit:cover}
   .m-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.92);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:15px}
   /* overflow-x hidden as a backstop: any full-bleed child added later cannot
@@ -254,7 +262,7 @@
   align-items:center;justify-content:center;padding:16px;}
 .modal-wrap.show{display:flex;}
 .modal-card{position:relative;width:100%;max-width:380px;background:#F9F7F5;border-radius:6px;
-  padding:26px 22px 0;max-height:90vh;overflow-y:auto;overflow-x:hidden;
+  padding:26px 22px 4px;max-height:90vh;overflow-y:auto;overflow-x:hidden;
   box-shadow:0 24px 60px rgba(0,0,0,.3);}
 .m-x{position:absolute;top:12px;right:12px;background:transparent;border:none;cursor:pointer;color:#8C7D6E;}
 .m-title{text-align:center;font-size:22px;font-weight:400;margin:0 0 14px;}
@@ -304,7 +312,7 @@
    the couple's template everywhere else, and a fixed celestial-blue panel in the
    middle belonged to the default theme only. */
 .ship{background:var(--olive);color:var(--cream);text-align:center;
-      padding:10px 12px;margin:12px 0 0;border-radius:6px;
+      padding:10px 12px;margin:12px 0 18px;border-radius:6px;
       max-width:100%;overflow-wrap:anywhere;}
 .ship-head{font-size:10.5px;font-weight:700;display:flex;align-items:center;
            justify-content:center;gap:8px;flex-wrap:wrap;}
