@@ -1534,7 +1534,12 @@ function openDidPurchase(id){
     +   '<button class="m-cta solid" onclick="openOffline(\''+t.id+'\')">Yes, Mark As Purchased</button>'
     +   '<button class="m-cta ghost" onclick="closeFlow()">No, Continue Shopping</button>'
     + '</div>'
-    + shipBlockHtml()
+    /* No shipping address here. By this point the guest has been to the
+       retailer and back: either they bought it, in which case the address was
+       needed on the way OUT and has already done its job, or they did not, in
+       which case it is answering a question nobody asked. The two places it
+       belongs are both before the purchase — "How This Works" and the detail
+       card. */
   );
 }
 
