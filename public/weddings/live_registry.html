@@ -148,6 +148,9 @@
   /* overflow-x hidden as a backstop: any full-bleed child added later cannot
      reintroduce the sideways scroll this modal is not meant to have. */
   .m-pad{padding:22px;overflow-x:hidden}
+  /* Belt to the brace above: the modal itself must never scroll sideways,
+     whatever any child does. */
+  .modal{overflow-x:hidden}
   .m-pad h3{font-size:25px;line-height:1.15;margin-bottom:4px}
   .m-sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
   .m-price{font-family:"Instrument Serif",serif;font-size:21px;margin:2px 0 6px}
@@ -251,7 +254,8 @@
   align-items:center;justify-content:center;padding:16px;}
 .modal-wrap.show{display:flex;}
 .modal-card{position:relative;width:100%;max-width:380px;background:#F9F7F5;border-radius:6px;
-  padding:26px 22px 0;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+  padding:26px 22px 0;max-height:90vh;overflow-y:auto;overflow-x:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);}
 .m-x{position:absolute;top:12px;right:12px;background:transparent;border:none;cursor:pointer;color:#8C7D6E;}
 .m-title{text-align:center;font-size:22px;font-weight:400;margin:0 0 14px;}
 .nowrap{white-space:nowrap;}
@@ -282,23 +286,35 @@
 .frow>div{flex:1;}
 
 /* Shipping-address callout */
-/* Bleeds to the modal's edges. The -22px matches .m-pad's padding, but a
-   negative margin makes the element WIDER than its parent, and the modal then
-   scrolls sideways by those 44px. `width:auto` with box-sizing keeps it inside
-   its own box while the margins still pull it outwards, so it reaches the edges
-   without adding width.
+/* NO negative margins. The bleed was -22px to match .m-pad, but this block is
+   rendered inside THREE containers with different padding — .m-pad at 22px,
+   .modal-card at 26px 22px 0, and the detail card — so any single value is
+   wrong somewhere, and where it is wrong the element is wider than its parent
+   and the modal scrolls sideways. That is the scroll bar, and chasing it with a
+   matching number would only move it to the next container.
 
-   Colours come from the skin, not from constants: this modal is styled to the
-   couple's template everywhere else, and a fixed celestial blue panel in the
-   middle of it belonged to the default theme only. --olive is the accent
-   applySkin() sets, and --cream the page behind it, so the pairing stays legible
-   whatever template is chosen. */
+   An inset panel with its own corners instead: it cannot be wider than the box
+   it sits in, whatever that box is, so no container can produce a scroll bar.
+
+   Compact, too. It is a supporting detail under the main content, and at the
+   old size it pushed both modals past their max-height and produced a VERTICAL
+   scroll instead.
+
+   Colours come from the skin rather than constants: these modals are styled to
+   the couple's template everywhere else, and a fixed celestial-blue panel in the
+   middle belonged to the default theme only. */
 .ship{background:var(--olive);color:var(--cream);text-align:center;
-      padding:14px 16px;margin-left:-22px;margin-right:-22px;width:auto;}
-.ship-head{font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;}
+      padding:10px 12px;margin:12px 0 0;border-radius:6px;
+      max-width:100%;overflow-wrap:anywhere;}
+.ship-head{font-size:10.5px;font-weight:700;display:flex;align-items:center;
+           justify-content:center;gap:8px;flex-wrap:wrap;}
 .ship-copy{background:transparent;border:none;color:#fff;cursor:pointer;opacity:.85;}
 .ship-copy:hover{opacity:1;}
-.ship-line{font-size:11.5px;margin-top:4px;opacity:.95;}
+.ship-line{font-size:11px;margin-top:2px;opacity:.95;line-height:1.45;}
+.ship-compact{display:flex;align-items:center;justify-content:center;gap:6px;
+              flex-wrap:wrap;padding:8px 12px;font-size:11px;line-height:1.4;}
+.ship-label{font-weight:700;opacity:.9;}
+.ship-oneline{opacity:.95;}
 
 /* ── Split hero: photo left, teal panel right (mirrors the dashboard) ── */
 
@@ -1520,13 +1536,30 @@ function coupleLabel(){
 }
 
 /* Shipping-address callout the guest can copy. */
-function shipBlockHtml(){
+/* compact: one line instead of three, for the detail card. That card already
+   carries an image, a title, a price, a description, the couple's note and two
+   buttons, and adding a three-line panel to it pushed the modal past its
+   max-height — which is the vertical scroll. Same information, one row. */
+function shipBlockHtml(compact){
   const r = (state.data && state.data.registry) || {};
   const a = r.shipping_address || {};
   const line1 = a.street || a.line1 || "";
   const line2 = [a.city, a.state, a.zip].filter(Boolean).join(", ");
   if(!line1 && !line2) return "";
   const full = coupleLabel()+"'s Shipping Address\n"+line1+"\n"+line2;
+
+  if(compact){
+    const oneLine = [line1, line2].filter(Boolean).join(", ");
+    return '<div class="ship ship-compact">'
+      + '<span class="ship-label">Ship to</span> '
+      + '<span class="ship-oneline">'+esc(oneLine)+'</span>'
+      + '<button class="ship-copy" title="Copy address" onclick="copyShip('+JSON.stringify(full).replace(/"/g,"&quot;")+')">'
+      +   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+      +   '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+      + '</button>'
+      + '</div>';
+  }
+
   return '<div class="ship">'
     + '<div class="ship-head">'+esc(coupleLabel())+'&rsquo;s Shipping Address'
     +   '<button class="ship-copy" title="Copy address" onclick="copyShip('+JSON.stringify(full).replace(/"/g,"&quot;")+')">'
@@ -1660,7 +1693,7 @@ function openDetail(id){
        card sends them to the retailer just as the other route does. Omitted
        once the gift is purchased: at that point it is not information anyone
        needs. */
-    +   (done ? "" : shipBlockHtml())
+    +   (done ? "" : shipBlockHtml(true))
     + '</div>';
   openModal("detail");
 }
