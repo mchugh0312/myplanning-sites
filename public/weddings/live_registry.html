@@ -998,6 +998,23 @@ function safeUrl(raw){
   return "https://"+s.replace(/^\/+/, "");
 }
 
+/* Affiliate click router, same switch as the six registry blocks. While
+   GO_LIVE is false every buy link goes straight to the retailer, exactly as
+   before. The retailer name on the button is still read from the real URL,
+   never from this one. Preview is the couple checking their own page, so it
+   never goes through the router: those clicks are not guest clicks. */
+const GO_ENDPOINT = "/api/registry/go";
+const GO_LIVE = false;          // flip to true once the route is deployed
+function buyHref(itemId, rawUrl){
+  const direct = safeUrl(rawUrl);
+  if(!GO_LIVE || state.preview || !direct || !itemId) return direct;
+  const p = new URLSearchParams({ item_id: itemId, placement: "guest" });
+  if(state.registryId) p.set("registry_id", state.registryId);
+  const celId = state.data && state.data.registry && state.data.registry.celebration_id;
+  if(celId) p.set("celebration_id", celId);
+  return GO_ENDPOINT + "?" + p.toString();
+}
+
 function isPurchased(t){
   if(t.kind!=="gift") return false;
   const req = (t.raw && t.raw.quantity_requested) || 1;
@@ -1480,7 +1497,7 @@ function openHow(id){
   const ship = shipBlockHtml();
   const buyUrl = t && t.raw ? safeUrl(t.raw.source_url) : "";
   const buy = buyUrl
-    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'" onclick="afterBuyClicked()">'+(retailerName(buyUrl) ? ("Head to "+esc(retailerName(buyUrl))) : "Continue to the retailer")+' &rarr;</a>'
+    ? '<a class="m-cta solid" target="_blank" rel="noopener" href="'+esc(buyHref(t.id, t.raw.source_url))+'" onclick="afterBuyClicked()">'+(retailerName(buyUrl) ? ("Head to "+esc(retailerName(buyUrl))) : "Continue to the retailer")+' &rarr;</a>'
     : '<button class="m-cta solid" onclick="closeFlow()">Got it</button>';
   showFlow(
       '<h3 class="serif m-title">How This Works</h3>'
@@ -1682,7 +1699,7 @@ function openDetail(id){
      detail modal sets activeItem and nothing else, which is why the prompt
      never fired from this path. */
   const buy = buyUrl
-    ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(buyUrl)+'"'
+    ? '<a class="cta solid" target="_blank" rel="noopener" href="'+esc(buyHref(it.id, it.source_url))+'"'
       + ' onclick="buyFromDetail(\''+it.id+'\')">Buy this gift &rarr;</a>'
     : "";
   // MP-400: a gift already fully purchased must not still offer a buy link and
