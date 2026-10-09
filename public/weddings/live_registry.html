@@ -1004,7 +1004,7 @@ function safeUrl(raw){
    never from this one. Preview is the couple checking their own page, so it
    never goes through the router: those clicks are not guest clicks. */
 const GO_ENDPOINT = "/api/registry/go";
-const GO_LIVE = false;          // flip to true once the route is deployed
+const GO_LIVE = true;           // route deployed and tested
 function buyHref(itemId, rawUrl){
   const direct = safeUrl(rawUrl);
   if(!GO_LIVE || state.preview || !direct || !itemId) return direct;
