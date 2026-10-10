@@ -6938,7 +6938,32 @@
            via screenShell -> liftVeil + body.className = '', so their early
            returns out of hydrate() are already covered. */
         try {
-          if (!payload) reveal();
+          if (!payload) {
+            /* MP-855. A null payload means "show the template, not their site" -
+               the editor sends it when a thumbnail is standing in for the design
+               rather than the couple's data. It used to only reveal, and on
+               three templates that showed a hero and nothing else.
+
+               Black Tie, Golden Hour and Heirloom Bloom ship nine, eleven and
+               nine of their sections as style="display:none", waiting for
+               hydrateTemplate to switch on the ones the couple has turned on.
+               The other seven ship three or four, so they look complete whether
+               hydrate runs or not - which is exactly why only those three were
+               reported, and why it reads as a browser bug rather than a missing
+               call.
+
+               The template's own SAMPLE_DATA is what a design looks like with
+               nothing filled in, and it is already the shape used by the
+               backstop below. isPlaceholder, so _previewSampleOnly stays true
+               and nothing downstream mistakes a sample for the couple's own. */
+            var _sample = window.SAMPLE_DATA;
+            if (_sample && typeof window.hydrateTemplate === 'function') {
+              _previewSampleOnly = true;
+              hydrate(_sample);
+            } else {
+              reveal();
+            }
+          }
           else hydrate(payload);
         } catch (err) {
           try { console.warn('[site-runtime] preview hydrate failed:', err); } catch (e) {}
