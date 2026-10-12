@@ -1114,7 +1114,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'pressedpetals:63888a10';
+    window.__mpTemplate = 'pressedpetals:f86597cd';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1124,6 +1124,25 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
     var isLive = /slug=/.test(location.search) ||
                  (first && !/^template-[a-z]+\.html$/i.test(first));
     if (!isLive) { window.__mpVeil.by = 'preview'; return; }
+
+    /* THE ADDRESS BAR, CLEANED NOW rather than after hydration.
+
+       A guest arriving at /manishmonika is sent here by the shell, and used to
+       watch the address bar read template-pressedpetals.html for the whole load
+       - ten seconds on a slow connection - before the runtime rewrote it at the
+       end. The couple's site should never advertise which template it is built
+       from, least of all in the URL a guest might copy.
+
+       Safe to do before the runtime arrives: it reads the slug from the PATH
+       when there is no ?slug= (see _pathSlug), so /manishmonika resolves
+       identically. isLive is already decided above, so moving the slug out of
+       the query cannot change it. */
+    try {
+      var sm = /[?&]slug=([^&]+)/.exec(location.search);
+      if (sm && window.history && history.replaceState) {
+        history.replaceState({}, '', '/' + decodeURIComponent(sm[1]));
+      }
+    } catch (e) {}
     var s = document.createElement('style');
     s.id = 'mp-veil';
     s.textContent = 'html{visibility:hidden}';

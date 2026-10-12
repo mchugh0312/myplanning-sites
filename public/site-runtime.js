@@ -6221,10 +6221,10 @@
   function _heroSources() {
     var urls = [];
     var seen = {};
-    var add = function (el, url) {
+    var add = function (el, url, isBg) {
       if (!url || seen[url] || urls.length >= 6) return;
       seen[url] = 1;
-      urls.push({ el: el, url: url });
+      urls.push({ el: el, url: url, bg: !!isBg });
     };
     try {
       /* The hero FIRST. There is a cap below, and a template with a lot of
@@ -6235,24 +6235,30 @@
         '#heroImg, #heroCarousel img, .hero img, .hero-image img, #hero img');
       for (var k = 0; k < imgs.length; k++) add(imgs[k], imgs[k].getAttribute('src'));
 
+      /* Photographs painted as a BACKGROUND, taken SECOND - before the general
+         sweep below, not after it.
+
+         They used to be last and the list is capped at six, so on a template
+         with several swapped <img>s the backgrounds never made the list at all.
+         They are also the ones that cannot be hidden by any other means, which
+         made being cut the expensive place to be cut. */
+      var bgHosts = document.querySelectorAll(
+        '[style*="background-image"], #heroCol1, .hero-section, .hero, #hero');
+      for (var b = 0; b < bgHosts.length; b++) {
+        var bg = bgHosts[b].style && bgHosts[b].style.backgroundImage;
+        var m = bg && /url\(['"]?([^'")]+)/.exec(bg);
+        /* The HOST, not null. It used to be watched and never hidden, so the
+           page waited for the couple's picture and then uncovered with the
+           stock one still painted - the flash that appeared AFTER the page had
+           otherwise finished loading. */
+        if (m) add(bgHosts[b], m[1], true);
+      }
+
       /* Then anything else hydrate swapped, wherever it is on the page. */
       for (var j = 0; j < _initialSrc.length; j++) {
         var el = _initialSrc[j][0], was = _initialSrc[j][1];
         var now = el.getAttribute('src');
         if (now && now !== was) add(el, now);
-      }
-
-      /* Photographs painted as a BACKGROUND. This is why Pressed Petals flashed
-         when nothing else did: its Need to Knows band ships a stock photograph
-         and hydrate swaps #needToKnowBg's backgroundImage to the couple's. An
-         inline background-image is the fingerprint of a swap — the stylesheet
-         never sets one. Black Tie and Golden Hour do the same. */
-      var bgHosts = document.querySelectorAll(
-        '[style*="background-image"], #heroCol1, .hero-section, .hero, #hero');
-      for (var i = 0; i < bgHosts.length; i++) {
-        var bg = bgHosts[i].style && bgHosts[i].style.backgroundImage;
-        var m = bg && /url\(['"]?([^'")]+)/.exec(bg);
-        if (m) add(null, m[1]);
       }
     } catch (e) {}
     return urls;
@@ -6338,6 +6344,38 @@
          which is fixed; exempting them only meant the stock couple stayed on
          the card when the real photograph was slow, which is worse and is
          exactly what it looked like. */
+      /* A BACKGROUND is hidden by taking the picture off, not the element:
+         there is usually text sitting on it, and hiding the host would blank
+         that too. The band keeps its own colour until the couple's photograph
+         is ready - the template's own ground, never somebody else's picture,
+         which is the same rule the <img> branch below follows. */
+      if (s.bg && s.el) {
+        (function (host, url) {
+          if (host.__mpBgHiding) return;
+          if (host.__mpBgHidUrl === url) return;
+          host.__mpBgHidUrl = url;
+          host.__mpBgHiding = 1;
+          var prev = host.style.backgroundImage;
+          var shown = false;
+          var show = function () {
+            if (shown) return;
+            shown = true;
+            host.style.backgroundImage = prev;
+            host.__mpBgHiding = 0;
+            one();
+          };
+          host.style.backgroundImage = 'none';
+          var probe = new Image();
+          probe.addEventListener('load', show);
+          probe.addEventListener('error', show);
+          /* The same ceiling the <img> branch uses. A background that never
+             arrives must come back as a colour, not stay blank for good. */
+          setTimeout(show, HERO_REVEAL_CEILING_MS + 1500);
+          probe.src = url;
+        })(s.el, s.url);
+        continue;
+      }
+
       if (s.el && s.el.tagName === 'IMG') {
         (function (img) {
           /* Once per element. The preview re-hydrates on every keystroke, so
@@ -6617,7 +6655,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-declared-marker';
+  var MP_RUNTIME_BUILD = '2026-10-12-bg-hide';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
