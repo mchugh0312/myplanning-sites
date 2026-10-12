@@ -60,6 +60,22 @@
       ]
     },
     {
+      "comment": "The ten templates and the runtime, kept out of the EDGE cache.",
+      "comment2": "Cache-Control below is read by the browser; it says nothing about Vercel's own cache, so the edge applied its own default and held these files. A deploy would land on the origin and weddings.myplanning.ai would keep serving the previous copy - x-vercel-cache HIT with an age of 197s on a build that was already live. Four rounds of debugging were spent on code that was already correct.",
+      "comment3": "CDN-Cache-Control is read by the edge and ignored by browsers, so this changes nothing for visitors. Narrow on purpose: these files are small, change often, and are the ones a deploy must land immediately. Everything else keeps the caching it has.",
+      "source": "/(template-[a-z]+\\.html|site-runtime\\.js)",
+      "headers": [
+        {
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
