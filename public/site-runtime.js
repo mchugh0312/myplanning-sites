@@ -6454,7 +6454,21 @@
           img.style.visibility = 'hidden';
           img.addEventListener('load', show);
           img.addEventListener('error', show);
-          if (img.decode) { try { img.decode().then(show, show); } catch (e) { show(); } }
+          /* decode() is a RESOLVE-only signal here. Its rejection means "I could
+             not decode that", not "the picture is ready" - and Firefox rejects
+             it routinely while a swap is still in flight, which is the whole
+             bug: the hero was hidden at 146ms and shown again at 177ms with
+             complete still false, so the cover came off over a stock photograph
+             that had not been replaced yet.
+
+             On a rejection nothing happens here. The load and error listeners
+             above are already attached and will settle it, and the timeout
+             below is the backstop if neither ever fires. That is also why the
+             catch is empty now: a decode() that throws synchronously is the
+             same situation, not a reason to uncover. */
+          if (img.decode) {
+            try { img.decode().then(show, function () {}); } catch (e) {}
+          }
           /* A cached image can finish between the `complete` test above and
              these listeners, in which case load has already fired and would
              never fire again — the picture would stay hidden for good. */
@@ -6472,7 +6486,10 @@
          being paintable — a large photograph can still cost a decode after it.
          decode() resolves once it can be painted; where it is unsupported or
          rejects, the load handler above still settles this source. */
-      if (probe.decode) { try { probe.decode().then(one, one); } catch (e) {} }
+      /* Resolve-only, for the same reason the hide above is: a rejection is not
+         readiness. This one settles the page rather than one element, so
+         treating a Firefox rejection as ready uncovered everything at once. */
+      if (probe.decode) { try { probe.decode().then(one, function () {}); } catch (e) {} }
       /* decode() is what releases an already-cached swap: `load` has fired
          before these listeners were attached and will not fire again. Without
          decode - an older engine - that source would hold the page until the
@@ -6708,7 +6725,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-hero-trace';
+  var MP_RUNTIME_BUILD = '2026-10-12-decode-reject';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -6745,6 +6762,10 @@
     /* The veil's own record comes with it: a console reading taken by hand
        during a slow load cannot tell "not installed yet" from "already
        removed", and both read null. */
+    /* up@ is from navigation start; the hero trace below counts from the moment
+       this file parsed. down@ is routinely '-' here because this line is
+       printed at boot and the cover comes off at reveal - read it from the
+       trace, not from here. */
     var _v = window.__mpVeil || {};
     console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD + '  template ' + _tfp +
       '  veil up@' + (_v.up === null || _v.up === undefined ? '-' : _v.up) +
