@@ -6218,6 +6218,46 @@
     }
   } catch (e) {}
 
+  /* ── HERO TRACE ───────────────────────────────────────────────────────────
+     Four fixes have been shipped against one symptom - a stock photograph
+     showing before the couple's - and each was reasoned from a description
+     rather than a measurement. The page can say what it did instead.
+
+     Records every decision the hero path makes and prints them together when
+     the page is revealed, so the whole sequence arrives as one block rather
+     than as timestamps to be correlated by hand. Live and preview both: live is
+     where the symptom is.
+
+     tail: the last 40 characters of a url, which is enough to tell a stock file
+     from an uploaded one without filling the console with signed CDN links. */
+  var _heroTrace = [];
+  var _mpT0h = (window.performance && performance.now) ? performance.now() : Date.now();
+  function _tail(u) { return String(u || '').slice(-40); }
+  function _trace(what, detail) {
+    try {
+      var t = (window.performance && performance.now) ? performance.now() : Date.now();
+      _heroTrace.push({ at: Math.round(t - _mpT0h), what: what, detail: detail });
+    } catch (e) {}
+  }
+  _trace('shipped-imgs', _initialSrc.length);
+  try {
+    var _h0 = document.getElementById('heroImg');
+    if (_h0) _trace('heroImg-shipped', _tail(_h0.getAttribute('src')));
+  } catch (e) {}
+
+  function _dumpHeroTrace(why) {
+    try {
+      var h = document.getElementById('heroImg');
+      _trace('reveal', why);
+      if (h) _trace('heroImg-now', _tail(h.getAttribute('src')) +
+        '  visibility=' + (h.style.visibility || '(unset)') +
+        '  complete=' + h.complete);
+      console.log('[mp-hero] ' + _heroTrace.length + ' events');
+      if (console.table) console.table(_heroTrace);
+      else console.log(JSON.stringify(_heroTrace));
+    } catch (e) {}
+  }
+
   function _heroSources() {
     var urls = [];
     var seen = {};
@@ -6299,10 +6339,15 @@
 
   function revealWhenHeroReady() {
     var sources = _heroSources();
-    if (!sources.length) { reveal(); return; }
+    if (!sources.length) { _dumpHeroTrace('no sources to wait for'); reveal(); return; }
 
     var pending = 0, settled = false;
-    var finish = function () { if (settled) return; settled = true; reveal(); };
+    var finish = function () {
+      if (settled) return;
+      settled = true;
+      _dumpHeroTrace('all sources settled or ceiling');
+      reveal();
+    };
     /* One settle per SOURCE. A source can report twice — `load` fires and then
        decode() resolves — and a shared counter would take both, dropping
        `pending` to zero while other photographs were still in flight and
@@ -6316,11 +6361,16 @@
       };
     };
 
+    _trace('sources', sources.length);
     for (var i = 0; i < sources.length; i++) {
       var s = sources[i];
+      _trace('source', (s.bg ? 'bg ' : (s.el ? s.el.tagName.toLowerCase() + ' ' : 'none ')) +
+        (s.el && s.el.id ? '#' + s.el.id + ' ' : '') + _tail(s.url) +
+        '  complete=' + (s.el ? s.el.complete : '-') +
+        '  swapped=' + (s.el ? _wasSwapped(s.el) : '-'));
       /* `complete` is only worth trusting for a picture nobody replaced. A
          swapped element is waited for whatever it claims - see _wasSwapped. */
-      if (s.el && s.el.complete && !_wasSwapped(s.el)) continue;
+      if (s.el && s.el.complete && !_wasSwapped(s.el)) { _trace('skipped', _tail(s.url)); continue; }
       pending++;
       var one = onePer();
 
@@ -6364,6 +6414,7 @@
             host.__mpBgHiding = 0;
             one();
           };
+          _trace('hide-bg', (host.id ? '#' + host.id + ' ' : '') + _tail(url));
           host.style.backgroundImage = 'none';
           var probe = new Image();
           probe.addEventListener('load', show);
@@ -6394,7 +6445,9 @@
           img.__mpHidSrc = _src;
           img.__mpHiding = 1;
           var prev = img.style.visibility === 'hidden' ? '' : img.style.visibility;
+          _trace('hide-img', (img.id ? '#' + img.id + ' ' : '') + _tail(_src));
           var show = function () {
+            _trace('show-img', (img.id ? '#' + img.id + ' ' : '') + _tail(_src));
             img.style.visibility = prev || '';
             img.__mpHiding = 0;
           };
@@ -6655,7 +6708,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-bg-hide';
+  var MP_RUNTIME_BUILD = '2026-10-12-hero-trace';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7159,6 +7212,7 @@
           try { sessionStorage.removeItem(key); } catch (e2) {}
           throw new Error('stale');
         }
+        _trace('boot', 'sessionStorage stash');
         hydrate(parsed);
         if (window.location.search.indexOf('slug=') !== -1) {
           try { window.history.replaceState({}, parsed.couple_names || '', '/' + _liveSlug); } catch (e) {}
