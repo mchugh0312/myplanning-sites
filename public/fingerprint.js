@@ -13,9 +13,11 @@
  * files on disk, so "is the deploy current" is a comparison rather than an
  * argument.
  *
- * The template fingerprint is a hash of the template's own <style> text,
- * computed by the SAME function the runtime uses - lifted out of
- * site-runtime.js rather than reimplemented, so the two cannot drift.
+ * The template fingerprint is a hash of the template's own <style> text, the
+ * same value the runtime computes in the browser. It is recomputed here rather
+ * than lifted, so this script needs nothing installed - no node_modules, no
+ * npm, nothing but node itself. The suite checks the two agree on all ten
+ * templates, so they cannot drift apart unnoticed.
  */
 const fs = require('fs');
 const path = require('path');
@@ -53,31 +55,50 @@ console.log('  The page logs the build stamp on load. If the browser says');
 console.log('  anything other than ' + stamp + ', the runtime is stale.');
 console.log('');
 
-/* jsdom is only needed for the templates. Without it the runtime half above
-   still prints, which is the half most often in question. */
-let JSDOM = null;
-try { JSDOM = require('jsdom').JSDOM; } catch (e) {}
-
 const tpls = fs.readdirSync(dir).filter(f => /^template-.*\.html$/.test(f)).sort();
 if (!tpls.length) { console.log('No templates found in ' + path.resolve(dir)); process.exit(0); }
 
-if (!JSDOM) {
-  console.log('templates: jsdom not installed, so these cannot be fingerprinted.');
-  console.log('  npm install jsdom');
-  process.exit(0);
-}
-
-const fpSrc = lift(rt, '_templateFingerprint');
-if (!fpSrc) {
-  console.error('site-runtime.js has no _templateFingerprint - is it the current build?');
-  process.exit(1);
+/* NO DEPENDENCIES. This used jsdom to build a document and run the runtime's
+ * own _templateFingerprint over it, which is the most faithful thing to do and
+ * also made the tool unusable: on a cloud-synced folder, requiring jsdom pulls
+ * several hundred placeholder files down one at a time and the command appears
+ * to hang after printing the runtime half.
+ *
+ * A <style> element is RAW TEXT in HTML - the parser performs no entity
+ * decoding inside it - so the text a regex lifts out is byte-for-byte the
+ * textContent the runtime hashes. Same input, same djb2, same answer, and the
+ * suite gates the two against each other on all ten templates.
+ *
+ * Anonymous <style> only, matching the runtime: every sheet it injects carries
+ * an id, and no template ships one.
+ */
+function fingerprint(html) {
+  let text = '';
+  const sty = /<style([^>]*)>([\s\S]*?)<\/style>/gi;
+  let m;
+  while ((m = sty.exec(html)) !== null) {
+    if (/\bid\s*=/i.test(m[1])) continue;
+    text += m[2];
+  }
+  /* Inline scripts as well. A template's head script is as much a part of it as
+   * its stylesheet - the veil fix changed every one of them and no <style> at
+   * all, so a style-only hash could not tell whether those ten files had landed.
+   * src'd scripts are references, not content, and site-runtime.js is one. */
+  const scr = /<script([^>]*)>([\s\S]*?)<\/script>/gi;
+  while ((m = scr.exec(html)) !== null) {
+    if (/\bsrc\s*=|\bid\s*=/i.test(m[1])) continue;
+    text += m[2];
+  }
+  if (!text) return 'none';
+  let h = 5381;
+  for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+  return ('0000000' + h.toString(16)).slice(-8);
 }
 
 console.log('templates');
 const seen = {};
 for (const t of tpls) {
-  const doc = new JSDOM(fs.readFileSync(path.join(dir, t), 'utf8')).window.document;
-  const fp = new Function('document', fpSrc + '\nreturn _templateFingerprint;')(doc)();
+  const fp = fingerprint(fs.readFileSync(path.join(dir, t), 'utf8'));
   const name = t.replace(/^template-|\.html$/g, '');
   console.log('  ' + name.padEnd(20) + fp);
   (seen[fp] = seen[fp] || []).push(name);

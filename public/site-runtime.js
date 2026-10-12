@@ -6611,7 +6611,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-veil-wait';
+  var MP_RUNTIME_BUILD = '2026-10-12-veil-wait-b';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -6645,6 +6645,22 @@
       for (var i = 0; i < sheets.length; i++) {
         if (sheets[i].id) continue;
         t += sheets[i].textContent || '';
+      }
+      /* INLINE SCRIPTS TOO, because a template is not only its stylesheet.
+
+         The veil fix changed every template's head script and not one byte of
+         any <style>, so the fingerprint did not move and could not say whether
+         ten files had landed. A deploy question the tool cannot answer is worse
+         than no tool: it looks like an answer.
+
+         Safe to include because this file injects no scripts - it has no
+         createElement('script') anywhere - so every inline script in the
+         document belongs to the template. Scripts with a src are skipped: they
+         are references, and site-runtime.js is one of them. */
+      var scripts = document.querySelectorAll('script');
+      for (var j = 0; j < scripts.length; j++) {
+        if (scripts[j].src || scripts[j].id) continue;
+        t += scripts[j].textContent || '';
       }
       if (!t) return 'none';
       var h = 5381;
