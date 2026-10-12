@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
+<!-- START FETCHING THE RUNTIME NOW, while this screen is on show.
+
+     A first visit is two page loads: this shell resolves the slug and redirects
+     to a template, and only THEN can the browser discover site-runtime.js and
+     start downloading it. On a throttled 3G reload that took 9.9s, measured
+     from the veil record - and the couple's own data is already in
+     sessionStorage by then, so almost the whole wait is this one file arriving.
+
+     Prefetching it here puts it in the cache while the loader is on screen and
+     the network is otherwise idle. Nothing on this page uses it; the only cost
+     is one wasted request for a visitor who never reaches a template. -->
+<link rel="prefetch" href="/site-runtime.js" as="script">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
