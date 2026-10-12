@@ -647,6 +647,10 @@
     if (_rsvpSpacingInjected) return;
     _rsvpSpacingInjected = true;
     var st = document.createElement('style');
+    /* Named like every other sheet this file injects, so _templateFingerprint
+       can tell what the TEMPLATE shipped from what the runtime added. It was
+       the only anonymous one. */
+    st.id = 'mp-rsvp-spacing-css';
     st.textContent = [
       '#rsvpBlocks .rsvp-event-label{margin-top:1.25rem;margin-bottom:0.4rem;line-height:1.3}',
       '#rsvpBlocks .rsvp-event-block:first-child .rsvp-event-label{margin-top:0}',
@@ -6624,8 +6628,24 @@
      during boot. */
   function _templateFingerprint() {
     try {
+      /* ONLY the stylesheets the template itself ships.
+
+         This hashed every <style> in the document, and by the time it runs the
+         page also holds whatever has been INJECTED - the veil the template's
+         head script puts up on live but not in preview, the marker sheet, the
+         gallery and lightbox sheets, the mobile-nav sheet. So one file gave a
+         different answer on every surface: Pressed Petals reported efc1c7cd on
+         the live site, b1f94320 opened directly, and ff20c7a0 parsed from disk
+         with no scripts run at all. Three readings, one file, and I called it a
+         stale deploy twice.
+
+         Every injected sheet carries an id and no template ships one, so the
+         rule is simply: no id, it is the template's. */
       var t = '', sheets = document.querySelectorAll('style');
-      for (var i = 0; i < sheets.length; i++) t += sheets[i].textContent || '';
+      for (var i = 0; i < sheets.length; i++) {
+        if (sheets[i].id) continue;
+        t += sheets[i].textContent || '';
+      }
       if (!t) return 'none';
       var h = 5381;
       for (var j = 0; j < t.length; j++) h = ((h * 33) ^ t.charCodeAt(j)) >>> 0;

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "MyPlanning.ai celebration websites",
   "dependencies": {
-    "@vercel/functions": "^1.5.0"
+    "@vercel/functions": "^1.5.0",
+    "jsdom": "^29.1.1"
   }
 }
