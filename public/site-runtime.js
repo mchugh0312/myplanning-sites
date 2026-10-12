@@ -6259,6 +6259,34 @@
      photograph shows the site's own ground rather than the stock one. */
   var HERO_REVEAL_CEILING_MS = 2500;
 
+  /* Did hydrate replace this element's picture?
+
+     Asked of _initialSrc, which recorded every shipped src while the document
+     was still parsing, rather than of the element's own `complete` flag.
+
+     MP-310. `complete` is supposed to go false the moment a new src is set,
+     and in Chrome it does. Firefox leaves it TRUE for a beat after the
+     assignment, and revealWhenHeroReady skipped any source whose element was
+     already complete - so on Firefox a freshly swapped hero was skipped,
+     nothing was left pending, the page was uncovered immediately, and the only
+     pixels decoded at that moment were the stock ones. Both protections went
+     at once: the page did not wait, and the element was never hidden, because
+     the hide lives inside the loop body the skip jumps over.
+
+     That is the whole of the browser difference. Nothing else in this file
+     branches on an engine, and it explains the rest of the report exactly:
+     only on a first visit, because a cached photograph decodes inside the same
+     beat and there is nothing to see. */
+  function _wasSwapped(el) {
+    try {
+      if (!el) return false;
+      for (var i = 0; i < _initialSrc.length; i++) {
+        if (_initialSrc[i][0] === el) return el.getAttribute('src') !== _initialSrc[i][1];
+      }
+    } catch (e) {}
+    return false;
+  }
+
   function revealWhenHeroReady() {
     var sources = _heroSources();
     if (!sources.length) { reveal(); return; }
@@ -6280,7 +6308,9 @@
 
     for (var i = 0; i < sources.length; i++) {
       var s = sources[i];
-      if (s.el && s.el.complete) continue;
+      /* `complete` is only worth trusting for a picture nobody replaced. A
+         swapped element is waited for whatever it claims - see _wasSwapped. */
+      if (s.el && s.el.complete && !_wasSwapped(s.el)) continue;
       pending++;
       var one = onePer();
 
@@ -6348,6 +6378,11 @@
          decode() resolves once it can be painted; where it is unsupported or
          rejects, the load handler above still settles this source. */
       if (probe.decode) { try { probe.decode().then(one, one); } catch (e) {} }
+      /* decode() is what releases an already-cached swap: `load` has fired
+         before these listeners were attached and will not fire again. Without
+         decode - an older engine - that source would hold the page until the
+         2.5s ceiling, so settle it here instead. */
+      else if (s.el && s.el.complete) one();
     }
     if (!pending) { finish(); return; }
     setTimeout(finish, HERO_REVEAL_CEILING_MS);
