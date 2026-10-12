@@ -33,6 +33,16 @@
 <meta name="description" content="Beautifully simple wedding websites for couples and their guests. Built with MyPlanning.ai.">
 <meta name="theme-color" content="#673d45">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- The runtime is 111 KB over the wire and is declared at the FOOT of this
+     document, so the browser only discovers it after parsing everything above.
+     Asking for it here starts the download during head parse instead. -->
+<link rel="preload" as="script" href="/site-runtime.js">
+<!-- The stylesheet below is served from fonts.googleapis.com and the font files
+     themselves from fonts.gstatic.com - a second host, discovered only once the
+     stylesheet has been parsed. Opening that connection now saves a DNS lookup
+     and a TLS handshake on the path to first paint. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Luxurious+Script&family=Lancelot&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');font-display:swap;}
@@ -834,7 +844,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:51ca58a0';
+    window.__mpTemplate = 'heirloombloom:f5223763';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

@@ -86,6 +86,16 @@
   3. Put CITADELScript.woff2 in your Vercel /public/fonts/ folder
   4. The @font-face below is already uncommented — it will load automatically
 -->
+<!-- The runtime is 111 KB over the wire and is declared at the FOOT of this
+     document, so the browser only discovers it after parsing everything above.
+     Asking for it here starts the download during head parse instead. -->
+<link rel="preload" as="script" href="/site-runtime.js">
+<!-- The stylesheet below is served from fonts.googleapis.com and the font files
+     themselves from fonts.gstatic.com - a second host, discovered only once the
+     stylesheet has been parsed. Opening that connection now saves a DNS lookup
+     and a TLS handshake on the path to first paint. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Pinyon+Script&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1114,7 +1124,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'pressedpetals:f86597cd';
+    window.__mpTemplate = 'pressedpetals:0bbea64e';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

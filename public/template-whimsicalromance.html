@@ -16,6 +16,11 @@
 <link rel="icon" type="image/png" sizes="16x16" href="https://weddings.myplanning.ai/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://weddings.myplanning.ai/apple-touch-icon.png">
 <link rel="shortcut icon" href="https://weddings.myplanning.ai/favicon.ico">
+<!-- The runtime is 111 KB over the wire and is declared at the FOOT of this
+     document, so the browser only discovers it after parsing everything above.
+     Asking for it here starts the download during head parse instead.
+     (No font preconnect: this design self-hosts its faces from /fonts.) -->
+<link rel="preload" as="script" href="/site-runtime.js">
 <meta property="og:type"        content="website">
 <meta property="og:site_name"   content="MyPlanning.ai Weddings">
 <meta property="og:title"       content="A Wedding Website by MyPlanning.ai">
@@ -1153,7 +1158,7 @@ body.thumbnail-mode .home-block{min-height:0;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'whimsicalromance:560ea0e4';
+    window.__mpTemplate = 'whimsicalromance:21aeb0ca';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

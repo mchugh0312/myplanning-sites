@@ -122,8 +122,34 @@ function inlineJson(value) {
     .replace(/\u2029/g, "\\u2029");
 }
 
+/* START THE HERO DOWNLOADING DURING HEAD PARSE.
+
+   The hero photograph is the largest thing on the page and the last to be
+   asked for: it cannot begin until site-runtime.js has arrived (111 KB over
+   the wire) and hydrate has set the src. On a slow connection that is seconds
+   of the page's own critical path spent idle.
+
+   The server already has the url - it is in the payload it is inlining - so it
+   can tell the browser to start fetching now. By the time hydrate sets the src
+   the bytes are in flight or in cache, and the swap is instant.
+
+   Only from the preloadable fields, and only http(s): a preload for something
+   that is never requested is a wasted round-trip on the one connection that
+   matters. */
+function heroPreload(data) {
+  const url = data && data.hero_image;
+  if (typeof url !== "string" || !url) return "";
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return "";
+  } catch { return ""; }
+  return '<link rel="preload" as="image" fetchpriority="high" href="' +
+    String(url).replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '">';
+}
+
 function injectData(html, data) {
-  const tag = "<script>window.MP_SITE_DATA = " + inlineJson(data) + ";</script>";
+  const tag = heroPreload(data) +
+    "<script>window.MP_SITE_DATA = " + inlineJson(data) + ";</script>";
   /* Into <head>, because site-runtime.js loads at the foot of the body and
      must find this already set. Appending to the end of the document would be
      too late. */

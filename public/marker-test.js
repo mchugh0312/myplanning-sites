@@ -4405,6 +4405,70 @@ check('two blocks -> two cards', blocks(mark(
     /window\.innerWidth < THUMB_MOBILE_MAX_VW; \} catch/.test(wt), true);
 }
 
+// ── Nothing on the critical path waits to be discovered ───────────────────
+// The runtime is 111 KB over the wire and is declared at the FOOT of a 100 KB
+// document, so the browser only learns it exists after parsing everything
+// above. The hero photograph is worse: it cannot begin until the runtime has
+// arrived AND hydrate has set the src, which on a slow connection is seconds of
+// the critical path spent idle.
+{
+  const tpls = fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort();
+  check('all ten templates are covered', tpls.length, 10);
+  const bad = [];
+  for (const t of tpls) {
+    const src = fs.readFileSync(t, 'utf8');
+    const name = t.replace('template-', '').replace('.html', '');
+    const head = src.slice(0, src.indexOf('</head>'));
+    if (!/<link rel="preload" as="script" href="\/site-runtime\.js">/.test(head))
+      bad.push(name + ': does not preload the runtime');
+    /* In the HEAD. Further down the document it is no earlier than the script
+       tag it is trying to get ahead of, which is the entire point. */
+    if (head.indexOf('rel="preload" as="script"') === -1)
+      bad.push(name + ': preloads it too late to matter');
+    /* And the tag it preloads must still be there - a preload for something
+       never requested is a wasted round-trip on the connection that matters. */
+    if (!/<script src="\/site-runtime\.js"><\/script>/.test(src))
+      bad.push(name + ': preloads a script it never loads');
+    /* Only where the fonts are remote. Three designs self-host from /fonts,
+       and a preconnect to a host they never use costs a handshake for nothing. */
+    const remote = /fonts\.googleapis\.com\/css2/.test(src);
+    const pre = /<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>/.test(src);
+    if (remote && !pre) bad.push(name + ': remote fonts without a preconnect');
+    if (!remote && pre) bad.push(name + ': preconnects to a font host it does not use');
+  }
+  check('every template asks for the runtime early', bad.join(' | '), '');
+
+  /* The hero preload is built by the server, which is the only place the url is
+     known before hydrate. */
+  const api = fs.readFileSync('api/site.js', 'utf8');
+  const mod = new Function(api.replace(/^import .*$/gm, '')
+    .replace(/^export default /m, 'const handler = ') +
+    '\nreturn { heroPreload, injectData };')();
+  check('a hero url becomes a preload',
+    /rel="preload" as="image"/.test(mod.heroPreload({ hero_image: 'https://x/y.jpg' })), true);
+  check('and is marked as the important one',
+    /fetchpriority="high"/.test(mod.heroPreload({ hero_image: 'https://x/y.jpg' })), true);
+  /* No hero, or something that is not a fetchable url: no preload. A preload
+     the browser never uses is a wasted request on the critical path. */
+  check('no hero means no preload', mod.heroPreload({}), '');
+  check('nor does a non-http url', mod.heroPreload({ hero_image: 'data:image/png;base64,AA' }), '');
+  check('nor does nonsense', mod.heroPreload({ hero_image: 'not a url' }), '');
+  /* Quotes in a url would end the attribute early and put the rest of it into
+     the document as markup. */
+  check('a quote in the url cannot break the attribute',
+    mod.heroPreload({ hero_image: 'https://x/a"onload=y' }).indexOf('"onload='), -1);
+  /* It has to land in the head, ahead of the runtime, or it is no earlier than
+     the swap it exists to beat. */
+  const out = mod.injectData('<html><head><title>t</title></head><body></body></html>',
+    { hero_image: 'https://x/y.jpg' });
+  /* PRESENT first, then early. indexOf returns -1 when a thing is absent, and
+     -1 is less than every real index - so the ordering check alone passed
+     against output with no preload in it at all. */
+  const iPre = out.indexOf('rel="preload" as="image"');
+  check('the preload is injected at all', iPre > -1, true);
+  check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
+}
+
 // ── The server resolves the slug, so there is no redirect ─────────────────
 // /manishmonika used to return a shell whose only job was to ask which template
 // the couple uses and then NAVIGATE to it: two HTML downloads, and an address
