@@ -21,7 +21,7 @@
     },
     {
       "source": "/:slug",
-      "destination": "/index.html"
+      "destination": "/api/site?slug=:slug"
     }
   ],
   "headers": [
@@ -85,5 +85,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/site.js": {
+      "includeFiles": "public/**"
+    }
+  }
 }

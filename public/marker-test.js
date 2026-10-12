@@ -1145,8 +1145,15 @@ check('two blocks -> two cards', blocks(mark(
   // Setting a new src does not clear the old picture - the browser paints the
   // previous image until the replacement decodes. On Save the Date, where the
   // hero is the whole page, that is the template's stock couple on screen.
+  /* `load`, not decode(). decode() answers about the picture the element is
+     CURRENTLY showing, which during a swap is the outgoing one - in Firefox it
+     resolved against the stock photograph and released the element while the
+     couple's bytes were still arriving. load is the signal that means THIS src
+     arrived, which is the question being asked. */
   check('a swapped image is hidden until its own pixels arrive',
-    /visibility = 'hidden'/.test(body) && /img\.decode/.test(body), true);
+    /visibility = 'hidden'/.test(body) && /addEventListener\('load', show\)/.test(body), true);
+  check('and decode is not consulted about an element mid-swap',
+    /img\.decode\(\)/.test(body), false);
   // The preview re-hydrates on every keystroke. A second pass read the
   // visibility we had just set, captured 'hidden' as the value to restore, and
   // put it back when the image finally arrived - the hero never appeared.
@@ -4398,6 +4405,215 @@ check('two blocks -> two cards', blocks(mark(
     /window\.innerWidth < THUMB_MOBILE_MAX_VW; \} catch/.test(wt), true);
 }
 
+// ── The server resolves the slug, so there is no redirect ─────────────────
+// /manishmonika used to return a shell whose only job was to ask which template
+// the couple uses and then NAVIGATE to it: two HTML downloads, and an address
+// bar reading template-pressedpetals.html for the whole of the second one -
+// nine seconds on a throttled connection. The mapping is data the server can
+// resolve, so /api/site resolves it and returns the template directly.
+{
+  const api = fs.readFileSync('api/site.js', 'utf8');
+  const shell = fs.readFileSync('index.html', 'utf8');
+  const vj = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
+
+  /* The two template maps must agree. A label in one and not the other means a
+     couple silently gets the default template - which looks like their design
+     was lost, not like a routing bug. */
+  const read = (src) => {
+    const t = (src.match(/TEMPLATE_MAP = \{[\s\S]*?\n\};/) || [''])[0];
+    const d = (src.match(/DEFAULT_TEMPLATE = '([^']+)'/) || [])[1];
+    const fn = new Function(t + '\nreturn TEMPLATE_MAP;')();
+    return { map: fn, dflt: d };
+  };
+  const a = read(api), b = read(shell);
+  check('both maps were found', !!a.map && !!b.map, true);
+  check('they list the same labels',
+    Object.keys(a.map).sort().join(','), Object.keys(b.map).sort().join(','));
+  check('and point them at the same files',
+    Object.keys(a.map).filter(k => a.map[k] !== b.map[k]).join(','), '');
+  check('with the same default', a.dflt, b.dflt);
+  /* And every file either map names has to exist, or a couple whose template is
+     perfectly valid falls through to the shell. The paths are absolute as the
+     browser sees them; on disk they sit beside this suite. */
+  const files = [...new Set([...Object.values(a.map), a.dflt])];
+  check('there are templates to check', files.length > 0, true);
+  check('every mapped template exists',
+    files.filter(f => !fs.existsSync(f.replace(/^\//, ''))).join(','), '');
+
+  /* Routing. The crawler rule has to stay FIRST - it is matched on User-Agent
+     and /api/og exists so a link preview gets meta tags rather than an app. */
+  const rw = vj.rewrites;
+  check('the crawler rule is still first', rw[0].destination.indexOf('/api/og') === 0, true);
+  check('and still matched on user-agent', !!(rw[0].has && rw[0].has[0].key === 'user-agent'), true);
+  const slugRule = rw.filter(r => r.source === '/:slug').pop();
+  check('a visitor is served the real page', slugRule.destination, '/api/site?slug=:slug');
+  check('and no longer the shell', slugRule.destination.indexOf('index.html'), -1);
+  /* Sub-pages still go to the shell: this route serves one couple's site, not
+     the app's inner screens. */
+  check('sub-pages still go to the app',
+    (rw.find(r => r.source === '/:slug/:page') || {}).destination, '/index.html');
+  /* The function reads the templates off disk, and files in public/ are static
+     assets that are NOT bundled into a function unless asked for. */
+  check('the templates are bundled with the function',
+    !!(vj.functions && vj.functions['api/site.js'] &&
+       vj.functions['api/site.js'].includeFiles), true);
+
+  /* Behaviour, run rather than read. */
+  const mod = new Function(api.replace(/^import .*$/gm, '')
+    .replace(/^export default /m, 'const handler = ') +
+    '\nreturn { templateFor, inlineJson, injectData };')();
+  /* The real labels are the template names, not the short aliases I first
+     assumed - 'coastal chic', not 'coastal'. Taken from the map itself rather
+     than written out here, so this cannot drift from what the product sends. */
+  const label = Object.keys(a.map).find(k => /coastal/.test(k));
+  check('there is a coastal label to test with', !!label, true);
+  check('a known label picks its template',
+    mod.templateFor({ template: label }), 'template-coastalchic.html');
+  check('case does not matter', mod.templateFor({ template: label.toUpperCase() }),
+    'template-coastalchic.html');
+  /* The legacy aliases still resolve: older recommender output used style
+     words, and a couple created then must not lose their design. */
+  check('a legacy style alias still resolves',
+    mod.templateFor({ template: 'minimalist' }), 'template-modernminimal.html');
+  check('an unknown label falls back rather than failing',
+    mod.templateFor({ template: 'nope' }), 'template-pressedpetals.html');
+  check('and so does a missing one', mod.templateFor({}), 'template-pressedpetals.html');
+
+  /* A closing tag inside the couple's own words would end the script block
+     early and spill the rest of the payload into the page as markup. */
+  check('a script tag in their copy cannot break out',
+    mod.inlineJson({ s: '</script><img onerror=x>' }).indexOf('</script>'), -1);
+  check('and the json still parses to the same thing',
+    JSON.parse(mod.inlineJson({ s: '</script>' })).s, '</script>');
+
+  /* The payload must land in <head>: site-runtime.js loads at the foot of the
+     body and has to find it already set. */
+  const out = mod.injectData('<html><head><title>t</title></head><body></body></html>', { a: 1 });
+  check('the payload is injected', out.indexOf('MP_SITE_DATA') > -1, true);
+  check('and before the runtime could run',
+    out.indexOf('MP_SITE_DATA') < out.indexOf('</head>'), true);
+  check('a document with no head is refused rather than mangled',
+    mod.injectData('<html><body></body></html>', { a: 1 }), null);
+
+  /* Every failure path returns the shell - today's behaviour. A route that
+     500s is worse than the redirect it replaced. */
+  for (const why of ['bad-slug', 'upstream-', 'lookup-failed', 'empty-payload',
+                     'no-template', 'no-head']) {
+    check('it falls back to the shell on ' + why,
+      new RegExp("fallbackToShell\\(res, \"" + why).test(api), true);
+  }
+  /* A gated site gets the template but NOT the data - inlining it would put a
+     protected couple's details in the source of a public URL, which is the
+     leak /api/og is careful to avoid in previews. */
+  check('a password-protected site is served without its data',
+    /if \(data\.password_required\) return send\(res, html, 0\);/.test(api), true);
+  /* And this response carries one couple's data, so the edge must not hold it. */
+  check('the response is not cached at the edge',
+    /res\.setHeader\("CDN-Cache-Control", "no-store"\)/.test(api), true);
+
+  /* The runtime has to prefer the inlined copy. If both are present the stash
+     is from an older visit and the inlined one came with this document. */
+  const boot = rt.slice(rt.indexOf('// Live site.') - 1200, rt.indexOf('// Live site.') + 200);
+  check('the runtime uses the inlined payload', /window\.MP_SITE_DATA/.test(rt), true);
+  check('and prefers it to the stash',
+    rt.indexOf('window.MP_SITE_DATA && typeof') < rt.indexOf("var key = 'weddingData_'"), true);
+  check('and says so in the trace', /'server-inlined MP_SITE_DATA'/.test(rt), true);
+}
+
+// ── A decode() rejection is not readiness ─────────────────────────────────
+// The trace settled it. The hero was hidden at 146ms and shown again at 177ms,
+// with complete still false at reveal - so the page uncovered over a stock
+// photograph that had not been replaced yet. Nothing was waiting: decode() had
+// rejected and the rejection handler was `show`.
+//
+// Chrome resolves decode() on a swap in flight; Firefox rejects it. That is the
+// whole of the browser difference, and it is why four fixes aimed at reveal
+// timing changed nothing - the reveal was correct and the release was wrong.
+{
+  const loop = rt.slice(rt.indexOf('function revealWhenHeroReady'),
+                        rt.indexOf('var _previewSampleOnly = false;'));
+  check('the wait loop was found', loop.length > 0, true);
+
+  /* decode() ANSWERS ABOUT THE PICTURE THE ELEMENT IS SHOWING, which during a
+     swap is still the old one. In Firefox it therefore resolves against the
+     stock photograph and reports the element ready while the couple's bytes are
+     still in flight - hidden at 40ms, shown at 61ms, complete false at reveal.
+
+     Making it resolve-only was a wasted pass: it was never rejecting. The fix
+     is not to ask it at all about an element mid-swap. */
+  check('a hidden element is not released by decode at all',
+    /img\.decode\(\)/.test(loop), false);
+  check('and the page is not settled by decode on a swapped element',
+    /if \(probe\.decode && !\(s\.el && _wasSwapped\(s\.el\)\)\)/.test(loop), true);
+  check('neither takes a rejection as ready',
+    /\.then\(show, show\)|\.then\(one, one\)/.test(loop), false);
+  /* decode() is still worth having where nothing was swapped: a fresh probe
+     Image, or an element showing the picture the page shipped. There the
+     current frame IS the one being waited for, and load alone can be late. */
+  check('it is still used where the current picture is the awaited one',
+    /probe\.decode\(\)\.then\(one, function \(\) \{\}\)/.test(loop), true);
+
+  /* Removing the rejection path only works because something else still
+     settles it. All three have to stay, or an element that never decodes stays
+     hidden for good - which is worse than the flash. */
+  check('load still releases it', /img\.addEventListener\('load', show\)/.test(loop), true);
+  check('error still releases it', /img\.addEventListener\('error', show\)/.test(loop), true);
+  check('a cached swap still releases it', /if \(img\.complete\) show\(\);/.test(loop), true);
+  check('and a stalled one is released by the ceiling',
+    /setTimeout\(show, HERO_REVEAL_CEILING_MS \+ \d+\);/.test(loop), true);
+  check('the page has the same backstop',
+    /setTimeout\(finish, HERO_REVEAL_CEILING_MS\)/.test(loop), true);
+}
+
+// ── The hero path says what it did ────────────────────────────────────────
+// Four fixes have been shipped against one symptom, each reasoned from a
+// description rather than a measurement, and each has changed nothing. The page
+// records its own decisions instead and prints them at reveal.
+{
+  check('the trace exists', /var _heroTrace = \[\];/.test(rt), true);
+  check('and is printed as one block at reveal',
+    /function _dumpHeroTrace\(why\)/.test(rt), true);
+  /* Live too. The symptom is on the live site, and a trace that only runs in
+     preview would be answering a question nobody is asking. */
+  const dump = rt.slice(rt.indexOf('function _dumpHeroTrace'),
+                        rt.indexOf('function _dumpHeroTrace') + 900);
+  check('it is not restricted to preview', /_isPreview/.test(dump), false);
+
+  /* The points that matter, each of which has been a guess at some stage. */
+  for (const [what, why] of [
+    ["'shipped-imgs'", 'how many pictures the markup carried'],
+    ["'heroImg-shipped'", 'what the hero held before hydrate'],
+    ["'boot'", 'which boot path ran - the stash path is the one a guest takes'],
+    ["'sources'", 'how many sources the wait collected'],
+    ["'source'", 'each one, with complete and swapped as the code saw them'],
+    ["'skipped'", 'anything the wait decided not to wait for'],
+    ["'hide-img'", 'whether the element was actually hidden'],
+    ["'show-img'", 'and when it came back'],
+    ["'hide-bg'", 'the same for a background'],
+    ["'reveal'", 'when the cover came off and why'],
+  ]) {
+    check('it records ' + why, new RegExp('_trace\\(' + what).test(rt), true);
+  }
+  check('and what the hero holds at reveal', /'heroImg-now'/.test(rt), true);
+
+  /* Both ways out of the wait print it, or the interesting case - nothing to
+     wait for - is the one that stays silent. */
+  check('the settled path prints it',
+    /_dumpHeroTrace\('all sources settled or ceiling'\)/.test(rt), true);
+  check('and so does the no-sources path',
+    /_dumpHeroTrace\('no sources to wait for'\)/.test(rt), true);
+
+  /* A trace that throws would take the reveal with it, which is far worse than
+     the bug it is chasing. */
+  const tr = rt.slice(rt.indexOf('function _trace(what, detail)'),
+                      rt.indexOf('function _trace(what, detail)') + 300);
+  check('recording cannot break the page', /catch \(e\) \{\}/.test(tr), true);
+  check('nor can printing it', /catch \(e\) \{\}/.test(dump), true);
+  /* Urls are trimmed: a signed CDN link fills a console line on its own and
+     the last 40 characters are what tell a stock file from an uploaded one. */
+  check('urls are trimmed to their tail', /function _tail\(u\)/.test(rt), true);
+}
+
 // ── A background photograph is hidden too, not only watched ───────────────
 // The flash that survived everything appeared AFTER the page had finished
 // loading, which ruled out the reveal entirely. A photograph painted as a CSS
@@ -4561,8 +4777,11 @@ check('two blocks -> two cards', blocks(mark(
                           rt.indexOf('var _previewSampleOnly = false;'));
     check('the loop no longer skips on complete alone',
       /if \(s\.el && s\.el\.complete\) continue;/.test(loop), false);
+    /* The skip records itself now, so the condition is matched up to its brace
+       rather than to `continue` - the trace line sits between the two. */
     check('it skips only an untouched, finished picture',
-      /if \(s\.el && s\.el\.complete && !_wasSwapped\(s\.el\)\) continue;/.test(loop), true);
+      /if \(s\.el && s\.el\.complete && !_wasSwapped\(s\.el\)\) \{/.test(loop), true);
+    check('and says so when it does', /_trace\('skipped'/.test(loop), true);
     /* An already-cached swap is released by decode(), because load fired before
        the listeners were attached. Without decode it would hold the page to the
        2.5s ceiling, so there has to be a fallback. */
@@ -4969,7 +5188,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-12-bg-hide');
+  check('the stamp names the change it shipped with', version, '2026-10-12-server-resolve');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -4977,7 +5196,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'b25edba8');
+    ('0000000' + bh.toString(16)).slice(-8), 'adbac689');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

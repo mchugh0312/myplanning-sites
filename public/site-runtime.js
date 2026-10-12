@@ -6728,7 +6728,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-no-decode-on-swap';
+  var MP_RUNTIME_BUILD = '2026-10-12-server-resolve';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7201,6 +7201,26 @@
       }, 2500);
       return;
     }
+
+    /* SERVED WITH THE PAGE. /api/site resolves the slug on the server, returns
+       the right template, and inlines the payload into its <head> - so there is
+       no shell, no redirect, and no round-trip to make here. The address bar is
+       the couple's own URL from the first byte rather than reading
+       template-pressedpetals.html for the length of the download.
+
+       First, ahead of the stash: if both are present the inlined copy is the
+       one that came with this document, and the stash is from an older visit.
+
+       Absent on a gated site even when the rest is served this way - the
+       password gate must be passed before the data exists. The fetch below
+       still covers that. */
+    try {
+      if (window.MP_SITE_DATA && typeof window.MP_SITE_DATA === 'object') {
+        _trace('boot', 'server-inlined MP_SITE_DATA');
+        hydrate(window.MP_SITE_DATA);
+        return;
+      }
+    } catch (e) {}
 
     // Live site. index.html hands the payload over in sessionStorage to avoid a
     // second round-trip. The key is KEPT rather than deleted so a refresh on a
