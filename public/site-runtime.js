@@ -6452,6 +6452,12 @@
 
   function liftVeil() {
     try {
+      /* Through the template's own lift when it exposed one, so the record of
+         WHO uncovered the page is written in one place. A reading that says the
+         cover came off at 4s by 'ceiling' is a different bug from one that says
+         it came off at 9s by 'runtime', and by hand the two are
+         indistinguishable - both are just a missing element. */
+      if (typeof window.__mpLift === 'function') { window.__mpLift('runtime'); return; }
       var v = document.getElementById('mp-veil');
       if (v && v.parentNode) v.parentNode.removeChild(v);
     } catch (e) {}
@@ -6611,7 +6617,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-veil-wait-b';
+  var MP_RUNTIME_BUILD = '2026-10-12-declared-marker';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -6626,54 +6632,33 @@
      what nearly every one of these changes touches. djb2, xor variant - not a
      cryptographic hash, just something short, stable and quick enough to run
      during boot. */
+  /* WHAT THE TEMPLATE SAYS IT IS, not what the page looks like.
+
+     This used to hash the document's own <style> and <script> content. It
+     cannot work: a live page also carries whatever the HOST injects, so one
+     file read 34a1a52a on disk and 8eb0282f in the browser, and two readings
+     were called a stale deploy on that basis. Both times they were wrong.
+
+     Each template now declares itself in its head script and marker-test
+     recomputes that value from the file, so it cannot drift. Nothing here
+     infers anything. */
   function _templateFingerprint() {
-    try {
-      /* ONLY the stylesheets the template itself ships.
-
-         This hashed every <style> in the document, and by the time it runs the
-         page also holds whatever has been INJECTED - the veil the template's
-         head script puts up on live but not in preview, the marker sheet, the
-         gallery and lightbox sheets, the mobile-nav sheet. So one file gave a
-         different answer on every surface: Pressed Petals reported efc1c7cd on
-         the live site, b1f94320 opened directly, and ff20c7a0 parsed from disk
-         with no scripts run at all. Three readings, one file, and I called it a
-         stale deploy twice.
-
-         Every injected sheet carries an id and no template ships one, so the
-         rule is simply: no id, it is the template's. */
-      var t = '', sheets = document.querySelectorAll('style');
-      for (var i = 0; i < sheets.length; i++) {
-        if (sheets[i].id) continue;
-        t += sheets[i].textContent || '';
-      }
-      /* INLINE SCRIPTS TOO, because a template is not only its stylesheet.
-
-         The veil fix changed every template's head script and not one byte of
-         any <style>, so the fingerprint did not move and could not say whether
-         ten files had landed. A deploy question the tool cannot answer is worse
-         than no tool: it looks like an answer.
-
-         Safe to include because this file injects no scripts - it has no
-         createElement('script') anywhere - so every inline script in the
-         document belongs to the template. Scripts with a src are skipped: they
-         are references, and site-runtime.js is one of them. */
-      var scripts = document.querySelectorAll('script');
-      for (var j = 0; j < scripts.length; j++) {
-        if (scripts[j].src || scripts[j].id) continue;
-        t += scripts[j].textContent || '';
-      }
-      if (!t) return 'none';
-      var h = 5381;
-      for (var j = 0; j < t.length; j++) h = ((h * 33) ^ t.charCodeAt(j)) >>> 0;
-      return ('0000000' + h.toString(16)).slice(-8);
-    } catch (e) { return 'error'; }
+    try { return window.__mpTemplate || 'unmarked'; } catch (e) { return 'unmarked'; }
   }
+
 
   try {
     window.MP_RUNTIME_BUILD = MP_RUNTIME_BUILD;
     var _tfp = _templateFingerprint();
     window.MP_TEMPLATE_FINGERPRINT = _tfp;
-    console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD + '  template ' + _tfp);
+    /* The veil's own record comes with it: a console reading taken by hand
+       during a slow load cannot tell "not installed yet" from "already
+       removed", and both read null. */
+    var _v = window.__mpVeil || {};
+    console.log('[mp-runtime] build ' + MP_RUNTIME_BUILD + '  template ' + _tfp +
+      '  veil up@' + (_v.up === null || _v.up === undefined ? '-' : _v.up) +
+      ' down@' + (_v.down === null || _v.down === undefined ? '-' : _v.down) +
+      ' by ' + (_v.by || '-'));
   } catch (e) {}
 
   function hydrate(d) {

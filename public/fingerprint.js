@@ -73,35 +73,39 @@ if (!tpls.length) { console.log('No templates found in ' + path.resolve(dir)); p
  * an id, and no template ships one.
  */
 function fingerprint(html) {
-  let text = '';
-  const sty = /<style([^>]*)>([\s\S]*?)<\/style>/gi;
-  let m;
-  while ((m = sty.exec(html)) !== null) {
-    if (/\bid\s*=/i.test(m[1])) continue;
-    text += m[2];
-  }
-  /* Inline scripts as well. A template's head script is as much a part of it as
-   * its stylesheet - the veil fix changed every one of them and no <style> at
-   * all, so a style-only hash could not tell whether those ten files had landed.
-   * src'd scripts are references, not content, and site-runtime.js is one. */
-  const scr = /<script([^>]*)>([\s\S]*?)<\/script>/gi;
-  while ((m = scr.exec(html)) !== null) {
-    if (/\bsrc\s*=|\bid\s*=/i.test(m[1])) continue;
-    text += m[2];
-  }
-  if (!text) return 'none';
+  /* The value the template DECLARES, recomputed from the file.
+   *
+   * Hashing what the page looks like could not work: a live page carries
+   * whatever the host injects as well, so one file read one value on disk and
+   * another in the browser. Each template now states its own marker and this
+   * recomputes it over every byte EXCEPT that line - which is why a template
+   * whose marker is stale shows up here as a mismatch rather than agreeing
+   * with itself and being wrong.
+   */
+  const m = /\n\s*window\.__mpTemplate = '([a-z]+):([0-9a-f]{8})';\n/.exec(html);
+  if (!m) return { declared: null, actual: 'unmarked' };
+  let text = html.replace(m[0], '\n');
   let h = 5381;
   for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
-  return ('0000000' + h.toString(16)).slice(-8);
+  return { declared: m[2], actual: ('0000000' + h.toString(16)).slice(-8), name: m[1] };
 }
 
 console.log('templates');
 const seen = {};
+let stale = 0;
 for (const t of tpls) {
-  const fp = fingerprint(fs.readFileSync(path.join(dir, t), 'utf8'));
+  const r = fingerprint(fs.readFileSync(path.join(dir, t), 'utf8'));
   const name = t.replace(/^template-|\.html$/g, '');
-  console.log('  ' + name.padEnd(20) + fp);
-  (seen[fp] = seen[fp] || []).push(name);
+  const ok = r.declared === r.actual;
+  if (!ok) stale++;
+  console.log('  ' + name.padEnd(20) + r.declared +
+    (ok ? '' : '   <<< MARKER STALE, file is ' + r.actual));
+  (seen[r.declared] = seen[r.declared] || []).push(name);
+}
+if (stale) {
+  console.log('');
+  console.log('  ' + stale + ' template(s) edited without updating the marker.');
+  console.log('  Run the suite - it recomputes these and will name them.');
 }
 
 /* Two templates with one fingerprint would let a stale file be confirmed by

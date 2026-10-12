@@ -1094,13 +1094,32 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 (function () {
   try {
     var first = location.pathname.replace(/^\/+/, '').split('/')[0];
+    /* WHAT THIS FILE IS, stated rather than inferred.
+
+       The runtime used to work this out by hashing the page's own <style> and
+       <script> content. It cannot: a live page also carries whatever the host
+       injects, so the same file read 34a1a52a on disk and 8eb0282f in the
+       browser. Two earlier readings were called a stale deploy on that basis
+       and were wrong both times.
+
+       So the file says so itself. marker-test recomputes this from the file -
+       every byte of it except this line - and fails if the two disagree, so it
+       cannot be forgotten after an edit. */
+    window.__mpTemplate = 'vintagelovestory:6eacd2b5';
+
+    /* When the cover went up and what took it down, for the same reason: a
+       console reading taken during a slow load cannot tell "not installed yet"
+       from "already removed", and both look like null. */
+    window.__mpVeil = { up: null, down: null, by: null };
+
     var isLive = /slug=/.test(location.search) ||
                  (first && !/^template-[a-z]+\.html$/i.test(first));
-    if (!isLive) return;                     /* editor previews paint normally */
+    if (!isLive) { window.__mpVeil.by = 'preview'; return; }
     var s = document.createElement('style');
     s.id = 'mp-veil';
     s.textContent = 'html{visibility:hidden}';
     document.head.appendChild(s);
+    window.__mpVeil.up = Math.round(performance.now());
     /* Safety net, not a schedule. site-runtime lifts this veil itself the
        moment the page is worth showing, so in the ordinary case neither timer
        below is reached.
@@ -1116,10 +1135,15 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        page must be uncovered now; the flag means hydration is in flight, so
        give it longer before overriding it. The page still cannot stay hidden
        indefinitely either way. */
-    var lift = function () {
+    var lift = function (who) {
       var e = document.getElementById('mp-veil');
       if (e && e.parentNode) e.parentNode.removeChild(e);
+      if (window.__mpVeil && window.__mpVeil.down === null) {
+        window.__mpVeil.down = Math.round(performance.now());
+        window.__mpVeil.by = who || 'runtime';
+      }
     };
+    window.__mpLift = lift;
     /* WAITING FOR THE SCRIPT IS NOT THE SAME AS IT NEVER COMING.
 
        This gave up at 4s if __mpRuntimeAlive was unset, on the reasoning that
@@ -1143,11 +1167,11 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
       var sc = document.querySelector('script[src*="site-runtime"]');
       if (sc && !sc.__mpWatched) {
         sc.__mpWatched = 1;
-        sc.addEventListener('error', function () { clearInterval(watch); lift(); });
+        sc.addEventListener('error', function () { clearInterval(watch); lift('script-error'); });
       }
       /* 12s. Long enough for a slow first visit, short enough that a page which
          is never going to hydrate is still shown. */
-      if (++tries > 24) { clearInterval(watch); lift(); }
+      if (++tries > 24) { clearInterval(watch); lift('ceiling'); }
     }, 500);
   } catch (e) {}
 })();
