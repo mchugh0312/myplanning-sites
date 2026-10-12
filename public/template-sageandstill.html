@@ -1110,10 +1110,35 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
       var e = document.getElementById('mp-veil');
       if (e && e.parentNode) e.parentNode.removeChild(e);
     };
-    setTimeout(function () {
-      if (!window.__mpRuntimeAlive) { lift(); return; }
-      setTimeout(lift, 8000);
-    }, 4000);
+    /* WAITING FOR THE SCRIPT IS NOT THE SAME AS IT NEVER COMING.
+
+       This gave up at 4s if __mpRuntimeAlive was unset, on the reasoning that
+       no flag means the runtime never arrived. On a slow connection the runtime
+       has simply not finished DOWNLOADING yet - on a throttled 3G reload
+       site-runtime.js parsed at 9.9s - so the veil lifted at 4s onto the
+       un-hydrated page and the template's stock photographs showed for six
+       seconds before the couple's replaced them. That is the flash, and no
+       amount of care inside the runtime can prevent it: the runtime is not
+       running yet.
+
+       So the two cases are now told apart by asking the SCRIPT rather than the
+       clock. A script that 404s or fails fires error, and the page is uncovered
+       at once. A script still in flight is waited for, to a ceiling - the page
+       can still never stay hidden indefinitely. */
+    var tries = 0;
+    var watch = setInterval(function () {
+      /* Alive: the runtime lifts this itself the moment the page is worth
+         showing, and it knows far more about that than a timer does. */
+      if (window.__mpRuntimeAlive) { clearInterval(watch); return; }
+      var sc = document.querySelector('script[src*="site-runtime"]');
+      if (sc && !sc.__mpWatched) {
+        sc.__mpWatched = 1;
+        sc.addEventListener('error', function () { clearInterval(watch); lift(); });
+      }
+      /* 12s. Long enough for a slow first visit, short enough that a page which
+         is never going to hydrate is still shown. */
+      if (++tries > 24) { clearInterval(watch); lift(); }
+    }, 500);
   } catch (e) {}
 })();
 </script>
