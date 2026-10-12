@@ -6454,21 +6454,20 @@
           img.style.visibility = 'hidden';
           img.addEventListener('load', show);
           img.addEventListener('error', show);
-          /* decode() is a RESOLVE-only signal here. Its rejection means "I could
-             not decode that", not "the picture is ready" - and Firefox rejects
-             it routinely while a swap is still in flight, which is the whole
-             bug: the hero was hidden at 146ms and shown again at 177ms with
-             complete still false, so the cover came off over a stock photograph
-             that had not been replaced yet.
+          /* NO decode() ON A SWAPPED ELEMENT. It answers about the picture the
+             element is CURRENTLY showing, and during a swap that is still the
+             old one - so in Firefox it resolves against the stock photograph
+             and reports the element ready while the couple's bytes are still
+             arriving.
 
-             On a rejection nothing happens here. The load and error listeners
-             above are already attached and will settle it, and the timeout
-             below is the backstop if neither ever fires. That is also why the
-             catch is empty now: a decode() that throws synchronously is the
-             same situation, not a reason to uncover. */
-          if (img.decode) {
-            try { img.decode().then(show, function () {}); } catch (e) {}
-          }
+             The trace is unambiguous: hidden at 40ms, shown at 61ms, complete
+             still false at reveal. Making it resolve-only did not help because
+             it was never rejecting; it was answering the wrong question
+             correctly. Two fixes were spent on that distinction.
+
+             load is the signal that means THIS src arrived, and it is already
+             attached above, with error beside it and a ceiling below. decode()
+             adds nothing here that those do not already cover. */
           /* A cached image can finish between the `complete` test above and
              these listeners, in which case load has already fired and would
              never fire again — the picture would stay hidden for good. */
@@ -6486,10 +6485,14 @@
          being paintable — a large photograph can still cost a decode after it.
          decode() resolves once it can be painted; where it is unsupported or
          rejects, the load handler above still settles this source. */
-      /* Resolve-only, for the same reason the hide above is: a rejection is not
-         readiness. This one settles the page rather than one element, so
-         treating a Firefox rejection as ready uncovered everything at once. */
-      if (probe.decode) { try { probe.decode().then(one, function () {}); } catch (e) {} }
+      /* Same rule, and the stakes are higher: this settles the whole PAGE, so a
+         decode() answering about the outgoing picture uncovers everything at
+         once. Only asked where nothing was swapped - a fresh probe Image, or an
+         element whose src the page shipped - because there the current picture
+         IS the one being waited for. */
+      if (probe.decode && !(s.el && _wasSwapped(s.el))) {
+        try { probe.decode().then(one, function () {}); } catch (e) {}
+      }
       /* decode() is what releases an already-cached swap: `load` has fired
          before these listeners were attached and will not fire again. Without
          decode - an older engine - that source would hold the page until the
@@ -6725,7 +6728,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-decode-reject';
+  var MP_RUNTIME_BUILD = '2026-10-12-no-decode-on-swap';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
