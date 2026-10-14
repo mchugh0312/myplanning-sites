@@ -3562,10 +3562,25 @@
         _contentFontIndex[CONTENT_FONTS[i].toLowerCase()] = CONTENT_FONTS[i];
       }
     }
-    /* Trim any run of quotes and space at either end. The couple's markup can
-       arrive as 'Pinyon Script', "Pinyon Script" or Pinyon Script, and the
-       attribute's own closing quote often rides along on the last one. */
-    var n = String(name || '').replace(/^[\s"']+|[\s"']+$/g, '');
+    /* ENTITIES FIRST, then quotes. MP-332.
+
+       The couple's font lives in a span the browser serialised itself, and a
+       family whose name has a space in it comes back QUOTED:
+
+           <span style='font-family: "Great Vibes", serif;'>
+
+       That span sits inside a double-quoted HTML attribute in the payload, so
+       those quotes arrive as &quot;. Trimming [\s"'] does not touch an entity,
+       so the name looked up was &quot;Great Vibes&quot;, which is in no list -
+       nothing was collected, no stylesheet was requested, and the face fell
+       back silently.
+
+       A ONE-WORD family needs no quotes, has no entities, and matched fine.
+       That is the whole of "it works for some fonts and not others": every
+       multi-word face was broken and every single-word face worked. */
+    var n = String(name || '')
+      .replace(/&quot;|&#0*34;|&apos;|&#0*39;/gi, '')
+      .replace(/^[\s"']+|[\s"']+$/g, '');
     /* Return the canonical spelling, not the couple's. css2 is case-sensitive
        on the family name and would 400 on "playfair display". */
     return _contentFontIndex[n.toLowerCase()] || null;
@@ -3578,11 +3593,28 @@
     if (!d) return out;
     /* Runs to the ; or the > that ends the tag, so the attribute's own closing
        quote can be swept up in the value - _knownContentFont trims it off. */
+    /* /g IS LOAD-BEARING, not stylistic. The loop below is
+       `while ((m = re.exec(v)))`, and a non-global regex ignores lastIndex and
+       returns the same match for ever - the page does not fail, it hangs. The
+       suite hung on exactly that while this was being tested. */
     var re = /font-family\s*:\s*([^;>]+)/gi;
     var keys = Object.keys(d);
     for (var i = 0; i < keys.length; i++) {
       var v = d[keys[i]];
       if (typeof v !== 'string' || v.indexOf('font-family') === -1) continue;
+      /* AN ENTITY CARRIES ITS OWN SEMICOLON, and the pattern above stops at the
+         first one. A quoted family arrives as
+
+             font-family: &quot;Great Vibes&quot;, serif;
+
+         so the capture ended at the semicolon inside &quot; and came back as
+         the four characters "&quot" - no family, nothing collected, no
+         stylesheet requested, and the face silently fell back.
+
+         Decoded here rather than widened in the pattern: the entity is not part
+         of the value, it is how the value survived being put in an attribute,
+         so the right place to undo it is before anything tries to read it. */
+      v = v.replace(/&quot;|&#0*34;/gi, '"').replace(/&apos;|&#0*39;/gi, "'");
       re.lastIndex = 0;
       var m;
       while ((m = re.exec(v))) {
@@ -6728,7 +6760,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-12-server-resolve';
+  var MP_RUNTIME_BUILD = '2026-10-14-content-font-entities';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
