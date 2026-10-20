@@ -162,6 +162,12 @@
   .m-pad h3{font-size:25px;line-height:1.15;margin-bottom:4px}
   .m-sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
   .m-price{font-family:"Instrument Serif",serif;font-size:21px;margin:2px 0 6px}
+  /* The "See price on Amazon" phrase is a sentence where a price was a number,
+     so it steps down to body type rather than sitting at 21px serif. */
+  .m-price.no-price, .price.no-price{font-family:"Open Sans",sans-serif;font-size:12.5px;
+    font-style:normal}
+  .m-price.no-price a, .price.no-price a{color:inherit;text-decoration:underline;
+    text-underline-offset:3px}
   .m-desc{font-size:13.5px;line-height:1.6;color:var(--olive);margin:10px 0}
   .m-note{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--olive);font-style:italic;margin:12px 0}
   .m-actions{display:flex;gap:10px;margin-top:14px}
@@ -557,6 +563,36 @@ const state = {
 };
 
 const fmt = c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format((Number(c)||0)/100);
+
+/* MP-902: a gift with no stored price is not a gift that costs nothing.
+   
+   Amazon's terms forbid storing their prices, so every curated product arrives
+   with price_cents empty — and `fmt(0)` turned that into "$0" on the guest
+   page, which is the one place it does real damage. A guest seeing $0 either
+   thinks the gift is free or thinks the registry is broken.
+   
+   Cash funds are unaffected: their amount is the couple's own goal, which we
+   do store, and it is never zero.
+   
+   The phrase links to the same place the Buy button goes — through buyHref, so
+   the click is logged and attributed like any other. */
+const NO_PRICE = "See price on Amazon";
+const hasPrice = it => Number(it && it.price_cents) > 0;
+
+function priceHtml(it, cls){
+  /* `amount` is read as a fallback because the tile list passes a view object
+     (which carries .amount) when the raw item is missing. Without it a cash
+     fund arriving that way would show "See price on Amazon", which is both
+     wrong and nonsensical for a fund. */
+  const own = isFund(it) ? (Number(it.goal_amount_cents)||0) : (Number(it.price_cents)||0);
+  const amount = own > 0 ? own : (Number(it.amount)||0);
+  if(amount > 0) return '<div class="'+cls+'">'+fmt(amount)+'</div>';
+  const href = buyHref(it.id, it.source_url);
+  if(!href) return '<div class="'+cls+' no-price">'+NO_PRICE+'</div>';
+  return '<div class="'+cls+' no-price"><a href="'+esc(href)+'" target="_blank" '
+       + 'rel="sponsored nofollow noopener" onclick="event.stopPropagation()">'
+       + NO_PRICE+'</a></div>';
+}
 const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 // Safe inline markdown: escape first (no HTML/scripts can inject), then turn
 // **bold** and *italic* into <strong>/<em>. Matches the Registry Settings editor.
@@ -1045,8 +1081,25 @@ function sortList(list){
   // "custom" = exactly the order the couple dragged into (no most-wanted bump),
   // so what they arrange in preview is what guests see.
   if(s==="custom") { a.sort((x,y)=>x.sort-y.sort); return a; }
-  if(s==="price_asc")  a.sort((x,y)=>x.amount-y.amount);
-  else if(s==="price_desc") a.sort((x,y)=>y.amount-x.amount);
+  /* MP-902: a gift with no price is not the cheapest gift.
+     
+     Sorting on `amount` treated every unpriced product as 0, so a price sort
+     opened with a wall of them — the opposite of what a guest asked for. They
+     go to the END of both directions instead, after everything that can
+     actually be ordered, keeping their own relative order.
+     
+     This is a consequence of not storing Amazon's prices, not a bug in the
+     sort. It resolves itself if PA-API access ever makes live prices
+     available. */
+  const unpriced = t => !(Number(t.amount) > 0);
+  const byAmount = dir => (x, y) => {
+    const ux = unpriced(x), uy = unpriced(y);
+    if(ux !== uy) return ux ? 1 : -1;          // unpriced always last
+    if(ux && uy) return x.sort - y.sort;        // among themselves, couple's order
+    return dir === "asc" ? x.amount - y.amount : y.amount - x.amount;
+  };
+  if(s==="price_asc")  a.sort(byAmount("asc"));
+  else if(s==="price_desc") a.sort(byAmount("desc"));
   else if(s==="name_asc")   a.sort((x,y)=>x.title.localeCompare(y.title));
   else if(s==="name_desc")  a.sort((x,y)=>y.title.localeCompare(x.title));
   else a.sort((x,y)=>x.sort-y.sort);   // custom / couple's order
@@ -1268,7 +1321,7 @@ function renderCard(t){
     +   '<div class="body">'+brandLine
     +     '<div class="ttl">'+esc(t.title)+'</div>'
     +     variantLine
-    +     (hidesAmount(t)?'':'<div class="price">'+fmt(t.amount)+'</div>')
+    +     (hidesAmount(t)?'':priceHtml(t.raw || t, "price"))
     +     note
     +   '</div>'
     +   prog
@@ -1546,7 +1599,7 @@ function openDidPurchase(id){
     + img
     + '<div class="m-prod"><div class="m-brand">'+esc(brandOf(t.raw))+'</div>'
     +   '<div class="m-name">'+esc(t.title)+'</div>'
-    +   '<div class="m-price">'+fmt(t.amount)+'</div></div>'
+    +   priceHtml(t.raw || t, "m-price")+'</div>'
     + '<div class="m-actions col">'
     +   '<button class="m-cta solid" onclick="openOffline(\''+t.id+'\')">Yes, Mark As Purchased</button>'
     +   '<button class="m-cta ghost" onclick="closeFlow()">No, Continue Shopping</button>'
@@ -1711,7 +1764,7 @@ function openDetail(id){
     +   ((brandOf(it))?'<div class="m-sub">'+esc(brandOf(it))+'</div>':"")
     +   '<h3 class="serif">'+esc(it.title)+'</h3>'
     +   variantHtml(it, "m-variant")
-    +   '<div class="m-price">'+fmt(it.price_cents||0)+'</div>'
+    +   priceHtml(it, "m-price")
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")

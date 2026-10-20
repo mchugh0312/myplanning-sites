@@ -2333,7 +2333,12 @@
        Checked by rule rather than by eye now: a gate reads which variable each
        template paints <body> with and requires bg to be that one. This was the
        only template of the ten that failed it. */
-    whimsicalromance:    { bg: '--rose',     accent: '--burgundy',   ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--ivory',    accent3: '--yellow' },
+    /* ink drives TWO variables here. This design paints <body> with --text and
+       everything else with --ink; the two hold the same colour, so the split is
+       invisible until a couple moves Text1 and watches the body copy stay put.
+       That is MP-910 on this template: some text changed and some did not, with
+       no pattern a couple could see. A slot may name an array. */
+    whimsicalromance:    { bg: '--rose',     accent: '--burgundy',   ink: ['--ink', '--text'], ink2: '--on-dark', ink3: '--ink3', accent2: '--ivory',    accent3: '--yellow' },
     coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     /* --black painted the Submit button and was mapped to nothing, so that one
        control could not be recoloured. It takes the free slot. */
@@ -2364,6 +2369,74 @@
     registry:       ['registry-section', 'registry', 'registry-wrap'],
     rsvp:           ['rsvp']
   };
+
+  /* ── AN EMPTY SECTION COLLAPSES ───────────────────────────────────────────
+     MP-329, MP-901, MP-904. Every section starts seeded, so a field that
+     arrives empty can only mean the couple emptied it - there is no "never
+     filled in" to tell apart. Empty therefore means gone, everywhere, and the
+     Design toggle is the only other thing that hides a section.
+
+     It was none of those things. Some templates kept their shipped placeholder
+     and showed stock event names over an empty box; others collapsed; Our
+     Story collapsed only on a second clear, because the first left a filler
+     <br> behind and that is not nothing to an `if (d.story)` test. Three
+     reports, one rule missing.
+
+     Central rather than per template: there are about fifty `if (d.field)`
+     guards across the ten designs, in several shapes and with no else. Hiding
+     the section afterwards says the same thing once.
+
+     NOT listed here: gallery, which has photographs rather than copy, and
+     registry and rsvp, which are worth showing with no words in them - a
+     clickable registry title and a form. Those are the alwaysValid sections in
+     the editor's own list, and this is the same judgement. */
+  var SECTION_CONTENT = {
+    story:          ['story'],
+    wedding:        ['weddings_info'],
+    other_events:   ['events_info'],
+    /* ONE PAIR FOR BOTH KEYS. Accommodations and Travel are a single section
+       now, fed by a single box that the runtime cuts into a hotel card and a
+       flights card - so either half being filled means the section has content.
+
+       Keeping them separate took the band down whenever one half was empty,
+       and on the designs where #accommodations IS the travel band that hid a
+       section with the couple's flights in it. */
+    accommodations: ['accommodation_info', 'travel_info'],
+    travel:         ['travel_info', 'accommodation_info'],
+    faqs:           ['faqs'],
+    things_to_do:   ['things_to_do']
+  };
+
+  /* Markup with no words in it is empty. The editor leaves a filler <br> at the
+     end of a box, and a cleared box can hold nothing else - which is why Our
+     Story needed clearing twice before it went. */
+  function _hasText(html) {
+    return !!String(html || '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;|&#160;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function collapseEmptySections(d) {
+    if (!d) return;
+    try {
+      Object.keys(SECTION_CONTENT).forEach(function (key) {
+        var fields = SECTION_CONTENT[key];
+        var any = fields.some(function (f) { return _hasText(d[f]); });
+        if (any) return;
+        var ids = SECTION_ANCHORS[key] || [];
+        for (var i = 0; i < ids.length; i++) {
+          var el = document.getElementById(ids[i]);
+          /* The FIRST anchor that exists, then stop. The lists are fallbacks
+             for designs that name a section differently, not several sections
+             to hide at once - and on the merged designs #accommodations is a
+             live anchor inside the Travel band. */
+          if (el) { el.style.display = 'none'; break; }
+        }
+      });
+    } catch (e) {}
+  }
 
   function scrollToSection(key) {
     var ids = SECTION_ANCHORS[key];
@@ -3410,6 +3483,30 @@
     return text ? html.trim() : '';
   }
 
+  /* A yes/no the couple set, surviving the trip to the live site.
+
+     MP-908. registry_preview is built by the editor from a record column, and
+     the live page fetches the record straight from the API - where that column
+     does not appear. The runtime tests `=== false`, so an absent key read as
+     "not switched off" and the preview showed whether the toggle was on or
+     not. Exactly the fault MP-354 had with Site Background and Accent.
+
+     Same remedy: custom_css is the one channel proven to carry a couple's
+     settings to the live site, so the flag rides along in it. Reads the column
+     first, because in the editor's own payload it is authoritative and
+     immediate. */
+  function _cssFlag(css, name) {
+    var m = new RegExp('--' + name + '\\s*:\\s*([01])\\s*(?:;|$)').exec(String(css || ''));
+    return m ? m[1] === '1' : null;
+  }
+
+  function _flagOff(d, key, cssName) {
+    if (d && d[key] === false) return true;
+    if (d && d[key] === true) return false;
+    var f = _cssFlag(d && d.custom_css, cssName);
+    return f === false;
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -3444,6 +3541,15 @@
                  [v.accent3, pick(c.accent3_color, 'accent3')]];
     try {
       var root = document.documentElement.style;
+      /* A slot may name one variable or several - see whimsicalromance, where
+         the body copy and everything else are two aliases of one colour. */
+      var flat = [];
+      for (var p = 0; p < pairs.length; p++) {
+        var names = pairs[p][0];
+        names = (Object.prototype.toString.call(names) === '[object Array]') ? names : [names];
+        for (var q = 0; q < names.length; q++) flat.push([names[q], pairs[p][1]]);
+      }
+      pairs = flat;
       for (var i = 0; i < pairs.length; i++) {
         var name = pairs[i][0], val = pairs[i][1];
         if (!name) continue;
@@ -5554,7 +5660,7 @@
        on no background, which on a card the same tone reads as invisible. */
     styleRegistryCtas();
     _syncRegistryBand();
-    if (!grid && d && d.registry_preview === false) return;
+    if (!grid && _flagOff(d, 'registry_preview', 'registry-preview')) return;
 
     /* In the EDITOR, build the grid with placeholder cards. The real gifts come
        from a live fetch that is skipped here, so a design without its own grid
@@ -5567,7 +5673,7 @@
        here - the preview showed placeholder cards only because this code was
        reading the slug off the URL, which the editor's iframe has not got.
        Placeholders remain the fallback for a record with no slug yet. */
-    if (!grid && _isPreview && !(d && d.registry_preview === false)) {
+    if (!grid && _isPreview && !_flagOff(d, 'registry_preview', 'registry-preview')) {
       /* Four, always. With a slug this built ONE card and relied on the gift
          fetch to clone it up - so a registry that returns nothing, is gated, or
          is still loading showed a single lonely tile where every template that
@@ -5588,7 +5694,7 @@
        in its markup: bailing out first left those on screen, so the toggle did
        nothing in the preview and the couple saw gifts they had just turned off. */
     var tiles = grid ? grid.querySelectorAll('.registry-card') : [];
-    if (d && d.registry_preview === false) {
+    if (_flagOff(d, 'registry_preview', 'registry-preview')) {
       for (var k = 0; k < tiles.length; k++) tiles[k].style.display = 'none';
       return;
     }
@@ -6850,7 +6956,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-17-rsvp-note-html';
+  var MP_RUNTIME_BUILD = '2026-10-17-ink-alias';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7155,6 +7261,10 @@
     // menu entry pointing at an empty section.
     layOutRegistry();
     hideDeadCtas();
+
+    /* After the template has built itself, so a section it populated from its
+       own markup is still taken down when the couple's copy is empty. */
+    collapseEmptySections(d);
 
     // Both paths wait for the hero. The preview needs it as much as the live
     // site: its placeholder lifts on the ack, and the ack now comes from
