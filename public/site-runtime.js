@@ -3394,6 +3394,22 @@
     } catch (e) { return ''; }
   }
 
+  /* The couple's RSVP line, ready to render, or '' when the box is empty.
+
+     Empty is not the same as ''. The editor leaves a filler <br> at the end of
+     a box so the browser shows the last line break, and a box that has been
+     cleared can hold nothing but that - plus whatever &nbsp; the browser put
+     in while they were typing. All of it is markup with no text in it, and
+     none of it should reach the page. */
+  function _noteHtml(raw) {
+    var html = String(raw || '').replace(/<br[^>]*data-mp-filler[^>]*>/gi, '');
+    var text = html.replace(/<[^>]*>/g, '')
+                   .replace(/&nbsp;|&#160;/gi, ' ')
+                   .replace(/\s+/g, ' ')
+                   .trim();
+    return text ? html.trim() : '';
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -6834,7 +6850,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-15-color-fallback';
+  var MP_RUNTIME_BUILD = '2026-10-17-rsvp-note-html';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7060,13 +7076,23 @@
       /* Their own sentence wins outright. Each template words this line
          differently and the code below only ever swapped the DATE into that
          wording, so a couple who wanted to say something else could not. */
-      var note = (d.rsvp_config && d.rsvp_config.note) || '';
+      /* MARKUP, not text. The RSVP box in the Content tab is the same rich-text
+         editor as every other section, so it produces HTML: a typed space is
+         &nbsp; and a line break is <br>. Writing it with textContent printed
+         those literally - "&nbsp;" visible on the page (MP-909), and a <br>
+         left standing in a box the couple had cleared (MP-905).
+
+         _noteHtml strips the editor's trailing filler <br> and reports whether
+         anything the couple would call text is left, so a cleared box falls
+         through to the deadline and then to the template's own line rather than
+         rendering its leftover markup. */
+      var note = _noteHtml((d.rsvp_config && d.rsvp_config.note) || '');
       var deadline = (d.rsvp_config && d.rsvp_config.deadline) || d.rsvp_deadline || '';
-      if (note && String(note).trim()) {
+      if (note) {
         /* NOT a return. This runs inside hydrate, not a helper of its own, so
            returning here would have skipped the mobile drawer, the footer and
            everything after it. */
-        deadlineEl.textContent = String(note).trim();
+        deadlineEl.innerHTML = note;
       } else if (deadline) {
         // Keep each template's phrasing ("Please send your response by …",
         // "Kindly …", "By …") and swap only the date.

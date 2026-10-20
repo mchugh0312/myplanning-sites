@@ -34,9 +34,13 @@ function lift(src, names) {
 }
 
 const rt = fs.readFileSync('site-runtime.js', 'utf8');
+/* _openTags comes too: markBlock calls it to close and reopen formatting
+   across the title boundary, and a harness missing it throws rather than
+   failing - which reads as a broken suite, not a broken runtime. */
 const runtime = new Function(
-  lift(rt, ['_wrapsWhole', '_unwrap', 'markBlock', 'markStructure', 'markTitles']) +
+  lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', 'markStructure', 'markTitles']) +
   rt.match(/var STRUCTURED_FIELDS = \[[\s\S]*?\];/)[0] + '\n' +
+  rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
   "var _text = function (h) { return String(h||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/gi,' ').trim(); };\n" +
   'return { markStructure: markStructure, markTitles: markTitles };')();
 
@@ -609,12 +613,22 @@ check('two blocks -> two cards', blocks(mark(
   check('all ten templates have the six required colour roles',
     names.length === 10 && names.every(n => roles[n].bg && roles[n].accent && roles[n].accent2 &&
       roles[n].ink && roles[n].ink2 && roles[n].ink3), true);
-  // accent3 is optional and belongs to exactly the four templates whose designs
-  // paint with a third colour. If it spreads, someone has wired a control to a
-  // tone the design does not have.
-  check('the third fill exists on exactly the four templates that need it',
-    names.filter(n => roles[n].accent3).sort(),
-    ['heirloombloom', 'regalboho', 'sageandstill', 'whimsicalromance']);
+  /* accent3 is optional: it exists wherever a design paints with a third fill
+     that no other slider reaches. Derived from the CSS rather than listed
+     here - the list said four, and fixing two templates whose colours were
+     beyond every slider made it six. A hardcoded count turns a correct fix
+     into a failing gate and invites someone to delete the control instead. */
+  const needsThird = names.filter(n => {
+    const src = fs.readFileSync('template-' + n + '.html', 'utf8');
+    const css = [...src.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n');
+    const painted = new Set([...css.matchAll(/background(?:-color)?\s*:\s*[^;]*var\((--[\w-]+)\)/g)]
+      .map(m => m[1]));
+    const core = new Set([roles[n].bg, roles[n].accent, roles[n].accent2]);
+    return [...painted].some(v => !core.has(v) && v !== roles[n].ink &&
+      v !== roles[n].ink2 && v !== roles[n].ink3);
+  });
+  check('the third fill exists on exactly the templates that paint with one',
+    names.filter(n => roles[n].accent3).sort(), needsThird.sort());
 
   // ink2 must never be the same variable as bg. That was the state in six
   // templates and it is why the text on a coloured panel could not be changed
@@ -1145,8 +1159,15 @@ check('two blocks -> two cards', blocks(mark(
   // Setting a new src does not clear the old picture - the browser paints the
   // previous image until the replacement decodes. On Save the Date, where the
   // hero is the whole page, that is the template's stock couple on screen.
+  /* `load`, not decode(). decode() answers about the picture the element is
+     CURRENTLY showing, which during a swap is the outgoing one - in Firefox it
+     resolved against the stock photograph and released the element while the
+     couple's bytes were still arriving. load is the signal that means THIS src
+     arrived, which is the question being asked. */
   check('a swapped image is hidden until its own pixels arrive',
-    /visibility = 'hidden'/.test(body) && /img\.decode/.test(body), true);
+    /visibility = 'hidden'/.test(body) && /addEventListener\('load', show\)/.test(body), true);
+  check('and decode is not consulted about an element mid-swap',
+    /img\.decode\(\)/.test(body), false);
   // The preview re-hydrates on every keystroke. A second pass read the
   // visibility we had just set, captured 'hidden' as the value to restore, and
   // put it back when the image finally arrived - the hero never appeared.
@@ -2928,12 +2949,15 @@ check('two blocks -> two cards', blocks(mark(
   // Stored in the RSVP Info JSON beside the entree choices - no new column.
   check('it is stored without a column of its own',
     /_saveRsvpNote = \(v\) => handleUpdate\("rsvpInfo"/.test(block), true);
+  /* Read through _noteHtml now: the box produces HTML, so a cleared one holds
+     a filler <br> rather than '' and has to be recognised as empty before the
+     deadline fallback can be reached. */
   check('the runtime prefers it over the template wording',
-    /var note = \(d\.rsvp_config && d\.rsvp_config\.note\) \|\| '';/.test(rt), true);
+    /var note = _noteHtml\(\(d\.rsvp_config && d\.rsvp_config\.note\) \|\| ''\);/.test(rt), true);
   // It runs inside hydrate, not a helper of its own: an early return here would
   // have skipped the mobile drawer, the footer and everything after it.
   check('and does not return out of hydrate',
-    /deadlineEl\.textContent = String\(note\)\.trim\(\);\s*\n\s*\} else if \(deadline\)/.test(rt), true);
+    /deadlineEl\.innerHTML = note;\s*\n\s*\} else if \(deadline\)/.test(rt), true);
   {
     const line = (cfg, tpl) => {
       const note = (cfg && cfg.note) || '', deadline = (cfg && cfg.deadline) || '';
@@ -4398,6 +4422,788 @@ check('two blocks -> two cards', blocks(mark(
     /window\.innerWidth < THUMB_MOBILE_MAX_VW; \} catch/.test(wt), true);
 }
 
+// ── MP-332: a font a couple sets on a word is actually loaded ─────────────
+// The span survives into the page - the preview confirmed one in
+// .event-card-name - and the inline style would win over the template's own
+// face. But the FACE was never requested, so the browser had nothing to render
+// it with and fell back silently.
+//
+// Both faults are the same thing: a family whose name has a space is quoted by
+// the browser, and those quotes reach the payload as &quot; because the span
+// lives in a double-quoted HTML attribute.
+//
+//   1. the capture pattern stops at the first ';' - which is the one INSIDE
+//      &quot; - so it read back the four characters "&quot"
+//   2. the name lookup trims [\s"'], which does not touch an entity
+//
+// A one-word family needs no quotes, has no entities, and worked throughout.
+// That is the whole of "it works for some fonts and not others".
+{
+  const lift1 = (n) => {
+    const i = rt.indexOf('function ' + n + '(');
+    let d = 0;
+    for (let k = rt.indexOf('{', i); k < rt.length; k++) {
+      if (rt[k] === '{') d++;
+      else if (rt[k] === '}') { d--; if (!d) return rt.slice(i, k + 1); }
+    }
+    return '';
+  };
+  const src = (rt.match(/var CONTENT_FONTS = \[[\s\S]*?\];/) || [''])[0] +
+    '\nvar _contentFontIndex=null;\n' + lift1('_knownContentFont') + '\n' + lift1('collectContentFonts');
+  const collect = new Function(src + '\nreturn collectContentFonts;')();
+  const known = new Function(src + '\nreturn _knownContentFont;')();
+  check('the font collector was found', typeof collect, 'function');
+
+  /* RUN against the exact markup the browser produces. Every one of these is a
+     shape a real payload carries, and the entity ones are what was broken. */
+  const field = (css) => ({ weddings_info: '<span style="font-family: ' + css + '">x</span>' });
+  check('a quoted multi-word family is collected',
+    collect(field('&quot;Great Vibes&quot;, serif;')).join(','), 'Great Vibes');
+  check('and the one from the report',
+    collect(field('&quot;Dancing Script&quot;, serif;')).join(','), 'Dancing Script');
+  check('a single-quoted entity too',
+    collect(field('&#39;Pinyon Script&#39;, serif;')).join(','), 'Pinyon Script');
+  /* The case that always worked. It must keep working - it is why the bug
+     looked intermittent instead of total. */
+  check('an unquoted single-word family still works',
+    collect(field('Lora, serif;')).join(','), 'Lora');
+  check('a literally-quoted family still works',
+    collect(field('\'Playfair Display\', serif;')).join(','), 'Playfair Display');
+  /* Two in one field: the pattern is global and must not stop at the first. */
+  check('every family in a field is found',
+    collect({ weddings_info: '<span style="font-family: &quot;Great Vibes&quot;;">a</span>' +
+                             '<span style="font-family: Oswald;">b</span>' }).join(','),
+    'Great Vibes,Oswald');
+  /* A family that is not on the list must NOT be requested: css2 answers 400
+     for an unknown name and that would drop every other family in the batch. */
+  check('an unknown family is not requested',
+    collect(field('&quot;Nonesuch&quot;;')).length, 0);
+  check('and a field with no fonts asks for nothing',
+    collect({ weddings_info: '<strong>The Ceremony</strong>' }).length, 0);
+
+  /* The lookup itself, which is the second half of the same fault. */
+  check('an entity-quoted name resolves', known('&quot;Great Vibes&quot;'), 'Great Vibes');
+  check('with whitespace around it', known(' &quot;Dancing Script&quot; '), 'Dancing Script');
+  check('the canonical spelling is returned, not the couple\'s',
+    known('&quot;dancing script&quot;'), 'Dancing Script');
+  check('and an unknown name is still refused', known('&quot;Nonesuch&quot;'), null);
+
+  /* Every face the picker offers has to be collectable in its quoted form, or
+     this is fixed for the two fonts that were reported and nobody else. */
+  const list = new Function((rt.match(/var CONTENT_FONTS = \[[\s\S]*?\];/) || [''])[0] +
+    '\nreturn CONTENT_FONTS;')();
+  check('the picker offers a real list', list.length > 20, true);
+  const missed = list.filter(f => collect(field('&quot;' + f + '&quot;, serif;')).join(',') !== f);
+  check('every offered face is collectable when quoted', missed.join(','), '');
+
+  /* The /g flag, checked as SOURCE rather than by running it. Dropping it makes
+     `while ((m = re.exec(v)))` return the same match for ever - the suite does
+     not fail, it hangs, and a gate that hangs tells you nothing and costs a
+     five-minute timeout to discover. */
+  check('the family pattern is global',
+    /var re = \/font-family[^\/]*\/gi;/.test(rt), true);
+}
+
+// ── Nothing on the critical path waits to be discovered ───────────────────
+// The runtime is 111 KB over the wire and is declared at the FOOT of a 100 KB
+// document, so the browser only learns it exists after parsing everything
+// above. The hero photograph is worse: it cannot begin until the runtime has
+// arrived AND hydrate has set the src, which on a slow connection is seconds of
+// the critical path spent idle.
+{
+  const tpls = fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort();
+  check('all ten templates are covered', tpls.length, 10);
+  const bad = [];
+  for (const t of tpls) {
+    const src = fs.readFileSync(t, 'utf8');
+    const name = t.replace('template-', '').replace('.html', '');
+    const head = src.slice(0, src.indexOf('</head>'));
+    if (!/<link rel="preload" as="script" href="\/site-runtime\.js">/.test(head))
+      bad.push(name + ': does not preload the runtime');
+    /* In the HEAD. Further down the document it is no earlier than the script
+       tag it is trying to get ahead of, which is the entire point. */
+    if (head.indexOf('rel="preload" as="script"') === -1)
+      bad.push(name + ': preloads it too late to matter');
+    /* And the tag it preloads must still be there - a preload for something
+       never requested is a wasted round-trip on the connection that matters. */
+    if (!/<script src="\/site-runtime\.js"><\/script>/.test(src))
+      bad.push(name + ': preloads a script it never loads');
+    /* Only where the fonts are remote. Three designs self-host from /fonts,
+       and a preconnect to a host they never use costs a handshake for nothing. */
+    const remote = /fonts\.googleapis\.com\/css2/.test(src);
+    const pre = /<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>/.test(src);
+    if (remote && !pre) bad.push(name + ': remote fonts without a preconnect');
+    if (!remote && pre) bad.push(name + ': preconnects to a font host it does not use');
+  }
+  check('every template asks for the runtime early', bad.join(' | '), '');
+
+  /* The hero preload is built by the server, which is the only place the url is
+     known before hydrate. */
+  const api = fs.readFileSync('api/site.js', 'utf8');
+  const mod = new Function(api.replace(/^import .*$/gm, '')
+    .replace(/^export default /m, 'const handler = ') +
+    '\nreturn { heroPreload, injectData };')();
+  check('a hero url becomes a preload',
+    /rel="preload" as="image"/.test(mod.heroPreload({ hero_image: 'https://x/y.jpg' })), true);
+  check('and is marked as the important one',
+    /fetchpriority="high"/.test(mod.heroPreload({ hero_image: 'https://x/y.jpg' })), true);
+  /* No hero, or something that is not a fetchable url: no preload. A preload
+     the browser never uses is a wasted request on the critical path. */
+  check('no hero means no preload', mod.heroPreload({}), '');
+  check('nor does a non-http url', mod.heroPreload({ hero_image: 'data:image/png;base64,AA' }), '');
+  check('nor does nonsense', mod.heroPreload({ hero_image: 'not a url' }), '');
+  /* Quotes in a url would end the attribute early and put the rest of it into
+     the document as markup. */
+  check('a quote in the url cannot break the attribute',
+    mod.heroPreload({ hero_image: 'https://x/a"onload=y' }).indexOf('"onload='), -1);
+  /* It has to land in the head, ahead of the runtime, or it is no earlier than
+     the swap it exists to beat. */
+  const out = mod.injectData('<html><head><title>t</title></head><body></body></html>',
+    { hero_image: 'https://x/y.jpg' });
+  /* PRESENT first, then early. indexOf returns -1 when a thing is absent, and
+     -1 is less than every real index - so the ordering check alone passed
+     against output with no preload in it at all. */
+  const iPre = out.indexOf('rel="preload" as="image"');
+  check('the preload is injected at all', iPre > -1, true);
+  check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
+}
+
+// ── MP-905 / MP-909: the RSVP line is markup, not text ───────────────────
+// That box is the same rich-text editor as every other section, so it produces
+// HTML: a typed space is &nbsp; and a line break is <br>. The line was written
+// with textContent, which printed both literally - "&nbsp;" on the page, and a
+// <br> left standing in a box the couple had cleared.
+{
+  const note = new Function(rt.slice(rt.indexOf('function _noteHtml'),
+    rt.indexOf('function applyCustomColors')) + '\nreturn _noteHtml;')();
+
+  check('a typed space survives as markup',
+    note('reply by<br>the 1st&nbsp;of May'), 'reply by<br>the 1st&nbsp;of May');
+  check('and plain text is untouched', note('Kindly reply by May 1st'), 'Kindly reply by May 1st');
+
+  /* EMPTY IS NOT ''. The editor leaves a filler <br> so the browser shows the
+     last line break, and a cleared box can hold nothing but that. All of it is
+     markup with no text in it, and none of it should reach the page - it has
+     to fall through to the deadline and then to the template's own line. */
+  check('a cleared box is empty', note('<br data-mp-filler="1">'), '');
+  check('a box holding one space is empty', note('&nbsp;'), '');
+  check('as is one holding only breaks', note('<br><br>'), '');
+  check('and an absent note', note(''), '');
+  check('and a null one', note(null), '');
+
+  /* It must be written as HTML, or none of the above matters. */
+  /* 2600, not 1600: the comment explaining the markup change sits inside this
+     window and pushed the date fallback past the end of it, so the slice
+     stopped containing the thing being asserted. */
+  const hyd = rt.slice(rt.indexOf('var deadlineEl = document.getElementById'),
+                       rt.indexOf('var deadlineEl = document.getElementById') + 2600);
+  check('the line is rendered as markup', /deadlineEl\.innerHTML = note;/.test(hyd), true);
+  check('and not as text', /deadlineEl\.textContent = String\(note\)/.test(hyd), false);
+  /* The two fallbacks behind it have to stay reachable: a couple with no note
+     but a deadline keeps their date, and one with neither keeps the template's
+     own wording. */
+  check('a deadline still fills the line when there is no note',
+    /\} else if \(deadline\) \{/.test(hyd), true);
+  check('and the template keeps its own phrasing around the date',
+    /lead \? lead\[1\] : 'by '/.test(hyd), true);
+}
+
+// ── MP-354: every colour reaches the live site the same way ──────────────
+// customization came back from the API with primary_color and accent_color
+// EMPTY while text_color, which lives in custom_css, arrived intact - and the
+// picker still showed the colour after an editor reload, so it had saved. The
+// loss was between the column and the payload.
+//
+// Two of the seven colours had their own record columns and the other five
+// lived in custom_css. Only the columns failed. One mechanism now.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* EDITOR: the two write to custom_css as well as to their column. */
+  check('site background is written into custom_css',
+    /const setPrimaryColor = \(hex\) => \{[^}]*_setVarColor\('bg', hex\)/.test(wt), true);
+  check('and accent is too',
+    /const setAccentColor  = \(hex\) => \{[^}]*_setVarColor\('accent', hex\)/.test(wt), true);
+  /* The column write stays. It costs nothing, and anything else reading it
+     keeps working - removing it would be a second change riding on this one. */
+  check('the column is still written too',
+    /handleUpdate\('primaryColor', hex\)/.test(wt), true);
+  /* Reset has to clear BOTH, or the custom_css value outlives the reset and
+     the template default never comes back. */
+  check('reset clears the custom_css copy as well',
+    /const clearPrimaryColor = \(\) => \{[^}]*_clearVarColor\('bg'\)/.test(wt), true);
+  check('for accent as well',
+    /const clearAccentColor  = \(\) => \{[^}]*_clearVarColor\('accent'\)/.test(wt), true);
+  /* The picker rows must call those, not handleUpdate directly - that was the
+     path that wrote the column alone. */
+  check('the pickers go through the new setters',
+    /onChange=\{e => c\.set\(e\.target\.value\)\}/.test(wt), true);
+  check('including the hex field', /onChange=\{hex => c\.set\(hex\)\}/.test(wt), true);
+  check('and the reset button', /onClick=\{\(\) => c\.clear\(\)\}/.test(wt), true);
+  check('no picker writes the column on its own any more',
+    /handleUpdate\(c\.key, /.test(wt), false);
+
+  /* RUNTIME: all seven fall back to custom_css, not five of them. */
+  const fn = rt.slice(rt.indexOf('function applyCustomColors'),
+                      rt.indexOf('function applyCustomColors') + 2200);
+  check('the colour application was found', fn.length > 200, true);
+  check('site background falls back to custom_css',
+    /\[v\.bg, pick\(c\.primary_color, 'bg'\)\]/.test(fn), true);
+  check('and accent does too',
+    /\[v\.accent, pick\(c\.accent_color, 'accent'\)\]/.test(fn), true);
+  const raw = fn.match(/\[v\.\w+, c\.\w+\]/g) || [];
+  check('no colour is read from its column without a fallback', raw.join(','), '');
+
+  /* The fallback reader must not confuse --text with --text2. It already
+     guards that; bg and accent are new names and must not collide either. */
+  const names = ['bg', 'accent', 'accent2', 'accent3', 'text(?![0-9])', 'text2', 'text3'];
+  const reader = new Function(rt.slice(rt.indexOf('function _cssColorVar'),
+    rt.indexOf('function applyCustomColors')) + '\nreturn _cssColorVar;')();
+  const css = '--bg:#111111; --accent:#222222; --accent2:#333333; --accent3:#444444; ' +
+              '--text:#555555; --text2:#666666; --text3:#777777;';
+  const got = names.map(n => reader(css, n));
+  check('each key reads back its own colour',
+    got.join(','), '#111111,#222222,#333333,#444444,#555555,#666666,#777777');
+  /* --accent must not match --accent2's value, which is the same trap the
+     text guard exists for. */
+  check('accent does not swallow accent2', reader('--accent2:#aaaaaa; --accent:#bbbbbb;', 'accent'), '#bbbbbb');
+}
+
+// ── MP-357: a colour slot moves what its label says ──────────────────────
+// "Changing site background changed the whole page, and changing accent filled
+// the sections that were originally the site background." That is two sliders
+// doing each other's job, and it was true: Whimsical Romance had --rose, which
+// paints <body>, wired to Accent, and --ivory, which paints the drawer and the
+// buttons, wired to Site Background.
+//
+// Checked by RULE rather than per template. Reading the CSS is the only way to
+// know what a variable paints, and a list written here by hand would be the
+// same kind of second source that let this drift.
+{
+  const vars = new Function(rt.match(/var TEMPLATE_COLOR_VARS = \{[\s\S]*?\n  \};/)[0] +
+    '\nreturn TEMPLATE_COLOR_VARS;')();
+  check('the colour map was found', Object.keys(vars).length, 10);
+
+  /* A real block walk, not a regex over the file: a declaration inside a media
+     query belongs to its own rule, and background shorthand can carry more
+     than a colour. */
+  const rules = (css) => {
+    const out = []; let i = 0;
+    while (i < css.length) {
+      const o = css.indexOf('{', i); if (o < 0) break;
+      let d = 1, k = o + 1;
+      while (k < css.length && d) { if (css[k] === '{') d++; else if (css[k] === '}') d--; k++; }
+      const sel = css.slice(i, o).replace(/\/\*[\s\S]*?\*\//g, '').trim();
+      const body = css.slice(o + 1, k - 1);
+      if (sel && !sel.startsWith('@')) out.push([sel, body]);
+      if (sel.startsWith('@')) out.push(...rules(body));
+      i = k;
+    }
+    return out;
+  };
+
+  const wrongBg = [], deadAccent = [], unmapped = [];
+  for (const t of Object.keys(vars)) {
+    const src = fs.readFileSync('template-' + t + '.html', 'utf8');
+    const css = [...src.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(m => m[1]).join('\n');
+    const paints = {};
+    let bodyVar = null;
+    for (const [sel, body] of rules(css)) {
+      const m = body.match(/(?:^|;)\s*background(?:-color)?\s*:\s*[^;]*var\((--[\w-]+)\)/);
+      if (!m) continue;
+      paints[m[1]] = (paints[m[1]] || 0) + 1;
+      if (/(^|,)\s*body\s*(,|$)/.test(sel)) bodyVar = m[1];
+    }
+    /* SITE BACKGROUND is the variable that paints the page. Not a judgement -
+       it is what the label means. */
+    if (bodyVar && vars[t].bg !== bodyVar) {
+      wrongBg.push(t + ': bg=' + vars[t].bg + ' but body uses ' + bodyVar);
+    }
+    /* A slider that moves one rule reads as broken rather than as subtle.
+       Accent should carry more of the design than any unmapped colour does. */
+    const mapped = new Set(Object.values(vars[t]));
+    const accentUse = paints[vars[t].accent] || 0;
+    for (const [v, n] of Object.entries(paints)) {
+      if (!mapped.has(v)) unmapped.push(t + ': ' + v + ' paints ' + n + ' rules and no slider moves it');
+      else if (v !== vars[t].bg && n > accentUse * 3 && n >= 5) {
+        deadAccent.push(t + ': accent=' + vars[t].accent + ' (' + accentUse +
+          ') while ' + v + ' paints ' + n);
+      }
+    }
+  }
+  check('every Site Background slot points at the page ground', wrongBg.join(' | '), '');
+  check('no colour in a template is beyond every slider', unmapped.join(' | '), '');
+  check('no Accent slider is dwarfed by a colour below it', deadAccent.join(' | '), '');
+
+  /* Slots must stay distinct. Two pointing at one variable would make two
+     sliders fight over the same colour, which is this bug in another form. */
+  const dupes = [];
+  for (const t of Object.keys(vars)) {
+    const used = Object.values(vars[t]).filter(Boolean);
+    if (used.length !== new Set(used).size) dupes.push(t);
+  }
+  check('no two slots share a variable', dupes.join(','), '');
+}
+
+// ── MP-337: formatting survives the title boundary ───────────────────────
+// <mp-title> is spliced in by string position, and the first line of a block is
+// rarely a whole element. Select a section and hit underline: the editor writes
+// ONE <u> around everything, so the first line begins inside it. Wrapping that
+// line produced "<mp-title><u>Ceremony</mp-title>…" - the <u> opening inside
+// the title and closing long after. A browser repairs that by closing <u> at
+// </mp-title>, so the formatting covered the first line and nothing else.
+{
+  const pre = "var _text=function(h){return String(h||'').replace(/<[^>]*>/g,'')" +
+              ".replace(/&nbsp;/gi,' ').trim();};var _VOID=/^(br|img|hr|input|source|wbr)$/i;";
+  const mark = new Function(pre +
+    lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', 'markStructure']) +
+    '\nreturn markStructure;')();
+
+  /* BALANCE is the property, checked by counting rather than by matching a
+     shape: every element opened inside the title is closed inside it. */
+  const balanced = (html) => {
+    const stack = [], re = /<(\/?)([a-z][a-z0-9-]*)\b[^>]*?(\/?)>/gi;
+    let m;
+    while ((m = re.exec(html))) {
+      const n = m[2].toLowerCase();
+      if (/^(br|img|hr|input|source|wbr)$/i.test(n) || m[3] === '/') continue;
+      if (m[1]) { const i = stack.lastIndexOf(n); if (i > -1) stack.splice(i, 1); else return false; }
+      else stack.push(n);
+    }
+    return stack.length === 0;
+  };
+  const titleOf = (out) => (out.match(/<mp-title>([\s\S]*?)<\/mp-title>/) || [])[1];
+
+  const whole = mark('<u>Ceremony<br>4pm<br><br>Reception<br>7pm</u>');
+  check('the whole fragment is balanced', balanced(whole), true);
+  check('and so is the title on its own', balanced(titleOf(whole)), true);
+  /* The formatting must still reach past the title - closing it at the
+     boundary without reopening is the same bug wearing the other hat. */
+  check('the underline continues after the title', /<\/mp-title><u>/.test(whole), true);
+  /* lastIndexOf. The FIRST </u> is the one closing the title, so indexOf found
+     it at position 20-odd and the comparison was always false - a gate that
+     could not pass rather than one that could not fail, but wrong either way. */
+  check('and still covers the second card',
+    whole.lastIndexOf('</u>') > whole.lastIndexOf('<mp-title>'), true);
+
+  /* A reopened tag keeps its attributes. Reopening <span> bare would drop the
+     style carrying the couple's font, so the title would keep it and every
+     line under it would lose it. */
+  const span = mark('<span style="font-family: X">Ceremony<br>a<br><br>Reception<br>b</span>');
+  check('a reopened span keeps its style',
+    (span.match(/<span style="font-family: X">/g) || []).length, 2);
+  check('and the fragment is still balanced', balanced(span), true);
+
+  // Nesting, and the case where nothing is open at all.
+  check('nested formatting is balanced',
+    balanced(mark('<u><b>Ceremony</b> day<br>4pm</u>')), true);
+  const plain = mark('Ceremony<br>4pm');
+  check('plain text is untouched apart from the title',
+    plain, '<mp-title>Ceremony</mp-title><br>4pm');
+  /* Nothing reopened. The separator follows the title in every case, so the
+     test has to exclude it or it matches the <br> and reports a stray tag on
+     perfectly correct output. */
+  check('and gains no stray reopened tags',
+    /<\/mp-title>(?!<br)</.test(plain), false);
+
+  /* The existing behaviours this sits beside must not have moved: a wholly
+     italic line is emphasis rather than a heading, <strong> is unwrapped
+     because the title element supplies its own weight, and a second pass over
+     an already-marked payload must not nest one title inside another. */
+  check('a wholly italic line is still left alone',
+    mark('<em>just a note</em><br>more'), '<em>just a note</em><br>more');
+  check('a bold first line is still unwrapped',
+    mark('<strong>Ceremony</strong><br>4pm'), '<mp-title>Ceremony</mp-title><br>4pm');
+  check('marking twice does not nest titles',
+    mark(mark('Ceremony<br>4pm')), '<mp-title>Ceremony</mp-title><br>4pm');
+}
+
+// ── The help text describes the product that exists ───────────────────────
+// It had drifted. It listed an Accommodations section that was merged into
+// Travel, missed Things to Do entirely, claimed nine fonts when there are 27,
+// and described Unpublished as "temporarily offline" - which is Draft. That
+// last one is the dangerous sort of wrong: a couple reading it would choose
+// Unpublished to take their site down for a week and lose their address.
+{
+  const help = fs.readFileSync('WebsiteHelp.txt', 'utf8');
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* The section list, against PAGE_SECTIONS rather than against a list written
+     out here - the whole fault was two lists kept by hand. */
+  const sections = (wt.match(/const PAGE_SECTIONS = \[[\s\S]*?\n\];/) || [''])[0];
+  const labels = [...sections.matchAll(/label: "([^"]+)"/g)].map(m => m[1]);
+  check('the section labels were found', labels.length >= 9, true);
+  const panel = (help.match(/the Pages & Sections panel[^"]*/) || [''])[0];
+  check('the help describes the panel', panel.length > 80, true);
+  const missing = labels.filter(l => panel.indexOf(l) === -1);
+  check('every section a couple can toggle is named', missing.join(', '), '');
+  /* And nothing that no longer exists. Accommodations is the one that went. */
+  check('no retired section is still listed',
+    /\bAccommodations\b/.test(panel), false);
+
+  /* The font count, counted rather than remembered. */
+  const fonts = (wt.match(/const FONTS = \[[\s\S]*?\n\];/) || [''])[0];
+  const n = (fonts.match(/label: "/g) || []).length;
+  check('the font list was found', n > 0, true);
+  const claim = (help.match(/Font Style panel offers (\d+|\w+) fonts/) || [])[1];
+  check('the help states a number of fonts', !!claim, true);
+  check('and it is the number there actually are', String(n), claim);
+  /* Every group named in the help has to be a real category, or a couple looks
+     for a heading that is not there. */
+  const cats = [...new Set([...fonts.matchAll(/category: "(\w+)"/g)].map(m => m[1]))];
+  const named = ((help.match(/grouped by mood \(([^)]*)\)/) || [])[1] || '')
+    .split(',').map(x => x.trim()).filter(Boolean);
+  check('the help names the font groups', named.length > 0, true);
+  check('and every one of them exists',
+    named.filter(c => cats.indexOf(c) === -1).join(','), '');
+  check('and none is left out',
+    cats.filter(c => named.indexOf(c) === -1).join(','), '');
+
+  /* Unpublished. The help must not call it temporary, and must say what it
+     really does - the same two consequences the confirm dialog names. */
+  const status = (help.match(/Three radio buttons[^"]*/) || [''])[0];
+  check('the status section was found', status.length > 80, true);
+  check('Unpublished is not described as temporary',
+    /Unpublished \(temporarily/.test(status), false);
+  check('it says the content is removed', /content is removed/.test(status), true);
+  check('and the address is released', /address is released/.test(status), true);
+  check('and it points at Draft for a temporary takedown',
+    /choose Draft/.test(status), true);
+  /* The 30-day claim removed from the product must not survive here. */
+  check('the help makes no 30-day claim either', /30 days/.test(help), false);
+
+  /* No typographic characters. The doc is plain ASCII prose apart from the box
+     drawing in its own code comments. */
+  const prose = [...help.matchAll(/(?:title|body): "((?:[^"\\]|\\.)*)"/g)].map(m => m[1]).join(' ');
+  check('there is prose to check', prose.length > 1000, true);
+  const typographic = [...new Set([...prose].filter(c => c.charCodeAt(0) > 127))];
+  check('the help text is plain ASCII', typographic.join(' '), '');
+}
+
+// ── Unpublishing does not claim to delete anything ────────────────────────
+// MP-889. Both the tooltip and the confirm dialog said a site left unpublished
+// for 30 days or more is "cleared automatically". Nothing does that - not on a
+// schedule, not at all. A deletion that is described but never performed is
+// worse than silence: it reads as a promise, and the first couple who loses
+// work will reasonably believe this is why it went.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  check('nothing claims a 30-day clearance', /30 days/.test(wt), false);
+  check('nor any other automatic clearing', /cleared automatically/i.test(wt), false);
+
+  /* Both places, because it was written twice and the confirm dialog is the
+     worse one to be wrong in - it is the last thing read before the click. */
+  /* ONLY WHAT A COUPLE READS. The first version of this slurped the whole
+     block, comments included - and the comment explaining the removal says
+     "deletion", "automatically" and "30-day", so the gate failed on the note
+     describing the fix. Pull the quoted strings out and test those. */
+  const visible = (block) => (block.match(/"(?:[^"\\]|\\.)*"/g) || []).join(' ');
+  const tip = visible((wt.match(/label: "Unpublished",[\s\S]*?\n    info: "[\s\S]*?",/) || [''])[0]
+    .replace(/\/\*[\s\S]*?\*\//g, ''));
+  check('the Unpublished tooltip was found', tip.length > 40, true);
+  check('and makes no claim about later deletion',
+    /clear|delete|30|automatic/i.test(tip), false);
+  const dialog = visible((wt.match(/"Unpublish this website\?[\s\S]*?\);/) || [''])[0]
+    .replace(/\/\/[^\n]*/g, ''));
+  check('the confirm dialog was found', dialog.length > 40, true);
+  check('and makes none either',
+    /clear|delete|30|automatic/i.test(dialog), false);
+
+  /* What IS true has to survive. The content really is removed and the address
+     really is released - that is the whole reason this needs confirming, and
+     softening it to nothing would be the opposite mistake. */
+  for (const [where, text] of [['tooltip', tip], ['dialog', dialog]]) {
+    check(where + ' still says the content is removed',
+      /content is removed/.test(text), true);
+    check(where + ' still says the address is released',
+      /address is released/.test(text), true);
+    check(where + ' still points at Draft as the gentler option',
+      /Draft/.test(text), true);
+  }
+}
+
+// ── The server resolves the slug, so there is no redirect ─────────────────
+// /manishmonika used to return a shell whose only job was to ask which template
+// the couple uses and then NAVIGATE to it: two HTML downloads, and an address
+// bar reading template-pressedpetals.html for the whole of the second one -
+// nine seconds on a throttled connection. The mapping is data the server can
+// resolve, so /api/site resolves it and returns the template directly.
+{
+  const api = fs.readFileSync('api/site.js', 'utf8');
+  const shell = fs.readFileSync('index.html', 'utf8');
+  const vj = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
+
+  /* The two template maps must agree. A label in one and not the other means a
+     couple silently gets the default template - which looks like their design
+     was lost, not like a routing bug. */
+  const read = (src) => {
+    const t = (src.match(/TEMPLATE_MAP = \{[\s\S]*?\n\};/) || [''])[0];
+    const d = (src.match(/DEFAULT_TEMPLATE = '([^']+)'/) || [])[1];
+    const fn = new Function(t + '\nreturn TEMPLATE_MAP;')();
+    return { map: fn, dflt: d };
+  };
+  const a = read(api), b = read(shell);
+  check('both maps were found', !!a.map && !!b.map, true);
+  check('they list the same labels',
+    Object.keys(a.map).sort().join(','), Object.keys(b.map).sort().join(','));
+  check('and point them at the same files',
+    Object.keys(a.map).filter(k => a.map[k] !== b.map[k]).join(','), '');
+  check('with the same default', a.dflt, b.dflt);
+  /* And every file either map names has to exist, or a couple whose template is
+     perfectly valid falls through to the shell. The paths are absolute as the
+     browser sees them; on disk they sit beside this suite. */
+  const files = [...new Set([...Object.values(a.map), a.dflt])];
+  check('there are templates to check', files.length > 0, true);
+  check('every mapped template exists',
+    files.filter(f => !fs.existsSync(f.replace(/^\//, ''))).join(','), '');
+
+  /* Routing. The crawler rule has to stay FIRST - it is matched on User-Agent
+     and /api/og exists so a link preview gets meta tags rather than an app. */
+  const rw = vj.rewrites;
+  check('the crawler rule is still first', rw[0].destination.indexOf('/api/og') === 0, true);
+  check('and still matched on user-agent', !!(rw[0].has && rw[0].has[0].key === 'user-agent'), true);
+  const slugRule = rw.filter(r => r.source === '/:slug').pop();
+  check('a visitor is served the real page', slugRule.destination, '/api/site?slug=:slug');
+  check('and no longer the shell', slugRule.destination.indexOf('index.html'), -1);
+  /* Sub-pages still go to the shell: this route serves one couple's site, not
+     the app's inner screens. */
+  check('sub-pages still go to the app',
+    (rw.find(r => r.source === '/:slug/:page') || {}).destination, '/index.html');
+  /* The function reads the templates off disk, and files in public/ are static
+     assets that are NOT bundled into a function unless asked for. */
+  check('the templates are bundled with the function',
+    !!(vj.functions && vj.functions['api/site.js'] &&
+       vj.functions['api/site.js'].includeFiles), true);
+
+  /* Behaviour, run rather than read. */
+  const mod = new Function(api.replace(/^import .*$/gm, '')
+    .replace(/^export default /m, 'const handler = ') +
+    '\nreturn { templateFor, inlineJson, injectData };')();
+  /* The real labels are the template names, not the short aliases I first
+     assumed - 'coastal chic', not 'coastal'. Taken from the map itself rather
+     than written out here, so this cannot drift from what the product sends. */
+  const label = Object.keys(a.map).find(k => /coastal/.test(k));
+  check('there is a coastal label to test with', !!label, true);
+  check('a known label picks its template',
+    mod.templateFor({ template: label }), 'template-coastalchic.html');
+  check('case does not matter', mod.templateFor({ template: label.toUpperCase() }),
+    'template-coastalchic.html');
+  /* The legacy aliases still resolve: older recommender output used style
+     words, and a couple created then must not lose their design. */
+  check('a legacy style alias still resolves',
+    mod.templateFor({ template: 'minimalist' }), 'template-modernminimal.html');
+  check('an unknown label falls back rather than failing',
+    mod.templateFor({ template: 'nope' }), 'template-pressedpetals.html');
+  check('and so does a missing one', mod.templateFor({}), 'template-pressedpetals.html');
+
+  /* A closing tag inside the couple's own words would end the script block
+     early and spill the rest of the payload into the page as markup. */
+  check('a script tag in their copy cannot break out',
+    mod.inlineJson({ s: '</script><img onerror=x>' }).indexOf('</script>'), -1);
+  check('and the json still parses to the same thing',
+    JSON.parse(mod.inlineJson({ s: '</script>' })).s, '</script>');
+
+  /* The payload must land in <head>: site-runtime.js loads at the foot of the
+     body and has to find it already set. */
+  const out = mod.injectData('<html><head><title>t</title></head><body></body></html>', { a: 1 });
+  check('the payload is injected', out.indexOf('MP_SITE_DATA') > -1, true);
+  check('and before the runtime could run',
+    out.indexOf('MP_SITE_DATA') < out.indexOf('</head>'), true);
+  check('a document with no head is refused rather than mangled',
+    mod.injectData('<html><body></body></html>', { a: 1 }), null);
+
+  /* Every failure path returns the shell - today's behaviour. A route that
+     500s is worse than the redirect it replaced. */
+  for (const why of ['bad-slug', 'upstream-', 'lookup-failed', 'empty-payload',
+                     'no-template', 'no-head']) {
+    check('it falls back to the shell on ' + why,
+      new RegExp("fallbackToShell\\(res, \"" + why).test(api), true);
+  }
+  /* A gated site gets the template but NOT the data - inlining it would put a
+     protected couple's details in the source of a public URL, which is the
+     leak /api/og is careful to avoid in previews. */
+  check('a password-protected site is served without its data',
+    /if \(data\.password_required\) return send\(res, html, 0\);/.test(api), true);
+  /* And this response carries one couple's data, so the edge must not hold it. */
+  check('the response is not cached at the edge',
+    /res\.setHeader\("CDN-Cache-Control", "no-store"\)/.test(api), true);
+
+  /* The runtime has to prefer the inlined copy. If both are present the stash
+     is from an older visit and the inlined one came with this document. */
+  const boot = rt.slice(rt.indexOf('// Live site.') - 1200, rt.indexOf('// Live site.') + 200);
+  check('the runtime uses the inlined payload', /window\.MP_SITE_DATA/.test(rt), true);
+  check('and prefers it to the stash',
+    rt.indexOf('window.MP_SITE_DATA && typeof') < rt.indexOf("var key = 'weddingData_'"), true);
+  check('and says so in the trace', /'server-inlined MP_SITE_DATA'/.test(rt), true);
+}
+
+// ── A decode() rejection is not readiness ─────────────────────────────────
+// The trace settled it. The hero was hidden at 146ms and shown again at 177ms,
+// with complete still false at reveal - so the page uncovered over a stock
+// photograph that had not been replaced yet. Nothing was waiting: decode() had
+// rejected and the rejection handler was `show`.
+//
+// Chrome resolves decode() on a swap in flight; Firefox rejects it. That is the
+// whole of the browser difference, and it is why four fixes aimed at reveal
+// timing changed nothing - the reveal was correct and the release was wrong.
+{
+  const loop = rt.slice(rt.indexOf('function revealWhenHeroReady'),
+                        rt.indexOf('var _previewSampleOnly = false;'));
+  check('the wait loop was found', loop.length > 0, true);
+
+  /* decode() ANSWERS ABOUT THE PICTURE THE ELEMENT IS SHOWING, which during a
+     swap is still the old one. In Firefox it therefore resolves against the
+     stock photograph and reports the element ready while the couple's bytes are
+     still in flight - hidden at 40ms, shown at 61ms, complete false at reveal.
+
+     Making it resolve-only was a wasted pass: it was never rejecting. The fix
+     is not to ask it at all about an element mid-swap. */
+  check('a hidden element is not released by decode at all',
+    /img\.decode\(\)/.test(loop), false);
+  check('and the page is not settled by decode on a swapped element',
+    /if \(probe\.decode && !\(s\.el && _wasSwapped\(s\.el\)\)\)/.test(loop), true);
+  check('neither takes a rejection as ready',
+    /\.then\(show, show\)|\.then\(one, one\)/.test(loop), false);
+  /* decode() is still worth having where nothing was swapped: a fresh probe
+     Image, or an element showing the picture the page shipped. There the
+     current frame IS the one being waited for, and load alone can be late. */
+  check('it is still used where the current picture is the awaited one',
+    /probe\.decode\(\)\.then\(one, function \(\) \{\}\)/.test(loop), true);
+
+  /* Removing the rejection path only works because something else still
+     settles it. All three have to stay, or an element that never decodes stays
+     hidden for good - which is worse than the flash. */
+  check('load still releases it', /img\.addEventListener\('load', show\)/.test(loop), true);
+  check('error still releases it', /img\.addEventListener\('error', show\)/.test(loop), true);
+  check('a cached swap still releases it', /if \(img\.complete\) show\(\);/.test(loop), true);
+  check('and a stalled one is released by the ceiling',
+    /setTimeout\(show, HERO_REVEAL_CEILING_MS \+ \d+\);/.test(loop), true);
+  check('the page has the same backstop',
+    /setTimeout\(finish, HERO_REVEAL_CEILING_MS\)/.test(loop), true);
+}
+
+// ── The hero path says what it did ────────────────────────────────────────
+// Four fixes have been shipped against one symptom, each reasoned from a
+// description rather than a measurement, and each has changed nothing. The page
+// records its own decisions instead and prints them at reveal.
+{
+  check('the trace exists', /var _heroTrace = \[\];/.test(rt), true);
+  check('and is printed as one block at reveal',
+    /function _dumpHeroTrace\(why\)/.test(rt), true);
+  /* Live too. The symptom is on the live site, and a trace that only runs in
+     preview would be answering a question nobody is asking. */
+  const dump = rt.slice(rt.indexOf('function _dumpHeroTrace'),
+                        rt.indexOf('function _dumpHeroTrace') + 900);
+  check('it is not restricted to preview', /_isPreview/.test(dump), false);
+
+  /* The points that matter, each of which has been a guess at some stage. */
+  for (const [what, why] of [
+    ["'shipped-imgs'", 'how many pictures the markup carried'],
+    ["'heroImg-shipped'", 'what the hero held before hydrate'],
+    ["'boot'", 'which boot path ran - the stash path is the one a guest takes'],
+    ["'sources'", 'how many sources the wait collected'],
+    ["'source'", 'each one, with complete and swapped as the code saw them'],
+    ["'skipped'", 'anything the wait decided not to wait for'],
+    ["'hide-img'", 'whether the element was actually hidden'],
+    ["'show-img'", 'and when it came back'],
+    ["'hide-bg'", 'the same for a background'],
+    ["'reveal'", 'when the cover came off and why'],
+  ]) {
+    check('it records ' + why, new RegExp('_trace\\(' + what).test(rt), true);
+  }
+  check('and what the hero holds at reveal', /'heroImg-now'/.test(rt), true);
+
+  /* Both ways out of the wait print it, or the interesting case - nothing to
+     wait for - is the one that stays silent. */
+  check('the settled path prints it',
+    /_dumpHeroTrace\('all sources settled or ceiling'\)/.test(rt), true);
+  check('and so does the no-sources path',
+    /_dumpHeroTrace\('no sources to wait for'\)/.test(rt), true);
+
+  /* A trace that throws would take the reveal with it, which is far worse than
+     the bug it is chasing. */
+  const tr = rt.slice(rt.indexOf('function _trace(what, detail)'),
+                      rt.indexOf('function _trace(what, detail)') + 300);
+  check('recording cannot break the page', /catch \(e\) \{\}/.test(tr), true);
+  check('nor can printing it', /catch \(e\) \{\}/.test(dump), true);
+  /* Urls are trimmed: a signed CDN link fills a console line on its own and
+     the last 40 characters are what tell a stock file from an uploaded one. */
+  check('urls are trimmed to their tail', /function _tail\(u\)/.test(rt), true);
+}
+
+// ── A background photograph is hidden too, not only watched ───────────────
+// The flash that survived everything appeared AFTER the page had finished
+// loading, which ruled out the reveal entirely. A photograph painted as a CSS
+// background was watched - the page waited for it - but never hidden, so when
+// the cover came off the stock one was still painted underneath. Only an <img>
+// was ever hidden, because the branch tested tagName.
+{
+  const src = rt.slice(rt.indexOf('function _heroSources'),
+                       rt.indexOf('var _previewSampleOnly = false;'));
+  check('the hero-source walk was found', src.length > 0, true);
+
+  /* The host is carried, not null. Watched-but-unhidden was exactly what null
+     bought: something to wait for and nothing to hide. */
+  check('a background carries its host element',
+    /add\(bgHosts\[b\], m\[1\], true\)/.test(src), true);
+  check('and is marked as a background', /urls\.push\(\{ el: el, url: url, bg: !!isBg \}\)/.test(src), true);
+
+  /* Taken SECOND, before the general sweep. The list is capped at six, and a
+     template with several swapped <img>s pushed the backgrounds off the end -
+     the one kind of source that cannot be hidden any other way. */
+  const iBg = src.indexOf('var bgHosts');
+  const iSweep = src.indexOf('Then anything else hydrate swapped');
+  check('backgrounds are collected before the general sweep',
+    iBg > -1 && iSweep > -1 && iBg < iSweep, true);
+
+  /* The picture is taken off, not the element: there is text sitting on these
+     bands, and hiding the host would blank that with it. */
+  check('a background is hidden by removing its picture',
+    /host\.style\.backgroundImage = 'none';/.test(src), true);
+  check('and the element itself is left alone',
+    /host\.style\.visibility/.test(src), false);
+  check('the original is restored when the picture arrives',
+    /host\.style\.backgroundImage = prev;/.test(src), true);
+
+  /* Every release the <img> branch has, or a band that never loads stays blank
+     for good - which is worse than the flash it replaced. */
+  const bgBlock = src.slice(src.indexOf('if (s.bg && s.el)'), src.indexOf("if (s.el && s.el.tagName === 'IMG')"));
+  check('it releases on load', /probe\.addEventListener\('load', show\)/.test(bgBlock), true);
+  check('and on error', /probe\.addEventListener\('error', show\)/.test(bgBlock), true);
+  check('and on a ceiling', /setTimeout\(show, HERO_REVEAL_CEILING_MS \+ \d+\)/.test(bgBlock), true);
+  check('and only once', /if \(shown\) return;/.test(bgBlock), true);
+  /* Re-hydration must not re-hide a band the couple is already looking at -
+     the same latch the <img> branch needed. */
+  check('a repeat hydrate leaves a settled band alone',
+    /if \(host\.__mpBgHidUrl === url\) return;/.test(bgBlock), true);
+}
+
+// ── The address bar never advertises the template ─────────────────────────
+// A guest arriving at /manishmonika is redirected by the shell and used to
+// watch the URL read template-pressedpetals.html for the whole load - ten
+// seconds on a slow connection - because the runtime only rewrote it after
+// hydrating. The head script does it at parse time instead.
+{
+  const tpls = fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort();
+  const bad = [];
+  for (const t of tpls) {
+    const src = fs.readFileSync(t, 'utf8');
+    const name = t.replace('template-', '').replace('.html', '');
+    if (!/history\.replaceState\(\{\}, '', '\/' \+ decodeURIComponent\(sm\[1\]\)\)/.test(src))
+      bad.push(name + ': does not clean the url');
+    // After isLive has been decided, or the test changes meaning.
+    if (src.indexOf("window.__mpVeil.by = 'preview'") > src.indexOf('decodeURIComponent(sm[1])'))
+      bad.push(name + ': cleans the url before deciding isLive');
+  }
+  check('every template cleans its own address bar', bad.join(' | '), '');
+  /* Only safe because the runtime falls back to the PATH when there is no
+     ?slug= - otherwise stripping it would leave it unable to find the couple. */
+  check('the runtime can still find the slug in the path',
+    /var _liveSlug = _slugParam \|\| _pathSlug;/.test(rt), true);
+  check('and a template path is still not mistaken for a slug',
+    /_pathSlug = \/\^template-\[a-z\]\+\\\.html\$\/i\.test\(_firstPart\) \? '' : _firstPart;/.test(rt), true);
+}
+
 // ── The veil waits for the script, not for a clock ────────────────────────
 // The head script covers the page until the runtime says it is worth showing,
 // with a timer as a safety net. That timer gave up at 4s if __mpRuntimeAlive
@@ -4488,8 +5294,11 @@ check('two blocks -> two cards', blocks(mark(
                           rt.indexOf('var _previewSampleOnly = false;'));
     check('the loop no longer skips on complete alone',
       /if \(s\.el && s\.el\.complete\) continue;/.test(loop), false);
+    /* The skip records itself now, so the condition is matched up to its brace
+       rather than to `continue` - the trace line sits between the two. */
     check('it skips only an untouched, finished picture',
-      /if \(s\.el && s\.el\.complete && !_wasSwapped\(s\.el\)\) continue;/.test(loop), true);
+      /if \(s\.el && s\.el\.complete && !_wasSwapped\(s\.el\)\) \{/.test(loop), true);
+    check('and says so when it does', /_trace\('skipped'/.test(loop), true);
     /* An already-cached swap is released by decode(), because load fired before
        the listeners were attached. Without decode it would hold the page to the
        2.5s ceiling, so there has to be a fallback. */
@@ -4896,7 +5705,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-12-declared-marker');
+  check('the stamp names the change it shipped with', version, '2026-10-17-rsvp-note-html');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -4904,7 +5713,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '5add5f11');
+    ('0000000' + bh.toString(16)).slice(-8), '28b2e420');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
