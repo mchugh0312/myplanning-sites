@@ -2316,10 +2316,28 @@
        darker green-gray carries it. Worth knowing if this is ever revisited:
        "Main Color" therefore moves the rules and hovers rather than the band. */
     sageandstill:        { bg: '--offwhite', accent: '--green-gray', ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--sage', accent3: '--dark-green' },
-    modernminimal:       { bg: '--ivory',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--black' },
-    whimsicalromance:    { bg: '--ivory',    accent: '--rose',       ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--yellow' },
+    /* Accent was --blue, which paints exactly one rule: .rsvp-section. A
+       couple moving the Accent slider saw almost nothing change, which reads
+       as broken rather than as subtle. --black carries the design - six rules,
+       the buttons and their hovers - so it takes the slot, and --blue moves
+       down. --white was mapped to nothing at all, so five rules of this
+       template could not be recoloured by anyone; it takes the free slot. */
+    modernminimal:       { bg: '--ivory',    accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue',     accent3: '--white' },
+    /* SWAPPED, and this is the one the colour panel reports were about.
+       --rose paints body, .hero-wrap, .home-block and .our-story: it IS the
+       page ground. It was wired to Accent, and --ivory - which paints the
+       drawer and the buttons - was wired to Site Background. So moving Site
+       Background changed the buttons, and moving Accent repainted the whole
+       page. Both sliders did the other one's job.
+
+       Checked by rule rather than by eye now: a gate reads which variable each
+       template paints <body> with and requires bg to be that one. This was the
+       only template of the ten that failed it. */
+    whimsicalromance:    { bg: '--rose',     accent: '--burgundy',   ink: '--ink', ink2: '--on-dark', ink3: '--ink3', accent2: '--ivory',    accent3: '--yellow' },
     coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
-    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue' },
+    /* --black painted the Submit button and was mapped to nothing, so that one
+       control could not be recoloured. It takes the free slot. */
+    vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue',     accent3: '--black' },
     regalboho:           { bg: '--ivory',    accent: '--beige',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--burgundy', accent3: '--olive' },
   };
 
@@ -2607,8 +2625,57 @@
     if (_wrapsWhole(line, 'strong')) line = _unwrap(line, 'strong');
     else if (_wrapsWhole(line, 'b')) line = _unwrap(line, 'b');
 
-    lines[f] = '<mp-title>' + line + '</mp-title>';
+    /* MP-337. <mp-title> is spliced in by STRING POSITION, and the first line
+       of a block is rarely a whole element. Select a whole section and hit
+       underline and the editor writes one <u> around everything, so the first
+       line begins inside it:
+
+           <u>Ceremony<br>4pm<br><br>Reception<br>7pm</u>
+
+       Wrapping the first line then produced
+       "<mp-title><u>Ceremony</mp-title>..." - the <u> opens inside the title
+       and closes long after it. A browser repairs that by closing <u> at
+       </mp-title>, so the underline covered the first line and nothing else.
+       Which is exactly the report: the formatting applies to the first group
+       of text and the Reception looks untouched.
+
+       So anything still open at the end of the title is closed before it ends
+       and reopened immediately after. The couple's formatting is unchanged in
+       extent; it is only expressed in a way that survives having an element
+       boundary pushed through the middle of it. */
+    var open = _openTags(line);
+    if (open.length) {
+      for (var c = open.length - 1; c >= 0; c--) line += '</' + open[c].name + '>';
+    }
+    lines[f] = '<mp-title>' + line + '</mp-title>' +
+      open.map(function (t) { return t.tag; }).join('');
     return lines.join('');
+  }
+
+  /* Inline elements left open at the end of a fragment, outermost first, each
+     with the tag TEXT that opened it.
+
+     The whole tag, not just the name: reopening <span> bare would drop the
+     style that carried the couple's font, so the title would keep it and every
+     line under it would lose it - trading one half of the bug for the other.
+
+     Void elements never open anything. <br> is the one that matters here,
+     since a line is defined by them. */
+  var _VOID = /^(br|img|hr|input|source|wbr)$/i;
+  function _openTags(html) {
+    var stack = [], re = /<(\/?)([a-z][a-z0-9-]*)\b[^>]*?(\/?)>/gi, m;
+    while ((m = re.exec(html))) {
+      var name = m[2].toLowerCase();
+      if (_VOID.test(name) || m[3] === '/') continue;
+      if (m[1]) {
+        for (var i = stack.length - 1; i >= 0; i--) {
+          if (stack[i].name === name) { stack.splice(i, 1); break; }
+        }
+      } else {
+        stack.push({ name: name, tag: m[0] });
+      }
+    }
+    return stack;
   }
 
   function markStructure(html) {
@@ -3346,7 +3413,14 @@
       return fromPayload || _cssColorVar(css, key);
     };
 
-    var pairs = [[v.bg, c.primary_color], [v.accent, c.accent_color],
+    /* These two take the same fallback as the five below, which is the whole
+       of MP-354. They were read straight from their columns on the reasoning
+       that a column is always there - and the comment above, written for the
+       other five, describes exactly why that is not safe. customization came
+       back from the API with primary_color and accent_color empty while
+       text_color, which lives in custom_css, arrived intact. */
+    var pairs = [[v.bg, pick(c.primary_color, 'bg')],
+                 [v.accent, pick(c.accent_color, 'accent')],
                  [v.ink, pick(c.text_color, 'text(?![0-9])')],
                  [v.ink2, pick(c.text2_color, 'text2')],
                  [v.ink3, pick(c.text3_color, 'text3')],
@@ -6760,7 +6834,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-14-content-font-entities';
+  var MP_RUNTIME_BUILD = '2026-10-15-color-fallback';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
