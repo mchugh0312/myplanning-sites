@@ -4846,6 +4846,20 @@ check('two blocks -> two cards', blocks(mark(
     /* Default True. A couple who has never touched the switch should see the
        preview, and an unknown column name must not read as "switched off". */
     check('and defaults to showing', /CF_REGISTRY_PREVIEW, True\)/.test(py), true);
+    /* The hotel booking link falls back to the Travel URL column. The two
+       sections were merged into one box with ONE link, and the editor saves it
+       to ZgQL7 ("Travel URL") while building its own payload's
+       accommodation_url from it. Reading only MXzO9 ("Accomodation URL") - a
+       column nothing writes any more - left the hotel column with no link on
+       the live site, so its Book Now never rendered while the preview showed
+       it. The same shape as the two colour columns. */
+    check('the hotel link falls back to the column the editor writes',
+      /"accommodation_url":\s*_clean_url\(_cf\(wedding, CF_ACCOMMODATION_URL, ""\)\)\s*\n\s*or _clean_url\(_cf\(wedding, CF_TRAVEL_URL, ""\)\)/.test(py), true);
+    /* The two constants still name different columns - the fallback is a
+       fallback, not a reason to point them at one place. */
+    check('they remain two distinct columns',
+      constOf('CF_ACCOMMODATION_URL') !== constOf('CF_TRAVEL_URL'), true);
+
     check('the collector link is in the payload',
       /"contact_collector_url": _clean_url\(_cf\(wedding, CF_GUEST_CONNECT, ""\)\)/.test(py), true);
 
@@ -5164,7 +5178,44 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-927. The two sections became one band and this design kept both menu
      entries, so the drawer listed Travel twice and the second scrolled to an
      empty anchor. */
-  check('Travel appears once in the menu', (hb.match(/>Travel</g) || []).length, 1);
+  /* THE BUILDER, not the markup. Two templates rebuild #menuLinks from a JS
+     array on every hydrate, so the static <ul> is overwritten and editing it
+     changes what ships and nothing that renders. The first fix did exactly
+     that: the markup had one entry, the page still showed two.
+
+     Checked wherever the menu is assembled, which for these two is the array. */
+  /* Comments stripped first. My own note about the entry I removed contained
+     the very string this looks for, so the gate reported the fix as the fault. */
+  const nocomment = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
+  const menuSrc = (src) => {
+    const i = src.indexOf('var items=[');
+    return i === -1 ? '' : nocomment(src.slice(i, src.indexOf('ml.innerHTML', i)));
+  };
+  /* MENU LINKS only. Counting every >Travel< on the page caught section
+     headings and card titles, which are not menu entries and are meant to say
+     Travel. The list element is what the report was about. */
+  const menuMarkup = (src) => {
+    const m = nocomment(src).match(/<ul[^>]*(?:menu-links|menuLinks)[^>]*>[\s\S]*?<\/ul>/i);
+    return m ? m[0] : '';
+  };
+  const builders = [];
+  for (const t of fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort()) {
+    const src = fs.readFileSync(t, 'utf8');
+    const name = t.replace('template-', '').replace('.html', '');
+    const menu = menuSrc(src);
+    const labels = (menu.match(/l(?:abel)?:\s*'Travel'/g) || []).length;
+    if (labels > 1) builders.push(name + ': ' + labels + ' Travel entries in its builder');
+    const statics = (menuMarkup(src).match(/>Travel</g) || []).length;
+    if (statics > 1) builders.push(name + ': ' + statics + ' Travel links in its markup');
+    /* No link to an anchor the design does not have: it scrolls nowhere, and
+       the runtime cannot relabel what it cannot find. */
+    if (/h(?:ref)?:\s*'#travel'/.test(menu) && !/id="travel"/.test(src))
+      builders.push(name + ': links #travel but has no such section');
+  }
+  check('one Travel entry per design, wherever the menu is built',
+    builders.join(' | '), '');
+  check('Travel appears once in the shipped list',
+    ((hb.match(/<ul[^>]*menuLinks[^>]*>[\s\S]*?<\/ul>/i) || [''])[0].match(/>Travel</g) || []).length, 1);
 
   /* MP-926. The booking link is a HOTEL booking link. Every other design puts
      it under Hotels; this one had a second copy under the flights column. */
@@ -5190,6 +5241,42 @@ check('two blocks -> two cards', blocks(mark(
   check('but can grow with its copy', /min-height:min-content;/.test(frame), true);
   check('and keeps text off the scrollwork',
     /padding:[\d.]+rem [\d.]+rem;/.test(frame), true);
+}
+
+// ── The gift button is a button, not a heading ───────────────────────────
+// Measured on the live site: the sheet WAS there and the button still resolved
+// to 41.6px in a flex box - which is Heirloom Bloom's .registry-title at
+// 2.6rem. The stylesheet was reaching the page and losing on specificity.
+//
+// Ten designs each have their own idea of what an anchor inside a registry card
+// looks like, and a specificity ladder against all of them is a race.
+{
+  /* Matched in the whole file, not in a slice of it. The rule sits further
+     into that stylesheet than the window I guessed, so the slice came back
+     without it - the fifth fixed-width window to do this. The selector is
+     unique; there is no need to bound the search at all.
+
+     The concatenation is joined first: this stylesheet is built from string
+     fragments, so the declarations of one rule are split across several of
+     them and a naive match sees only the first. */
+  const flat = rt.replace(/'\s*\+\s*\n?\s*'/g, '');
+  const rule = (flat.match(/#registryGrid\[data-mp-built\] \.registry-buy-btn\{[^}]*\}/) || [''])[0];
+  check('the button rule was found', rule.length > 40, true);
+
+  /* The five that make it a control rather than a line of text. Each one is
+     what a heading style would otherwise impose. */
+  for (const prop of ['display:inline-block', 'font-size:0.75rem',
+                      'line-height:1.4', 'width:auto', 'text-transform:uppercase']) {
+    check(prop + ' wins over the template',
+      new RegExp(prop.replace(/[.[\]]/g, '\\$&') + '!important').test(rule), true);
+  }
+
+  /* And ONLY those. Colour, face and the card around it still belong to the
+     design - blanket !important would make every template's registry look the
+     same, which is the opposite of the point. */
+  const forced = (rule.match(/!important/g) || []).length;
+  check('nothing else is forced', forced, 5);
+  check('the colour is left to the design', /color:[^;]*!important/.test(rule), false);
 }
 
 // ── MP-922: the gift buttons have somewhere to go ────────────────────────
@@ -6597,7 +6684,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-registry-cta-place');
+  check('the stamp names the change it shipped with', version, '2026-10-21-buy-btn-size');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6605,7 +6692,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '0bbeeddd');
+    ('0000000' + bh.toString(16)).slice(-8), '6d80075c');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

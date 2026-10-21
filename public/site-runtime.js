@@ -6110,7 +6110,21 @@
       '#registryGrid{align-items:stretch}' +
       '#registryGrid .registry-card{display:flex;flex-direction:column;height:100%}' +
       '#registryGrid .registry-buy-btn{margin-top:auto;align-self:center}' +
-      '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block;font-size:0.75rem;' +
+      /* !important on the button, and only the button.
+
+         The sheet was reaching the live page all along - the measurement said
+         so - but a template rule was outweighing it: Heirloom Bloom sets
+         .registry-title at 2.6rem and the buy button was resolving to 41.6px
+         in a flex box, which is the heading's styling, not a control's.
+
+         Ten designs each have their own ideas about what an anchor inside a
+         registry card looks like, and a specificity ladder against all of them
+         is a race. These five properties are what make it a button rather than
+         a line of text, so they are the ones that have to win. Everything else
+         - colour, face, the card around it - is still the template's. */
+      '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block!important;' +
+      'font-size:0.75rem!important;line-height:1.4!important;' +
+      'width:auto!important;text-transform:uppercase!important;' +
         'letter-spacing:0.08em;text-decoration:none;max-width:100%;' +
         'color:' + _btnInk + ';border:1px solid ' + _btnInk + ';' +
         'border-radius:999px;padding:0.45rem 1rem}' +
@@ -7173,7 +7187,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-registry-cta-place';
+  var MP_RUNTIME_BUILD = '2026-10-21-buy-btn-size';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
