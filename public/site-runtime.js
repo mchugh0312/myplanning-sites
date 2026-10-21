@@ -3495,6 +3495,14 @@
      settings to the live site, so the flag rides along in it. Reads the column
      first, because in the editor's own payload it is authoritative and
      immediate. */
+  /* Everything the editor stores in custom_css that is NOT the couple's own CSS.
+     One list: a key added to the editor and not here is injected as a loose
+     declaration and breaks the sheet it lands in. */
+  var _STORAGE_KEYS = ['bg', 'accent', 'accent2', 'accent3',
+                       'text', 'text2', 'text3', 'registry-preview'];
+  var _STORAGE_KEY_RE = new RegExp(
+    '--(?:' + _STORAGE_KEYS.join('|') + ')\\s*:\\s*[^;]+;?', 'g');
+
   function _cssFlag(css, name) {
     var m = new RegExp('--' + name + '\\s*:\\s*([01])\\s*(?:;|$)').exec(String(css || ''));
     return m ? m[1] === '1' : null;
@@ -7010,7 +7018,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-17-hint-and-collector';
+  var MP_RUNTIME_BUILD = '2026-10-21-storage-keys';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7113,14 +7121,25 @@
         style.id = 'mp-custom-css';
         document.head.appendChild(style);
       }
-      /* The five colour tones live in this field as bare "--text2:#xxx;"
+      /* The colour tones and flags live in this field as bare "--text2:#xxx;"
          declarations. They are STORAGE KEYS that applyCustomColors reads, not
          CSS the couple wrote: a bare declaration outside any selector is
          invalid and the browser drops the run, which can take a following rule
-         with it. Strip them so only the couple's own CSS is injected. */
-      var css = String(d.custom_css)
-        .replace(/--(?:text[0-9]?|accent[0-9])\s*:\s*[^;]+;?/g, '')
-        .trim();
+         with it. Strip them so only the couple's own CSS is injected.
+
+         EVERY key, not a hand-listed five. This pattern matched --text,
+         --text2 and --accent2 but not --bg, and not a bare --accent either:
+         accent[0-9] REQUIRES a digit. Those two were added as storage keys
+         when Site Background and Accent needed a way to reach the live site,
+         and they then survived this strip and were injected as loose
+         declarations - which did exactly what the comment above warns about.
+         A couple opening the colour picker watched a band they had not touched
+         go white, with its white text on it, because the rule painting that
+         band had been dropped along with the invalid run.
+
+         _STORAGE_KEYS is the one list. Anything written into this field has to
+         be in it, and the suite checks that against what the editor writes. */
+      var css = String(d.custom_css).replace(_STORAGE_KEY_RE, '').trim();
       if (style.textContent !== css) style.textContent = css;
     }
     // Per-role settings win. custom_font is the older single choice and stays

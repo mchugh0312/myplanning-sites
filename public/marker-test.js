@@ -1010,8 +1010,13 @@ check('two blocks -> two cards', blocks(mark(
     /text\(\?!\[0-9\]\)/.test(body), true);
   // Those keys are storage, not CSS. A bare declaration outside a selector is
   // invalid and the browser drops the run, taking a following rule with it.
+  /* This pinned the hand-written pattern, and that pattern was the bug: it
+     listed five keys and matched neither --bg nor a bare --accent. Pinning a
+     literal meant the gate passed while two keys leaked into the stylesheet.
+     It asserts the shared list is used instead; what is IN that list is
+     checked against what the editor writes, further down. */
   check('the colour keys are stripped before custom_css is injected',
-    /--\(\?:text\[0-9\]\?\|accent\[0-9\]\)/.test(rt), true);
+    /String\(d\.custom_css\)\.replace\(_STORAGE_KEY_RE, ''\)/.test(rt), true);
 }
 
 // The Content box must only show the heading face where the site actually
@@ -4596,6 +4601,103 @@ check('two blocks -> two cards', blocks(mark(
   check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
 }
 
+// ── Nothing the editor stores is injected as CSS ─────────────────────────
+// custom_css holds two different things: the couple's own CSS, which is
+// injected as a stylesheet, and STORAGE KEYS the editor keeps there as bare
+// "--text2:#xxx;" declarations. A bare declaration outside any selector is
+// invalid, and the browser drops the run - taking a following rule with it.
+//
+// The strip pattern listed five keys and matched neither --bg nor a bare
+// --accent (accent[0-9] requires a digit). Those two were added when Site
+// Background and Accent needed a way to reach the live site, so they survived
+// the strip and were injected loose: a couple opening the colour picker watched
+// a band they had not touched go white, with its white text still on it,
+// because the rule painting that band had been dropped.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  const keysSrc = (rt.match(/var _STORAGE_KEYS = \[[\s\S]*?\];/) || [''])[0];
+  const reSrc = (rt.match(/var _STORAGE_KEY_RE = new RegExp\([\s\S]*?\);/) || [''])[0];
+  check('there is one list of storage keys', !!keysSrc && !!reSrc, true);
+  const ctx = new Function(keysSrc + '\n' + reSrc +
+    '\nreturn { keys: _STORAGE_KEYS, re: _STORAGE_KEY_RE };')();
+
+  /* EVERY key the editor writes must be stripped, or it reaches the stylesheet
+     as a loose declaration. This is the rule the bug broke, checked against
+     what the editor actually writes rather than against a list. */
+  const written = [...wt.matchAll(/_setVarColor\('([a-z0-9()?!\[\]-]+)'/g)]
+    .map(m => m[1].replace('(?![0-9])', ''));
+  check('the editor writes keys into custom_css', written.length > 0, true);
+  const leaked = [...new Set(written)].filter(k => ctx.keys.indexOf(k) === -1);
+  check('every key the editor writes is stripped before injection', leaked.join(','), '');
+  // The two that caused it, named.
+  check('bg is stripped', ctx.keys.indexOf('bg') > -1, true);
+  check('a bare accent is stripped', ctx.keys.indexOf('accent') > -1, true);
+  check('and the flag is too', ctx.keys.indexOf('registry-preview') > -1, true);
+
+  /* Run it: only the couple's own CSS survives. */
+  const strip = (css) => css.replace(new RegExp(ctx.re.source, 'g'), '').trim();
+  check('storage keys are removed',
+    strip('--accent:#8d8863; --bg:#f9f5f9; --text:#040505; --accent2:#fff; --registry-preview:0;'), '');
+  check('and the couple\'s own css is kept',
+    strip('--bg:#f9f5f9; .my-own{color:red}'), '.my-own{color:red}');
+  check('a rule mentioning a variable is not eaten',
+    strip('.x{color:var(--bg)}'), '.x{color:var(--bg)}');
+  /* The injection must use that one pattern, not a copy. */
+  check('the injection uses the shared pattern',
+    /String\(d\.custom_css\)\.replace\(_STORAGE_KEY_RE, ''\)/.test(rt), true);
+  check('and carries no hand-listed pattern of its own',
+    /--\(\?:text\[0-9\]\?\|accent\[0-9\]\)/.test(rt), false);
+}
+
+// ── Reset clears every colour, including the two with columns ────────────
+// MP-357, after my own regression. Site Background and Accent were stored only
+// as record columns, so emptying those columns was the whole of resetting them
+// - until they started being written into customCss as well, to survive the
+// trip to the live site. The reset list was not updated with them.
+//
+// So "Reset to template colors" emptied the columns and left the customCss copy
+// standing: the panel showed every default restored while the preview kept the
+// colour the couple had just set, with no control left that could clear it.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* ONE list, read by the reset. A second list of colour names is what caused
+     this, so the fix is not a longer list but a shared one. */
+  /* Not [^\]]* - one of the entries is `text(?![0-9])`, which contains a
+     closing bracket, so that pattern stopped inside the list and found
+     nothing. Non-greedy to the first `];` instead. */
+  const listSrc = (wt.match(/const COLOR_CSS_VARS = \[[\s\S]*?\];/) || [''])[0];
+  check('there is one list of the customCss colours', !!listSrc, true);
+  const vars = new Function(listSrc + '\nreturn COLOR_CSS_VARS;')();
+  check('the reset reads that list',
+    /const existing = COLOR_CSS_VARS\s*\n?\s*\.reduce\(\(css, n\) => _stripVarColor\(css, n\)/.test(wt), true);
+  check('and no longer carries its own copy',
+    /\['text\(\?!\[0-9\]\)', 'text2', 'text3', 'accent2', 'accent3'\]\s*\n?\s*\.reduce/.test(wt), false);
+
+  /* Every name a setter writes has to be in it, or that colour cannot be
+     cleared - which is the bug, stated as a rule. */
+  const written = [...wt.matchAll(/_setVarColor\('([a-z0-9-]+)'/g)].map(m => m[1])
+    .filter(n => n !== 'registry-preview');   // a flag, not a colour
+  check('something writes colours into customCss', written.length > 0, true);
+  const unclearable = [...new Set(written)].filter(n =>
+    !vars.some(v => v === n || v.indexOf(n) === 0));
+  check('every colour written can also be cleared', unclearable.join(','), '');
+  // And the two that caused it, named.
+  check('site background is in the list', vars.indexOf('bg') > -1, true);
+  check('accent is too', vars.indexOf('accent') > -1, true);
+  /* The text guard has to survive being moved into the list: --text must not
+     match --text2 or --text3. */
+  check('the text pattern still excludes its numbered siblings',
+    vars.indexOf('text(?![0-9])') > -1, true);
+
+  /* A half-typed hex must not reach the page. The field fires on every
+     keystroke, so typing a colour sent "#f", "#ff", "#ffe" - each landing as
+     it was typed, and an unparseable value leaves the variable unset, which is
+     how white text on a white ground appeared mid-edit. */
+  check('only a complete hex is applied',
+    /onChange=\{hex => \{ if \(\/\^#\[0-9a-fA-F\]\{6\}\$\/\.test\(hex\)\) c\.set\(hex\); \}\}/.test(wt), true);
+}
+
 // ── MP-897: the lock screen carries the couple's own hint ────────────────
 // Couples were sending the password itself alongside the link, which defeats
 // the lock. A hint they choose lets the people they actually invited in without
@@ -4994,7 +5096,11 @@ check('two blocks -> two cards', blocks(mark(
      path that wrote the column alone. */
   check('the pickers go through the new setters',
     /onChange=\{e => c\.set\(e\.target\.value\)\}/.test(wt), true);
-  check('including the hex field', /onChange=\{hex => c\.set\(hex\)\}/.test(wt), true);
+  /* The hex field now validates before it applies - a half-typed "#f" used to
+     land on the page as it was typed. It still has to go through the setter,
+     which is what this was asserting. */
+  check('including the hex field',
+    /onChange=\{hex => \{ if \(\/\^#\[0-9a-fA-F\]\{6\}\$\/\.test\(hex\)\) c\.set\(hex\); \}\}/.test(wt), true);
   check('and the reset button', /onClick=\{\(\) => c\.clear\(\)\}/.test(wt), true);
   check('no picker writes the column on its own any more',
     /handleUpdate\(c\.key, /.test(wt), false);
@@ -6061,7 +6167,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-17-hint-and-collector');
+  check('the stamp names the change it shipped with', version, '2026-10-21-storage-keys');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6069,7 +6175,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'a599b91a');
+    ('0000000' + bh.toString(16)).slice(-8), '892efd2c');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
