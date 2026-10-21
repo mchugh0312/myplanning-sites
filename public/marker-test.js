@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '5408bdca');
+    ('0000000' + h.toString(16)).slice(-8), '051e6baa');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4806,6 +4806,95 @@ check('two blocks -> two cards', blocks(mark(
     std.indexOf('Formal invitation to follow') < std.indexOf('class="mp-std-cta"'), true);
 }
 
+// ── Every field the editor saves is one the live site can read ───────────
+// Four fields have been lost between the editor and the backend this week:
+// Site Background, Accent, the registry preview toggle, and the hotel booking
+// link. Each time the editor wrote one column and main.py read another, or did
+// not read it at all - and each was found by someone noticing a missing button
+// on a live site, days later.
+//
+// The editor's FIELD_IDS and main.py's CF_ constants both carry the Softr field
+// id, so the two sides can be matched EXACTLY rather than by column name. That
+// is the whole gate: a field the couple can save has to arrive.
+{
+  const py = (() => { try { return fs.readFileSync('main.py', 'utf8'); } catch (e) { return null; } })();
+  if (!py) { check('field round-trip (main.py not present - SKIPPED)', true, true); }
+  else {
+    const wt = fs.readFileSync('Website.txt', 'utf8');
+    /* The map is `q.select({...})`, not a constant called FIELD_IDS - looking
+       for the latter read nothing and the gate passed on an empty object,
+       which is the shape of fault it exists to catch. */
+    const block = (wt.match(/const select = q\.select\(\{[\s\S]*?\n\}\);/) || [''])[0];
+    const editor = {};
+    for (const m of block.matchAll(/^\s*(\w+):\s*"([A-Za-z0-9]{5})"/gm)) editor[m[1]] = m[2];
+    check('the editor field map was read', Object.keys(editor).length > 20, true);
+
+    /* main.py names its columns and comments each with the same id. */
+    const byId = {};
+    for (const m of py.matchAll(/^(CF_\w+)\s*=\s*"([^"]*)"\s*#\s*([A-Za-z0-9]{5})\b/gm)) {
+      byId[m[3]] = m[1];
+    }
+    check('the backend constants were read', Object.keys(byId).length > 20, true);
+
+    /* The published-site payload, which is what a guest actually receives -
+       PLUS the helpers it calls. Several columns are read through one:
+       _parse_font_settings, _website_mode_label, _parse_section_headings. A
+       check that only looked inside the handler reported the couple's fonts as
+       unreachable, which would have been alarming and wrong.
+
+       One level of indirection is enough for the helpers that exist; if a
+       second appears, this gate reports it as missing and someone extends it,
+       which is the right way round. */
+    const i = py.indexOf('@app.get("/wedding-site/{slug}")');
+    const handler = py.slice(i, py.indexOf('@app.get("/wedding-site/{slug}/check-availability")'));
+    check('the published payload was found', handler.length > 2000, true);
+    let reach = handler;
+    for (const m of handler.matchAll(/\b(_\w+)\s*\(/g)) {
+      const fn = py.match(new RegExp('^def ' + m[1] + '\\([\\s\\S]*?(?=\\n(?:@|def |CF_))', 'm'));
+      if (fn) reach += '\n' + fn[0];
+    }
+
+    /* Fields a couple can save that the live site is NOT meant to receive.
+       Each one needs a reason, because "it is exempt" is how the next missing
+       button gets written. */
+    const EXEMPT = {
+      websiteTemplate: 'decides which template file is served, not part of its payload',
+      websiteStatus:   'read before the payload is built, to decide whether to serve one',
+      websiteSlug:     'the key the payload is fetched BY',
+      websitePassword: 'never sent to a browser; compared server-side',
+      customFont:      'folded into fontSettings before it is sent',
+      showHome:        'the hero is never hidden',
+      showAccomodations: 'merged into the Travel toggle',
+      accomodationInfo:  'merged into the Travel box',
+      accomodationUrl:   'merged into the Travel box; read as a fallback only',
+      finalEvents:     'a rollup, read by the editor and written by nobody',
+      /* These three have no id comment on their backend constant, so they
+         cannot be matched this way. They ARE read - the date and the location
+         appear on every site - and the honest fix is to add the id to those
+         constants, at which point these lines come out. */
+      id:              'the record id, not a field of the site',
+      celebrationDate: 'read, but its backend constant carries no field id to match on',
+      cLocation:       'read, but its backend constant carries no field id to match on',
+    };
+
+    const missing = [];
+    for (const [name, id] of Object.entries(editor)) {
+      if (EXEMPT[name]) continue;
+      const cf = byId[id];
+      if (!cf) { missing.push(name + ' (' + id + '): no backend constant'); continue; }
+      if (reach.indexOf(cf) === -1) {
+        missing.push(name + ' (' + id + '): ' + cf + ' is never read by the published payload');
+      }
+    }
+    check('every saved field reaches the live site', missing.join(' | '), '');
+
+    /* And the exemptions stay honest: one that no longer exists in the editor
+       is a note nobody will delete, quietly widening the hole. */
+    const stale = Object.keys(EXEMPT).filter(k => !(k in editor));
+    check('no exemption outlives its field', stale.join(','), '');
+  }
+}
+
 // ── The backend reads the columns that actually exist ────────────────────
 // MP-354's real cause, found once main.py was in hand: the payload read
 // "Primary Color" and "Accent Color" while the Celebrations columns are named
@@ -4874,6 +4963,37 @@ check('two blocks -> two cards', blocks(mark(
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
   }
+}
+
+// ── MP-912 / MP-917: one switch is one change, and the eraser is honest ──
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* MP-912. The RSVP switch writes two fields - the section toggle and whether
+     the form accepts replies. _bundledKeys is exactly the set the counter
+     skips, and both were being DELETED from it, so one flick was reported as
+     "2 unsaved changes" and the couple had to wonder what the other was. */
+  check('the companion field is bundled, not counted',
+    /_bundledKeys\.current\.add\("rsvpEnabled"\);/.test(wt), true);
+  check('and the switch itself still counts',
+    /_bundledKeys\.current\.delete\("showRSVP"\);/.test(wt), true);
+  check('neither is deleted from the set any more',
+    /_bundledKeys\.current\.delete\("rsvpEnabled"\)/.test(wt), false);
+  /* The counter has to actually skip that set, or bundling means nothing. */
+  check('the counter skips bundled keys',
+    /Object\.keys\(localChanges\)\.filter\(k => !_bundledKeys\.current\.has\(k\)\)/.test(wt), true);
+  /* Both fields still get written - counting them as one must not stop one
+     being saved. */
+  check('both fields are still saved',
+    /applyChanges\(\{ showRSVP: c, rsvpEnabled: c \}\)/.test(wt), true);
+
+  /* MP-917. The eraser strips fonts. It cannot strip colours - there is no
+     colour control at the content level - so saying it does describes a thing
+     the button has never done. */
+  check('the eraser tooltip claims only what it does',
+    /title="Strip fonts, so this matches your template"/.test(wt), true);
+  check('and no longer mentions colours',
+    /Strip fonts and colours/.test(wt), false);
 }
 
 // ── MP-903: the two reset controls look the same ─────────────────────────
@@ -5307,9 +5427,36 @@ check('two blocks -> two cards', blocks(mark(
   check('and its wording', /btn\.textContent = plain\.textContent;/.test(render), true);
   check('put back where it stood', /plain\.parentNode\.replaceChild\(btn, plain\)/.test(render), true);
 
-  /* Then the url, as before. */
-  check('the button is given the registry url',
-    /btn\.setAttribute\('href', registryUrl\);/.test(render), true);
+  /* STRAIGHT TO THE GIFT. The button said "Purchase this Item" and landed on
+     the whole list, so a guest had to find again the thing they had just
+     clicked. The gift's id is already in the public payload, so this costs the
+     backend nothing. */
+  check('the button carries the gift id',
+    /it\.id \? registryUrl \+ '#gift-' \+ encodeURIComponent\(it\.id\) : registryUrl/.test(render), true);
+  /* Encoded: an id is opaque and may hold characters a fragment would eat. */
+  check('and encodes it', /encodeURIComponent\(it\.id\)/.test(render), true);
+  /* Falls back to the plain list when there is no id - a placeholder card has
+     none, and a dead fragment is worse than the list. */
+  check('an item with no id still reaches the registry',
+    /: registryUrl\)/.test(render), true);
+
+  /* THE REGISTRY PAGE HAS TO HONOUR IT, or the link is decoration. */
+  const reg = (() => { try { return fs.readFileSync('live_registry.html', 'utf8'); } catch (e) { return null; } })();
+  if (!reg) { check('registry page (not present - SKIPPED)', true, true); }
+  else {
+    check('the page reads the fragment', /function openFromHash\(\)/.test(reg), true);
+    check('and opens that gift', /openDetail\(decodeURIComponent\(m\[1\]\)\)/.test(reg), true);
+    /* AFTER render(). openDetail reads state.data.items and draws into the
+       page; called earlier it finds nothing and silently does nothing. */
+    check('after the list has been drawn',
+      /render\(\);\s*\n\s*openFromHash\(\);/.test(reg), true);
+    /* An id no longer in the list - an old link, a gift since removed - must
+       leave the guest on the full registry rather than on an error. */
+    check('a stale id leaves the page alone',
+      /const it=\(state\.data\.items\|\|\[\]\)\.find\(x=>x\.id===id\); if\(!it\) return;/.test(reg), true);
+    check('and the reader cannot throw', /\}catch\(e\)\{\}/.test(
+      reg.slice(reg.indexOf('function openFromHash'), reg.indexOf('function openDetail'))), true);
+  }
   check('and opens away from the page',
     /btn\.setAttribute\('target', '_blank'\);/.test(render), true);
 }
@@ -6684,7 +6831,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-buy-btn-size');
+  check('the stamp names the change it shipped with', version, '2026-10-21-one-switch-one-change');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6692,7 +6839,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '6d80075c');
+    ('0000000' + bh.toString(16)).slice(-8), '070e2668');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

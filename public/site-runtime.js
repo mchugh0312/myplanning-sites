@@ -6373,7 +6373,16 @@
     if (btn) {
       // Always the couple's own registry page — that's where contributing
       // happens, not an external retailer.
-      btn.setAttribute('href', registryUrl);
+      /* STRAIGHT TO THE GIFT. The button said "Purchase this Item" and landed
+         on the whole list, so a guest had to find again the thing they had
+         just clicked.
+
+         A fragment rather than a query, so it costs the registry page nothing:
+         it loads as it always did and opens the card afterwards. Falls back to
+         the plain list for an item with no id, which is what a placeholder
+         card has. */
+      btn.setAttribute('href',
+        it.id ? registryUrl + '#gift-' + encodeURIComponent(it.id) : registryUrl);
       btn.setAttribute('target', '_blank');
       btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
@@ -7187,7 +7196,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-buy-btn-size';
+  var MP_RUNTIME_BUILD = '2026-10-21-one-switch-one-change';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

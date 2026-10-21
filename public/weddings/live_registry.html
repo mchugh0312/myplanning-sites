@@ -897,6 +897,7 @@ async function load(){
     }
     buildThings();
     render();
+    openFromHash();
   }catch(e){ renderNotice("We couldn't load this registry.","Please refresh the page or try again in a moment."); }
 }
 
@@ -1744,6 +1745,27 @@ function rerender(keepFocus){
 }
 
 /* ─── Physical gift detail (zoom) ───────────────────── */
+/* A guest arriving from a gift card on the wedding site.
+
+   The site's registry preview shows four gifts and its buttons said "Purchase
+   this Item", but every one of them landed on the whole list - the guest then
+   had to find again the thing they had just clicked. The button now carries
+   the gift's id as #gift-<id> and this opens that card.
+
+   Called after render(), because openDetail reads state.data.items and draws
+   into the page; running it earlier would find nothing and silently do nothing.
+
+   An id that is not in the list - an old link, a gift since removed - leaves
+   the page as it is. openDetail already returns on a miss, so the guest gets
+   the full registry, which is the right fallback. */
+function openFromHash(){
+  try{
+    const m = /^#gift-(.+)$/.exec(location.hash || "");
+    if(!m) return;
+    openDetail(decodeURIComponent(m[1]));
+  }catch(e){}
+}
+
 function openDetail(id){
   const it=(state.data.items||[]).find(x=>x.id===id); if(!it) return;
   state.activeItem=it;
