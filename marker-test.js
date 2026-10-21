@@ -4596,6 +4596,75 @@ check('two blocks -> two cards', blocks(mark(
   check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
 }
 
+// ── MP-897: the lock screen carries the couple's own hint ────────────────
+// Couples were sending the password itself alongside the link, which defeats
+// the lock. A hint they choose lets the people they actually invited in without
+// the password travelling with the invitation.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  const scr = rt.slice(rt.indexOf('function renderPasswordScreen'),
+                       rt.indexOf('function renderPasswordScreen') + 2600);
+  check('the screen takes a hint', /function renderPasswordScreen\(coupleNames, hint\)/.test(scr), true);
+  check('and the caller passes it',
+    /renderPasswordScreen\(coupleNames\(d\), d\.password_hint\)/.test(rt), true);
+  /* ESCAPED, and shown only when there is one. This is the one screen rendered
+     to someone who has not proved they belong, so nothing on it is treated as
+     markup - the hint is written to be read at the gate and carries no privacy
+     weight of its own, but it must not be able to carry anything else. */
+  check('the hint is escaped', /esc\(hintText\)/.test(scr), true);
+  check('and omitted entirely when blank', /hintText \?/.test(scr), true);
+  check('with whitespace collapsed first', scr.indexOf("replace(/\\s+/g, ' ').trim()") > -1, true);
+
+  /* EDITOR: the hint saves with the password in one write. Separately would
+     let a couple keep a hint for a password they have since changed. */
+  check('the editor knows the column', /passwordHint: "XYf1l"/.test(wt), true);
+  check('the hint saves with the password',
+    /websitePassword: pwInput\.trim\(\),\s*\n\s*passwordHint: pwHint\.trim\(\)/.test(wt), true);
+  check('the modal is seeded from the record',
+    /setPwHint\(currentData\.passwordHint \|\| ""\)/.test(wt), true);
+  check('and the editor preview is sent it',
+    /password_hint: d\.passwordHint \|\| ''/.test(wt), true);
+  // A hint long enough to be a paragraph is not a hint.
+  check('the field is capped', /maxLength=\{140\}/.test(wt), true);
+}
+
+// ── MP-896: a save-the-date asks for an address ──────────────────────────
+// The one thing a save-the-date needs back is an address, and this is the
+// moment a guest is most willing to give it. A link to the collector the couple
+// already has, not a second form: a second place to collect the same addresses
+// is a second place for them to go missing.
+{
+  /* To the end of the function, not a guessed number of characters: the
+     markup sits 9,500 characters in and a 9,000-character window cut it off,
+     so three assertions were reading a slice that did not contain the thing
+     they were about. */
+  const std = rt.slice(rt.indexOf('function applySaveTheDate'),
+                       rt.indexOf('_stdOwnTextRects, _stdDeoverlap'));
+  check('the block reads the collector link',
+    /var collector = String\(d\.contact_collector_url \|\| ''\)\.trim\(\)/.test(std), true);
+  /* Only a link a browser can follow. A blank or malformed value must produce
+     no control at all rather than a dead one. */
+  check('only an http(s) link is used',
+    /if \(!\/\^https\?:\\\/\\\/\/i\.test\(collector\)\) collector = '';/.test(std), true);
+  check('the control is conditional', /collector$[\s\S]{0,40}\?/m.test(std) || /\(collector\b/.test(std), true);
+  check('it opens away from the page', /rel="noopener noreferrer"/.test(std), true);
+  check('and the url is escaped', /esc\(collector\)/.test(std), true);
+
+  /* It sits on the template's ACCENT band, and that block already computes an
+     ink for this ground by luminance. Using the page ink would have put dark
+     type on a dark band on half the designs. */
+  check('it takes its colour from the band it sits on',
+    /\.mp-std-cta\{[\s\S]{0,300}bandInk/.test(std), true);
+  check('and nothing in this block reaches for a palette it does not have',
+    /\bp\.(ink|bg|accent)\b/.test(std), false);
+
+  /* Compared against the MARKUP, not the class name: the stylesheet mentions
+     .mp-std-cta two thousand characters earlier, so the loose match found the
+     CSS and reported the control as sitting above a note it is below. */
+  check('the note still closes the page',
+    std.indexOf('Formal invitation to follow') < std.indexOf('class="mp-std-cta"'), true);
+}
+
 // ── The backend reads the columns that actually exist ────────────────────
 // MP-354's real cause, found once main.py was in hand: the payload read
 // "Primary Color" and "Accent Color" while the Celebrations columns are named
@@ -5992,7 +6061,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-17-ink-alias');
+  check('the stamp names the change it shipped with', version, '2026-10-17-hint-and-collector');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6000,7 +6069,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '5298836f');
+    ('0000000' + bh.toString(16)).slice(-8), 'a599b91a');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

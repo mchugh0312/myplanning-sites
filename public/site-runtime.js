@@ -4153,8 +4153,28 @@
         '.mp-std-meta{font-size:0.82rem;letter-spacing:0.1em}' +
         '.mp-std-note{font-size:0.85rem}' +
         '.mp-std-motif{height:40px;max-width:min(55%,180px);margin-bottom:8px}' +
-      '}';
+      '}' +
+      /* Sits above the footer note, in the page's own accent. An outline
+         rather than a filled button: this is an invitation to help, not the
+         page's purpose, and a solid button here would compete with the date. */
+      /* bandInk, not CFG.palette.ink: this block sits on the template's accent
+         band, and bandInk is the colour that block already computed by
+         luminance for exactly this ground. Using the page ink would have put
+         dark type on a dark band on half the templates - and `p` is not even
+         in scope here, which is what caught it. */
+      '.mp-std-cta{display:inline-block;margin-top:18px;padding:11px 26px;' +
+        'border:1px solid ' + bandInk + ';border-radius:999px;text-decoration:none;' +
+        'font-family:' + CFG.fonts.body + ';font-size:0.78rem;letter-spacing:0.12em;' +
+        'text-transform:uppercase;color:' + bandInk + '}' +
+      '.mp-std-cta:hover{background:' + bandInk + ';color:' + bandBg + '}' +
+      '.mp-std-cta-note{margin-top:8px;font-family:' + CFG.fonts.body + ';' +
+        'font-size:0.75rem;opacity:0.7;color:' + bandInk + '}';
     document.head.appendChild(style);
+
+    /* Trimmed and checked here rather than in the template string, so a blank
+       or unusable value produces no control at all. */
+    var collector = String(d.contact_collector_url || '').trim();
+    if (!/^https?:\/\//i.test(collector)) collector = '';
 
     var block = document.createElement('div');
     block.className = 'mp-std-block';
@@ -4170,6 +4190,23 @@
         (CFG.loadingImage
           ? '<img class="mp-std-motif" src="' + CFG.loadingImage + '" alt="">' : '') +
         '<p class="mp-std-note">Formal invitation to follow</p>' +
+        /* MP-896. The one thing a save-the-date needs back is an address, and
+           this is the moment a guest is most willing to give it - they have
+           just read the date and have nothing else to do here.
+
+           A link to the collector the couple already has, not a form: it is
+           its own page, it works, and a second place to collect the same
+           addresses is a second place for them to go missing.
+
+           Absent when the couple has no collector link, rather than rendered
+           dead. _clean_url in the payload means a value that arrives is one a
+           browser can follow. */
+        (collector
+          ? '<a class="mp-std-cta" href="' + esc(collector) + '" target="_blank" rel="noopener noreferrer">' +
+              'Share your address' +
+            '</a>' +
+            '<p class="mp-std-cta-note">So we know where to send your invitation</p>'
+          : '') +
       '</div>';
     document.body.insertBefore(block, document.body.firstChild);
 
@@ -4184,13 +4221,26 @@
      is nothing left to collide with. */
 
   // ── Password gate (with a working input — the old screen had none) ───────
-  function renderPasswordScreen(coupleNames) {
+  /* MP-897. The hint the couple wrote, shown under the standard line.
+
+     Couples were having to send the password itself alongside the link, which
+     defeats the lock. A hint they choose - "our dog's name, then both our
+     initials" - lets the people they actually invited in without the password
+     travelling with the invitation.
+
+     esc(), and plain text. This is the one screen rendered to someone who has
+     not proved they belong, so nothing here is treated as markup. The hint is
+     written to be read at the gate, so it carries no privacy weight of its own
+     - but it must not be able to carry anything else either. */
+  function renderPasswordScreen(coupleNames, hint) {
     var p = CFG.palette;
+    var hintText = String(hint || '').replace(/\s+/g, ' ').trim();
     screenShell(
       '<p class="mp-eyebrow">\uD83D\uDD12 Private</p>' +
       '<h1 class="mp-display">' + esc(coupleNames || 'A private celebration') + '</h1>' +
       '<div class="mp-rule"></div>' +
       '<p class="mp-body">This website is password protected. Please enter the password your hosts shared with you.</p>' +
+      (hintText ? '<p class="mp-hint">' + esc(hintText) + '</p>' : '') +
       '<div class="mp-pw">' +
         '<input id="mpPwInput" type="password" placeholder="Password" autocomplete="current-password">' +
         '<button id="mpPwBtn" type="button">Enter</button>' +
@@ -4205,7 +4255,11 @@
         'background:' + p.accent + ';color:#fff;font-family:' + CFG.fonts.body + ';font-size:0.8rem;letter-spacing:0.12em;' +
         'text-transform:uppercase}' +
       '.mp-pw button:disabled{opacity:0.6;cursor:default}' +
-      '#mpPwError{display:none;color:#C23331;font-family:' + CFG.fonts.body + ';font-size:0.8rem}'
+      '#mpPwError{display:none;color:#C23331;font-family:' + CFG.fonts.body + ';font-size:0.8rem}' +
+      /* Quieter than the line above it and set apart, so it reads as the
+         couple's own aside rather than as more instructions. */
+      '.mp-hint{margin:10px auto 0;max-width:34ch;font-family:' + CFG.fonts.body + ';' +
+        'font-size:0.85rem;font-style:italic;opacity:0.75;color:' + p.ink + '}'
     );
 
     var input = document.getElementById('mpPwInput');
@@ -6956,7 +7010,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-17-ink-alias';
+  var MP_RUNTIME_BUILD = '2026-10-17-hint-and-collector';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7008,7 +7062,7 @@
     if (!d) return;
 
     // 1. Gate screens first — these never fall through to the template.
-    if (d.password_required) { renderPasswordScreen(coupleNames(d)); return; }
+    if (d.password_required) { renderPasswordScreen(coupleNames(d), d.password_hint); return; }
     if (d.not_published)     { renderComingSoon(coupleNames(d), d.celebration_date || ''); return; }
 
     window._weddingSlug = d.slug || _liveSlug || '';
