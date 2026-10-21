@@ -4643,7 +4643,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '0ffd9abf');
+    ('0000000' + h.toString(16)).slice(-8), 'd20e4f09');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4793,6 +4793,38 @@ check('two blocks -> two cards', blocks(mark(
      dialog and nowhere else, and the dialog used to appear only for a couple
      who had never set a password - so anyone who already had one could turn
      protection on and never be shown anywhere to write a hint. */
+  /* OPENED BY THE SWITCH, not by save. It used to wait for saveChanges, so a
+     couple switched protection on, carried on editing, and were asked for a
+     password minutes later with no obvious connection to what they had done. */
+  check('the switch opens the dialog',
+    /onChange: c => \{\s*\n\s*handleUpdate\("passwordProtected", c\);\s*\n\s*if \(c\) openPwDialog\(\);/.test(wt), true);
+  /* And it stays reachable. A couple who set a password had no way to read it
+     back or change the hint - the switch is already on, so flicking it does
+     nothing. The word itself opens the dialog. */
+  check('the word Password opens it too',
+    /linkWord: "Password",\s*\n\s*onWordClick: \(\) => openPwDialog\(\)/.test(wt), true);
+  check('and is underlined so it reads as clickable',
+    /textDecoration: "underline", cursor: "pointer"/.test(wt), true);
+  check('reachable by keyboard as well as mouse',
+    /onKeyDown=\{e => \{ if \(e\.key === "Enter" \|\| e\.key === " "\)/.test(wt), true);
+
+  /* One way in, seeding both fields from the record - empty boxes would read
+     as "nothing saved" to a couple who had set both. */
+  check('the dialog seeds from what is saved',
+    /setPwInput\(currentData\.websitePassword \|\| ""\);\s*\n\s*setPwHint\(currentData\.passwordHint \|\| ""\);/.test(wt), true);
+
+  /* The password can be revealed. Hidden by default - one on screen in an open
+     tab is one anyone walking past can read - but a couple typing a password
+     they will have to dictate needs to see what they typed. */
+  check('the field hides the password by default',
+    /const \[pwShown, setPwShown\] = useState\(false\)/.test(wt), true);
+  check('and can reveal it', /type=\{pwShown \? "text" : "password"\}/.test(wt), true);
+  check('with a control that says which it will do',
+    /title=\{pwShown \? "Hide password" : "Show password"\}/.test(wt), true);
+  check('and an accessible name on it',
+    /aria-label=\{pwShown \? "Hide password" : "Show password"\}/.test(wt), true);
+  check('the icons are imported', /Eye, EyeOff \} from "lucide-react"/.test(wt), true);
+
   check('the dialog opens on every switch-on',
     /if \(changes\.passwordProtected === true\) \{/.test(wt), true);
   check('not only when no password exists',
@@ -7130,7 +7162,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-gate-tidy');
+  check('the stamp names the change it shipped with', version, '2026-10-21-password-dialog');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
