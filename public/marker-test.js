@@ -5234,8 +5234,11 @@ check('two blocks -> two cards', blocks(mark(
 // change and the wrong one: it is a heading first, and several designs set it
 // in a script face where an underline reads as damage.
 {
+  /* To the end of the function, not a guessed width. The placement fix pushed
+     the last assertions past 6000 and three of them read a slice without the
+     code they were about - the fourth fixed-width window to do this. */
   const fn = rt.slice(rt.indexOf('function layOutRegistry'),
-                      rt.indexOf('function layOutRegistry') + 6000);
+                      rt.indexOf('function wireRegistryLinks'));
   check('the registry layout was found', fn.length > 500, true);
   check('a visible control is added', /_more\.className = 'mp-registry-more'/.test(fn), true);
   check('and it says where it goes',
@@ -5246,7 +5249,21 @@ check('two blocks -> two cards', blocks(mark(
 
   /* Only when there is somewhere to go. A button pointing at nothing is worse
      than no button. */
-  check('it needs a registry url', /var _wantMore = !!_registryUrl && !_blanked;/.test(fn), true);
+  check('it needs a registry url',
+    /var _wantMore = !!_registryUrl && !_blanked && hasCopy;/.test(fn), true);
+  /* AND copy. With the box empty the section is just the heading in its frame,
+     and a button beside it reads as a second title rather than a control -
+     which is what the live site showed while the preview, with no url to hang
+     it on, showed nothing. A heading alone is already the link on every
+     design; the button is for when a paragraph has come between the heading
+     and the gifts and the heading has stopped looking clickable. */
+  check('and copy to sit under', /&& hasCopy;/.test(fn), true);
+  /* Block and centred, not inline: inline-block put it on the same line as
+     whatever it followed, so inside a centred frame it sat beside the title. */
+  check('it is laid out as its own block',
+    /display:block;width:fit-content;margin:1\.1rem auto 0;/.test(fn), true);
+  check('and is restored to block when shown again',
+    /_more\.style\.display = 'block';/.test(fn), true);
   check('and is hidden when there is none',
     /_more\.style\.display = 'none';/.test(fn), true);
   /* And NOT when the heading has been cleared - the whole paragraph is already
@@ -6580,7 +6597,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-toggle-off');
+  check('the stamp names the change it shipped with', version, '2026-10-21-registry-cta-place');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6588,7 +6605,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'a7a19eae');
+    ('0000000' + bh.toString(16)).slice(-8), '0bbeeddd');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

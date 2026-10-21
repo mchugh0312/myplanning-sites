@@ -4561,7 +4561,15 @@
          open the same page is worse than one unobvious one. */
       try {
         var _more = info.parentNode && info.parentNode.querySelector('.mp-registry-more');
-        var _wantMore = !!_registryUrl && !_blanked;
+        /* AND there has to be copy. With the box empty the section is just the
+           heading inside its frame, and a button landing beside it reads as a
+           second title rather than a control - which is what the live site
+           showed while the preview, with no url to hang it on, showed nothing.
+
+           A heading on its own is already the link on every design. The button
+           is for when there is a paragraph between the heading and the gifts
+           and the heading has stopped looking clickable. */
+        var _wantMore = !!_registryUrl && !_blanked && hasCopy;
         if (_wantMore && !_more && info.parentNode) {
           _more = document.createElement('a');
           _more.className = 'mp-registry-more';
@@ -4571,8 +4579,12 @@
           /* Outline, not a filled button: the tiles already carry filled
              buttons and a second solid control competes with them. Inherits
              the font so it sits in the design rather than on top of it. */
-          _more.style.cssText = 'display:inline-block;margin-top:1.1rem;' +
+          /* BLOCK, centred under the copy. inline-block put it on the same line
+             as whatever it followed, so inside Heirloom Bloom's centred frame
+             it sat to the right of the title. */
+          _more.style.cssText = 'display:block;width:fit-content;margin:1.1rem auto 0;' +
             'padding:0.7rem 1.6rem;border:1px solid currentColor;border-radius:999px;' +
+            'text-align:center;' +
             'font:inherit;font-size:0.78rem;letter-spacing:0.12em;' +
             'text-transform:uppercase;text-decoration:none;color:inherit;cursor:pointer';
           info.parentNode.insertBefore(_more, info.nextSibling);
@@ -4583,7 +4595,7 @@
         if (_more) {
           if (_wantMore) {
             _more.setAttribute('href', _registryUrl);
-            _more.style.display = 'inline-block';
+            _more.style.display = 'block';
           } else {
             _more.style.display = 'none';
           }
@@ -7161,7 +7173,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-toggle-off';
+  var MP_RUNTIME_BUILD = '2026-10-21-registry-cta-place';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
