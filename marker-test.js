@@ -4601,6 +4601,45 @@ check('two blocks -> two cards', blocks(mark(
   check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
 }
 
+// ── The block says which build it is ─────────────────────────────────────
+// The runtime has had a stamp for weeks and it is repeatedly the fastest way
+// to end an argument about whether a fix is live. This file had none, so the
+// only way to tell was to look at its behaviour - which is the thing in
+// question whenever a fix spans both files and only one has landed.
+//
+// That cost a round: the hex-field guard that stops a half-typed colour
+// reaching the page lives in the BLOCK, the runtime beside it was deployed
+// without it, and a fault reported as "come back" had never gone live.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  check('the block states its build',
+    /const MP_BLOCK_BUILD = '[\w.-]+';/.test(wt), true);
+  check('and puts it on window to be read',
+    /window\.MP_BLOCK_BUILD = MP_BLOCK_BUILD;/.test(wt), true);
+  check('and logs it on load', /console\.log\('\[mp-block\] build '/.test(wt), true);
+  /* It must not be able to take the editor down: this runs at module scope,
+     before any error boundary exists. */
+  check('stamping cannot break the block', /\} catch \(e\) \{\}/.test(
+    wt.slice(wt.indexOf('const MP_BLOCK_BUILD'), wt.indexOf('const TEMPLATES = ['))), true);
+
+  /* THE TWO BUILDS MOVE TOGETHER. They ship as one change and are deployed
+     separately, so a mismatch is the single most useful thing to be able to
+     see - and a stamp that lags is worse than none, because it would be
+     believed. */
+  const block = (wt.match(/const MP_BLOCK_BUILD = '([\w.-]+)';/) || [])[1];
+  const runtime = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
+  check('the block and the runtime name the same build', block, runtime);
+
+  /* Any edit to this file is a different build, the same rule the runtime
+     follows - otherwise the stamp only fails after someone has already
+     bumped it, which is backwards. */
+  const body = wt.replace(/const MP_BLOCK_BUILD = '[\w.-]+';/, '');
+  let h = 5381;
+  for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
+  check('and nothing in the block has moved since',
+    ('0000000' + h.toString(16)).slice(-8), 'd40e854e');
+}
+
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
 // custom_css holds two different things: the couple's own CSS, which is
 // injected as a stylesheet, and STORAGE KEYS the editor keeps there as bare
@@ -4940,8 +4979,11 @@ check('two blocks -> two cards', blocks(mark(
      the application has to flatten them or only the first is ever written. */
   check('a slot may drive more than one variable',
     Array.isArray(vars.whimsicalromance.ink), true);
+  /* To the end of the function. A fixed character window is a gate that goes
+     quietly wrong every time the function grows - the colour trace pushed the
+     flattening past 3000 and this read a slice without it in. */
   const fn = rt.slice(rt.indexOf('function applyCustomColors'),
-                      rt.indexOf('function applyCustomColors') + 3000);
+                      rt.indexOf('/* \u2500\u2500 FONTS BY ROLE'));
   check('and the application flattens them',
     /\[object Array\]/.test(fn) && /flat\.push\(\[names\[q\], pairs\[p\]\[1\]\]\)/.test(fn), true);
 }
@@ -5066,6 +5108,77 @@ check('two blocks -> two cards', blocks(mark(
     /lead \? lead\[1\] : 'by '/.test(hyd), true);
 }
 
+// ── MP-357: only the runtime writes a palette variable ───────────────────
+// The real cause, found by tracing the write rather than reading the source.
+// applyCustomColors was handed ["--olive",""] and correctly REMOVED it - and
+// --olive was set to the background colour anyway. Nine templates carried a
+// colour block of their own that ran afterwards and overwrote it:
+//
+//     setProperty('--olive',    d.customization.primary_color)   <- the ACCENT
+//     setProperty('--offwhite', d.customization.accent_color)    <- the PAGE
+//
+// Inverted, in every one of the nine. That is the whole report: moving Site
+// Background changed the accent bands, and moving Accent filled the sections
+// that had been the background. The runtime's own comment records this wiring
+// being corrected months ago; the templates were never cleaned up, so the fix
+// was overwritten on every load.
+//
+// Three passes went into explaining how the runtime could do this. It could
+// not, and said so plainly in the trace the first time one was added.
+{
+  const tpls = fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort();
+  check('all ten templates are covered', tpls.length, 10);
+  const colourTable = new Function(
+    rt.match(/var TEMPLATE_COLOR_VARS = \{[\s\S]*?\n  \};/)[0] +
+    '\nreturn TEMPLATE_COLOR_VARS;')();
+  const writers = [];
+  for (const t of tpls) {
+    const src = fs.readFileSync(t, 'utf8');
+    const name = t.replace('template-', '').replace('.html', '');
+    /* No template may write a palette variable. The runtime maps every colour
+       through TEMPLATE_COLOR_VARS and is the only thing that should. */
+    /* Any setProperty of a custom property, however the style object was
+       reached. Golden Hour aliased documentElement.style to a local `_r`, so a
+       pattern anchored on documentElement missed it entirely. */
+    /* A template's PALETTE variables - the ones TEMPLATE_COLOR_VARS maps. A
+       template may still set its own private custom properties: Golden Hour
+       builds its thumbnail hero image into --mp-thumb-hero, which is its own
+       plumbing and nothing to do with the couple's colours. The test is
+       whether the runtime claims the variable, not whether it starts with --. */
+    const claimed = new Set();
+    for (const slot of Object.values(colourTable[name] || {})) {
+      [].concat(slot).forEach(v => claimed.add(v));
+    }
+    for (const m of src.matchAll(/\.setProperty\(\s*'(--[\w-]+)'/g)) {
+      if (claimed.has(m[1])) writers.push(name + ': ' + m[1]);
+    }
+    // And no direct style write fed from a colour field - Modern Minimal
+    // painted its page frame that way.
+    if (/\.style\.\w+\s*=\s*d\.customization\./.test(src)) {
+      writers.push(name + ': writes a style from a customization colour');
+    }
+    // Nor read the colour fields to apply them some other way.
+    if (/d\.customization\.(primary|accent|text)_color/.test(src)) {
+      writers.push(name + ': still reads a customization colour');
+    }
+  }
+  check('no template writes a palette variable', writers.join(' | '), '');
+
+  /* The runtime still does, and still through the table - otherwise this
+     check would pass on a build where colours stopped working entirely. */
+  check('the runtime applies colours through the table',
+    /var v = TEMPLATE_COLOR_VARS\[TID\]/.test(rt), true);
+  check('and writes them itself',
+    /if \(val\) root\.setProperty\(name, val\);/.test(rt), true);
+  check('removing one restores the design',
+    /else root\.removeProperty\(name\);/.test(rt), true);
+
+  /* The trace that found it is gone; it was for one question and answered it.
+     The hero trace stays - that one has earned its place twice. */
+  check('the colour trace was removed', /\[mp-colors\]/.test(rt), false);
+  check('the hero trace is still there', /\[mp-hero\]/.test(rt), true);
+}
+
 // ── MP-354: every colour reaches the live site the same way ──────────────
 // customization came back from the API with primary_color and accent_color
 // EMPTY while text_color, which lives in custom_css, arrived intact - and the
@@ -5077,15 +5190,25 @@ check('two blocks -> two cards', blocks(mark(
 {
   const wt = fs.readFileSync('Website.txt', 'utf8');
 
-  /* EDITOR: the two write to custom_css as well as to their column. */
-  check('site background is written into custom_css',
-    /const setPrimaryColor = \(hex\) => \{[^}]*_setVarColor\('bg', hex\)/.test(wt), true);
-  check('and accent is too',
-    /const setAccentColor  = \(hex\) => \{[^}]*_setVarColor\('accent', hex\)/.test(wt), true);
-  /* The column write stays. It costs nothing, and anything else reading it
-     keeps working - removing it would be a second change riding on this one. */
-  check('the column is still written too',
-    /handleUpdate\('primaryColor', hex\)/.test(wt), true);
+  /* THE COLUMN AND NOWHERE ELSE.
+
+     These were briefly written into custom_css as well, to survive a trip to
+     the live site that was broken for an entirely different reason - main.py
+     read two column names that do not exist. With that fixed the copy had no
+     purpose, and it caused three faults of its own: a reset that emptied the
+     columns and left the copy standing, storage keys that corrupted the
+     injected stylesheet, and a stale --accent repainting a band while the
+     picker showed the template default, because an empty column DISPLAYS as
+     the default and nothing in the editor could reveal what was applied. */
+  check('site background writes only its column',
+    /const setPrimaryColor = \(hex\) => \{ handleUpdate\('primaryColor', hex\); _clearVarColor\('bg'\); \}/.test(wt), true);
+  check('and accent only its own',
+    /const setAccentColor  = \(hex\) => \{ handleUpdate\('accentColor',  hex\); _clearVarColor\('accent'\); \}/.test(wt), true);
+  /* Cleared on WRITE as well as on reset, so a value left from that period
+     goes the first time a couple touches either control rather than waiting
+     for them to find a reset they have no reason to press. */
+  check('neither writes a copy into custom_css',
+    /_setVarColor\('(bg|accent)',/.test(wt), false);
   /* Reset has to clear BOTH, or the custom_css value outlives the reset and
      the template default never comes back. */
   check('reset clears the custom_css copy as well',
@@ -5105,16 +5228,28 @@ check('two blocks -> two cards', blocks(mark(
   check('no picker writes the column on its own any more',
     /handleUpdate\(c\.key, /.test(wt), false);
 
-  /* RUNTIME: all seven fall back to custom_css, not five of them. */
+  /* RUNTIME: the five that live in custom_css read it; the two with columns
+     read only their column. A value a couple cannot see and cannot clear is
+     worse than a missing one. */
+  /* 4200, not 3000: the colour trace added to this function pushed the
+     flattening past the end of the window, so the assertion was reading a
+     slice that no longer contained it. */
   const fn = rt.slice(rt.indexOf('function applyCustomColors'),
-                      rt.indexOf('function applyCustomColors') + 2200);
+                      rt.indexOf('function applyCustomColors') + 4200);
   check('the colour application was found', fn.length > 200, true);
-  check('site background falls back to custom_css',
-    /\[v\.bg, pick\(c\.primary_color, 'bg'\)\]/.test(fn), true);
-  check('and accent does too',
-    /\[v\.accent, pick\(c\.accent_color, 'accent'\)\]/.test(fn), true);
-  const raw = fn.match(/\[v\.\w+, c\.\w+\]/g) || [];
-  check('no colour is read from its column without a fallback', raw.join(','), '');
+  check('site background comes from its column alone',
+    /\[v\.bg, c\.primary_color \|\| ''\]/.test(fn), true);
+  check('and accent from its own',
+    /\[v\.accent, c\.accent_color \|\| ''\]/.test(fn), true);
+  check('neither consults custom_css any more',
+    /pick\(c\.(primary|accent)_color/.test(fn), false);
+  /* The other five still do - that is where they are stored, and they work. */
+  check('the tones still read custom_css',
+    /pick\(c\.text_color, 'text\(\?!\[0-9\]\)'\)/.test(fn), true);
+  /* And the strip keeps bg and accent listed, so a legacy value left in
+     custom_css is never injected as a loose declaration. */
+  check('legacy keys are still stripped before injection',
+    /_STORAGE_KEYS = \['bg', 'accent'/.test(rt), true);
 
   /* The fallback reader must not confuse --text with --text2. It already
      guards that; bg and accent are new names and must not collide either. */
@@ -6167,7 +6302,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-storage-keys');
+  check('the stamp names the change it shipped with', version, '2026-10-21-template-colour-block');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6175,7 +6310,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '892efd2c');
+    ('0000000' + bh.toString(16)).slice(-8), '4685d5be');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

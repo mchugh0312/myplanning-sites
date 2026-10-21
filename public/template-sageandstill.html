@@ -1100,7 +1100,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:f0e4dcdf';
+    window.__mpTemplate = 'sageandstill:ac9fcc87';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1606,15 +1606,6 @@ function hydrateTemplate(d) {
 
   // ── Custom colours ────────────────────────────────────────────────────
   if (d.customization) {
-    if (d.customization.primary_color) {
-      document.documentElement.style.setProperty('--green-gray', d.customization.primary_color);
-    }
-    if (d.customization.accent_color) {
-      document.documentElement.style.setProperty('--offwhite', d.customization.accent_color);
-    }
-    if (d.customization.text_color) {
-      document.documentElement.style.setProperty('--text', d.customization.text_color);
-    }
   }
 
   // ── RSVP config ───────────────────────────────────────────────────────

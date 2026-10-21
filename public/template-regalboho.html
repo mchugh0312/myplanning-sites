@@ -1105,7 +1105,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:e3542b7c';
+    window.__mpTemplate = 'regalboho:089d78eb';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1796,16 +1796,6 @@ function hydrateTemplate(d) {
   // primary_color → burgundy (titles, body text, RSVP button)
   // accent_color  → beige (Event Details bg, Registry bg, RSVP bg)
   if (d.customization) {
-    if (d.customization.primary_color) {
-      document.documentElement.style.setProperty('--burgundy', d.customization.primary_color);
-      document.documentElement.style.setProperty('--text', d.customization.primary_color);
-    }
-    if (d.customization.accent_color) {
-      document.documentElement.style.setProperty('--beige', d.customization.accent_color);
-    }
-    if (d.customization.text_color) {
-      document.documentElement.style.setProperty('--text', d.customization.text_color);
-    }
   }
 
   // ── RSVP config ───────────────────────────────────────────────────────

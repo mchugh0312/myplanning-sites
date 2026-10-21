@@ -1041,7 +1041,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'modernminimal:c2300029';
+    window.__mpTemplate = 'modernminimal:2bd22bfe';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1504,11 +1504,11 @@ function hydrateTemplate(d){
 
   // ── Custom colours ──
   if (d.customization){
-    if (d.customization.primary_color) document.documentElement.style.setProperty('--blue', d.customization.primary_color);
-    if (d.customization.accent_color)  document.documentElement.style.setProperty('--ivory', d.customization.accent_color);
-    if (d.customization.text_color)    document.documentElement.style.setProperty('--text', d.customization.text_color);
     // Re-apply blue border in case primary changed
-    if (d.customization.primary_color) document.body.style.borderColor = d.customization.primary_color;
+    /* The blue page frame was painted here from primary_color - the SITE
+       BACKGROUND - so moving the background recoloured the border instead.
+       The frame is border:14px solid var(--blue), and --blue is a mapped slot,
+       so the runtime colours it like everything else. */
   }
 
   // ── RSVP entree options ──

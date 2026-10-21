@@ -3556,20 +3556,6 @@
                  [v.ink3, pick(c.text3_color, 'text3')],
                  [v.accent2, pick(c.accent2_color, 'accent2')],
                  [v.accent3, pick(c.accent3_color, 'accent3')]];
-    /* The inputs and the exact writes, at the moment they happen.
-
-       Three passes were spent reasoning from the source about how --olive
-       could be set while accent_color was empty, and the source says it
-       cannot. When the code and the behaviour disagree the code is not the
-       authority. This prints what the function was actually handed, which
-       ends the question in one reload instead of another inference. */
-    try {
-      console.log('[mp-colors] tid=' + TID +
-        ' c=' + JSON.stringify(c) +
-        ' v=' + JSON.stringify(v) +
-        ' pairs=' + JSON.stringify(pairs));
-    } catch (e) {}
-
     try {
       var root = document.documentElement.style;
       /* A slot may name one variable or several - see whimsicalromance, where
@@ -7041,7 +7027,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-color-trace';
+  var MP_RUNTIME_BUILD = '2026-10-21-template-colour-block';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
