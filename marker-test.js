@@ -4596,6 +4596,93 @@ check('two blocks -> two cards', blocks(mark(
   check('and it lands inside the head', iPre > -1 && iPre < out.indexOf('</head>'), true);
 }
 
+// ── The backend reads the columns that actually exist ────────────────────
+// MP-354's real cause, found once main.py was in hand: the payload read
+// "Primary Color" and "Accent Color" while the Celebrations columns are named
+// "Custom Colors Primary" and "Custom Colors Accent". wedding.get() returned ""
+// every time, so no couple's background or accent ever reached a guest - and a
+// note directly above those constants had flagged exactly this possibility.
+//
+// The lesson is not the two names. It is that these were the only colour fields
+// read with a plain .get while every other variant-prone field went through the
+// alias table, so the mistake had nothing to catch it.
+{
+  const py = (() => { try { return fs.readFileSync('main.py', 'utf8'); } catch (e) { return null; } })();
+  if (!py) { check('backend payload (main.py not present - SKIPPED)', true, true); }
+  else {
+    const constOf = (name) => (py.match(new RegExp('^' + name + '\\s*=\\s*"([^"]*)"', 'm')) || [])[1];
+    check('the primary colour constant names the real column',
+      constOf('CF_PRIMARY_COLOR'), 'Custom Colors Primary');
+    check('and so does the accent one',
+      constOf('CF_ACCENT_COLOR'), 'Custom Colors Accent');
+
+    /* Read through _cf, which is where the tolerance lives. A plain .get on a
+       column whose name is wrong is silent, which is the whole story here. */
+    check('the colours are read through the alias table',
+      /"primary_color": _cf\(wedding, CF_PRIMARY_COLOR, ""\)/.test(py), true);
+    check('both of them', /"accent_color":  _cf\(wedding, CF_ACCENT_COLOR, ""\)/.test(py), true);
+    check('and neither is read with a bare get',
+      /wedding\.get\(CF_(PRIMARY|ACCENT)_COLOR/.test(py), false);
+
+    /* The old spellings stay listed: if any record anywhere still carries them,
+       dropping the alias would break it the other way. */
+    const aliases = (py.match(/CF_ALIASES = \{[\s\S]*?\n\}/) || [''])[0];
+    check('the old column name is still accepted',
+      /"Custom Colors Primary": \["Custom Colors Primary", "Primary Color"\]/.test(aliases), true);
+
+    /* The two fields the site could not see at all. */
+    check('the registry toggle is in the payload',
+      /"registry_preview": bool\(_cf\(wedding, CF_REGISTRY_PREVIEW, True\)\)/.test(py), true);
+    /* Default True. A couple who has never touched the switch should see the
+       preview, and an unknown column name must not read as "switched off". */
+    check('and defaults to showing', /CF_REGISTRY_PREVIEW, True\)/.test(py), true);
+    check('the collector link is in the payload',
+      /"contact_collector_url": _clean_url\(_cf\(wedding, CF_GUEST_CONNECT, ""\)\)/.test(py), true);
+
+    /* The hint rides with the LOCK SCREEN, which is the one branch that returns
+       to someone who has not proved they belong. It is written to be read at
+       the gate, so it carries no privacy weight - but the names, the date and
+       the photographs do, and that branch must still return none of them. */
+    const locked = (py.match(/if is_pw and not pwd_correct:[\s\S]*?"message": "This website is password protected"\}/) || [''])[0];
+    check('the lock screen was found', locked.length > 60, true);
+    check('the hint is returned with it', /"password_hint":/.test(locked), true);
+    for (const leak of ['couple_names', 'hero_image', 'celebration_date', 'partner_1', 'custom_css']) {
+      check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
+    }
+  }
+}
+
+// ── MP-903: the two reset controls look the same ─────────────────────────
+// The Fonts reset coloured itself from its own state - dark while fonts were
+// set, pale blue once they were not - so clearing them changed the button's
+// colour at the moment of the click. That reads as a pressed state rather than
+// as a control going quiet, and it disagreed with the reset sitting above it in
+// Colors, which never changes.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  const hex = (label) => {
+    const i = wt.indexOf('\u21ba ' + label);
+    const seg = wt.slice(Math.max(0, i - 900), i);
+    const m = [...seg.matchAll(/color: "(#[0-9A-Fa-f]{6})"/g)];
+    return m.length ? m[m.length - 1][1].toLowerCase() : null;
+  };
+  const colours = hex('Reset to template colors');
+  const fonts = hex('Reset to template default');
+  check('both reset controls were found', !!colours && !!fonts, true);
+  check('and they are the same ink', fonts, colours);
+  /* No second colour conditional on state - that is the thing that looked like
+     a click. The enabled difference rides on opacity, one hue. */
+  check('the ink does not change with state',
+    /color: \(currentData\.fontSettings \|\| currentData\.customFont\) \? "#\w+" : "#\w+"/.test(wt), false);
+  check('the difference is carried by opacity',
+    /opacity: \(currentData\.fontSettings \|\| currentData\.customFont\) \? 1 : 0\.45/.test(wt), true);
+  /* And a control that does nothing should not invite a click. */
+  check('it is disabled when there is nothing to reset',
+    /disabled=\{!\(currentData\.fontSettings \|\| currentData\.customFont\)\}/.test(wt), true);
+  check('with a cursor that says so',
+    /cursor: \(currentData\.fontSettings \|\| currentData\.customFont\) \? "pointer" : "default"/.test(wt), true);
+}
+
 // ── MP-908: a toggle the couple set reaches the live site ────────────────
 // registry_preview is built by the editor from a record column, and the live
 // page fetches the record straight from the API - where that column does not
