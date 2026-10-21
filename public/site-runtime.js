@@ -4319,11 +4319,25 @@
      not proved they belong, so nothing here is treated as markup. The hint is
      written to be read at the gate, so it carries no privacy weight of its own
      - but it must not be able to carry anything else either. */
+  /* Drawn inline rather than loaded: the gate renders before anything else and
+     must not wait on an icon font or a network request to show its controls.
+     currentColor, so it takes the page's ink like the text beside it. */
+  function _eyeSvg(shown) {
+    var open = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+    var shut = open + '<line x1="3" y1="3" x2="21" y2="21"/>';
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+      'stroke-linejoin="round" aria-hidden="true">' + (shown ? shut : open) + '</svg>';
+  }
+
   function renderPasswordScreen(coupleNames, hint) {
     var p = CFG.palette;
     var hintText = String(hint || '').replace(/\s+/g, ' ').trim();
     screenShell(
-      '<p class="mp-eyebrow">\uD83D\uDD12 Private</p>' +
+      /* No lock icon, no PRIVATE eyebrow. A guest arriving here already knows
+         the site is private - the page says so in words directly below. The
+         emoji also rendered in whatever the system supplied rather than
+         anything in the design. */
       /* Only when there are names to show.
 
          The lock-screen payload deliberately withholds them - that branch
@@ -4338,16 +4352,36 @@
          and the line below says the rest. */
       (coupleNames ? '<h1 class="mp-display">' + esc(coupleNames) + '</h1>' : '') +
       '<div class="mp-rule"></div>' +
-      '<p class="mp-body">This website is password protected. Please enter the password your hosts shared with you.</p>' +
-      (hintText ? '<p class="mp-hint">' + esc(hintText) + '</p>' : '') +
+      /* Two lines. The first states the situation, the second says what to do
+         about it - as one paragraph they ran together and the instruction was
+         easy to read past. */
+      '<p class="mp-body">This website is password protected.</p>' +
+      '<p class="mp-body mp-body2">Please enter the password your hosts shared with you.</p>' +
+      /* In brackets and labelled, so it reads as a prompt rather than as
+         another instruction the guest is meant to follow. */
+      (hintText ? '<p class="mp-hint">(Hint: ' + esc(hintText) + ')</p>' : '') +
       '<div class="mp-pw">' +
-        '<input id="mpPwInput" type="password" placeholder="Password" autocomplete="current-password">' +
+        '<div class="mp-pw-field">' +
+          '<input id="mpPwInput" type="password" placeholder="Password" autocomplete="current-password">' +
+          /* A guest typing a password dictated to them over the phone needs to
+             check what they typed as much as the couple who set it does. */
+          '<button id="mpPwEye" type="button" aria-label="Show password" title="Show password">' +
+            _eyeSvg(false) +
+          '</button>' +
+        '</div>' +
         '<button id="mpPwBtn" type="button">Enter</button>' +
         '<div id="mpPwError">Incorrect password. Please try again.</div>' +
-      '</div>' +
-      '<div class="mp-foot">myplanning.ai</div>',
+      '</div>',
+      /* No myplanning.ai line: screenShell renders the real brand footer now,
+         and the two together read as the footer having been printed twice. */
       '.mp-pw{display:flex;flex-direction:column;gap:12px;max-width:300px;margin:26px auto 0}' +
-      '.mp-pw input{width:100%;padding:12px 20px;border:1px solid ' + p.rule + ';border-radius:999px;' +
+      '.mp-pw-field{position:relative;width:100%}' +
+      '.mp-pw-field #mpPwEye{position:absolute;right:14px;top:50%;transform:translateY(-50%);' +
+        'background:none;border:none;padding:0;width:auto;cursor:pointer;line-height:0;' +
+        'color:' + p.ink + ';opacity:0.55}' +
+      '.mp-pw-field #mpPwEye:hover{opacity:0.9}' +
+      /* Room for the control, so a long password does not run under it. */
+      '.mp-pw input{width:100%;padding:12px 40px;border:1px solid ' + p.rule + ';border-radius:999px;' +
         'font-family:' + CFG.fonts.body + ';font-size:0.95rem;text-align:center;letter-spacing:0.05em;' +
         'background:#fff;color:' + p.ink + ';outline:none}' +
       '.mp-pw button{width:100%;padding:12px 20px;border:none;border-radius:999px;cursor:pointer;' +
@@ -4358,13 +4392,43 @@
       /* Quieter than the line above it and set apart, so it reads as the
          couple's own aside rather than as more instructions. */
       '.mp-hint{margin:10px auto 0;max-width:34ch;font-family:' + CFG.fonts.body + ';' +
-        'font-size:0.85rem;font-style:italic;opacity:0.75;color:' + p.ink + '}'
+        'font-size:0.85rem;font-style:italic;opacity:0.75;color:' + p.ink + '}' +
+      /* The second line is the instruction, so it sits closer to the field it
+         is about than to the statement above it. */
+      '.mp-body2{margin-top:4px}'
     );
+
+    /* The tab said "Pressed Petals" - the template file's own <title>, left
+       standing because the gate replaces the body and never touched the head.
+       A guest reading their tabs should see whose wedding it is, and on this
+       screen the slug is all we have: names are deliberately withheld here. */
+    try {
+      var _slug = String(location.pathname || '').replace(/^\/+|\/+$/g, '').split('/')[0];
+      /* "Wedding website" when there is no slug to read - a tab needs some
+         words, and inventing a phrase about the couple is the thing this
+         screen is careful not to do. */
+      document.title = _slug ? _slug.replace(/[-_]+/g, ' ') : 'Wedding website';
+    } catch (e) {}
 
     var input = document.getElementById('mpPwInput');
     var btn = document.getElementById('mpPwBtn');
     var err = document.getElementById('mpPwError');
     if (input) input.focus();
+
+    /* Reveal. Hidden by default, because a password on a screen is readable by
+       anyone standing behind the guest - but a guest typing one dictated to
+       them over the phone needs to check it as much as the couple does. */
+    var eye = document.getElementById('mpPwEye');
+    if (eye && input) {
+      eye.onclick = function () {
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        eye.innerHTML = _eyeSvg(show);
+        eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        eye.setAttribute('title', show ? 'Hide password' : 'Show password');
+        input.focus();
+      };
+    }
 
     var attempt = function () {
       var pwd = (input.value || '').trim();
@@ -7225,7 +7289,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-password-saves-on';
+  var MP_RUNTIME_BUILD = '2026-10-21-gate-polish';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

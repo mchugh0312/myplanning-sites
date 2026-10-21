@@ -4749,8 +4749,10 @@ check('two blocks -> two cards', blocks(mark(
 // the password travelling with the invitation.
 {
   const wt = fs.readFileSync('Website.txt', 'utf8');
+  /* To the end of the function. The seventh fixed-width window to go wrong
+     this session - this one is the last. */
   const scr = rt.slice(rt.indexOf('function renderPasswordScreen'),
-                       rt.indexOf('function renderPasswordScreen') + 2600);
+                       rt.indexOf('function renderComingSoon'));
   check('the screen takes a hint', /function renderPasswordScreen\(coupleNames, hint\)/.test(scr), true);
   check('and the caller passes it',
     /renderPasswordScreen\(coupleNames\(d\), d\.password_hint\)/.test(rt), true);
@@ -4759,6 +4761,42 @@ check('two blocks -> two cards', blocks(mark(
      markup - the hint is written to be read at the gate and carries no privacy
      weight of its own, but it must not be able to carry anything else. */
   check('the hint is escaped', /esc\(hintText\)/.test(scr), true);
+  /* Labelled and in brackets, so it reads as a prompt rather than as another
+     instruction the guest is meant to follow. */
+  check('the hint is shown as a hint',
+    scr.indexOf("(Hint: ' + esc(hintText) + ')") > -1, true);
+
+  /* Two lines: the first states the situation, the second says what to do. As
+     one paragraph they ran together and the instruction was easy to read past. */
+  check('the instruction stands on its own line',
+    /mp-body2">Please enter the password your hosts shared with you/.test(scr), true);
+
+  /* No lock emoji, no PRIVATE eyebrow - the page says it in words directly
+     below, and the emoji rendered in whatever the system supplied. */
+  check('the lock emoji is gone', /\\uD83D\\uDD12/.test(scr), false);
+  check('and the eyebrow with it', /mp-eyebrow/.test(scr), false);
+  /* And no second footer: screenShell renders the real one. */
+  check('the stray footer line is gone', /mp-foot">myplanning\.ai/.test(rt), false);
+
+  /* A guest can reveal what they typed. One dictated over the phone needs
+     checking as much as the one the couple set. */
+  check('the guest can reveal the password', /id="mpPwEye"/.test(scr), true);
+  check('it toggles the field type',
+    /input\.type = show \? 'text' : 'password';/.test(scr), true);
+  check('and says which it will do next',
+    /eye\.setAttribute\('aria-label', show \? 'Hide password' : 'Show password'\)/.test(scr), true);
+  /* Drawn inline: the gate renders before anything else and must not wait on
+     an icon font or a network request to show its controls. */
+  check('the icon needs nothing loaded', /function _eyeSvg\(shown\)/.test(rt), true);
+  check('and takes the page ink', /stroke="currentColor"/.test(rt), true);
+  /* The field leaves room for it, or a long password runs underneath. */
+  check('the field makes room for the control',
+    /\.mp-pw input\{width:100%;padding:12px 40px/.test(scr), true);
+
+  /* The tab said "Pressed Petals" - the template file's own <title>, left
+     standing because the gate replaces the body and never touched the head. */
+  check('the tab names the wedding, not the template',
+    /document\.title = _slug \? _slug\.replace/.test(scr), true);
   /* No heading when there are no names. The lock-screen payload withholds them
      by design, so the fallback filled that space with "A private celebration"
      at heading size - a large line of text saying nothing, in whatever face
@@ -7251,7 +7289,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-password-saves-on');
+  check('the stamp names the change it shipped with', version, '2026-10-21-gate-polish');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7259,7 +7297,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '57124817');
+    ('0000000' + bh.toString(16)).slice(-8), '37937904');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
