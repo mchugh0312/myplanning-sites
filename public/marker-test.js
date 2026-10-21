@@ -4957,13 +4957,19 @@ check('two blocks -> two cards', blocks(mark(
     check('they remain two distinct columns',
       constOf('CF_ACCOMMODATION_URL') !== constOf('CF_TRAVEL_URL'), true);
 
-      /* The FIELD ID is in the alias list. F_CELEB_GUESTCONNECT_LINK reads this
-       same column by id elsewhere in main.py, so a record keyed by id rather
-       than by name is a shape that demonstrably occurs - and the column's
-       display name was never confirmed, which is why the link arrived empty
-       and the Save the Date page had nothing to offer. */
-    check('the collector column is matched by its field id too',
-      /"Guest Connect Link":\s*\["Guest Connect Link", "Z4b6u"/.test(py), true);
+      /* The REAL column name, read off a celebration via /debug-wedding:
+       "ContactCollector Link", one word, no space. Five spellings were guessed
+       at before anyone looked and none was it; the field id was tried too and
+       could not work, because softr_fetch_all runs with use_field_names=True
+       and the record comes back keyed by display name. */
+    check('the collector column is named as it really is',
+      constOf('CF_GUEST_CONNECT'), 'ContactCollector Link');
+    check('and the old spellings stay as aliases',
+      /"ContactCollector Link": \["ContactCollector Link", "Guest Connect Link"/.test(py), true);
+    /* A field id in an alias list is dead weight here, and worse, it reads as
+       though it might work. */
+    check('no field id is used as an alias',
+      /\["[^"]*", "[A-Za-z0-9]{5}",/.test((py.match(/CF_ALIASES = \{[\s\S]*?\n\}/) || [''])[0]), false);
 
     check('the collector link is in the payload',
       /"contact_collector_url": _clean_url\(_cf\(wedding, CF_GUEST_CONNECT, ""\)\)/.test(py), true);
