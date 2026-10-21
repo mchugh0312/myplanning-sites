@@ -471,10 +471,18 @@ img{max-width:100%;display:block;}
 }
 /* Ornate SVG border — scrollwork style matching screenshot */
 .registry-frame-svg{
-  /* Contained, not filled: the ornament keeps its own proportions instead of
-     being stretched to whatever shape the text box happens to be. */
+  /* MP-928. FILLED, not contained.
+
+     Contained kept the ornament's own 5:2 proportions, so once the frame grew
+     to hold longer copy the border stayed the size it had always been and the
+     text ran out past it - the box was taller, the drawn border was not.
+
+     The scrollwork stretches a little on a tall box. That is the trade: a
+     slightly taller ornament, or a couple's words outside their own border.
+     If the stretch ever looks wrong, the answer is a nine-slice border rather
+     than going back to contain. */
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:contain;
+  object-fit:fill;
   pointer-events:none;
 }
 .registry-title{
@@ -862,7 +870,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:44c7d0c8';
+    window.__mpTemplate = 'heirloombloom:b27f6938';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

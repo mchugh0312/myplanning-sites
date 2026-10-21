@@ -4791,6 +4791,11 @@ check('two blocks -> two cards', blocks(mark(
   check('only an http(s) link is used',
     /if \(!\/\^https\?:\\\/\\\/\/i\.test\(collector\)\) collector = '';/.test(std), true);
   check('the control is conditional', /collector$[\s\S]{0,40}\?/m.test(std) || /\(collector\b/.test(std), true);
+  /* The wording names what it asks for. "Share your address" read as a request
+     for a street address alone; the collector takes a name, an email and a
+     postal address. */
+  check('it says what it is for',
+    /'Share your contact details'/.test(std), true);
   check('it opens away from the page', /rel="noopener noreferrer"/.test(std), true);
   check('and the url is escaped', /esc\(collector\)/.test(std), true);
 
@@ -4951,6 +4956,14 @@ check('two blocks -> two cards', blocks(mark(
        fallback, not a reason to point them at one place. */
     check('they remain two distinct columns',
       constOf('CF_ACCOMMODATION_URL') !== constOf('CF_TRAVEL_URL'), true);
+
+      /* The FIELD ID is in the alias list. F_CELEB_GUESTCONNECT_LINK reads this
+       same column by id elsewhere in main.py, so a record keyed by id rather
+       than by name is a shape that demonstrably occurs - and the column's
+       display name was never confirmed, which is why the link arrived empty
+       and the Save the Date page had nothing to offer. */
+    check('the collector column is matched by its field id too',
+      /"Guest Connect Link":\s*\["Guest Connect Link", "Z4b6u"/.test(py), true);
 
     check('the collector link is in the payload',
       /"contact_collector_url": _clean_url\(_cf\(wedding, CF_GUEST_CONNECT, ""\)\)/.test(py), true);
@@ -5583,6 +5596,14 @@ check('two blocks -> two cards', blocks(mark(
 
   /* MP-928. aspect-ratio alone fixes the height from the width, so copy longer
      than the sample ran out through the ornate border. */
+  /* MP-928, second half. Growing the frame was not enough: the ornament kept
+     its own 5:2 proportions, so a taller box had the same small border drawn
+     inside it and the copy ran out past it. The border has to grow with the
+     box it frames. */
+  const svg = (hb.match(/\.registry-frame-svg\{[\s\S]*?\n\}/) || [''])[0];
+  check('the border stretches with the frame', /object-fit:fill;/.test(svg), true);
+  check('and is no longer held to its own shape', /object-fit:contain;/.test(svg), false);
+
   const frame = (hb.match(/\.registry-frame\{[\s\S]*?\n\}/) || [''])[0];
   check('the registry frame was found', frame.length > 50, true);
   check('it keeps the ornament\'s proportions', /aspect-ratio:5\/2;/.test(frame), true);
@@ -7059,7 +7080,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-partial-bold-in-titles');
+  check('the stamp names the change it shipped with', version, '2026-10-21-collector-by-id');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7067,7 +7088,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '070e2668');
+    ('0000000' + bh.toString(16)).slice(-8), '86e3255c');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

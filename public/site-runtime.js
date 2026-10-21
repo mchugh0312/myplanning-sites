@@ -4273,7 +4273,7 @@
            browser can follow. */
         (collector
           ? '<a class="mp-std-cta" href="' + esc(collector) + '" target="_blank" rel="noopener noreferrer">' +
-              'Share your address' +
+              'Share your contact details' +
             '</a>' +
             '<p class="mp-std-cta-note">So we know where to send your invitation</p>'
           : '') +
@@ -7196,7 +7196,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-partial-bold-in-titles';
+  var MP_RUNTIME_BUILD = '2026-10-21-collector-by-id';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
