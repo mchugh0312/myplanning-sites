@@ -4643,7 +4643,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '56ca782e');
+    ('0000000' + h.toString(16)).slice(-8), '0ffd9abf');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4769,6 +4769,18 @@ check('two blocks -> two cards', blocks(mark(
     /websitePassword: pwInput\.trim\(\),\s*\n\s*passwordHint: pwHint\.trim\(\)/.test(wt), true);
   check('the modal is seeded from the record',
     /setPwHint\(currentData\.passwordHint \|\| ""\)/.test(wt), true);
+  /* AND it opens whenever protection is switched on. The hint lives in this
+     dialog and nowhere else, and the dialog used to appear only for a couple
+     who had never set a password - so anyone who already had one could turn
+     protection on and never be shown anywhere to write a hint. */
+  check('the dialog opens on every switch-on',
+    /if \(changes\.passwordProtected === true\) \{/.test(wt), true);
+  check('not only when no password exists',
+    /changes\.passwordProtected === true && !existingPw/.test(wt), false);
+  /* With the existing password in the field, so switching on again is a
+     confirmation rather than a re-entry. */
+  check('and carries the password they already set',
+    /setPwInput\(existingPw \|\| ""\)/.test(wt), true);
   check('and the editor preview is sent it',
     /password_hint: d\.passwordHint \|\| ''/.test(wt), true);
   // A hint long enough to be a paragraph is not a hint.
@@ -7098,7 +7110,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-cta-clickable');
+  check('the stamp names the change it shipped with', version, '2026-10-21-hint-reachable');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
