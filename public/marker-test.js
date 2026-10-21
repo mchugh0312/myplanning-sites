@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '051e6baa');
+    ('0000000' + h.toString(16)).slice(-8), '5ba283b3');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4963,6 +4963,40 @@ check('two blocks -> two cards', blocks(mark(
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
   }
+}
+
+// ── MP-920 / MP-921: a new block is added at the end ─────────────────────
+// "+ Event" and "+ Question" inserted at the CURSOR. Click with the caret
+// still at the top of the box - where it is when you have not typed yet, or
+// have just clicked in - and the two leading breaks landed above everything:
+// a gap at the top of the field, and the item that used to be first now
+// sitting under the new one with no obvious way to get it back.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  const fn = wt.slice(wt.indexOf('const startNewBlock'), wt.indexOf('const insertGap'));
+  check('the add-a-block handler was found', fn.length > 100, true);
+
+  /* The caret goes to the END first. collapse(false) is the whole fix; without
+     it the insert lands wherever the couple last clicked. */
+  check('it selects the whole box', /r\.selectNodeContents\(host\)/.test(fn), true);
+  check('and collapses to the end', /r\.collapse\(false\)/.test(fn), true);
+  check('before inserting', fn.indexOf('collapse(false)') < fn.indexOf('insertHTML'), true);
+
+  /* The separator is omitted when there is nothing to separate from - into an
+     empty box those two breaks are just a gap. */
+  check('leading breaks are conditional', /\(hasText \? "<br><br>" : ""\)/.test(fn), true);
+  check('and emptiness ignores markup',
+    /replace\(\/<\[\^>\]\*>\/g, ''\)/.test(fn), true);
+  check('and entities', /&nbsp;\|&#160;/.test(fn), true);
+
+  /* The block itself is unchanged: first line bold, then a line to type on.
+     Templates split on two or more breaks, so the pair between blocks is what
+     makes this a new card rather than another line of the last one. */
+  check('the new block still starts with its title',
+    /"<strong>New " \+ \(blockNoun \|\| "section"\) \+ "<\/strong><br>&nbsp;"/.test(fn), true);
+  /* Still goes through _clean, or the editor's own markup rules are skipped
+     for exactly the content a couple adds most often. */
+  check('the result is cleaned', /onChange\(_clean\(host\.innerHTML\)\)/.test(fn), true);
 }
 
 // ── MP-912 / MP-917: one switch is one change, and the eraser is honest ──
@@ -6831,7 +6865,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-one-switch-one-change');
+  check('the stamp names the change it shipped with', version, '2026-10-21-new-block-at-end');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
