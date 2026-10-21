@@ -5901,6 +5901,50 @@ check('two blocks -> two cards', blocks(mark(
     /\/registry\/i\.test\(String\(a\.className\)\)/.test(dead), true);
 }
 
+// ── The site serves the template the couple picked ───────────────────────
+// Every live site rendered as Pressed Petals, with Pressed Petals in the
+// browser tab, whatever the editor showed. Website Template is a Softr select,
+// and what arrives is sometimes the bare option id - a uuid, which matched no
+// label in the name map and fell through to the default. The default is
+// Pressed Petals, so the fault was invisible: a real template, correctly
+// rendered, just not the one chosen.
+{
+  const api = (() => { try { return fs.readFileSync('api/site.js', 'utf8'); } catch (e) { return null; } })();
+  if (!api) { check('template routing (api/site.js not present - SKIPPED)', true, true); }
+  else {
+    const wt = fs.readFileSync('Website.txt', 'utf8');
+    const pick = new Function(
+      api.match(/const TEMPLATE_MAP = \{[\s\S]*?\n\};/)[0] + '\n' +
+      api.match(/const TEMPLATE_IDS = \{[\s\S]*?\n\};/)[0] + '\n' +
+      api.match(/const DEFAULT_TEMPLATE = '[^']*';/)[0] + '\n' +
+      api.match(/function templateFor\(data\) \{[\s\S]*?\n\}/)[0] +
+      '\nreturn templateFor;')();
+
+    /* EVERY template the editor offers must route to its own file, by the id
+       the editor stores AND by its name. Read from the editor's own list, so
+       adding a template there without adding it here fails the suite rather
+       than quietly serving Pressed Petals. */
+    const list = (wt.match(/const TEMPLATES = \[[\s\S]*?\n\];/) || [''])[0];
+    const rows = [...list.matchAll(/id:\s*"([^"]+)",\s*label:\s*"([^"]+)",[\s\S]*?template-([a-z]+)\.html/g)];
+    check('the editor template list was read', rows.length, 10);
+    const wrong = [];
+    for (const [, id, label, slug] of rows) {
+      const want = 'template-' + slug + '.html';
+      if (pick({ template: id }) !== want) wrong.push(label + ' by id');
+      if (pick({ template: label }) !== want) wrong.push(label + ' by name');
+    }
+    check('every template routes to its own file', wrong.join(', '), '');
+
+    /* And an unrecognised value is reported rather than silently defaulted -
+       silence is how this went unnoticed. */
+    check('an unknown template is logged',
+      /console\.warn\("\[site\] unknown template/.test(api), true);
+    check('and still serves something', pick({ template: 'nonsense' }),
+      'template-pressedpetals.html');
+    check('a missing template does not throw', pick({}), 'template-pressedpetals.html');
+  }
+}
+
 // ── MP-855: a thumbnail rule is not scoped to a width ────────────────────
 // Golden Hour's card was blank above the invitation while every other design
 // was fine. Its thumbnail-mode block was wrapped in @media (min-width:641px),

@@ -73,6 +73,33 @@ const TEMPLATE_MAP = {
   'minimalist':  '/template-modernminimal.html',
   'rustic':      '/template-pressedpetals.html',
 };
+/* The SELECT OPTION IDS, which is what the editor actually stores.
+
+   Website Template is a Softr select, and a record read with field names gives
+   back the chosen option - sometimes {id, label}, sometimes the bare id. When
+   it is the bare id, _get_select_label returns the uuid itself, the uuid
+   matches no label in the map above, and this falls through to the default:
+   Pressed Petals. Every couple who had picked anything else got Pressed Petals
+   on their live site, with Pressed Petals in the browser tab, whatever the
+   editor showed them.
+
+   Ids never change; display names can be renamed in Softr at any time without
+   anyone touching this file, so matching on the id is the sturdier half of the
+   pair. Both are kept: the label path works and there is no reason to remove a
+   working route. */
+const TEMPLATE_IDS = {
+  '2b508102-48ef-4330-92ac-24b0a0abc094': '/template-pressedpetals.html',
+  '973f938f-30cd-42dc-b1f4-b4302d160698': '/template-heirloombloom.html',
+  '86596984-1045-4adb-838d-2b59b75f0003': '/template-modernminimal.html',
+  '1bdc5372-1d57-46e7-8883-1a0586838aa6': '/template-goldenhour.html',
+  'b2ea1d6d-da4f-4023-ba04-fb7baa756608': '/template-coastalchic.html',
+  '1665a3ed-74c9-49f4-a002-e5b15686597c': '/template-sageandstill.html',
+  '72c2caba-f5a8-4a85-b683-397b39e34b44': '/template-blacktietimeless.html',
+  'c2be12ee-8127-4a7d-b975-492bbc8bb812': '/template-whimsicalromance.html',
+  '716cd27c-ea9c-4ece-b4f2-bba0a9935a0b': '/template-regalboho.html',
+  'ea503a80-4b62-4936-97ae-28e96cd960b4': '/template-vintagelovestory.html',
+};
+
 const DEFAULT_TEMPLATE = '/template-pressedpetals.html';
 
 /* Read once per container, not once per request. The files only change on
@@ -93,8 +120,17 @@ function readPublic(file) {
 }
 
 function templateFor(data) {
-  const label = (data && data.template ? String(data.template) : "").toLowerCase();
-  return (TEMPLATE_MAP[label] || DEFAULT_TEMPLATE).replace(/^\//, "");
+  const raw = (data && data.template ? String(data.template) : "").trim();
+  const key = raw.toLowerCase();
+  /* Id first, then label. A uuid cannot collide with a template name, so the
+     order costs nothing and the id is the value that actually arrives. */
+  const file = TEMPLATE_IDS[key] || TEMPLATE_MAP[key];
+  if (!file) {
+    /* Say so. Falling back silently is how every site came to be Pressed
+       Petals without anyone being able to see why. */
+    console.warn("[site] unknown template %j - falling back to default", raw);
+  }
+  return (file || DEFAULT_TEMPLATE).replace(/^\//, "");
 }
 
 async function fetchWithTimeout(url, ms) {
