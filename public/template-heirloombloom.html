@@ -506,6 +506,18 @@ a.registry-title:hover{border-bottom-color:currentColor;}
   color:rgba(58,32,16,0.75);line-height:1.9;
   margin-top:0.8rem;
   position:relative;z-index:1;
+  /* MP-928, third look. The frame grows and the border stretches with it now,
+     and the copy STILL ran out through the sides - because a long run with no
+     spaces in it has nowhere to break. A browser will let an unbreakable word
+     overflow its box rather than cut it, so padding and a wider frame cannot
+     contain one.
+
+     anywhere, not break-word: break-word only breaks when the word is alone
+     on its line, which an address or a pasted URL in the middle of a sentence
+     is not. Normal prose is unaffected - a break is only taken when there is
+     no other way to fit the line. */
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 
 /* ── RSVP — greengray bg, single name input pill ───────────────── */
@@ -870,7 +882,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:b27f6938';
+    window.__mpTemplate = 'heirloombloom:b877fae8';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

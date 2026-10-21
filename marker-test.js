@@ -4759,6 +4759,26 @@ check('two blocks -> two cards', blocks(mark(
      markup - the hint is written to be read at the gate and carries no privacy
      weight of its own, but it must not be able to carry anything else. */
   check('the hint is escaped', /esc\(hintText\)/.test(scr), true);
+  /* No heading when there are no names. The lock-screen payload withholds them
+     by design, so the fallback filled that space with "A private celebration"
+     at heading size - a large line of text saying nothing, in whatever face
+     the template had not yet loaded. */
+  check('the names appear only when there are some',
+    /\(coupleNames \? '<h1 class="mp-display">' \+ esc\(coupleNames\) \+ '<\/h1>' : ''\)/.test(scr), true);
+  check('and there is no invented stand-in',
+    /A private celebration/.test(rt), false);
+
+  /* And the screen carries the real footer. These screens replace the whole
+     document, so the one the site builds at the end of hydrate was never
+     there - a guest landing on a locked site sees this page and nothing
+     else. */
+  const shell = rt.slice(rt.indexOf('function screenShell'), rt.indexOf('// \u2500\u2500 Save the Date'));
+  check('the shell draws the brand footer',
+    /renderBrandFooter\(theme && theme\.footer\)/.test(shell), true);
+  check('after the body is shown, since it appends to it',
+    shell.indexOf("style.visibility = 'visible'") < shell.indexOf('renderBrandFooter'), true);
+  check('and a footer failure cannot blank the gate',
+    /try \{ renderBrandFooter\(theme && theme\.footer\); \} catch \(e\) \{\}/.test(shell), true);
   check('and omitted entirely when blank', /hintText \?/.test(scr), true);
   check('with whitespace collapsed first', scr.indexOf("replace(/\\s+/g, ' ').trim()") > -1, true);
 
@@ -7110,7 +7130,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-hint-reachable');
+  check('the stamp names the change it shipped with', version, '2026-10-21-gate-tidy');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7118,7 +7138,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '66e93444');
+    ('0000000' + bh.toString(16)).slice(-8), '57124817');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),

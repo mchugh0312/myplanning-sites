@@ -4011,6 +4011,16 @@
       '<div class="mp-screen"><div class="mp-inner">' + inner + '</div></div>';
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
+    /* The real footer, the same one every other page carries.
+
+       These screens replace the whole document, so the footer the site builds
+       at the end of hydrate was never there - the gate showed the single grey
+       MYPLANNING.AI line this shell draws itself. A guest who lands on a
+       locked site sees this page and nothing else, so it is the one place the
+       footer matters most.
+
+       After the body is visible, because renderBrandFooter appends to it. */
+    try { renderBrandFooter(theme && theme.footer); } catch (e) {}
   }
 
   // ── Save the Date ────────────────────────────────────────────────────────
@@ -4314,7 +4324,19 @@
     var hintText = String(hint || '').replace(/\s+/g, ' ').trim();
     screenShell(
       '<p class="mp-eyebrow">\uD83D\uDD12 Private</p>' +
-      '<h1 class="mp-display">' + esc(coupleNames || 'A private celebration') + '</h1>' +
+      /* Only when there are names to show.
+
+         The lock-screen payload deliberately withholds them - that branch
+         returns the slug, the hint and nothing else, so a guest at the gate
+         learns nothing about the couple. So coupleNames is empty here by
+         design, and the fallback filled the space with "A private
+         celebration" set in the display face at heading size: a large line of
+         text that says nothing, in whatever face the template had not yet
+         loaded.
+
+         With no names there is no heading. The eyebrow already says Private
+         and the line below says the rest. */
+      (coupleNames ? '<h1 class="mp-display">' + esc(coupleNames) + '</h1>' : '') +
       '<div class="mp-rule"></div>' +
       '<p class="mp-body">This website is password protected. Please enter the password your hosts shared with you.</p>' +
       (hintText ? '<p class="mp-hint">' + esc(hintText) + '</p>' : '') +
@@ -7203,7 +7225,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-hint-reachable';
+  var MP_RUNTIME_BUILD = '2026-10-21-gate-tidy';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
