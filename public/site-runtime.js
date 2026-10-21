@@ -6463,8 +6463,30 @@
        the pattern had moved. */
   }
 
+  /* The footer's four colours, applied to whichever element is there.
+
+     Separated from building it because the build happens ONCE and the colours
+     have to follow every change. */
+  function paintBrandFooter(footer, override) {
+    var c = resolveFooterColors(override);
+    footer.style.setProperty('--mp-bf-bg', c.bg);
+    footer.style.setProperty('--mp-bf-ink', c.ink);
+    footer.style.setProperty('--mp-bf-rule', c.rule);
+    footer.style.setProperty('--mp-bf-logo-filter', c.logoFilter);
+  }
+
   function renderBrandFooter(override) {
-    if (document.querySelector('.mp-brand-footer')) return;
+    /* REPAINT, don't return. This bailed as soon as the footer existed, so its
+       colours were whatever they had been on the first render. A live page
+       builds it once, after hydrate, and looked right; the editor preview
+       re-hydrates on every keystroke and the footer kept the colours it was
+       born with - the couple changed Accent and watched every band follow
+       except that one.
+
+       resolveFooterColors reads the palette as it stands now, so calling it
+       again is the whole fix. */
+    var existing = document.querySelector('.mp-brand-footer');
+    if (existing) { paintBrandFooter(existing, override); return; }
     ensureBrandFonts();
     if (!document.getElementById('mp-brand-footer-css')) {
       var style = document.createElement('style');
@@ -6474,11 +6496,7 @@
     }
     var footer = document.createElement('footer');
     footer.className = 'mp-brand-footer';
-    var c = resolveFooterColors(override);
-    footer.style.setProperty('--mp-bf-bg', c.bg);
-    footer.style.setProperty('--mp-bf-ink', c.ink);
-    footer.style.setProperty('--mp-bf-rule', c.rule);
-    footer.style.setProperty('--mp-bf-logo-filter', c.logoFilter);
+    paintBrandFooter(footer, override);
     footer.innerHTML = brandFooterHtml();
     document.body.appendChild(footer);
   }
@@ -7027,7 +7045,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-template-colour-block';
+  var MP_RUNTIME_BUILD = '2026-10-21-footer-repaint';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
