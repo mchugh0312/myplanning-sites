@@ -5116,6 +5116,24 @@ check('two blocks -> two cards', blocks(mark(
     const locked = (py.match(/if is_pw and not pwd_correct:[\s\S]*?"message": "This website is password protected"\}/) || [''])[0];
     check('the lock screen was found', locked.length > 60, true);
     check('the hint is returned with it', /"password_hint":/.test(locked), true);
+
+    /* THE TEMPLATE GOES OUT WITH THE GATE.
+
+       This branch withheld it along with everything else, so api/site.js had
+       nothing to match on and served its default - Pressed Petals - to every
+       password-protected site. The couple's own design never appeared, in the
+       page or in the tab, whatever they had chosen.
+
+       It is not private: which design a couple picked says nothing about them,
+       and the page already serves one of ten template files a guest can read
+       in full. */
+    check('the template is returned with the gate',
+      /"template": _gate_template/.test(locked), true);
+    /* Resolved inside the branch. The assignment further down runs after this
+       has returned, so naming it there would raise NameError and turn every
+       locked site into a 500. */
+    check('and resolved where it is used',
+      /_gate_template = \(_get_select_label\(wedding\.get\(CF_TEMPLATE\)\) or "Classic"\)\.lower\(\)/.test(locked), true);
     for (const leak of ['couple_names', 'hero_image', 'celebration_date', 'partner_1', 'custom_css']) {
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
