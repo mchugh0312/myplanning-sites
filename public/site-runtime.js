@@ -4232,7 +4232,14 @@
          luminance for exactly this ground. Using the page ink would have put
          dark type on a dark band on half the templates - and `p` is not even
          in scope here, which is what caught it. */
-      '.mp-std-cta{display:inline-block;margin-top:18px;padding:11px 26px;' +
+      /* The band above carries pointer-events:none - it is text laid over the
+         photograph and must not swallow a click meant for the page. That made
+         the one thing in it that IS interactive unclickable: a correct <a>
+         with a valid href, rendered, visible, and inert.
+
+         Given back here rather than taken off the band: the band's rule is
+         right for everything else in it. */
+      '.mp-std-cta{pointer-events:auto;display:inline-block;margin-top:18px;padding:11px 26px;' +
         'border:1px solid ' + bandInk + ';border-radius:999px;text-decoration:none;' +
         'font-family:' + CFG.fonts.body + ';font-size:0.78rem;letter-spacing:0.12em;' +
         'text-transform:uppercase;color:' + bandInk + '}' +
@@ -7196,7 +7203,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-collector-by-id';
+  var MP_RUNTIME_BUILD = '2026-10-21-cta-clickable';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

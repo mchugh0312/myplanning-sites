@@ -1118,7 +1118,10 @@ check('two blocks -> two cards', blocks(mark(
   const i = rt.indexOf('function applySaveTheDate(');
   const body = i === -1 ? '' : rt.slice(i, rt.indexOf('function clearSaveTheDate(') > i
     ? rt.indexOf('function clearSaveTheDate(') : i + 9000);
-  const whole = rt.slice(i, i + 9000);
+  /* To the end of the function, not a guessed width - the pointer-events fix
+     pushed the motif past 9000 and the check read a slice without it. The
+     sixth fixed-width window to do this; there are none left in this file. */
+  const whole = rt.slice(i, rt.indexOf('_stdOwnTextRects, _stdDeoverlap'));
 
   check('the announcement is a block of its own', /mp-std-block/.test(whole), true);
   // Hiding by rule, not by list: every top-level element goes except the brand
@@ -4796,6 +4799,15 @@ check('two blocks -> two cards', blocks(mark(
      postal address. */
   check('it says what it is for',
     /'Share your contact details'/.test(std), true);
+  /* AND it can be clicked. The band it sits in carries pointer-events:none -
+     it is text laid over the photograph and must not swallow a click meant for
+     the page - which made the one interactive thing in it inert: a correct <a>
+     with a valid href, rendered, visible, and dead to the mouse. */
+  check('the control takes clicks back',
+    /\.mp-std-cta\{pointer-events:auto;/.test(std), true);
+  /* The band keeps its own rule: it is right for the words around the button. */
+  check('and the band still lets clicks through',
+    /\.mp-std-top,\.mp-std-bottom\{[\s\S]{0,160}pointer-events:none;/.test(std), true);
   check('it opens away from the page', /rel="noopener noreferrer"/.test(std), true);
   check('and the url is escaped', /esc\(collector\)/.test(std), true);
 
@@ -7086,7 +7098,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-collector-by-id');
+  check('the stamp names the change it shipped with', version, '2026-10-21-cta-clickable');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7094,7 +7106,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '86e3255c');
+    ('0000000' + bh.toString(16)).slice(-8), '66e93444');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
