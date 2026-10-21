@@ -300,8 +300,11 @@ check('two blocks -> two cards', blocks(mark(
 
   // The face rides on the tag, because a stylesheet has to reach the box's root
   // to do anything and that turned out not to be a safe assumption.
+  /* The tag may now carry data-whole-bold before its style, so the test is no
+     longer anchored to style coming first - only that the opening tag carries
+     the face. */
   check('the mark carries the heading face',
-    /^<mp-t style="[^"]*Pinyon Script/.test(ed.mark(T)), true);
+    /^<mp-t[^>]*style="[^"]*Pinyon Script/.test(ed.mark(T)), true);
   check('marks the first line of every block',
     (ed.mark(T).match(/<mp-t\b/g) || []).length, 2);
   check('marks nothing else',
@@ -4637,7 +4640,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'db857e12');
+    ('0000000' + h.toString(16)).slice(-8), '56ca782e');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4963,6 +4966,85 @@ check('two blocks -> two cards', blocks(mark(
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
   }
+}
+
+// ── Bold inside a title shows, unless it wraps the whole line ────────────
+// The box flattened any <strong> inside a title: "mp-t strong{font-weight:400}".
+// That is right for one wrapping a WHOLE title, because markBlock unwraps those
+// - but it also killed bold applied to part of a line, which the site keeps. A
+// couple bolding three words of a Need to Knows question watched nothing
+// happen in the Content box while the site rendered it correctly.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* Decided where the title is marked, not in CSS. :only-child does not help:
+     it counts element children and ignores text, so a <strong> with words
+     either side of it still matches. */
+  const src = wt.slice(wt.indexOf('      const wholeBold ='), wt.indexOf("      return '<mp-t'"));
+  check('the whole-line test exists', src.length > 60, true);
+  const isWhole = new Function('head', src + ' return wholeBold;');
+  check('a wholly bold title is flattened',
+    isWhole('<strong>What should I wear?</strong>'), true);
+  check('even with markup inside it',
+    isWhole('<strong>What <em>should</em> I wear?</strong>'), true);
+  /* The ones the site KEEPS must keep their weight in the box too. */
+  check('bold on part of a line stays', isWhole('Some <strong>words</strong> bold'), false);
+  check('and two separate runs stay', isWhole('<strong>a</strong> and <strong>b</strong>'), false);
+  check('a plain title is unaffected', isWhole('What should I wear?'), false);
+
+  /* The CSS follows the mark rather than matching every nested strong. */
+  check('the rule is scoped to the mark',
+    /\[contenteditable\] mp-t\[data-whole-bold\] strong/.test(wt), true);
+  check('and no longer flattens any bold in a title',
+    /\[contenteditable\] mp-t strong,/.test(wt), false);
+  check('the mark is written onto the tag',
+    /\(wholeBold \? ' data-whole-bold="1"' : ''\)/.test(wt), true);
+  /* The marks are stripped on the way out, so this attribute must go with
+     them - it is the box's business, not the record's. */
+  check('and leaves with the rest of the mark',
+    /replace\(\/<mp-t\\b\[\^>\]\*>\|<\\\/mp-t>\/gi, ""\)/.test(wt), true);
+}
+
+// ── MP-915: the format buttons show what applies ─────────────────────────
+// btnStyle has taken an `active` flag since it was written and every call site
+// passed false, so B, I and U never lit up - a couple could not tell whether
+// the words under the cursor were already bold without trying it and looking.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  check('the buttons read their state', /const \[fmt, setFmt\] = useState\(/.test(wt), true);
+  for (const [cmd, prop] of [['bold', 'fmt.bold'], ['italic', 'fmt.italic'],
+                             ['underline', 'fmt.underline']]) {
+    check(cmd + ' is lit from the caret',
+      new RegExp('exec\\("' + cmd + '"\\); \\}\\} style=\\{(?:\\{ \\.\\.\\.)?btnStyle\\(' +
+        prop.replace('.', '\\.') + '\\)').test(wt), true);
+  }
+  check('none is hardwired to off any more',
+    /exec\("(bold|italic|underline)"\); \}\} style=\{(?:\{ \.\.\.)?btnStyle\(false\)/.test(wt), false);
+
+  /* queryCommandState answers for the current selection, read on
+     selectionchange - the one event that fires for a click, an arrow key and a
+     drag alike. */
+  check('state comes from the document, not a guess',
+    /doc\.queryCommandState\("bold"\)/.test(wt), true);
+  check('and is refreshed on selection changes',
+    /doc\.addEventListener\("selectionchange", _syncFmt\)/.test(wt), true);
+  /* Removed again, or every box ever opened keeps a listener on a shared
+     document for the life of the page. */
+  check('the listener is removed on unmount',
+    /doc\.removeEventListener\("selectionchange", _syncFmt\)/.test(wt), true);
+  /* execCommand raises no selectionchange of its own, so without this the
+     buttons would show the state from before the command. */
+  check('and after each command', /_doc\(\)\.execCommand\(cmd, false, null\);\s*\n[\s\S]{0,200}_syncFmt\(\);/.test(wt), true);
+
+  /* ONLY when the caret is in THIS box. The event is document-wide and every
+     section on the page has one of these toolbars; without the containment
+     test, typing in Our Story would light up the buttons above Travel. */
+  check('a caret in another box is ignored',
+    /if \(!host \|\| !sel \|\| !sel\.anchorNode \|\| !host\.contains\(sel\.anchorNode\)\) return;/.test(wt), true);
+  /* And reading it cannot throw: queryCommandState is unsupported in some
+     embedded views and this runs on every caret move. */
+  check('reading the state cannot break typing',
+    /const _syncFmt = \(\) => \{\s*\n\s*try \{/.test(wt), true);
 }
 
 // ── MP-916: a spacer holds nothing ───────────────────────────────────────
@@ -6977,7 +7059,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-gaps-hold-nothing');
+  check('the stamp names the change it shipped with', version, '2026-10-21-partial-bold-in-titles');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
