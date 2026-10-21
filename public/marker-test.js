@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '448c927c');
+    ('0000000' + h.toString(16)).slice(-8), 'db857e12');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4962,6 +4962,55 @@ check('two blocks -> two cards', blocks(mark(
     for (const leak of ['couple_names', 'hero_image', 'celebration_date', 'partner_1', 'custom_css']) {
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
+  }
+}
+
+// ── MP-916: a spacer holds nothing ───────────────────────────────────────
+// The spacer is an empty block-level span, and a contenteditable will happily
+// put the caret inside one - so a couple typing after a gap could type INTO it.
+// Twelve pixels tall with the text overflowing, that reads as lines overlapping
+// the space; and a line that lands inside one is a line the templates never
+// render, because markStructure splits on breaks and text buried in a span
+// between them is not a line at all. Three lines arriving as two.
+{
+  const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return {}; } })();
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+
+  /* New spacers cannot be typed into. */
+  check('the spacer is inert',
+    /<span class="mp-gap" contenteditable="false" style="display:block;height:12px"><\/span>/.test(wt), true);
+  /* And everything leaving the box is repaired, for gaps saved before that
+     attribute existed or dragged in since. */
+  check('the repair runs on the way out',
+    /const str = _emptyGaps\(_stripTitleMarks\(html\)\);/.test(wt), true);
+
+  if (!JSDOM) { check('spacer repair (jsdom not installed - SKIPPED)', true, true); }
+  else {
+    const src = wt.slice(wt.indexOf('const _emptyGaps = (html) =>'),
+                         wt.indexOf('  const _stripTitleMarks'));
+    const dom = new JSDOM('<!doctype html>');
+    const fix = new Function('_doc',
+      src.replace(/^\s*const _emptyGaps = /, 'return ') + ';')(() => dom.window.document);
+    const G = '<span class="mp-gap" style="display:block;height:12px">';
+
+    /* THE WORDS SURVIVE. A line typed into a gap is the couple's writing, and
+       emptying the gap by discarding it would turn a display fault into data
+       loss - which is worse than the bug. */
+    const one = fix('a<br>' + G + 'lost line</span>');
+    check('a line typed into a gap is kept', one.indexOf('lost line') > -1, true);
+    check('and moved out in front of it',
+      one.indexOf('lost line') < one.indexOf('mp-gap'), true);
+    const three = fix('a<br>' + G + 'two<br>three</span>');
+    check('several lines all come back',
+      three.indexOf('two') > -1 && three.indexOf('three') > -1, true);
+    check('in their own order', three.indexOf('two') < three.indexOf('three'), true);
+
+    /* The gap itself stays - it is the couple's spacing - and is made inert. */
+    check('the gap is not removed', /mp-gap/.test(one), true);
+    check('and is made inert', /contenteditable="false"/.test(one), true);
+    /* An ordinary box is returned untouched, and the cheap exit is taken. */
+    check('content with no gaps is untouched', fix('plain<br>text'), 'plain<br>text');
+    check('and nothing is returned as undefined', typeof fix(''), 'string');
   }
 }
 
@@ -6928,7 +6977,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-new-block-not-bold');
+  check('the stamp names the change it shipped with', version, '2026-10-21-gaps-hold-nothing');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
