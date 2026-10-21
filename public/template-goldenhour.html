@@ -73,7 +73,18 @@ img{display:block;max-width:100%;}
 /* Scoped to wide renders. Below this the thumbnail is a phone-width
    iframe and the template's own mobile CSS is the correct layout —
    these overrides were written for the 1100px render only. */
-@media (min-width: 641px) {
+/* NOT scoped to a width. body.thumbnail-mode is the whole condition.
+
+   This was wrapped in @media (min-width:641px) because the overrides were
+   written when a thumbnail rendered at 1100px. The render width is derived
+   from the card now and is 552, so the entire block stopped applying - and
+   with it the --mp-thumb-hero composite, which is the only thing that puts a
+   photograph on this template's card. The card went blank above the
+   invitation while every other design was fine.
+
+   Two numbers in two files that had to agree and nobody could see together.
+   The class itself says when these rules are wanted, so it is the only test
+   they need. */
 body.thumbnail-mode .hero-section{
   height:66.67vw!important;min-height:0!important;
   display:block!important;
@@ -106,7 +117,7 @@ body.thumbnail-mode .hero-names{
   transform:translateX(-50%)!important;
   width:auto!important;
 }
-}
+
 
 body.thumbnail-mode .hero-names-text{
   /* Was clamp(0.5rem,3.5vw,0.9rem): a 0.9rem ceiling meant roughly 14px at
@@ -531,7 +542,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'goldenhour:fbd94de0';
+    window.__mpTemplate = 'goldenhour:698ae716';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

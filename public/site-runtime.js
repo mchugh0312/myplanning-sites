@@ -2754,8 +2754,33 @@
   function markStructure(html) {
     if (!html || typeof html !== 'string') return html;
     var parts = html.split(/((?:<br\s*\/?>\s*){2,})/i);
+
+    /* MP-337. EACH BLOCK HAS TO STAND ALONE.
+
+       A template cuts this blob into cards on the same blank line and renders
+       each one as its own fragment. So a block that begins inside a tag opened
+       in an earlier block loses it: select a whole section, hit underline, and
+       the editor writes ONE <u> around everything - the first card keeps it and
+       every card after it is rendered from a substring whose <u> opened in a
+       fragment it will never see.
+
+       That is the screenshot exactly: The Ceremony in script and underlined,
+       The Reception in the template's plain face. An earlier pass closed and
+       reopened tags across the <mp-title> boundary, which is the same fault one
+       level down and fixed only the title.
+
+       Carried across here: whatever is still open at the end of a block is
+       closed there and reopened at the start of the next, with its attributes,
+       so every block is valid HTML on its own and renders the same whether it
+       is shown with its neighbours or alone. */
+    var carry = [];
     for (var i = 0; i < parts.length; i += 2) {
-      if (parts[i] && parts[i].trim()) parts[i] = markBlock(parts[i]);
+      if (!parts[i] || !parts[i].trim()) continue;
+      var block = carry.map(function (t) { return t.tag; }).join('') + parts[i];
+      var open = _openTags(block);
+      for (var c = open.length - 1; c >= 0; c--) block += '</' + open[c].name + '>';
+      parts[i] = markBlock(block);
+      carry = open;
     }
     return parts.join('');
   }
@@ -7045,7 +7070,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-footer-repaint';
+  var MP_RUNTIME_BUILD = '2026-10-21-reset-parity';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

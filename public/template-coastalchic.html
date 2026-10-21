@@ -1023,12 +1023,21 @@ body.hydrating{visibility:hidden;}
 /* Scoped to wide renders. Below this the thumbnail is a phone-width
    iframe and the template's own mobile CSS is the correct layout —
    these overrides were written for the 1100px render only. */
-@media (min-width: 641px) {
+/* NOT scoped to a width. body.thumbnail-mode is the whole condition.
+
+   These were wrapped in a min-width media query written when a thumbnail
+   rendered at 1100px. The render width is derived from the card now and is
+   552, so the whole block stopped applying - two numbers in two files that had
+   to agree and nobody could see together. Golden Hour showed it worst, because
+   its composite is the only thing that puts a photograph on its card.
+
+   The class itself says when these rules are wanted, so it is the only test
+   they need. */
 body.thumbnail-mode .hero{
   height:560px!important;
   min-height:0!important;
 }
-}
+
 
 /* Optional: speed up thumbnail rendering by skipping smooth-scroll behaviours */
 body.thumbnail-mode{scroll-behavior:auto;}
@@ -1068,7 +1077,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:1e032711';
+    window.__mpTemplate = 'coastalchic:ba18afe5';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

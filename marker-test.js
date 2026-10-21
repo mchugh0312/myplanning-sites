@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'd40e854e');
+    ('0000000' + h.toString(16)).slice(-8), '5408bdca');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4891,6 +4891,28 @@ check('two blocks -> two cards', blocks(mark(
     /disabled=\{!\(currentData\.fontSettings \|\| currentData\.customFont\)\}/.test(wt), true);
   check('with a cursor that says so',
     /cursor: \(currentData\.fontSettings \|\| currentData\.customFont\) \? "pointer" : "default"/.test(wt), true);
+
+  /* BOTH controls, or they disagree about their own state - which is what the
+     report was: Fonts went quiet with nothing to reset, Colors stayed lit. */
+  check('the colours reset is disabled the same way',
+    /disabled=\{!_coloursChanged\}/.test(wt), true);
+  check('and dims rather than changing colour',
+    /opacity: _coloursChanged \? 1 : 0\.45/.test(wt), true);
+  check('with the same cursor treatment',
+    /cursor: _coloursChanged \? "pointer" : "default"/.test(wt), true);
+  /* "Changed" has to mean anything this button would clear - the two columns
+     or any tone in customCss - or it goes quiet while still having work to do. */
+  check('changed means any of the seven',
+    /const _coloursChanged = !!\(currentData\.primaryColor \|\| currentData\.accentColor \|\|\s*\n\s*COLOR_CSS_VARS\.some/.test(wt), true);
+  /* Both resets use one ink. A second colour conditional on state is what read
+     as a click in the first place. */
+  const inks = [...wt.matchAll(/\u21ba Reset to template/g)].map(m => {
+    const seg = wt.slice(Math.max(0, m.index - 700), m.index);
+    const c = [...seg.matchAll(/color: "(#[0-9A-Fa-f]{6})"/g)];
+    return c.length ? c[c.length - 1][1].toLowerCase() : null;
+  });
+  check('both resets were found', inks.length, 2);
+  check('and share one ink', inks[0], inks[1]);
 }
 
 // ── MP-908: a toggle the couple set reaches the live site ────────────────
@@ -5106,6 +5128,81 @@ check('two blocks -> two cards', blocks(mark(
     /\} else if \(deadline\) \{/.test(hyd), true);
   check('and the template keeps its own phrasing around the date',
     /lead \? lead\[1\] : 'by '/.test(hyd), true);
+}
+
+// ── MP-855: a thumbnail rule is not scoped to a width ────────────────────
+// Golden Hour's card was blank above the invitation while every other design
+// was fine. Its thumbnail-mode block was wrapped in @media (min-width:641px),
+// written when a thumbnail rendered at 1100px - and the render width is derived
+// from the card now and is 552, so the whole block stopped applying, taking the
+// --mp-thumb-hero composite with it. Two numbers in two files that had to agree
+// and nobody could see together.
+{
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  const base = parseFloat((wt.match(/const THUMB_MOBILE_WIDTH\s*=\s*(\d+);/) || [])[1]);
+  const mult = parseFloat((wt.match(/const THUMB_RENDER_WIDTH\s*=\s*THUMB_MOBILE_WIDTH \* (\d+);/) || [])[1]);
+  const renderAt = base * mult;
+  check('the render width is known', renderAt > 0, true);
+
+  const bad = [];
+  for (const t of fs.readdirSync('.').filter(f => /^template-.*\.html$/.test(f)).sort()) {
+    const css = [...fs.readFileSync(t, 'utf8').matchAll(/<style>([\s\S]*?)<\/style>/g)]
+      .map(m => m[1]).join('\n');
+    /* Any thumbnail rule behind a min-width the render never reaches is a rule
+       that cannot run. Checked against the real number rather than a literal,
+       so retuning the render width moves this with it. */
+    const re = /@media[^{]*min-width:\s*(\d+)px[^{]*\{([\s\S]*?)\n\}/g;
+    let m;
+    while ((m = re.exec(css))) {
+      if (parseFloat(m[1]) > renderAt && /thumbnail-mode/.test(m[2])) {
+        bad.push(t.replace('template-', '').replace('.html', '') +
+          ': thumbnail rules behind min-width ' + m[1] + ', render is ' + renderAt);
+      }
+    }
+  }
+  check('no thumbnail rule is out of reach of the render', bad.join(' | '), '');
+
+  /* And Golden Hour's composite specifically, since it is the only thing that
+     puts a photograph on that card. */
+  const gh = fs.readFileSync('template-goldenhour.html', 'utf8');
+  check('the thumbnail hero composite is still there',
+    /body\.thumbnail-mode \.hero-section\{/.test(gh), true);
+  check('and hydrate still fills it',
+    /_heroSec\.style\.setProperty\('--mp-thumb-hero'/.test(gh), true);
+  check('with samples behind it when there are no photographs',
+    /background-image: var\(--mp-thumb-hero,/.test(gh), true);
+}
+
+// ── The brand footer follows a colour change ─────────────────────────────
+// renderBrandFooter bailed as soon as the footer existed, so its four colours
+// were whatever they had been on the FIRST render. A live page builds it once,
+// after hydrate, and looked right; the editor preview re-hydrates on every
+// keystroke and the footer kept the colours it was born with - the couple
+// changed Accent and watched every band follow except that one.
+{
+  const fn = rt.slice(rt.indexOf('function renderBrandFooter'),
+                      rt.indexOf('HYDRATION'));
+  check('the footer builder was found', fn.length > 100, true);
+  check('an existing footer is repainted, not skipped',
+    /var existing = document\.querySelector\('\.mp-brand-footer'\);\s*\n\s*if \(existing\) \{ paintBrandFooter\(existing, override\); return; \}/.test(fn), true);
+  check('and no longer returns bare', /if \(document\.querySelector\('\.mp-brand-footer'\)\) return;/.test(fn), false);
+
+  /* One painter for both paths. Two would drift, and the drift would show only
+     on the path nobody tests - which is how this one survived. */
+  const paint = rt.slice(rt.indexOf('function paintBrandFooter'),
+                         rt.indexOf('function renderBrandFooter'));
+  check('there is a single painter', paint.length > 60, true);
+  for (const v of ['--mp-bf-bg', '--mp-bf-ink', '--mp-bf-rule', '--mp-bf-logo-filter']) {
+    check('it sets ' + v, paint.indexOf(v) > -1, true);
+  }
+  check('and the builder uses it', /paintBrandFooter\(footer, override\);/.test(fn), true);
+  check('with the colours set nowhere else',
+    (rt.match(/setProperty\('--mp-bf-bg'/g) || []).length, 1);
+
+  /* The colours must be RESOLVED each time, not captured once - that is what
+     makes a repaint mean anything. */
+  check('the painter resolves the palette as it stands',
+    /var c = resolveFooterColors\(override\);/.test(paint), true);
 }
 
 // ── MP-357: only the runtime writes a palette variable ───────────────────
@@ -5371,6 +5468,37 @@ check('two blocks -> two cards', blocks(mark(
   };
   const titleOf = (out) => (out.match(/<mp-title>([\s\S]*?)<\/mp-title>/) || [])[1];
 
+  /* EVERY CARD STANDS ALONE. A template cuts this blob on the same blank line
+     and renders each card as its own fragment, so a block beginning inside a
+     tag opened in an earlier block loses it entirely. Select a section, hit
+     underline, and the editor writes ONE <u> around everything: the first card
+     keeps it, every later card is a substring whose <u> opened somewhere it
+     will never see.
+
+     The earlier pass balanced the <mp-title> boundary, which is the same fault
+     one level down - it fixed the title and left the cards. */
+  const cards = (out) => out.split(/(?:<br\s*\/?>\s*){2,}/).filter(x => x.trim());
+  const both = mark('<u><span style="font-family:X">Ceremony<br>4pm<br><br>Reception<br>7pm</span></u>');
+  const two = cards(both);
+  check('the blob still cuts into two cards', two.length, 2);
+  for (let i = 0; i < two.length; i++) {
+    check('card ' + (i + 1) + ' is valid on its own', balanced(two[i]), true);
+    check('card ' + (i + 1) + ' keeps the underline', /<u>/.test(two[i]), true);
+    check('card ' + (i + 1) + ' keeps the font',
+      /<span style="font-family:X">/.test(two[i]), true);
+  }
+  /* Three cards: the carry has to survive more than one boundary. */
+  const three = cards(mark('<u>A<br>1<br><br>B<br>2<br><br>C<br>3</u>'));
+  check('a third card is reached too', three.length, 3);
+  check('and still carries the formatting',
+    three.filter(c => /<u>/.test(c)).length, 3);
+  /* Formatting that ENDS inside a block must not be carried past it - a couple
+     who underlines one card only should not see the rest follow. */
+  const partial = cards(mark('<u>A<br>1</u><br><br>B<br>2'));
+  check('formatting that closes early is not carried on',
+    /<u>/.test(partial[1]), false);
+  check('and the card that had it keeps it', /<u>/.test(partial[0]), true);
+
   const whole = mark('<u>Ceremony<br>4pm<br><br>Reception<br>7pm</u>');
   check('the whole fragment is balanced', balanced(whole), true);
   check('and so is the title on its own', balanced(titleOf(whole)), true);
@@ -5387,8 +5515,14 @@ check('two blocks -> two cards', blocks(mark(
      style carrying the couple's font, so the title would keep it and every
      line under it would lose it. */
   const span = mark('<span style="font-family: X">Ceremony<br>a<br><br>Reception<br>b</span>');
-  check('a reopened span keeps its style',
-    (span.match(/<span style="font-family: X">/g) || []).length, 2);
+  /* Four, not two: one per title and one per card body, now that each block
+     carries its own copy rather than relying on a tag opened in an earlier
+     one. The number is not the point - every occurrence having the style is,
+     because a bare reopened <span> would drop the couple's font. */
+  const spans = span.match(/<span[^>]*>/g) || [];
+  check('every reopened span keeps its style',
+    spans.filter(t => t.indexOf('style="font-family: X"') === -1).length, 0);
+  check('and there is one in each card and each title', spans.length, 4);
   check('and the fragment is still balanced', balanced(span), true);
 
   // Nesting, and the case where nothing is open at all.
@@ -6302,7 +6436,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-template-colour-block');
+  check('the stamp names the change it shipped with', version, '2026-10-21-reset-parity');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6310,7 +6444,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '4685d5be');
+    ('0000000' + bh.toString(16)).slice(-8), '7c09875a');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
