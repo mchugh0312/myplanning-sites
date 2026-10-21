@@ -4643,7 +4643,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'd20e4f09');
+    ('0000000' + h.toString(16)).slice(-8), '6dcf78c1');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4787,6 +4787,27 @@ check('two blocks -> two cards', blocks(mark(
   check('the editor knows the column', /passwordHint: "XYf1l"/.test(wt), true);
   check('the hint saves with the password',
     /websitePassword: pwInput\.trim\(\),\s*\n\s*passwordHint: pwHint\.trim\(\)/.test(wt), true);
+
+  /* AND protection itself. It used to ride in on pendingChanges, which
+     openPwDialog clears - so spreading null gave an empty object and the only
+     fields written were the password and the hint. A couple set a password,
+     were told it had saved, watched the toggle fall back off, and the site
+     stayed open to anyone with the link.
+
+     This is the only path that sets a password, and a password is worthless
+     without the flag that enforces it. */
+  check('protection is written with the password',
+    /passwordProtected: true,\s*\n\s*websitePassword: pwInput\.trim\(\)/.test(wt), true);
+  check('and a null queue cannot swallow it',
+    /\{ \.\.\.\(pendingChanges \|\| \{\}\), passwordProtected: true,/.test(wt), true);
+  check('opening the dialog no longer clears the queue',
+    /const openPwDialog = \(\) => \{\s*\n\s*\/\*[\s\S]{0,200}\*\/\s*\n\s*setPwInput/.test(wt), true);
+
+  /* The label reads "Password protected", with a space. This row is an
+     inline-flex container and a flex container strips the leading whitespace
+     of a text run, so " protected" rendered hard against the word before it. */
+  check('the label keeps its space',
+    /\{"\\u00A0" \+ item\.label\.slice\(item\.linkWord\.length \+ 1\)\}/.test(wt), true);
   check('the modal is seeded from the record',
     /setPwHint\(currentData\.passwordHint \|\| ""\)/.test(wt), true);
   /* AND it opens whenever protection is switched on. The hint lives in this
@@ -7162,7 +7183,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-password-dialog');
+  check('the stamp names the change it shipped with', version, '2026-10-21-password-saves-on');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */

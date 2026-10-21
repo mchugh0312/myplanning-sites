@@ -7225,7 +7225,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-password-dialog';
+  var MP_RUNTIME_BUILD = '2026-10-21-password-saves-on';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
