@@ -524,6 +524,11 @@
   <div id="off-scrim"    class="m-scrim" onclick="if(event.target===this)closeModal('off')"><div class="modal" id="off-modal" style="max-width:440px"></div></div>
 
 <script>
+/* Shown on experiences whose booking link goes to Viator (the backend sends
+   booking_partner; the link itself stays server-side). */
+const VIATOR_DISCLOSURE_HTML='<div class="hint" style="margin-top:6px;font-size:11px">Booked through Viator, a Tripadvisor company.</div>';
+
+
 const RENDER_API = "https://wedding-recommender.onrender.com";
 const CASH_FUND_TYPE = "343960eb-ce49-45d6-89b5-0bbe43d877f6";
 const HERO_PLACEHOLDER = "https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/b7a1cd5a-6c8b-4cb6-aba5-febf0c243676.webp";
@@ -1234,6 +1239,8 @@ function renderCard(t){
   if(t.kind==="experience"){
     sub = t.location ? esc(t.location) : "Honeymoon experience";
     if(t.amount>0){ const pct=Math.min(100,Math.round((t.received/t.amount)*100)); prog='<div class="progress"><i style="width:'+pct+'%"></i></div>'; sub+=' · '+fmt(t.received)+' of '+fmt(t.amount); }
+    // Viator requires this line on experiences booked through it.
+    if(t.raw && t.raw.booking_partner==="Viator") prog+=VIATOR_DISCLOSURE_HTML;
   } else if(t.kind==="fund"){
     // The couple can hide the target ("Show Goal to Guests?" = off), and a goal
     // of 0 means "any amount" — either way we don't show a number.
@@ -2096,6 +2103,7 @@ function openExp(id){
     +   (cost>0?'<div class="progress" style="margin:6px 0 4px"><i style="width:'+pct+'%"></i></div><div class="sub" style="color:var(--olive);font-size:12px;margin-bottom:4px">'+fmt(received)+' funded · '+fmt(remaining)+' to go</div>':"")
     +   (exp.description?'<p class="m-desc">'+esc(exp.description)+'</p>':"")
     +   form
+    +   (exp.booking_partner==="Viator"?VIATOR_DISCLOSURE_HTML:"")
     + '</div>';
   openModal("exp");
 }
