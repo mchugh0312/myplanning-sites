@@ -213,7 +213,15 @@
 /* ── Preview mode: rearrange ─────────────────────────────── */
 .pv-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
         background:rgba(255,255,255,.18);padding:3px 8px;border-radius:999px;flex-shrink:0;}
-        border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;}
+/* A rule's selector line was lost at some point, leaving its declarations
+   orphaned here with a stray closing brace. That unbalanced the stylesheet, and
+   a browser discards everything after the break — which is why the modal image
+   stopped being centred (.modal-card .m-img sits further down) while rules
+   above it still worked.
+   
+   Deleted rather than reconstructed: the declarations describe a pill-shaped
+   button, and no markup in this file carries any pv- class besides pv-tag and
+   pv-toast, so nothing is using it. */
 
 .card.draggable{cursor:grab;position:relative;}
 .card.draggable:active{cursor:grabbing;}
