@@ -5699,13 +5699,37 @@ check('two blocks -> two cards', blocks(mark(
 
   /* MP-928. aspect-ratio alone fixes the height from the width, so copy longer
      than the sample ran out through the ornate border. */
-  /* MP-928, second half. Growing the frame was not enough: the ornament kept
-     its own 5:2 proportions, so a taller box had the same small border drawn
-     inside it and the copy ran out past it. The border has to grow with the
-     box it frames. */
+  /* MP-928, settled. THE COPY SITS BELOW THE FRAME.
+
+     The frame is a fixed drawn ornament around a heading, and anything typed
+     into it had to fit a shape that cannot grow with the words: widening it
+     pushed the text out of the sides, letting it grow pushed it out of the
+     bottom, and breaking long runs only moved where it escaped. A border drawn
+     as an image and copy of any length are not reconcilable - three passes
+     went into trying before the shape itself was the thing to change.
+
+     So the frame keeps the heading it was drawn for, and the copy behaves like
+     every other section on the page. */
+  /* From the MARKUP, not from the first mention: .gallery-lightbox appears in
+     the stylesheet thousands of characters before the section does, so slicing
+     between them gave an empty string and three checks failed on nothing. */
+  const sec = hb.slice(hb.indexOf('<section class="registry-section"'),
+                       hb.indexOf('<div class="gallery-lightbox"'));
+  check('the registry section was found', sec.length > 100, true);
+  const frameEnd = sec.indexOf('</div>');
+  const bodyAt = sec.indexOf('id="registryBody"');
+  check('the body is outside the frame', frameEnd > -1 && bodyAt > frameEnd, true);
+  check('and the heading is still inside it',
+    sec.indexOf('registry-title') < frameEnd, true);
+  /* It reads as a section now, not as a caption squeezed under an ornament. */
+  const body = (hb.match(/\.registry-body\{[\s\S]*?\n\}/) || [''])[0];
+  check('the copy has a readable measure', /max-width:min\(100%, 620px\)/.test(body), true);
+  check('and room above it', /margin:1\.6rem auto 0;/.test(body), true);
+  /* The long-run break stays: it is cheap, and a pasted URL can still be wider
+     than the measure. */
+  check('long runs can still break', /overflow-wrap:anywhere;/.test(body), true);
   const svg = (hb.match(/\.registry-frame-svg\{[\s\S]*?\n\}/) || [''])[0];
   check('the border stretches with the frame', /object-fit:fill;/.test(svg), true);
-  check('and is no longer held to its own shape', /object-fit:contain;/.test(svg), false);
 
   const frame = (hb.match(/\.registry-frame\{[\s\S]*?\n\}/) || [''])[0];
   check('the registry frame was found', frame.length > 50, true);
