@@ -3534,14 +3534,23 @@
       return fromPayload || _cssColorVar(css, key);
     };
 
-    /* These two take the same fallback as the five below, which is the whole
-       of MP-354. They were read straight from their columns on the reasoning
-       that a column is always there - and the comment above, written for the
-       other five, describes exactly why that is not safe. customization came
-       back from the API with primary_color and accent_color empty while
-       text_color, which lives in custom_css, arrived intact. */
-    var pairs = [[v.bg, pick(c.primary_color, 'bg')],
-                 [v.accent, pick(c.accent_color, 'accent')],
+    /* NO custom_css fallback for these two. Their columns are the only source.
+
+       They had one, added when the API appeared not to return them. That was
+       the wrong diagnosis: the API was reading "Primary Color" and "Accent
+       Color" while the columns are named "Custom Colors Primary" and "Custom
+       Colors Accent", which is now fixed in main.py. The fallback stayed, and
+       cost three further faults - a reset that emptied the columns and left
+       the custom_css copy standing, storage keys that corrupted the injected
+       stylesheet, and finally a STALE --accent in custom_css repainting the
+       events band while the picker showed the template default, because an
+       empty column displays as the default and nothing in the editor could
+       show what was really being applied.
+
+       A value a couple cannot see and cannot clear is worse than a missing
+       one. The column is authoritative now; empty means the design's own. */
+    var pairs = [[v.bg, c.primary_color || ''],
+                 [v.accent, c.accent_color || ''],
                  [v.ink, pick(c.text_color, 'text(?![0-9])')],
                  [v.ink2, pick(c.text2_color, 'text2')],
                  [v.ink3, pick(c.text3_color, 'text3')],
@@ -7018,7 +7027,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-storage-keys';
+  var MP_RUNTIME_BUILD = '2026-10-21-columns-only';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
