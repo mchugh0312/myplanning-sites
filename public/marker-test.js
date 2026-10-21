@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'a0f31a06');
+    ('0000000' + h.toString(16)).slice(-8), '448c927c');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5043,8 +5043,20 @@ check('two blocks -> two cards', blocks(mark(
   /* The block itself is unchanged: first line bold, then a line to type on.
      Templates split on two or more breaks, so the pair between blocks is what
      makes this a new card rather than another line of the last one. */
-  check('the new block still starts with its title',
-    /"<strong>New " \+ \(blockNoun \|\| "section"\) \+ "<\/strong><br>&nbsp;"/.test(fn), true);
+  /* NO <strong>. A title is the first line of its block, marked in the box by
+     position with <mp-t> and taken by the site the same way. The bold tag did
+     nothing but make the words look bold in the Content field - it never
+     reached the page, because markBlock unwraps a <strong> wrapping a whole
+     first line, which is why the preview looked right and the box did not. */
+  check('the new block starts with its title',
+    /"New " \+ \(blockNoun \|\| "section"\) \+ "<br>&nbsp;"/.test(fn), true);
+  check('and is not bolded', /<strong>New /.test(fn), false);
+  /* The box still SHOWS it as a title - that marking is by position and owes
+     nothing to the tag just removed. */
+  check('titles are still marked by position',
+    /const _markTitles = \(html\) =>/.test(wt), true);
+  check('with a tag of their own, stripped on the way out',
+    /replace\(\/<mp-t\\b\[\^>\]\*>\|<\\\/mp-t>\/gi, ""\)/.test(wt), true);
   /* Still goes through _clean, or the editor's own markup rules are skipped
      for exactly the content a couple adds most often. */
   check('the result is cleaned', /onChange\(_clean\(host\.innerHTML\)\)/.test(fn), true);
@@ -6916,7 +6928,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-eraser-strips-fonts');
+  check('the stamp names the change it shipped with', version, '2026-10-21-new-block-not-bold');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
