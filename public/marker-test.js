@@ -4637,7 +4637,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '5ba283b3');
+    ('0000000' + h.toString(16)).slice(-8), 'a0f31a06');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -4962,6 +4962,57 @@ check('two blocks -> two cards', blocks(mark(
     for (const leak of ['couple_names', 'hero_image', 'celebration_date', 'partner_1', 'custom_css']) {
       check('the lock screen still withholds ' + leak, locked.indexOf(leak), -1);
     }
+  }
+}
+
+// ── The eraser actually strips the font ──────────────────────────────────
+// It appeared to do nothing but select the box. removeFormat only undoes
+// formatting execCommand itself applied - bold, italic, underline, a <font>
+// tag - and the font picker writes <span style="font-family:...">, which it
+// leaves exactly where it is. So the button selected everything, ran a command
+// that found nothing of its own to remove, and finished.
+{
+  const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return {}; } })();
+  const wt = fs.readFileSync('Website.txt', 'utf8');
+  check('the strip exists', /const _stripFonts = \(host\) =>/.test(wt), true);
+  check('and the eraser calls it before removeFormat',
+    /_stripFonts\(host\);\s*\n\s*exec\("removeFormat"\);/.test(wt), true);
+
+  if (!JSDOM) { check('eraser behaviour (jsdom not installed - SKIPPED)', true, true); }
+  else {
+    const src = wt.slice(wt.indexOf('const _stripFonts = (host) =>'),
+                         wt.indexOf('  const exec = (cmd) =>'));
+    const dom = new JSDOM('<!doctype html><body><div id=h></div></body>');
+    const host = dom.window.document.getElementById('h');
+    const strip = new Function('_win',
+      src.replace(/^\s*const _stripFonts = /, 'return ') + ';')(() => dom.window);
+    const run = (html) => { host.innerHTML = html; strip(host); return host.innerHTML; };
+
+    /* The thing the button is for. */
+    check('a font span is removed',
+      run('<span style="font-family: X">Ceremony</span>'), 'Ceremony');
+    check('including the entity-quoted form the editor writes',
+      run('<span style="font-family: &quot;Dancing Script&quot;, serif;">a</span>'), 'a');
+    check('and a font size', run('<span style="font-size:2rem">a</span>'), 'a');
+
+    /* NOT bold, italic or underline. The tooltip says fonts, and a couple who
+       bolded one line did not ask for that to go. */
+    check('bold survives', run('<b>Bold</b> text'), '<b>Bold</b> text');
+    check('and underline', run('<u><span style="font-family:X">a</span></u>'), '<u>a</u>');
+
+    /* The spacer is structural - display and height, no font - and removing it
+       would change the layout the couple built. */
+    check('the spacer is untouched',
+      run('<span class="mp-gap" style="display:block;height:12px"></span>'),
+      '<span class="mp-gap" style="display:block;height:12px"></span>');
+    /* A span keeping a non-font declaration keeps its wrapper too. */
+    check('only the font declarations go',
+      run('<span style="font-family:X;letter-spacing:2px">a</span>'),
+      '<span style="letter-spacing:2px">a</span>');
+    /* Structure is never touched. */
+    check('line breaks survive', run('a<br>b'), 'a<br>b');
+    check('and so do links',
+      run('<a href="/x"><span style="font-family:X">go</span></a>'), '<a href="/x">go</a>');
   }
 }
 
@@ -6865,7 +6916,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-new-block-at-end');
+  check('the stamp names the change it shipped with', version, '2026-10-21-eraser-strips-fonts');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
