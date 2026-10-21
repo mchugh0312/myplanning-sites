@@ -2418,24 +2418,52 @@
       .trim();
   }
 
+  /* MP-911. A section the couple switched OFF has to go, whatever the template
+     does about it.
+
+     Templates gate their own sections on the toggle, and they do it
+     inconsistently: some skip populating but leave the shipped markup standing,
+     so Travel kept showing a Hotel card and the FAQ heading stayed up with its
+     questions gone. Doing it here means one rule for ten designs, and the same
+     rule whether the section was switched off or emptied.
+
+     Every anchored section, not just the ones with a content field: Registry,
+     RSVP and Gallery are exempt from the EMPTY test - a form and a gift list
+     are worth showing with no words in them - but nothing is exempt from the
+     couple having switched it off. */
   function collapseEmptySections(d) {
     if (!d) return;
     try {
+      var menu = d.menu_config || {};
+      Object.keys(SECTION_ANCHORS).forEach(function (key) {
+        if (key === 'home') return;              /* never hidden */
+        if (menu[key] !== false) return;
+        /* Travel and Accommodations are one band fed by one box, so the travel
+           toggle governs both anchors - hiding one and not the other would
+           leave half a section behind. */
+        _hideSection(key);
+        if (key === 'travel') _hideSection('accommodations');
+        if (key === 'accommodations') _hideSection('travel');
+      });
       Object.keys(SECTION_CONTENT).forEach(function (key) {
         var fields = SECTION_CONTENT[key];
         var any = fields.some(function (f) { return _hasText(d[f]); });
         if (any) return;
-        var ids = SECTION_ANCHORS[key] || [];
-        for (var i = 0; i < ids.length; i++) {
-          var el = document.getElementById(ids[i]);
-          /* The FIRST anchor that exists, then stop. The lists are fallbacks
-             for designs that name a section differently, not several sections
-             to hide at once - and on the merged designs #accommodations is a
-             live anchor inside the Travel band. */
-          if (el) { el.style.display = 'none'; break; }
-        }
+        _hideSection(key);
       });
     } catch (e) {}
+  }
+
+  /* The first anchor that exists, then stop. The lists are fallbacks for
+     designs that name a section differently, not several sections to hide at
+     once - and on the merged designs #accommodations is a live anchor inside
+     the Travel band. */
+  function _hideSection(key) {
+    var ids = SECTION_ANCHORS[key] || [];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) { el.style.display = 'none'; return; }
+    }
   }
 
   function scrollToSection(key) {
@@ -7133,7 +7161,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-buy-button';
+  var MP_RUNTIME_BUILD = '2026-10-21-toggle-off';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

@@ -5027,19 +5027,44 @@ check('two blocks -> two cards', blocks(mark(
     const anchors = rt.match(/var SECTION_ANCHORS = \{[\s\S]*?\n  \};/)[0];
     const content = rt.match(/var SECTION_CONTENT = \{[\s\S]*?\n  \};/)[0];
     check('both tables were found', !!anchors && !!content, true);
-    const ids = ['our-story', 'events-primary', 'other-events', 'travel-section',
+    const ids = ['hero', 'our-story', 'events-primary', 'other-events', 'travel-section',
                  'accommodations', 'need-to-know', 'things-to-do',
                  'registry-section', 'rsvp', 'gallery'];
     const run = (d) => {
       const doc = new JSDOM('<!doctype html><body>' +
         ids.map(i => '<section id="' + i + '"></section>').join('') + '</body>').window.document;
       new Function('document', anchors + '\n' + content + '\n' +
-        lift(rt, ['_hasText', 'collapseEmptySections']) +
+        /* _hideSection too - the collapse calls it and a harness missing it
+           throws, which reads as a broken suite rather than a broken runtime. */
+        lift(rt, ['_hasText', '_hideSection', 'collapseEmptySections']) +
         '\nreturn collapseEmptySections;')(doc)(d);
       const out = {};
       ids.forEach(i => { out[i] = doc.getElementById(i).style.display === 'none' ? 'gone' : 'shown'; });
       return out;
     };
+
+    /* MP-911. A section the couple switched OFF goes, whatever the template
+       does about it. Templates gate their own sections on the toggle and do it
+       inconsistently - some skip populating but leave the shipped markup
+       standing, so Travel kept a Hotel card and the FAQ heading stayed up with
+       its questions gone. */
+    const off = run({ menu_config: { travel: false, faqs: false, registry: false },
+                      story: 'x', weddings_info: 'x', events_info: 'x', faqs: 'q',
+                      things_to_do: 'x', travel_info: 't', accommodation_info: 'h' });
+    check('a section switched off goes even with content in it', off['travel-section'], 'gone');
+    check('and its merged half goes with it', off['accommodations'], 'gone');
+    check('the faq heading goes too', off['need-to-know'], 'gone');
+    /* Registry, RSVP and Gallery are exempt from the EMPTY test - a form and a
+       gift list are worth showing with no words in them - but nothing is
+       exempt from the couple having switched it off. */
+    check('registry is exempt from empty but not from the toggle',
+      off['registry-section'], 'gone');
+    check('and sections left on are untouched',
+      [off['our-story'], off['things-to-do'], off['rsvp']].join(','), 'shown,shown,shown');
+    /* Home is never hidden: there is no toggle for it and nothing to fall back
+       to if it went. */
+    check('home is never hidden',
+      run({ menu_config: { home: false } })['hero'], 'shown');
 
     const all = run({ story: '', weddings_info: '', events_info: '', travel_info: '',
                       accommodation_info: '', faqs: '', things_to_do: '' });
@@ -6555,7 +6580,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-buy-button');
+  check('the stamp names the change it shipped with', version, '2026-10-21-toggle-off');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6563,7 +6588,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '21995c19');
+    ('0000000' + bh.toString(16)).slice(-8), 'a7a19eae');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
