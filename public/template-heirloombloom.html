@@ -454,10 +454,19 @@ img{max-width:100%;display:block;}
   /* Matches the border asset's own aspect, so it renders undistorted. */
   width:min(100%, 620px);
   aspect-ratio:5/2;
+  /* MP-928. A MINIMUM, not a cap. aspect-ratio alone fixes the height from the
+     width, so copy longer than the sample ran straight out through the ornate
+     border - the frame could not grow and the text had nowhere to go. With
+     min-content the ratio still sets the height for short copy, which is the
+     design, and longer copy pushes the frame taller instead of escaping it. */
+  min-height:min-content;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:0 3.5rem;
+  /* Vertical padding too. Zero was safe only while the height was fixed and
+     generous; once the box can hug its content, text would touch the
+     scrollwork. */
+  padding:2rem 3.5rem;
   text-align:center;
 }
 /* Ornate SVG border — scrollwork style matching screenshot */
@@ -853,7 +862,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:55439584';
+    window.__mpTemplate = 'heirloombloom:f2b13a4a';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -956,8 +965,10 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
       <li><a href="#story"          onclick="handleMenuClick(this)">Our Story</a></li>
       <li><a href="#wedding"        onclick="handleMenuClick(this)">The Wedding</a></li>
       <li><a href="#events"         onclick="handleMenuClick(this)">Other Events</a></li>
+      <!-- MP-927. One Travel link. The two sections were merged into one band
+           and this design kept both menu entries, so the drawer listed Travel
+           twice and the second one scrolled to an empty anchor. -->
       <li><a href="#accommodations" onclick="handleMenuClick(this)">Travel</a></li>
-      <li><a href="#travel"         onclick="handleMenuClick(this)">Travel</a></li>
       <li><a href="#ntk"            onclick="handleMenuClick(this)">Need to Know</a></li>
       <li><a href="#gallery"        onclick="handleMenuClick(this)">Gallery</a></li>
       <li><a href="#registry"       onclick="handleMenuClick(this)">Our Registry</a></li>
@@ -1459,10 +1470,14 @@ function hydrateTemplate(d) {
          column title and invents nothing. The old acName='Hotel' and its rest
          variable were left behind unused when that change was made. */
       var _acUrl=_mpBookUrl(d.accommodation_info, d.accommodation_url);
+      /* MP-919. Only when there is somewhere to book. This rendered the
+         button whatever happened and left it pointing at '#', so the editor
+         preview showed a Book Now that did nothing - the live site hid it
+         later through hideDeadCtas, which is why it showed in one and not the
+         other. Not rendering it is simpler than hiding it afterwards. */
       acContent.innerHTML=
         _mpColBlock(d.accommodation_info)+
-        // The design always shows the button; inert without a URL.
-        '<a class="accom-btn" href="'+(_acUrl||'#')+'"'+(_acUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
+        (_acUrl ? '<a class="accom-btn" href="'+_acUrl+'" target="_blank" rel="noopener">Book Now</a>' : '');
     }
   }
 
@@ -1470,10 +1485,11 @@ function hydrateTemplate(d) {
   if(menu.travel&&d.travel_info){
     var trContent=document.getElementById('travelContent');
     if(trContent){
-      var _trUrl=_mpBookUrl(d.travel_info, d.travel_url);
-      trContent.innerHTML=
-        _mpColBlock(d.travel_info)+
-        '<a class="accom-btn" href="'+(_trUrl||'#')+'"'+(_trUrl?' target="_blank" rel="noopener"':'')+'>Book Now</a>';
+      /* MP-926. NO BUTTON UNDER FLIGHTS. The booking link is a hotel booking
+         link - every other design puts it under Hotels, and this one put a
+         second copy under the flights column where it pointed at the same
+         place or at nothing. One band, one button, under the thing it books. */
+      trContent.innerHTML = _mpColBlock(d.travel_info);
     }
   }
 

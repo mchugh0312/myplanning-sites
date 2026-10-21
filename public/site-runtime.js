@@ -4516,6 +4516,51 @@
         title.style.display = hasCopy ? 'block' : '';
         title.style.marginBottom = hasCopy ? '0.2rem' : '';
       }
+
+      /* MP-907. SOMETHING THAT LOOKS CLICKABLE.
+
+         The heading is a link and the gift tiles each have a button, but
+         nothing says the section leads anywhere else - a guest who wants the
+         rest of the list has to guess that a heading is clickable. Underlining
+         it would be the smaller change and the wrong one: it is a heading
+         first, and on several designs it is set in a script face where an
+         underline reads as damage.
+
+         So a plain button after the copy, in the band's own ink, saying where
+         it goes. Added only when there is a registry to open, and only when
+         the heading is still there - with the heading cleared the whole
+         paragraph is already the link (above), and two overlapping ways to
+         open the same page is worse than one unobvious one. */
+      try {
+        var _more = info.parentNode && info.parentNode.querySelector('.mp-registry-more');
+        var _wantMore = !!_registryUrl && !_blanked;
+        if (_wantMore && !_more && info.parentNode) {
+          _more = document.createElement('a');
+          _more.className = 'mp-registry-more';
+          _more.setAttribute('target', '_blank');
+          _more.setAttribute('rel', 'noopener noreferrer');
+          _more.textContent = 'View our registry';
+          /* Outline, not a filled button: the tiles already carry filled
+             buttons and a second solid control competes with them. Inherits
+             the font so it sits in the design rather than on top of it. */
+          _more.style.cssText = 'display:inline-block;margin-top:1.1rem;' +
+            'padding:0.7rem 1.6rem;border:1px solid currentColor;border-radius:999px;' +
+            'font:inherit;font-size:0.78rem;letter-spacing:0.12em;' +
+            'text-transform:uppercase;text-decoration:none;color:inherit;cursor:pointer';
+          info.parentNode.insertBefore(_more, info.nextSibling);
+        }
+        /* The href is refreshed every hydrate: a couple can change the link
+           without reloading, and a button pointing at the old one is worse
+           than none. */
+        if (_more) {
+          if (_wantMore) {
+            _more.setAttribute('href', _registryUrl);
+            _more.style.display = 'inline-block';
+          } else {
+            _more.style.display = 'none';
+          }
+        }
+      } catch (e) {}
       /* display:block on the heading is not enough on its own. Heirloom Bloom's
          .registry-frame is a FLEX ROW, so the heading and the copy are flex
          items sitting side by side and `display` on an item is ignored — which
@@ -5585,7 +5630,12 @@
         card.className = 'registry-card mp-reg-placeholder';
         card.innerHTML = '<div class="mp-reg-thumb"></div>' +
           '<div class="registry-card-name">Gift ' + (c + 1) + '</div>' +
-          '<span class="registry-buy-btn">Purchase this Item</span>';
+          /* An ANCHOR, not a span. MP-922. renderPreviewCard finds the button
+             with card.querySelector('a') and hangs the registry url on it - so
+             a span was never found, never given an href, and clicking it did
+             nothing. Every gift in the grid this function builds had a dead
+             button. */
+          '<a class="registry-buy-btn" href="#">Purchase this Item</a>';
         grid.appendChild(card);
       }
       /* Its own band, carrying the section's background colour so the seam does
@@ -6195,7 +6245,20 @@
       }
     }
     var name = card.querySelector('.registry-card-name, .registry-item-name');
+    /* The anchor if there is one, otherwise whatever the template ships as its
+       button - upgraded in place. Ten designs write this markup themselves and
+       nothing says it has to be an <a>; the one this file builds was a span
+       until MP-922, and a template could do the same tomorrow. */
     var btn = card.querySelector('a');
+    if (!btn) {
+      var plain = card.querySelector('.registry-buy-btn, .registry-btn');
+      if (plain) {
+        btn = document.createElement('a');
+        btn.className = plain.className;
+        btn.textContent = plain.textContent;
+        plain.parentNode.replaceChild(btn, plain);
+      }
+    }
 
     if (img) {
       if (it.image_url) { img.src = it.image_url; img.alt = it.title || ''; img.style.display = ''; }
@@ -7070,7 +7133,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-reset-parity';
+  var MP_RUNTIME_BUILD = '2026-10-21-buy-button';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

@@ -5130,6 +5130,125 @@ check('two blocks -> two cards', blocks(mark(
     /lead \? lead\[1\] : 'by '/.test(hyd), true);
 }
 
+// ── Heirloom Bloom: the four it was reported for ─────────────────────────
+// MP-926, 927, 928, 919. One template, four small faults, all of them things
+// the travel merge left behind or a fixed height could not accommodate.
+{
+  const hb = fs.readFileSync('template-heirloombloom.html', 'utf8');
+
+  /* MP-927. The two sections became one band and this design kept both menu
+     entries, so the drawer listed Travel twice and the second scrolled to an
+     empty anchor. */
+  check('Travel appears once in the menu', (hb.match(/>Travel</g) || []).length, 1);
+
+  /* MP-926. The booking link is a HOTEL booking link. Every other design puts
+     it under Hotels; this one had a second copy under the flights column. */
+  const flights = hb.slice(hb.indexOf('Flights \u2014 the second column'),
+                           hb.indexOf('Flights \u2014 the second column') + 700);
+  check('the flights column was found', flights.length > 100, true);
+  check('no booking button under flights', /accom-btn/.test(flights), false);
+  check('and the hotel column still has one',
+    /_acUrl \? '<a class="accom-btn"/.test(hb), true);
+
+  /* MP-919. Rendered whatever happened and pointed at '#', so the editor
+     preview showed a Book Now that did nothing while the live site hid it
+     later through hideDeadCtas - which is why it appeared in one and not the
+     other. Not rendering it is simpler than hiding it afterwards. */
+  check('no inert booking button is built', /\|\|'#'\)/.test(hb), false);
+  check('the button needs a url', /\(_acUrl \? /.test(hb), true);
+
+  /* MP-928. aspect-ratio alone fixes the height from the width, so copy longer
+     than the sample ran out through the ornate border. */
+  const frame = (hb.match(/\.registry-frame\{[\s\S]*?\n\}/) || [''])[0];
+  check('the registry frame was found', frame.length > 50, true);
+  check('it keeps the ornament\'s proportions', /aspect-ratio:5\/2;/.test(frame), true);
+  check('but can grow with its copy', /min-height:min-content;/.test(frame), true);
+  check('and keeps text off the scrollwork',
+    /padding:[\d.]+rem [\d.]+rem;/.test(frame), true);
+}
+
+// ── MP-922: the gift buttons have somewhere to go ────────────────────────
+// renderPreviewCard finds the button with card.querySelector('a') and hangs the
+// registry url on it. The grid this file builds wrote that button as a <span>,
+// so it was never found, never given an href, and clicking it did nothing -
+// every gift in the grid had a dead button.
+{
+  const build = rt.slice(rt.indexOf("grid.setAttribute('data-mp-built'"),
+                         rt.indexOf("grid.setAttribute('data-mp-built'") + 1200);
+  check('the built card uses an anchor',
+    /<a class="registry-buy-btn" href="#">/.test(build), true);
+  check('and no longer a span',
+    /<span class="registry-buy-btn">/.test(build), false);
+
+  /* A template may still ship a non-anchor - ten designs write this markup
+     themselves and nothing says it has to be an <a>. Upgraded in place rather
+     than left dead. */
+  /* To the end of the function, not a guessed width - the upgrade block pushed
+     the href assignment past 2600 and two assertions read a slice without it.
+     The third fixed-width window to go wrong this way. */
+  const render = rt.slice(rt.indexOf('function renderPreviewCard'),
+                          rt.indexOf('function parseColor'));
+  check('a plain button is upgraded to an anchor',
+    /var plain = card\.querySelector\('\.registry-buy-btn, \.registry-btn'\);/.test(render), true);
+  check('keeping its class so the design still styles it',
+    /btn\.className = plain\.className;/.test(render), true);
+  check('and its wording', /btn\.textContent = plain\.textContent;/.test(render), true);
+  check('put back where it stood', /plain\.parentNode\.replaceChild\(btn, plain\)/.test(render), true);
+
+  /* Then the url, as before. */
+  check('the button is given the registry url',
+    /btn\.setAttribute\('href', registryUrl\);/.test(render), true);
+  check('and opens away from the page',
+    /btn\.setAttribute\('target', '_blank'\);/.test(render), true);
+}
+
+// ── MP-907: the registry says where it goes ──────────────────────────────
+// The heading is a link and the gift tiles each have a button, but nothing says
+// the section leads anywhere else - a guest wanting the rest of the list had to
+// guess that a heading was clickable. Underlining it would be the smaller
+// change and the wrong one: it is a heading first, and several designs set it
+// in a script face where an underline reads as damage.
+{
+  const fn = rt.slice(rt.indexOf('function layOutRegistry'),
+                      rt.indexOf('function layOutRegistry') + 6000);
+  check('the registry layout was found', fn.length > 500, true);
+  check('a visible control is added', /_more\.className = 'mp-registry-more'/.test(fn), true);
+  check('and it says where it goes',
+    /_more\.textContent = 'View our registry'/.test(fn), true);
+  check('it is a real anchor, reachable by keyboard',
+    /createElement\('a'\)[\s\S]{0,200}mp-registry-more/.test(fn), true);
+  check('opening away from the page', /rel", "noopener|rel', 'noopener noreferrer'/.test(fn), true);
+
+  /* Only when there is somewhere to go. A button pointing at nothing is worse
+     than no button. */
+  check('it needs a registry url', /var _wantMore = !!_registryUrl && !_blanked;/.test(fn), true);
+  check('and is hidden when there is none',
+    /_more\.style\.display = 'none';/.test(fn), true);
+  /* And NOT when the heading has been cleared - the whole paragraph is already
+     the link then, and two ways to open one page is worse than one unobvious
+     one. */
+  check('it stands down when the copy is already the link',
+    /&& !_blanked/.test(fn), true);
+
+  /* The href is refreshed on every hydrate: a couple can change the link
+     without reloading, and a button pointing at the old one is worse than
+     none. */
+  check('the href is refreshed, not set once',
+    /_more\.setAttribute\('href', _registryUrl\);/.test(fn), true);
+  /* One control, however many times hydrate runs - the preview re-hydrates on
+     every keystroke. */
+  check('it is not duplicated on re-hydrate',
+    /querySelector\('\.mp-registry-more'\)/.test(fn), true);
+
+  /* hideDeadCtas must not take it away. It skips anything whose class mentions
+     registry, which this does - checked rather than assumed, because that
+     sweep has removed registry controls before. */
+  const dead = rt.slice(rt.indexOf('function hideDeadCtas'),
+                        rt.indexOf('function hideDeadCtas') + 1400);
+  check('the dead-link sweep spares it',
+    /\/registry\/i\.test\(String\(a\.className\)\)/.test(dead), true);
+}
+
 // ── MP-855: a thumbnail rule is not scoped to a width ────────────────────
 // Golden Hour's card was blank above the invitation while every other design
 // was fine. Its thumbnail-mode block was wrapped in @media (min-width:641px),
@@ -6436,7 +6555,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-reset-parity');
+  check('the stamp names the change it shipped with', version, '2026-10-21-buy-button');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -6444,7 +6563,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '7c09875a');
+    ('0000000' + bh.toString(16)).slice(-8), '21995c19');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
