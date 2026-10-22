@@ -1625,6 +1625,10 @@ function hydrateTravelInfo(d, menu) {
   var grid = document.getElementById('travelGrid');
   if (!grid) return;
 
+  /* Cards split on a BLANK LINE (two or more breaks), the rule everywhere
+     else. This split on three, so the hotel and flights cards the runtime
+     cuts from the one Travel box - rejoined with a single blank line - came
+     through as one item, every airport fused into a single entry. */
   // Hotels: parsed from accommodation_info
   var hotels = parseAllEventsFromBlob(d.accommodation_info || '');
   // hotels here are events with eventName=hotel name, dateLine likely empty,
@@ -1632,7 +1636,7 @@ function hydrateTravelInfo(d, menu) {
   var hotelItems = [];
   if (d.accommodation_info) {
     var blob = d.accommodation_info;
-    var blocks = blob.replace(/(<br\s*\/?>\s*){3,}/gi, '||SPLIT||').split('||SPLIT||');
+    var blocks = blob.replace(/(<br\s*\/?>\s*){2,}/gi, '||SPLIT||').split('||SPLIT||');
     blocks.forEach(function(blk) {
       blk = blk.trim();
       if (!blk) return;
@@ -1653,7 +1657,7 @@ function hydrateTravelInfo(d, menu) {
   var airportItems = [];
   if (d.travel_info) {
     var tBlob = d.travel_info;
-    var tBlocks = tBlob.replace(/(<br\s*\/?>\s*){3,}/gi, '||SPLIT||').split('||SPLIT||');
+    var tBlocks = tBlob.replace(/(<br\s*\/?>\s*){2,}/gi, '||SPLIT||').split('||SPLIT||');
     tBlocks.forEach(function(blk) {
       blk = blk.trim();
       if (!blk) return;
@@ -1733,19 +1737,17 @@ function hydrateTravelInfo(d, menu) {
   var dividerHtml = (leftHtml && rightHtml)
     ? '<div class="travel-divider"></div>' : '';
 
-  // Keep the template's fuller sample when the couple's data is thinner — a
-  // one-airport, one-hotel record was replacing the two-and-two sample and
-  // leaving the columns sparse.
-  var _phItems = (grid.innerHTML.match(/class="travel-item"/g) || []).length;
-  var _newItems = airportItems.length + hotelItems.length;
+  /* The couple's own entries, always. This used to keep the template's
+     two-and-two sample whenever the couple had written fewer items than it,
+     to avoid sparse columns - so a couple with one hotel and one airport, the
+     usual case, saw another couple's Windy City Inn and O'Hare instead of
+     their own. A sparse column is the design's problem; somebody else's hotel
+     on a wedding site is not acceptable. With nothing at all to show, the
+     early return above has already hidden the section. */
   // Hotels first, then airports. Where the couple books is the thing guests act
   // on; the airport is reference. left/right keep their names because they say
   // which BLOB each was built from, not which column it lands in.
-  if (_newItems >= _phItems || _phItems === 0) {
-    grid.innerHTML = rightHtml + dividerHtml + leftHtml;
-  } else {
-    window.MP_SHOWING_PLACEHOLDERS = true;
-  }
+  grid.innerHTML = rightHtml + dividerHtml + leftHtml;
 }
 
 // Hydrate the wedding section (Ceremony + figure + Reception)

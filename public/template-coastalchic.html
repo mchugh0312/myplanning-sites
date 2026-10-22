@@ -1809,15 +1809,10 @@ function hydrateTemplate(d){
       var _orig_faqList = faqList;
       faqList = document.createElement('div');
 
-    
-      if (_orig_faqList) {
-        var _real_faqList = (faqList.children.length || (faqList.innerHTML || '').trim());
-        _orig_faqList.innerHTML = _real_faqList ? faqList.innerHTML : _ph_faqList;
-        // Tell the runtime the page is showing sample content, so it
-        // doesn't mix the couple's real dates into placeholder sections.
-        if (!_real_faqList) window.MP_SHOWING_PLACEHOLDERS = true;
-        }
-}
+      /* Committed AFTER the loop below. This block used to sit here, before a
+         single question had been built, so it always found the detached node
+         empty, put the design's sample FAQs back, and the couple's questions
+         were then appended to a node that was never shown. */
     if (d.faqs && menu.faqs){
       var blocks = d.faqs.replace(/<br\s*\/?>\s*<br\s*\/?>/gi,'|||SPLIT|||').split('|||SPLIT|||');
       blocks.forEach(function(block){
@@ -1834,6 +1829,14 @@ function hydrateTemplate(d){
           '<div class="faq-answer">' + aHtml + '</div>';
         faqList.appendChild(item);
       });
+    }
+      if (_orig_faqList) {
+        var _real_faqList = (faqList.children.length || (faqList.innerHTML || '').trim());
+        _orig_faqList.innerHTML = _real_faqList ? faqList.innerHTML : _ph_faqList;
+        // Tell the runtime the page is showing sample content, so it
+        // doesn't mix the couple's real dates into placeholder sections.
+        if (!_real_faqList) window.MP_SHOWING_PLACEHOLDERS = true;
+      }
     }
     // Things to Do has its own section now, hydrated by /site-runtime.js.
   }
