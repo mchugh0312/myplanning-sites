@@ -150,7 +150,12 @@
      what pushes the detail card past its 92vh and produces the vertical scroll.
      Capped: the aspect ratio still governs on narrow screens, the cap takes over
      on wide ones. object-fit:cover already handles the crop. */
-  .m-img{aspect-ratio:16/10;max-height:240px;background:var(--white);position:relative;overflow:hidden}
+  /* width:100% matters. With only aspect-ratio and max-height set, the box
+     takes its width FROM its height — so once max-height clamped it to 240px
+     the div became 384px wide and sat against the left edge of a 720px modal,
+     with the rest of the row empty. It needs to fill the modal and let the
+     ratio decide the height. */
+  .m-img{width:100%;aspect-ratio:16/10;max-height:240px;background:var(--white);position:relative;overflow:hidden}
   .m-img img{width:100%;height:100%;object-fit:cover}
   .m-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.92);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:15px}
   /* overflow-x hidden as a backstop: any full-bleed child added later cannot

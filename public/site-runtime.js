@@ -4331,6 +4331,20 @@
   }
 
   function renderPasswordScreen(coupleNames, hint) {
+    /* NAMED FIRST, before anything is drawn. Set after the markup, the
+       template file's own <title> stayed in the tab while the gate rendered
+       and a guest saw "Heirloom Bloom" flash past.
+
+       Title case, to match the unlocked site: that one shows the couple's
+       names, and a lowercase slug beside it in the tab strip read as a
+       different site. */
+    try {
+      var _slug = String(location.pathname || '').replace(/^\/+|\/+$/g, '').split('/')[0];
+      document.title = _slug
+        ? _slug.replace(/[-_]+/g, ' ').replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); })
+        : 'Wedding website';
+    } catch (e) {}
+
     var p = CFG.palette;
     var hintText = String(hint || '').replace(/\s+/g, ' ').trim();
     screenShell(
@@ -4351,7 +4365,17 @@
          With no names there is no heading. The eyebrow already says Private
          and the line below says the rest. */
       (coupleNames ? '<h1 class="mp-display">' + esc(coupleNames) + '</h1>' : '') +
-      '<div class="mp-rule"></div>' +
+      /* The template's own motif where a bare rule used to sit. With the
+         heading gone the rule divided nothing - it read as a stray line across
+         an empty page. Every template carries a motif for exactly this kind of
+         moment, and it tells a guest which wedding they are at before they
+         have the password.
+
+         A rule only where a template has no motif, since something has to hold
+         that space. */
+      (CFG.loadingImage
+        ? '<img class="mp-screen-motif" src="' + CFG.loadingImage + '" alt="">'
+        : '<div class="mp-rule"></div>') +
       /* Two lines. The first states the situation, the second says what to do
          about it - as one paragraph they ran together and the instruction was
          easy to read past. */
@@ -4395,20 +4419,11 @@
         'font-size:0.85rem;font-style:italic;opacity:0.75;color:' + p.ink + '}' +
       /* The second line is the instruction, so it sits closer to the field it
          is about than to the statement above it. */
-      '.mp-body2{margin-top:4px}'
+      '.mp-body2{margin-top:4px}' +
+      /* The motif where a bare rule used to sit. */
+      '.mp-screen-motif{display:block;height:54px;width:auto;max-width:min(60%,200px);' +
+        'margin:0 auto 18px;object-fit:contain}'
     );
-
-    /* The tab said "Pressed Petals" - the template file's own <title>, left
-       standing because the gate replaces the body and never touched the head.
-       A guest reading their tabs should see whose wedding it is, and on this
-       screen the slug is all we have: names are deliberately withheld here. */
-    try {
-      var _slug = String(location.pathname || '').replace(/^\/+|\/+$/g, '').split('/')[0];
-      /* "Wedding website" when there is no slug to read - a tab needs some
-         words, and inventing a phrase about the couple is the thing this
-         screen is careful not to do. */
-      document.title = _slug ? _slug.replace(/[-_]+/g, ' ') : 'Wedding website';
-    } catch (e) {}
 
     var input = document.getElementById('mpPwInput');
     var btn = document.getElementById('mpPwBtn');
@@ -7289,7 +7304,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-gate-polish';
+  var MP_RUNTIME_BUILD = '2026-10-21-gate-motif';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

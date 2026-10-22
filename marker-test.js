@@ -4796,7 +4796,25 @@ check('two blocks -> two cards', blocks(mark(
   /* The tab said "Pressed Petals" - the template file's own <title>, left
      standing because the gate replaces the body and never touched the head. */
   check('the tab names the wedding, not the template',
-    /document\.title = _slug \? _slug\.replace/.test(scr), true);
+    /document\.title = _slug/.test(scr), true);
+  /* Set FIRST, before anything is drawn. Doing it after the markup left the
+     template file's own <title> in the tab while the gate rendered, so a guest
+     saw "Heirloom Bloom" flash past. */
+  check('the tab is named before the page is drawn',
+    scr.indexOf('document.title') < scr.indexOf('screenShell('), true);
+  /* Title case, to match the unlocked site - that one uses the couple's names,
+     and a lowercase slug beside it in the tab strip looked like another site. */
+  check('and reads as a name',
+    /replace\(\/\\b\[a-z\]\/g, function \(c\) \{ return c\.toUpperCase\(\); \}\)/.test(scr), true);
+
+  /* The template's motif where a bare rule used to sit. With the heading gone
+     the rule divided nothing - it read as a stray line across an empty page. */
+  check('the gate shows the template motif',
+    /mp-screen-motif" src="' \+ CFG\.loadingImage/.test(scr), true);
+  check('and falls back to a rule when a template has none',
+    /: '<div class="mp-rule"><\/div>'/.test(scr), true);
+  check('the motif is sized for the screen',
+    /\.mp-screen-motif\{display:block;height:54px/.test(scr), true);
   /* No heading when there are no names. The lock-screen payload withholds them
      by design, so the fallback filled that space with "A private celebration"
      at heading size - a large line of text saying nothing, in whatever face
@@ -7307,7 +7325,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-gate-polish');
+  check('the stamp names the change it shipped with', version, '2026-10-21-gate-motif');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7315,7 +7333,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '37937904');
+    ('0000000' + bh.toString(16)).slice(-8), '9f96f12e');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
