@@ -1293,7 +1293,7 @@ function renderCard(t){
         + (bought
             ? '<span class="ipurch done">✓ Purchased, thank you!</span>'
             : '<label class="ipurch" onclick="event.stopPropagation()">'
-              + '<input type="checkbox" onchange="openOffline(\''+t.id+'\')"> I Purchased This Item'
+              + '<input type="checkbox" data-purchase-check="'+t.id+'" onchange="openOffline(\''+t.id+'\', this)"> I Purchased This Item'
               + '</label>')
         + '</div>';
   } else if(t.kind==="fund"){
@@ -1711,6 +1711,8 @@ function showFlow(inner, variant){
 function closeFlow(){
   const n = el("flow-modal");
   if(n){ n.className = "modal-wrap"; n.innerHTML = ""; }
+  // Nothing was submitted, so the gift is not purchased. MP-938.
+  clearPendingPurchaseBox();
 }
 
 function toastPreview(msg, bad){
@@ -1945,9 +1947,29 @@ function askCarrier(id, stored, provided, message){
   if(keep) keep.onclick = function(){ submitTracking(id, stored, true); };
 }
 
-function openOffline(id){
+/* MP-938: a tick that opens a form is a question, not an answer.
+   
+   The checkbox was only a way to open the purchase form — nothing ever
+   unticked it, so closing the form without submitting left the gift looking
+   recorded when nothing had been. The guest walks away believing the couple
+   knows.
+   
+   The box is remembered when the form opens and cleared when the form closes,
+   so it stays ticked only if the purchase was actually submitted — at which
+   point the card re-renders as "✓ Purchased, thank you!" anyway. */
+let pendingPurchaseBox = null;
+
+function clearPendingPurchaseBox(){
+  if(pendingPurchaseBox){
+    try { pendingPurchaseBox.checked = false; } catch(e){}
+    pendingPurchaseBox = null;
+  }
+}
+
+function openOffline(id, box){
   const t = state.things.find(x=>x.id===id);
-  if(!t) return;
+  if(!t){ if(box) box.checked = false; return; }
+  pendingPurchaseBox = box || null;
   const img = t.image ? '<img class="m-img" src="'+esc(t.image)+'" alt="">' : '';
   showFlow(
       '<h3 class="serif m-title">'+esc(t.title)+'</h3>'
@@ -1988,7 +2010,13 @@ function submitOffline(id){
       if(!r.ok) return r.text().then(t=>{ throw new Error((t||"").slice(0,160) || "save failed"); });
       return r.json();
     })
-   .then(()=>{ closeFlow(); toastPreview("Thank you! The couple has been told."); load(); })
+   .then(()=>{
+      // Submitted, so the tick was right. Forget the box before closing, or
+      // closeFlow would untick it in the moment before the card re-renders
+      // as "✓ Purchased, thank you!".
+      pendingPurchaseBox = null;
+      closeFlow(); toastPreview("Thank you! The couple has been told."); load();
+    })
    .catch(err=>{
      btn.disabled=false; btn.innerHTML="Save and Go Back to Registry";
      console.error("mark-purchased-offline failed:", err);
