@@ -161,6 +161,23 @@
   /* overflow-x hidden as a backstop: any full-bleed child added later cannot
      reintroduce the sideways scroll this modal is not meant to have. */
   .m-pad{padding:22px;overflow-x:hidden}
+
+  /* Centred — but ONLY in the product modal.
+     
+     .m-pad is shared by three modals: the product one, the cash fund and the
+     experience. The other two contain forms — a contribution amount, name and
+     email, a note, a payment choice — and centring a label above a
+     left-aligned input, or a checkbox row, reads as broken rather than
+     deliberate.
+     
+     So the rule is scoped to #detail-modal. In there the image fills the
+     width and the buttons are a centred row, so left-aligned text between
+     them looked forgotten; in the others, left is right. */
+  #detail-modal .m-pad{text-align:center}
+  #detail-modal .m-desc{max-width:46ch;margin-inline:auto}
+  /* The couple's quote keeps its left edge even there — centring a block
+     quotation against a coloured rule looks like a mistake. */
+  #detail-modal .m-note{text-align:left}
   /* Belt to the brace above: the modal itself must never scroll sideways,
      whatever any child does. */
   .modal{overflow-x:hidden}
