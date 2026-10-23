@@ -7653,7 +7653,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-active-buttons';
+  var MP_RUNTIME_BUILD = '2026-10-23-shadow-selection';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

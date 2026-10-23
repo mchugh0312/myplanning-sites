@@ -204,6 +204,16 @@ every change against the original files.
   that they were never saved. Firefox could not be run here; the fix removes
   the browser-dependent step rather than relying on it.
 
+- MP-915, third pass - the real cause of the unlit buttons. Softr renders the
+  editor inside a shadow root, and window.getSelection() does not see into one:
+  it reports the outer host, so the editor decided the selection was not in
+  its box and never updated B, I or U, while bold itself applied fine. The
+  earlier tests ran on an ordinary page and passed. Reproduced by rendering the
+  real editor inside a shadow root; fixed by reading the selection from the
+  shadow root itself, then the windows, then getComposedRanges. The selected
+  look was also made unmistakable (filled green, white letter). Both are now in
+  harness/editor-test, including a shadow-root run.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

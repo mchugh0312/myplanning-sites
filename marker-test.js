@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'c9533bb3');
+    ('0000000' + h.toString(16)).slice(-8), '63184ab9');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5270,7 +5270,13 @@ check('two blocks -> two cards', blocks(mark(
   /* Through _liveSelection, which keeps only a selection inside THIS box, and
      again on the element the state is read from. */
   check('a caret in another box is ignored',
-    /const sel = _liveSelection\(\);/.test(wt) && /if \(!el \|\| !host\.contains\(el\)\) return;/.test(wt), true);
+    /const r = _rangeInBox\(\);/.test(wt) && /if \(!el \|\| !host\.contains\(el\)\) return;/.test(wt), true);
+  /* Softr renders the editor inside a shadow root, which window.getSelection()
+     does not see into: the buttons never lit there (MP-915, as tested). The
+     state reads the shadow root's own selection, then the windows, then the
+     standard getComposedRanges. */
+  check('the button state can see into a shadow root',
+    /root\.getSelection\(\)/.test(wt) && /getComposedRanges/.test(wt), true);
   /* And reading it cannot throw: queryCommandState is unsupported in some
      embedded views and this runs on every caret move. */
   check('reading the state cannot break typing',
@@ -7379,7 +7385,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-active-buttons');
+  check('the stamp names the change it shipped with', version, '2026-10-23-shadow-selection');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
