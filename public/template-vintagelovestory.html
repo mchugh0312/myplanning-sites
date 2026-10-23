@@ -1132,6 +1132,12 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
 .travel-cta{margin-top:1.1rem;text-decoration:none;}
 @media (max-width:768px){.travel-cta{min-height:44px;padding:0.7rem 2rem;
     display:inline-flex;align-items:center;justify-content:center;}}
+/* Our Story as one block flowing across two columns (MP-333): the couple's
+   formatting and line breaks survive, and the browser balances the columns.
+   Same width and gap as the two-column grid it replaces. Phones: one column. */
+#storyBody.mp-story-flow{display:block;column-count:2;column-gap:2.5rem;}
+#storyBody.mp-story-flow .story-col{max-width:none;margin:0;}
+@media (max-width:768px){#storyBody.mp-story-flow{column-count:1;}}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1157,7 +1163,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:13f5cd94';
+    window.__mpTemplate = 'vintagelovestory:78d1a3b1';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -2045,24 +2051,21 @@ function hydrateTemplate(d) {
   // ── Our Story ─────────────────────────────────────────────────────────
   const storySection = document.getElementById('our-story');
   if (d.story && menu.story && storySection) {
-    // Split the story into 2 columns at roughly the midpoint of words
+    /* The couple's story as they wrote it - bold, italics, fonts and their
+       line breaks (MP-333). It was cut in two by counting words of PLAIN
+       text, which threw all of that away and could split a sentence anywhere.
+       A long story now flows across the two columns on its own (CSS columns,
+       .mp-story-flow): the browser balances them and never breaks a tag. A
+       short one stays a single centred column, as before. */
     var storyHtml = d.story;
-    var storyText = storyHtml.replace(/<[^>]+>/g, ' ').trim();
+    var storyText = storyHtml.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
     var words = storyText.split(/\s+/);
-    if (words.length > 30) {
-      var mid = Math.floor(words.length / 2);
-      var col1 = words.slice(0, mid).join(' ');
-      var col2 = words.slice(mid).join(' ');
-      var c1 = document.getElementById('storyCol1');
-      var c2 = document.getElementById('storyCol2');
-      if (c1) c1.textContent = col1;
-      if (c2) c2.textContent = col2;
-    } else {
-      var c1b = document.getElementById('storyCol1');
-      var c2b = document.getElementById('storyCol2');
-      if (c1b) c1b.textContent = storyText;
-      if (c2b) c2b.textContent = '';
-    }
+    var c1 = document.getElementById('storyCol1');
+    var c2 = document.getElementById('storyCol2');
+    var sb = document.getElementById('storyBody');
+    if (c1) c1.innerHTML = storyHtml;
+    if (c2) c2.innerHTML = '';
+    if (sb) sb.classList.toggle('mp-story-flow', words.length > 30);
     storySection.style.display = '';
   } else if (storySection) {
     storySection.style.display = 'none';

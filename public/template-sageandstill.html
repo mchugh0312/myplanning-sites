@@ -1108,7 +1108,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:b87ab636';
+    window.__mpTemplate = 'sageandstill:dbafcacf';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1515,12 +1515,12 @@ function renderAccomCard(title, html, fieldUrl) {
      it, so three lines of an address ran together as one - "Resort Block3777
      La Jolla Village Drive". Turn the breaks into newlines FIRST, strip the
      rest, then put the breaks back. */
-  var place = rest
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .split('\n')
-    .map(function (l) { return l.trim(); })
-    .filter(Boolean)
+  /* Now with the couple's formatting kept as well (MP-333): each line stands
+     alone, so italic or a font across several lines survives the split. A
+     link loses only its tag, as before - its words stay. */
+  var place = _mpLines(rest)
+    .map(function (l) { return l.replace(/<\/?a\b[^>]*>/gi, '').trim(); })
+    .filter(_mpHasWords)
     .join('<br>');
 
   var bookUrl = _mpBookUrl(html, fieldUrl);
@@ -2125,6 +2125,30 @@ function _mpQuestion(html) {
   var m = _mpTitle(s);
   return (m ? m[1] : s).trim();
 }
+
+/* A card's lines, each standing alone: a tag still open at the end of a line
+   is closed there and re-opened at the start of the next. Formatting applied
+   across several lines - italic on a whole card - then survives the card
+   being sliced into lines, which is why every tag used to be stripped instead
+   and the couple's bold, italic and fonts never reached the Travel band. */
+function _mpLines(html) {
+  var lines = String(html || '').split(/<br\s*\/?>/i), carry = [], out = [];
+  for (var k = 0; k < lines.length; k++) {
+    var l = carry.join('') + lines[k], stack = [];
+    l.replace(/<(\/?)([a-z][a-z0-9-]*)\b[^>]*?(\/?)>/gi, function (m, c, n, self) {
+      n = n.toLowerCase();
+      if (self || /^(br|img|hr|wbr|input)$/.test(n)) return m;
+      if (c) { for (var i = stack.length - 1; i >= 0; i--) if (stack[i].n === n) { stack.splice(i, 1); break; } }
+      else stack.push({ n: n, t: m });
+      return m;
+    });
+    for (var j = stack.length - 1; j >= 0; j--) l += '</' + stack[j].n + '>';
+    carry = stack.map(function (s) { return s.t; });
+    out.push(l);
+  }
+  return out;
+}
+function _mpHasWords(h) { return !!String(h || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim(); }
 
 function _mpTitle(html) {
   var s = String(html);

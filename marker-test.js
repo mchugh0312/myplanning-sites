@@ -4290,8 +4290,15 @@ check('two blocks -> two cards', blocks(mark(
 
   /* The couple's line breaks. Stripping every tag took the <br>s with it, so
      three lines of an address ran together - "Resort Block3777 La Jolla". */
-  check('line breaks survive into the card',
-    /replace\(\/<br\\s\*\\\/\?>\/gi, '\\n'\)/.test(ss), true);
+  /* Kept through _mpLines now, which splits on the breaks and keeps the
+     couple's formatting on every line (MP-333); still joined back with <br>. */
+  check('line breaks survive into the card', /var place = _mpLines\(rest\)/.test(ss), true);
+  {
+    const L = new Function(lift(ss, ['_mpLines']) + 'return _mpLines;')();
+    check('three address lines stay three lines', L('Resort Block<br>3777 La Jolla<br>CA').length, 3);
+    check('and italic across them reaches each one',
+      L('<em>Resort Block<br>3777 La Jolla</em>').every(l => /^<em>[\s\S]*<\/em>$/.test(l)), true);
+  }
   check('and are put back as breaks', /\.join\('<br>'\)/.test(ss), true);
   check('the old blind strip is gone',
     /var place = rest\.replace\(\/<\[\^>\]\+>\/g, ''\)\.trim\(\);/.test(ss), false);

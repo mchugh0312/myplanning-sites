@@ -548,7 +548,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'goldenhour:a1494715';
+    window.__mpTemplate = 'goldenhour:9477b41c';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1087,9 +1087,12 @@ function hydrateTemplate(d){
       // Dedicated field first (Accomodation URL / MXzO9); a link pasted into
       // the copy still works for couples who did it that way.
       var acUrl=d.accommodation_url||_extractUrl(d.accommodation_info);
-      var lines=rest.split(/<br\s*\/?>/i).map(function(s){
-        return _stripUrl(s.replace(/<[^>]+>/g,'').trim(),acUrl);
-      }).filter(Boolean);
+      /* The couple's formatting kept (MP-333); links still removed - the Book
+         Now button carries them. */
+      var lines=_mpLines(rest).map(function(s){
+        /* A link's words stay, as they always did; only its tag goes. */
+        return _stripUrl(s.replace(/<\/?a\b[^>]*>/gi, '').trim(),acUrl);
+      }).filter(_mpHasWords);
       var venueName=lines.slice(0,2).join('<br>');
       var note=lines.slice(2).join(' ');
       acContent.innerHTML=
@@ -1113,9 +1116,10 @@ function hydrateTemplate(d){
          airport name in the couple's prose came up empty. */
       var _tr=_mpColParts(d.travel_info,'');
       var trLabel=_tr.title;
-      var tLines=_tr.rest.split(/<br\s*\/?>/i).map(function(s){
-        return _stripUrl(s.replace(/<[^>]+>/g,'').trim(),trUrl);
-      }).filter(Boolean);
+      var tLines=_mpLines(_tr.rest).map(function(s){
+        /* A link's words stay, as they always did; only its tag goes. */
+        return _stripUrl(s.replace(/<\/?a\b[^>]*>/gi, '').trim(),trUrl);
+      }).filter(_mpHasWords);
       var tName=tLines.slice(0,2).join('<br>');
       var tNote=tLines.slice(2).join(' ');
       trContent.innerHTML=
@@ -1287,6 +1291,30 @@ function _mpQuestion(html) {
   var m = _mpTitle(s);
   return (m ? m[1] : s).trim();
 }
+
+/* A card's lines, each standing alone: a tag still open at the end of a line
+   is closed there and re-opened at the start of the next. Formatting applied
+   across several lines - italic on a whole card - then survives the card
+   being sliced into lines, which is why every tag used to be stripped instead
+   and the couple's bold, italic and fonts never reached the Travel band. */
+function _mpLines(html) {
+  var lines = String(html || '').split(/<br\s*\/?>/i), carry = [], out = [];
+  for (var k = 0; k < lines.length; k++) {
+    var l = carry.join('') + lines[k], stack = [];
+    l.replace(/<(\/?)([a-z][a-z0-9-]*)\b[^>]*?(\/?)>/gi, function (m, c, n, self) {
+      n = n.toLowerCase();
+      if (self || /^(br|img|hr|wbr|input)$/.test(n)) return m;
+      if (c) { for (var i = stack.length - 1; i >= 0; i--) if (stack[i].n === n) { stack.splice(i, 1); break; } }
+      else stack.push({ n: n, t: m });
+      return m;
+    });
+    for (var j = stack.length - 1; j >= 0; j--) l += '</' + stack[j].n + '>';
+    carry = stack.map(function (s) { return s.t; });
+    out.push(l);
+  }
+  return out;
+}
+function _mpHasWords(h) { return !!String(h || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim(); }
 
 function _mpTitle(html) {
   var s = String(html);

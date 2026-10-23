@@ -19,8 +19,8 @@
   weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
-  accommodation_info    =  ✗  ✗  ✗  =  ✗  ✗  ✗  ✓ | ✓ ✗ ✗ = | ✓ ✗ ✗ ✗ | ✓ ✗ ✗ ✗
-  travel_info           =  ✗  ✗  ✗  =  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   things_to_do          ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
 == heirloombloom
@@ -59,8 +59,8 @@
   weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
-  accommodation_info    ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
-  travel_info           ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   story                 ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
 == vintagelovestory
@@ -69,7 +69,7 @@
   faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   accommodation_info    ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅
   travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
-  story                 ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
   things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
 == whimsicalromance
   weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓

@@ -61,8 +61,9 @@ every change against the original files.
   italic. Turning it off writes font-style:normal, which the site honours -
   verified end to end on Pressed Petals' Our Story. A whole-line bold title
   now shows at the design's title weight in the box (it was forced to 400).
-  Known edge: a box italicised from its very first character still shows its
-  first line as a title in the box; the site does not treat it as one.
+  (Corrected: an earlier note here said a box italicised from its first
+  character shows titles the site does not. Checked against markStructure,
+  the site marks those titles too - box and site agree; nothing to fix.)
 
 - MP-905, RSVP box. The box holds only the couple's own line; when empty it
   shows, greyed, exactly what the site shows then (the design's line, with
@@ -173,6 +174,18 @@ every change against the original files.
     background. Fix is editing that SVG (on the asset CDN, not reachable
     here) - needs the file.
 
+- Travel formatting on Golden Hour and Sage & Still: kept now (bold, italic,
+  underline, fonts, and formatting across a whole card). A card's lines are
+  each made to stand alone (_mpLines) instead of every tag being stripped.
+  Links behave exactly as before: Golden Hour removes pasted addresses (Book
+  Now carries them) and keeps a link's words; Sage & Still keeps the words.
+- Vintage Love Story's Our Story: the couple's formatting and line breaks are
+  kept. A long story flows across the two columns on its own (CSS columns)
+  instead of being cut by counting words of plain text, which could split a
+  sentence anywhere; a short story stays one centred column; phones one.
+- MP-945 (Coastal Chic): needs the stamp SVG - the asset CDN is not reachable
+  from here.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
@@ -189,10 +202,6 @@ MP-949, MP-950, MP-939, MP-937. What to check for each is in the chat summary of
 - A second hotel lands under Flights on every template (the runtime's cut).
 
 **OPEN: work**
-- Golden Hour and Sage & Still strip formatting from Travel body lines. The
-  stripping is tied to removing pasted booking links.
-- Vintage Love Story's Our Story loses formatting and line breaks in its
-  two-column word split. A fix changes layout; review before shipping.
 - Modern Minimal shows Our Story only as a plain 280-character hero tagline.
   This is the design, noted in case it is not wanted.
 - MP-936 needs an iPhone check. The Registry colour swap needs the template
