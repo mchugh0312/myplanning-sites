@@ -402,6 +402,24 @@ every change against the original files.
 - The password-site "Your celebration is loading" flash is NOT in any file here
   (the runtime's own screen says "awaits"): it is the landing page, index.html.
 
+- MP-918, re-opened: a card the couple TYPES (Enter twice, then its name) got
+  no divider or title styling until the box lost focus. The box now redraws
+  its marks as soon as the number of cards changes, or a title takes in the
+  next line, putting the cursor back exactly (counting line breaks). Tested:
+  typing a new event, merging two cards, typing inside a title, Travel.
+- MP-914, re-opened: works in Chrome, including inside a shadow root as Softr
+  renders it. Firefox treats an element as a drop target only if dragenter is
+  cancelled as well as dragover; the grid did only dragover, which in Firefox
+  is the "not allowed" cursor and no drop. Both are cancelled now. Firefox
+  cannot be run here - needs a re-test there.
+
+- MP-923, as tested (list unchanged): the editor matched events to the RSVP
+  form's order by record id only. Its list comes from the celebration's linked
+  field while the endpoint reads the couple's plan, and the two can hold the
+  same event under different record ids - then nothing matched and the list
+  kept its old order. Matched by id, then by name, now; and the console logs,
+  per event, the position it took and how it was matched (or that it was not).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

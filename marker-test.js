@@ -4685,7 +4685,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'b1c1d557');
+    ('0000000' + h.toString(16)).slice(-8), 'ba5f6a9f');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7426,7 +7426,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-booking-travel-link');
+  check('the stamp names the change it shipped with', version, '2026-10-23-event-match');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9593,7 +9593,10 @@ check('two blocks -> two cards', blocks(mark(
     /out\.sort\(key=lambda e: \(0 if e\["sort_order"\] is not None else 1,/.test(py), true);
   check('and the editor lists them in that order',
     /\/celebration\/\$\{encodeURIComponent\(_celebRecordId\)\}\/event-order/.test(ws) &&
-    /r: eventOrder \? eventOrder\.indexOf\(e\.id\) : -1/.test(ws), true);
+    /\.map\(\(e, i\) => \(\{ e, i, r: _eventRank\(e\)\.r \}\)\)/.test(ws) &&
+    /* By record id, then by name: the editor's linked field and the plan the RSVP
+       form reads can hold one event under different record ids. */
+    /const byName = eventOrder\.findIndex\(o => _normEv\(o\.name\) && _normEv\(o\.name\) === _normEv\(e\.label\)\);/.test(ws), true);
   /* Hooks above the component's first return, never inside a callback. */
   const hookAt = ws.indexOf('const [eventOrder, setEventOrder] = useState(null);');
   check('the order is fetched where hooks are allowed',
@@ -9668,6 +9671,24 @@ check('two blocks -> two cards', blocks(mark(
   const mm = fs.readFileSync('template-modernminimal.html', 'utf8');
   check('Modern Minimal\'s Travel link goes to its Travel section',
     /href:'#travel-section',\s+label:'Travel'/.test(mm) && !/href:'#accommodations',\s+label:'Travel'/.test(mm), true);
+}
+
+
+// ── MP-918 typed cards; MP-914 in Firefox ────────────────────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* A card the couple types got its divider only on blur. Redrawn when the
+     number of cards changes, or a title takes in the next line, with the
+     cursor's place counted in characters AND line breaks. */
+  check('MP-918 a typed card is marked as it is typed',
+    /const handleInput = \(e\) => \{\s*\n\s*onChange\(_clean\(e\.currentTarget\.innerHTML\)\);\s*\n\s*_remarkIfCardsChanged\(\);/.test(ws) &&
+    /const spilled = !!host\.querySelector\("mp-t:not\(\[data-attire\]\) br"\);/.test(ws), true);
+  check('and the cursor position counts line breaks',
+    /else if \(n\.nodeName === "BR"\) count \+= 1;/.test(ws), true);
+  /* Firefox drops only on an element that cancels dragenter as well as dragover. */
+  const set = ws.slice(ws.indexOf('function ImageSet('), ws.indexOf('function ImageSet(') + 9000);
+  check('MP-914 tiles and grid cancel dragenter too (Firefox)',
+    (set.match(/onDragEnter=\{e => \{ if \(live\.current\) \{ e\.preventDefault\(\); overGrid\(/g) || []).length, 2);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
