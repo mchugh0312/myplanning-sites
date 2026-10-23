@@ -378,6 +378,15 @@ every change against the original files.
   label in a white ring). The outline follows the label now - every design.
 - Vintage Love Story's Book Now: 3px outline.
 
+- MP-942, re-opened and fixed at the cause: Modern Minimal's photo pair took
+  photographs 1 and 2, and 1 IS the hero above it - so the hero repeated for
+  every couple with two or more photographs, live and in the preview. The pair
+  now takes the 2nd and 3rd (the runtime has already arranged them hero-first,
+  then the others). The earlier "fixed" was a false pass: the tests used
+  embedded images, which the runtime's sample clean-up re-filled in the right
+  order by accident; real https photos are left where the template puts them.
+  Re-tested with real web addresses.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

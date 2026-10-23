@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-vls-registry');
+  check('the stamp names the change it shipped with', version, '2026-10-23-hero-pair');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9632,6 +9632,18 @@ check('two blocks -> two cards', blocks(mark(
   check('with gifts showing, the bottom-right lace closes the gift band',
     /\.registry-wrap\.mp-reg-has-band \.registry-lace\.br\{display:none;\}/.test(vls) &&
     /\.registry-wrap\.mp-reg-has-band \+ #mp-reg-band::after\{/.test(vls), true);
+}
+
+
+// ── MP-942: Modern Minimal's pair is the hero's companions, not the hero ──
+{
+  const mm = fs.readFileSync('template-modernminimal.html', 'utf8');
+  /* It took photographs 1 and 2, and 1 IS the hero above it, so the hero
+     repeated for every couple with two or more photographs. The runtime's
+     clean-up hid this in tests with embedded images; real https photos are
+     the couple's own and are left exactly where the template put them. */
+  check('MP-942 the pair takes the 2nd and 3rd photographs',
+    /_pa\.src = _gal\[1\];\s*\n\s*_pb\.src = _gal\[2\] \|\| _gal\[1\];/.test(mm) && !/_pa\.src = _gal\[0\];/.test(mm), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

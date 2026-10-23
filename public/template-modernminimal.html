@@ -1059,7 +1059,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'modernminimal:3894d607';
+    window.__mpTemplate = 'modernminimal:f4870a2b';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1735,9 +1735,15 @@ function hydrateTemplate(d){
   var _pb = document.getElementById('heroPairB');
   // Both or neither: replacing just one left a mismatched pair, and falling
   // back to the hero for both showed the same photograph twice.
+  /* MP-942. The pair is the hero's COMPANIONS: the 2nd and 3rd photographs, not
+     the 1st and 2nd. The 1st is the hero already at the top, so the pair opened
+     on it again. The runtime pads hero_images for this design as hero, then the
+     couple's other photographs (A, B, B for two), so slots 2 and 3 repeat a
+     photo other than the hero whenever there is one; with a single photograph
+     there is nothing else to show. */
   if (_pa && _pb && _gal.length >= 2) {
-    _pa.src = _gal[0];
-    _pb.src = _gal[1];
+    _pa.src = _gal[1];
+    _pb.src = _gal[2] || _gal[1];
   }
 
   var travelBtn = document.getElementById('travelBtn');
