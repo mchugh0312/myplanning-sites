@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'c2a2ba75');
+    ('0000000' + h.toString(16)).slice(-8), '249b6715');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5248,23 +5248,29 @@ check('two blocks -> two cards', blocks(mark(
   /* queryCommandState answers for the current selection, read on
      selectionchange - the one event that fires for a click, an arrow key and a
      drag alike. */
+  /* Still queryCommandState - asked of the document that holds the words - and
+     the rendered weight beside it, since browsers do not all answer for the
+     same window (MP-915: a selected bold word left B unlit). */
   check('state comes from the document, not a guess',
-    /doc\.queryCommandState\("bold"\)/.test(wt), true);
+    /d\.queryCommandState\("bold"\)/.test(wt) && /parseInt\(cs\.fontWeight, 10\) >= 600/.test(wt), true);
   check('and is refreshed on selection changes',
-    /doc\.addEventListener\("selectionchange", _syncFmt\)/.test(wt), true);
+    /docs\.forEach\(d => d\.addEventListener\("selectionchange", _syncFmt\)\)/.test(wt), true);
   /* Removed again, or every box ever opened keeps a listener on a shared
      document for the life of the page. */
   check('the listener is removed on unmount',
-    /doc\.removeEventListener\("selectionchange", _syncFmt\)/.test(wt), true);
+    /docs\.forEach\(d => d\.removeEventListener\("selectionchange", _syncFmt\)\)/.test(wt), true);
   /* execCommand raises no selectionchange of its own, so without this the
      buttons would show the state from before the command. */
-  check('and after each command', /_doc\(\)\.execCommand\(cmd, false, null\);\s*\n[\s\S]{0,200}_syncFmt\(\);/.test(wt), true);
+  check('and after each command',
+    /_keepOffMarks\(\(\) => _doc\(\)\.execCommand\(cmd, false, null\)\);[\s\S]{0,900}_syncFmt\(\);/.test(wt), true);
 
   /* ONLY when the caret is in THIS box. The event is document-wide and every
      section on the page has one of these toolbars; without the containment
      test, typing in Our Story would light up the buttons above Travel. */
+  /* Through _liveSelection, which keeps only a selection inside THIS box, and
+     again on the element the state is read from. */
   check('a caret in another box is ignored',
-    /if \(!host \|\| !sel \|\| !sel\.anchorNode \|\| !host\.contains\(sel\.anchorNode\)\) return;/.test(wt), true);
+    /const sel = _liveSelection\(\);/.test(wt) && /if \(!el \|\| !host\.contains\(el\)\) return;/.test(wt), true);
   /* And reading it cannot throw: queryCommandState is unsupported in some
      embedded views and this runs on every caret move. */
   check('reading the state cannot break typing',
@@ -7373,7 +7379,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-counter-layout');
+  check('the stamp names the change it shipped with', version, '2026-10-23-rsvp-reset');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7381,7 +7387,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'd630f3b8');
+    ('0000000' + bh.toString(16)).slice(-8), '40be9987');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9272,6 +9278,48 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-937. Toolbar menus stay on screen. */
   check('MP-937 every toolbar menu is kept on screen',
     (ws.match(/<div ref=\{_keepOnScreen\} style=\{(?:\{ \.\.\.)?menuStyle/g) || []).length, 2);
+}
+
+
+// ── Formatting a whole title (MP-915 / MP-333, as tested by the couple) ───
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* B, I and U save after the command, rather than trusting the browser to
+     raise an input event: it did not, inside the box's title marks, and the
+     bold never reached the record. */
+  check('MP-915 B, I and U save after the command',
+    /_keepOffMarks\(\(\) => _doc\(\)\.execCommand\(cmd, false, null\)\);[\s\S]{0,700}onChange\(_clean\(h\.innerHTML\)\)/.test(ws), true);
+  /* A command the browser applies to the box's own title mark is moved off it
+     before the mark is stripped - fonts and, in CSS mode, B, I and U too. */
+  check('MP-333 formatting that lands on a title mark is kept',
+    /const _keepOffMarks = \(run\) =>/.test(ws) && (ws.match(/_keepOffMarks\(\(\) =>/g) || []).length === 2, true);   // B/I/U, and font/size
+  /* Only <strong> is the old title marker; a whole-line <b> is the couple's. */
+  check('MP-915 a whole bold title keeps its bold on the site',
+    /<b>Reception<\/b>/.test(runtime.markStructure('<b>Reception</b><br>7pm')), true);
+  check('and the old <strong> marker is still unwrapped',
+    /<strong>/.test(runtime.markStructure('<strong>Reception</strong><br>7pm')), false);
+  check('the box shows only <strong> at title weight',
+    /mp-t\[data-whole-bold\] strong\{font-weight:inherit\}/.test(ws) &&
+    !/mp-t\[data-whole-bold\] b\{/.test(ws), true);
+  check('FAQ questions keep a whole-line <b>',
+    ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals',
+     'regalboho','sageandstill','vintagelovestory','whimsicalromance']
+      .filter(n => !/if \(!\/<\(strong\|mp-title\)\\b\/i\.test\(s\)\) return s;/.test(fs.readFileSync('template-' + n + '.html', 'utf8'))), []);
+}
+
+
+// ── Reset to default sits in the same place for every section ─────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Two header rows render a Reset - the content sections' and the one Home and
+     RSVP share - and both put it on the right of the section name. RSVP's used
+     to sit under its box. */
+  check('every Reset to default is in a section header row',
+    (ws.match(/↺ Reset to default/g) || []).length, 2);
+  check('and none is placed under a box',
+    /marginTop: "4px" \}\}>\s*↺ Reset to default/.test(ws), false);
+  check('RSVP\'s resets its line from the header row',
+    /if \(s\.section === "rsvp"\) _resetRsvpNote\(\);/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

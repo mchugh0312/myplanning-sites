@@ -909,7 +909,7 @@ body.thumbnail-mode .home-section{height:33vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'blacktietimeless:9363c8c6';
+    window.__mpTemplate = 'blacktietimeless:c2b9504e';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1986,6 +1986,9 @@ function _mpColParts(html, fallback) {
    sites that never asked for it. */
 function _mpQuestion(html) {
   var s = String(html || '').trim();
+  /* Only the old <strong> marker is removed. A <b> round the whole question is
+     the couple pressing B, and it stays (MP-915). */
+  if (!/<(strong|mp-title)\b/i.test(s)) return s;
   var m = _mpTitle(s);
   return (m ? m[1] : s).trim();
 }

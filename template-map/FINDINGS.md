@@ -186,6 +186,24 @@ every change against the original files.
 - MP-945 (Coastal Chic): needs the stamp SVG - the asset CDN is not reachable
   from here.
 
+- MP-915 / MP-333, re-opened in testing and fixed at the cause. Reproduced in
+  the real editor: (1) B, I and U never saved anything themselves - they
+  relied on the browser raising an input event after the command, which it did
+  not for a whole title (and does not dependably in every browser), so the
+  bold showed in the box, never reached the record, and on reselecting the
+  text it was plain and B unlit; (2) applying a font, or B/I/U once the
+  browser is in CSS mode, to a WHOLE title restyled the box's own title mark
+  instead of the words, and the mark is stripped before saving. Now B/I/U save
+  after every command, anything a command writes onto a title mark is moved
+  into a real span, and the button state is read from the selection wherever
+  it lives (both windows) and from the rendered weight/slant. Also: a
+  whole-line <b> is the couple's bold and is kept on the site (only the old
+  <strong> marker is unwrapped); FAQ questions keep a whole-line <b>; Vintage
+  Love Story and Regal Boho accept formatting inside a hotel name. The site
+  already rendered the editor's font and bold spans correctly - the fault was
+  that they were never saved. Firefox could not be run here; the fix removes
+  the browser-dependent step rather than relying on it.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

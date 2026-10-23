@@ -1117,7 +1117,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:42d054ef';
+    window.__mpTemplate = 'regalboho:3ae916a7';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1624,7 +1624,7 @@ function hydrateTravelInfo(d, menu) {
     blocks.forEach(function(blk) {
       blk = blk.trim();
       if (!blk) return;
-      var nameMatch = blk.match(/<strong>([^<]+)<\/strong>/i);
+      var nameMatch = blk.match(/<strong>([\s\S]+?)<\/strong>/i);
       var name = nameMatch ? nameMatch[1].trim() : '';
       var rest = nameMatch ? blk.replace(nameMatch[0], '').trim() : blk;
       var emMatch = rest.match(/<em>([^<]+)<\/em>/i);
@@ -1645,7 +1645,7 @@ function hydrateTravelInfo(d, menu) {
     tBlocks.forEach(function(blk) {
       blk = blk.trim();
       if (!blk) return;
-      var nameMatch = blk.match(/<strong>([^<]+)<\/strong>/i);
+      var nameMatch = blk.match(/<strong>([\s\S]+?)<\/strong>/i);
       var name = nameMatch ? nameMatch[1].trim() : '';
       var rest = nameMatch ? blk.replace(nameMatch[0], '').trim() : blk;
       rest = rest.replace(/^(<br\s*\/?>\s*)+/i, '').replace(/(<br\s*\/?>\s*)+$/i, '');
@@ -2144,6 +2144,9 @@ document.addEventListener('click', function(e) {
    sites that never asked for it. */
 function _mpQuestion(html) {
   var s = String(html || '').trim();
+  /* Only the old <strong> marker is removed. A <b> round the whole question is
+     the couple pressing B, and it stays (MP-915). */
+  if (!/<(strong|mp-title)\b/i.test(s)) return s;
   var m = _mpTitle(s);
   return (m ? m[1] : s).trim();
 }

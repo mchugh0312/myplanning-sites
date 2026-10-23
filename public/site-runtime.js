@@ -2732,8 +2732,13 @@
        would nest <mp-title> inside <mp-title>. */
     if (/^<mp-title\b/i.test(line)) return block;
 
+    /* Only <strong>. A <strong> round the whole first line is the OLD title
+       marker - seeded copy and records saved before titles were positional
+       carry it - so it is unwrapped and the design's own title weight shows.
+       A whole-line <b> is the couple pressing B on their title (the B button
+       writes <b>), and it is theirs to keep: unwrapping it too threw their
+       bold away, the box showed the title unbolded, and B never lit (MP-915). */
     if (_wrapsWhole(line, 'strong')) line = _unwrap(line, 'strong');
-    else if (_wrapsWhole(line, 'b')) line = _unwrap(line, 'b');
 
     /* MP-337. <mp-title> is spliced in by STRING POSITION, and the first line
        of a block is rarely a whole element. Select a whole section and hit
@@ -2802,7 +2807,10 @@
     if (f === -1) return card;
     var line = lines[f].trim();
     if (_wrapsWhole(line, 'em') || _wrapsWhole(line, 'i')) return card;
-    if (/<(strong|b)\b/i.test(line)) return card;
+    /* A <strong> already in the line decides the title as it always has. A <b>
+       is the couple's bold and does not: a heading they bolded is still the
+       heading, so it is still marked (inside the <strong>, where it stays). */
+    if (/<strong\b/i.test(line)) return card;
     var open = _openTags(line);
     for (var c = open.length - 1; c >= 0; c--) line += '</' + open[c].name + '>';
     var reopen = open.map(function (t) { return t.tag; }).join('');
@@ -7645,7 +7653,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-counter-layout';
+  var MP_RUNTIME_BUILD = '2026-10-23-rsvp-reset';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
