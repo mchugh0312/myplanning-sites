@@ -2451,7 +2451,8 @@ check('two blocks -> two cards', blocks(mark(
 {
   const block = fs.readFileSync('Website.txt', 'utf8').replace(/\r/g, '');
   check('a record change re-sends the payload',
-    /\}, \[localChanges, celebration, selectedCelebrationId\]\);/.test(block), true);
+    /* eventOrder may follow: the preview's RSVP form takes its sequence from it. */
+    /\}, \[localChanges, celebration, selectedCelebrationId(, eventOrder)?\]\);/.test(block), true);
   check('and no longer keys off the id alone',
     /\[localChanges, celebration\?\.id, selectedCelebrationId\]/.test(block), false);
 }
@@ -4685,7 +4686,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'b9023cb8');
+    ('0000000' + h.toString(16)).slice(-8), 'a99b878b');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7426,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-divider-label');
+  check('the stamp names the change it shipped with', version, '2026-10-23-event-order-all');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9699,6 +9700,23 @@ check('two blocks -> two cards', blocks(mark(
      went unnoticed. Labelled, with the dashed line the box draws. */
   check('MP-918 the Divider button is labelled',
     /\{isMobile \? null : "Divider"\}/.test(ws) && /borderTop: "1\.5px dashed currentColor"/.test(ws) && !/>⎯<\/button>/.test(ws), true);
+}
+
+
+// ── MP-923: every listed event is ordered, editor and preview ────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* The plan the endpoint read lacked some of the events the editor lists
+     (Welcome, Farewell); they came back unordered and fell to the bottom. */
+  check('MP-923 the endpoint orders the events the editor names',
+    /async def get_celebration_event_order\(celebration_id: str, ids: Optional\[str\] = None\):/.test(py) &&
+    /for eid in \(ids or ""\)\.split\(","\):/.test(py), true);
+  check('and the editor names them', /\?ids=\$\{encodeURIComponent\(_finalEventIds\)\}/.test(ws), true);
+  /* The preview's RSVP form numbered events by their place in the list. */
+  check('the preview sends each event\'s real sequence and date',
+    /return o \? \{ \.\.\.e, sort_order: o\.sort_order, date: o\.date \} : e;/.test(ws) &&
+    /\}, \[localChanges, celebration, selectedCelebrationId, eventOrder\]\);/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -426,6 +426,14 @@ every change against the original files.
   "+ Event" (the line alone on a phone). Pressing it mid-card splits the card
   and the dashed line shows at once.
 
+- MP-923, from the console log: the endpoint read the couple's PLAN, which
+  held three of the five events the editor lists; Welcome and Farewell came
+  back unordered and fell to the bottom. The editor now sends its own event
+  ids (?ids=...), and the endpoint orders all of them by Event Sequence. And
+  the preview's RSVP form numbered events by their place in the list (it asked
+  about the reception before the ceremony): the editor now sends each event's
+  real sequence and date, and re-sends the preview when the order arrives.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
