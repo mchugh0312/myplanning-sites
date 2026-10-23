@@ -3180,7 +3180,7 @@
       var _rsvpLine = '';
       try {
         if (document.getElementById('rsvpDeadline')) {
-          _rsvpLine = _rsvpEmptyLineHtml(d).replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ')
+          _rsvpLine = _rsvpEmptyLineHtml(d, _isPreview).replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ')
             .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim();
         }
       } catch (e) {}
@@ -7662,14 +7662,23 @@
      the design's line with their deadline swapped in, or the design's line as
      shipped. One function for the page and for the editor's placeholder, so the
      box always shows what the site does. */
-  function _rsvpEmptyLineHtml(d) {
+  /* With no note and no deadline the design's line carries its SAMPLE date
+     ("by February 15th, 2026"), which guests read as real. So: hidden on the
+     live site, and in the editor a faded hint in the design's own wording with
+     the date left for the couple - "...by [your RSVP date]". The hint is the
+     editor box's placeholder too, so box and preview agree. */
+  var RSVP_DATE_HINT = '[your RSVP date]';
+
+  function _rsvpEmptyLineHtml(d, isPreview) {
     var design = _designRsvpLine || '';
     var deadline = (d && d.rsvp_config && d.rsvp_config.deadline) || (d && d.rsvp_deadline) || '';
-    if (!deadline) return design;
     var raw = design.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
     var lead = raw.match(/^(.*\bby\s+)/i);
-    var text = (lead ? lead[1] : 'by ') + fmtDate(deadline);
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var esc = function (t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    if (deadline) return esc((lead ? lead[1] : 'by ') + fmtDate(deadline));
+    if (!isPreview) return '';
+    return '<span class="mp-rsvp-hint" style="opacity:0.55">' +
+      esc((lead ? lead[1] : 'RSVP by ') + RSVP_DATE_HINT) + '</span>';
   }
 
   function hydrate(d) {
@@ -7886,12 +7895,17 @@
            returning here would have skipped the mobile drawer, the footer and
            everything after it. */
         deadlineEl.innerHTML = note;
+        deadlineEl.style.display = '';
       } else {
         /* The deadline in the design's own phrasing, or the design's line as
            shipped. ALWAYS written, never left: "leave it" meant leaving the
            previous note in the editor preview after the couple cleared it
            (MP-905), and the phrasing was read back off that same stale text. */
-        deadlineEl.innerHTML = _rsvpEmptyLineHtml(d);
+        var _empty = _rsvpEmptyLineHtml(d, _isPreview);
+        deadlineEl.innerHTML = _empty;
+        /* Nothing to say on the live site: the line goes, rather than leaving
+           an empty gap or a sample date. */
+        deadlineEl.style.display = _empty ? '' : 'none';
       }
     }
 

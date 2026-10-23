@@ -75,11 +75,25 @@ every change against the original files.
 - Editor: event titles in a box whose body is italic now show upright, as on
   the site (found by the new editor test, harness/editor-test).
 
+- RSVP line with no note and no deadline: hidden on the live site (it showed
+  the design's sample date, which guests read as real). In the editor preview
+  and as the box's placeholder it shows faded, in the design's wording, with
+  the date left open: "...by [your RSVP date]".
+- MP-918, dividers. Boxes the site splits into cards (Events, FAQs, Travel)
+  show a dashed divider above every card after the first, so a couple sees
+  where the site will split their copy - and sees a card merge or appear when
+  they delete or add a blank line. Travel titles are labelled Hotel card /
+  Travel card. The Line break button in those boxes is now Divider: it starts
+  a new card at the cursor (open question 3). Drawn with CSS on the title
+  mark: nothing is added to the saved text, and dividers refresh when the box
+  loses focus, like titles.
+
+**READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
+MP-918. What to check for each is in the chat summary of this round.
+
 **OPEN: needs a decision**
-- RSVP line with no note and no deadline shows the design's SAMPLE date
-  (e.g. "by February 15th, 2026") to guests. Keep, or hide the line until a
-  deadline or note exists?
-- Registry when emptied. Every live site has a registry link (built from its
+- Registry when emptied: kept as is (shown unless switched off), by decision.
+- (was) Registry when emptied. Every live site has a registry link (built from its
   address), so "no words and no link" never happens. Choose: (a) keep it shown
   unless switched off, as today (suggested), or (b) hide it when it has no
   words and the backend confirms zero items, never on a failed request.
