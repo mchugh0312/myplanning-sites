@@ -310,6 +310,18 @@ every change against the original files.
   now. (The link REMAINING after switching off did not reproduce on the current
   build in either menu - worth re-checking once deployed.)
 
+- MP-921, as re-tested: "+ Question" now adds "New question" with "New
+  answer" under it, marks the new block at once (so the divider shows above it,
+  and between two new questions in a row, without clicking away), and selects
+  "New question" so typing replaces it.
+- Decided: second hotel cards get their own hotel card (to do: the runtime
+  rule - hotels are the cards before the first travel heading - and six designs
+  that fold a second hotel into the first card: Golden Hour, Heirloom Bloom,
+  Modern Minimal, Pressed Petals, Regal Boho, Whimsical Romance).
+- Decided: MP-923 via a small backend endpoint (to do).
+- Decided: Pressed Petals' heading-less Wedding / Other Events stay as a plain
+  band when emptied.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

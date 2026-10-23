@@ -4679,7 +4679,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '110dd3b0');
+    ('0000000' + h.toString(16)).slice(-8), '7bc5074a');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5423,8 +5423,12 @@ check('two blocks -> two cards', blocks(mark(
      nothing but make the words look bold in the Content field - it never
      reached the page, because markBlock unwraps a <strong> wrapping a whole
      first line, which is why the preview looked right and the box did not. */
+  /* The title first, then its second line: "New answer" under a question
+     (MP-921 - the answer line was empty, with no hint where it goes), an
+     empty line under anything else. */
   check('the new block starts with its title',
-    /"New " \+ \(blockNoun \|\| "section"\) \+ "<br>&nbsp;"/.test(fn), true);
+    /"New " \+ \(blockNoun \|\| "section"\) \+ "<br>" \+ second/.test(fn) &&
+    /const second = blockNoun === "question" \? "New answer" : "&nbsp;";/.test(fn), true);
   check('and is not bolded', /<strong>New /.test(fn), false);
   /* The box still SHOWS it as a title - that marking is by position and owes
      nothing to the tag just removed. */
@@ -7412,7 +7416,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-rsvp-hint-nav');
+  check('the stamp names the change it shipped with', version, '2026-10-23-new-question');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9526,6 +9530,16 @@ check('two blocks -> two cards', blocks(mark(
      or its menu link points at nothing. It was shown only the first time. */
   check('an emptied, switched-on section is shown every time',
     /if \(sec\.style\.display === 'none'\) \{\s*\n\s*if \(!saved\.sec\) saved\.sec = \{ el: sec, prev: 'none' \};\s*\n\s*sec\.style\.display = '';/.test(rt), true);
+}
+
+
+// ── MP-921: a new question is marked at once, so its divider shows ───────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const fn = ws.slice(ws.indexOf('  const startNewBlock = '), ws.indexOf('  const insertGap = '));
+  check('MP-921 a new block is marked straight away (divider above it)',
+    /host\.innerHTML = _markTitles\(_gapBreaks\(_clean\(host\.innerHTML\)\)\);/.test(fn), true);
+  check('and its title is selected, ready to type over', /r\.selectNodeContents\(last\);/.test(fn), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

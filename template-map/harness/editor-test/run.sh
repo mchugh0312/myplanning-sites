@@ -10,7 +10,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SRC="${1:-$HERE/../../../Website.txt}"
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"; kill ${SRV:-0} 2>/dev/null || true' EXIT
-cp -r "$HERE/stubs" "$HERE/entry.jsx" "$HERE/entry_dividers.jsx" "$HERE/entry_group.jsx" "$HERE/entry_shadow.jsx" "$HERE/entry_underlined.jsx" "$HERE/entry_erase.jsx" "$HERE/entry_travel.jsx" "$HERE/entry_imgset.jsx" "$WORK/"
+cp -r "$HERE/stubs" "$HERE/entry.jsx" "$HERE/entry_dividers.jsx" "$HERE/entry_group.jsx" "$HERE/entry_shadow.jsx" "$HERE/entry_underlined.jsx" "$HERE/entry_erase.jsx" "$HERE/entry_travel.jsx" "$HERE/entry_imgset.jsx" "$HERE/entry_faq.jsx" "$WORK/"
 tr -d '\r' < "$SRC" > "$WORK/editor.jsx"; echo 'export { RichEditor, ImageSet };' >> "$WORK/editor.jsx"
 ( cd "$WORK" && npm init -y >/dev/null && npm i --silent esbuild@0.24.0 react@18.3.1 react-dom@18.3.1 lucide-react@0.383.0 >/dev/null )
 ( cd "$WORK" && npx esbuild entry.jsx --bundle --outfile=bundle.js --loader:.jsx=jsx --jsx=automatic \
@@ -43,6 +43,10 @@ echo '<!doctype html><html><body style="margin:0"><div id="host"></div><script s
     --alias:@/lib/datasource=./stubs/datasource.js --alias:@/components/ui/switch=./stubs/switch.js \
     --alias:sonner=./stubs/sonner.js --define:process.env.NODE_ENV='"development"' --log-level=error )
 echo '<!doctype html><html><body><div id="root"></div><script src="bundle_imgset.js"></script></body></html>' > "$WORK/index_imgset.html"
+( cd "$WORK" && npx esbuild entry_faq.jsx --bundle --outfile=bundle_faq.js --loader:.jsx=jsx --jsx=automatic \
+    --alias:@/lib/datasource=./stubs/datasource.js --alias:@/components/ui/switch=./stubs/switch.js \
+    --alias:sonner=./stubs/sonner.js --define:process.env.NODE_ENV='"development"' --log-level=error )
+echo '<!doctype html><html><body style="margin:0"><div id="host"></div><script src="bundle_faq.js"></script></body></html>' > "$WORK/index_faq.html"
 echo '<!doctype html><html><body><div id="root"></div><script src="bundle.js"></script></body></html>' > "$WORK/index.html"
 echo '<!doctype html><html><body style="background:#fff"><div id="root"></div><script src="bundle_dividers.js"></script></body></html>' > "$WORK/index_dividers.html"
 PORT="${PORT:-8899}"; ( cd "$WORK" && exec python3 -m http.server "$PORT" >/dev/null 2>&1 ) & SRV=$!; sleep 1
@@ -66,3 +70,6 @@ echo "== Travel: select all + B bolds the titles in the box at once; one B un-bo
 python3 "$HERE/test_travel_bold.py" "$PORT"
 echo "== Gallery and homepage photos: drag shows where it lands; drop on a photo or a gap; outside abandons (MP-914)"
 python3 "$HERE/test_gallery_drag.py" "$PORT"
+
+echo "== + Question: a New answer line, and a divider at once - between new ones too (MP-921)"
+python3 "$HERE/test_new_question.py" "$PORT"
