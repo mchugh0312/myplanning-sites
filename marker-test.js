@@ -4669,7 +4669,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '87ac19c8');
+    ('0000000' + h.toString(16)).slice(-8), 'c2a2ba75');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5427,8 +5427,9 @@ check('two blocks -> two cards', blocks(mark(
   check('neither is deleted from the set any more',
     /_bundledKeys\.current\.delete\("rsvpEnabled"\)/.test(wt), false);
   /* The counter has to actually skip that set, or bundling means nothing. */
+  /* Still skipped; customCss is now counted pair by pair instead (MP-949). */
   check('the counter skips bundled keys',
-    /Object\.keys\(localChanges\)\.filter\(k => !_bundledKeys\.current\.has\(k\)\)/.test(wt), true);
+    /Object\.keys\(localChanges\)\.filter\(k => k !== "customCss" && !_bundledKeys\.current\.has\(k\)\)/.test(wt), true);
   /* Both fields still get written - counting them as one must not stop one
      being saved. */
   check('both fields are still saved',
@@ -7365,7 +7366,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-typography-map');
+  check('the stamp names the change it shipped with', version, '2026-10-23-counter-layout');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9229,6 +9230,41 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-918. The divider the site will put between cards is shown in the box. */
   check('MP-918 the box draws a divider above each card after the first',
     /mp-t\[data-follows\]::before/.test(ws), true);
+}
+
+
+// ── Counter and layout round (template-map/FINDINGS.md) ───────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8').replace(/\r\n/g, '\n');
+  /* MP-943 / MP-949. Changes as the couple makes them. The counter is lifted
+     from the block and run against the cases the tickets describe. */
+  const i = ws.indexOf('  const _CSS_MIRRORS'), j = ws.indexOf('    : 0;\n', i) + '    : 0;\n'.length;
+  const count = new Function('localChanges', 'savedCss',
+    'const celebration = { fields: { customCss: savedCss } };\n' +
+    'const _bundledKeys = { current: new Set() };\n' +
+    'const hasChanges = Object.keys(localChanges).length > 0;\n' + ws.slice(i, j) + 'return changeCount;');
+  check('MP-949 six colours read as six changes',
+    count({ primaryColor: '#111111', accentColor: '#222222',
+            customCss: '--text:#333333; --text2:#444444; --text3:#555555; --accent2:#666666;' }, ''), 6);
+  check('MP-943 one registry preview click is one change',
+    count({ showRegistryPreview: false, customCss: '--registry-preview:0;' }, ''), 1);
+  check('a colour set over an old --bg is one change',
+    count({ primaryColor: '#111111', customCss: '--text:#333333;' }, '--bg:#000000; --text:#333333;'), 1);
+
+  /* MP-950. A short last row of events is centred. */
+  check('MP-950 Whimsical Romance centres a partial row',
+    /\.itinerary-grid\{display:flex;flex-wrap:wrap;justify-content:center;\}/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+  check('MP-950 Coastal Chic centres a partial row',
+    /\.schedule-grid\{display:flex;flex-wrap:wrap;justify-content:center;\}/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
+
+  /* MP-939. Heirloom Bloom's carousel loops through a copy of the first slide. */
+  const hb = fs.readFileSync('template-heirloombloom.html', 'utf8');
+  check('MP-939 the carousel loops instead of rewinding',
+    /function _carouselClone\(c\)/.test(hb) && /idx === n && _carouselIdx === n - 1/.test(hb), true);
+
+  /* MP-937. Toolbar menus stay on screen. */
+  check('MP-937 every toolbar menu is kept on screen',
+    (ws.match(/<div ref=\{_keepOnScreen\} style=\{(?:\{ \.\.\.)?menuStyle/g) || []).length, 2);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

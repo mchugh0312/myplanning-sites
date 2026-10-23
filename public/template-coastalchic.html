@@ -1063,6 +1063,14 @@ body.thumbnail-mode{scroll-behavior:auto;}
    .section-title-mini sets colour too, and sitting above it meant --ink won
    and the heading was navy on navy - invisible. */
 .gallery-section .section-title-mini{color:var(--on-dark);}
+/* MP-950. Three events across, with a short last row CENTRED rather than
+   left under the first column - two events used to sit off to one side.
+   A wrapping row of equal thirds does what the grid did for full rows and
+   centres the rest. Phones keep their one-column rule (max-width:768px). */
+@media (min-width:769px){
+  .schedule-grid{display:flex;flex-wrap:wrap;justify-content:center;}
+  .schedule-grid > .schedule-event{box-sizing:border-box;min-width:0;flex:0 0 calc((100% - 2 * 3.4rem) / 3);max-width:calc((100% - 2 * 3.4rem) / 3);}
+}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1088,7 +1096,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:04a46533';
+    window.__mpTemplate = 'coastalchic:e13b7ecb';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

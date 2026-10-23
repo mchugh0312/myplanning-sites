@@ -1535,12 +1535,10 @@
     "ink2": {
      "label": "Text2",
      "vars": [
-      "--on-dark",
-      "--on-dark-copy"
+      "--on-dark"
      ],
      "value": [
-      "#fefaf1",
-      "#ffffff"
+      "#fefaf1"
      ],
      "text": {
       "home": [
@@ -1575,9 +1573,7 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name",
-       "div.faq-answer",
-       "div#thingsToDoText"
+       "div.schedule-event-name"
       ],
       "borderBottomColor": [
        "div#heroCoupleNames",
@@ -1585,9 +1581,7 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name",
-       "div.faq-answer",
-       "div#thingsToDoText"
+       "div.schedule-event-name"
       ],
       "borderLeftColor": [
        "div#heroCoupleNames",
@@ -1595,9 +1589,7 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name",
-       "div.faq-answer",
-       "div#thingsToDoText"
+       "div.schedule-event-name"
       ],
       "outlineColor": [
        "div#heroCoupleNames",
@@ -1605,9 +1597,7 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name",
-       "div.faq-answer",
-       "div#thingsToDoText"
+       "div.schedule-event-name"
       ],
       "textDecorationColor": [
        "div#heroCoupleNames",
@@ -1615,9 +1605,7 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name",
-       "div.faq-answer",
-       "div#thingsToDoText"
+       "div.schedule-event-name"
       ]
      },
      "visible_at_rest": true
@@ -1900,7 +1888,7 @@
       "ink2"
      ],
      "vars": [
-      "--on-dark-copy"
+      "--on-dark"
      ]
     },
     {
@@ -1922,7 +1910,7 @@
       "ink2"
      ],
      "vars": [
-      "--on-dark-copy"
+      "--on-dark"
      ]
     },
     {
@@ -1944,7 +1932,7 @@
       "ink2"
      ],
      "vars": [
-      "--on-dark-copy"
+      "--on-dark"
      ]
     },
     {
@@ -1966,7 +1954,7 @@
       "ink2"
      ],
      "vars": [
-      "--on-dark-copy"
+      "--on-dark"
      ]
     },
     {

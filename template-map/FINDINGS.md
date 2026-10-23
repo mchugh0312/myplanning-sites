@@ -151,11 +151,36 @@ every change against the original files.
   2026-10-23-typography-map with harness/stamp.py. Coastal Chic's text on dark
   bands now uses its spec ivory, not a pure white that is in no spec.
 
+- Group D, the "changes to save" counter (MP-943, MP-949): counts changes as
+  the couple makes them. Four colours, the registry preview switch and two
+  legacy colour keys share one field (customCss); it is now counted pair by
+  pair, and pairs that only mirror a setting with its own field are not
+  counted twice. Six colours read as six (were three); one registry click as
+  one (was two).
+- Group E, layout:
+  - MP-950: Whimsical Romance and Coastal Chic centre a short last row of
+    events (it sat left); full rows, tile widths and phones are unchanged.
+  - MP-939: Heirloom Bloom's hero carousel loops round instead of rewinding
+    across every photo.
+  - MP-937: the editor's text-size and font menus stay on screen on phones
+    (both ran off the edge at 320-360px wide).
+  - MP-942, measured, no change: the runtime already fills these frames from
+    the couple's photos in order; the hero repeats only when the couple has
+    fewer photos than frames (Modern Minimal: three frames, so two photos).
+    Needs a decision - see OPEN.
+  - MP-945: the Travel stamp is an image with a white background baked into
+    the gaps between its scallops, which only matches the default ivory
+    background. Fix is editing that SVG (on the asset CDN, not reachable
+    here) - needs the file.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
-MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953. What to check for each is in the chat summary of this round.
+MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
+MP-949, MP-950, MP-939, MP-937. What to check for each is in the chat summary of this round.
 
 **OPEN: needs a decision**
+- MP-942: with fewer photos than frames (Modern Minimal: hero + a pair = 3),
+  one photo must repeat. Keep repeating the hero, or show fewer frames?
 - Registry when emptied: kept as is (shown unless switched off), by decision.
 - (was) Registry when emptied. Every live site has a registry link (built from its
   address), so "no words and no link" never happens. Choose: (a) keep it shown

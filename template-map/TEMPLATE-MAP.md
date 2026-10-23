@@ -104,7 +104,7 @@ Font variables the runtime config does not know: `--menu-font`.
 | Site Background | `--ivory` | - | registry, travel | backgroundColor |
 | Accent Color | `--navy` | - | faqs, nav, registry, rsvp, things_to_do, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: registry, travel; block title: travel; body: registry, travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark`, `--on-dark-copy` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, registry, rsvp, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, registry, rsvp, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color **(nothing visible at rest)** | `--white` | - | - | - |
 

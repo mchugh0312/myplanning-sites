@@ -892,7 +892,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:6ef7126c';
+    window.__mpTemplate = 'heirloombloom:9bea82fa';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1196,11 +1196,57 @@ function buildCarousel(urls) {
   attachCarouselSwipe(c);
 }
 
+/* MP-939. Round and round, not back across every photo to the first.
+   A copy of the first slide sits after the last; the carousel slides on to
+   it - it looks exactly like the first - and then, with no animation, jumps
+   to the real first slide. Backwards from the first is the same in reverse.
+   The copy takes its picture from the real first slide each time, because
+   the runtime may have swapped the couple's own photographs in since. */
+function _carouselClone(c) {
+  var first = c.querySelector('.hero-slide:not(.hero-slide-clone) img');
+  var cl = c.querySelector('.hero-slide-clone');
+  if (!cl) {
+    cl = document.createElement('div');
+    cl.className = 'hero-slide hero-slide-clone';
+    cl.setAttribute('aria-hidden', 'true');
+    cl.innerHTML = '<img alt="">';
+    c.appendChild(cl);
+  }
+  if (first) cl.querySelector('img').src = first.currentSrc || first.src;
+  return cl;
+}
+function _carouselX(c, i, animate) {
+  if (animate) { c.style.transform = 'translateX(-' + (i * 100) + '%)'; return; }
+  c.style.transition = 'none';
+  c.style.transform = 'translateX(-' + (i * 100) + '%)';
+  void c.offsetWidth;            // apply it before the transition comes back
+  c.style.transition = '';
+}
+function _afterSlide(c, fn) {
+  var done = false;
+  var go = function () { if (done) return; done = true; c.removeEventListener('transitionend', go); fn(); };
+  c.addEventListener('transitionend', go);
+  setTimeout(go, 900);           // no transitionend with reduced motion
+}
+
 function goToSlide(idx, userInitiated) {
   if (!_carouselUrls.length) return;
-  _carouselIdx = (idx + _carouselUrls.length) % _carouselUrls.length;
+  var n = _carouselUrls.length;
   var c = document.getElementById('heroCarousel');
-  if (c) c.style.transform = 'translateX(-'+(_carouselIdx*100)+'%)';
+  if (c && n > 1 && idx === n && _carouselIdx === n - 1) {
+    _carouselClone(c);
+    _carouselX(c, n, true);                       // on to the copy of the first
+    _carouselIdx = 0;
+    _afterSlide(c, function () { if (_carouselIdx === 0) _carouselX(c, 0, false); });
+  } else if (c && n > 1 && idx === -1 && _carouselIdx === 0) {
+    _carouselClone(c);
+    _carouselX(c, n, false);                      // stand on the copy...
+    _carouselX(c, n - 1, true);                   // ...and slide back to the last
+    _carouselIdx = n - 1;
+  } else {
+    _carouselIdx = (idx + n) % n;
+    if (c) _carouselX(c, _carouselIdx, true);
+  }
   document.querySelectorAll('.carousel-dot').forEach(function(dot,i){
     dot.classList.toggle('active', i===_carouselIdx);
   });
