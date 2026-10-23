@@ -279,6 +279,26 @@ every change against the original files.
   64-98px between the button and the gifts, with or without text. While the
   band shows, the seam is now an even ~32px on every design.
 
+- MP-933 (hero narrower than the screen on mobile, gap on the right): could not
+  be reproduced in Chrome at phone, tablet or resized-frame sizes, and the
+  heroes are pure CSS. What WAS found: three things sticking out past the right
+  edge on a phone - Pressed Petals' and Heirloom Bloom's closed menu drawer
+  (200-300px), a Pressed Petals flower, and Modern Minimal's RSVP band (its
+  14px pull into the blue frame overshot the 6-8px frame on small screens).
+  Chrome clips such overflow; some mobile browsers instead widen the page to
+  fit it and shrink everything - which matches the report. All three fixed;
+  no template now has anything past the edge at phone width. Needs a re-test
+  on the tester's device.
+
+- MP-914 (photo drag-and-drop, Homepage images and Gallery): while a photo is
+  dragged the grid re-flows to show where it will land (the photo shown faded
+  in that slot; the HERO badge follows), the whole grid accepts the drop so the
+  "not allowed" cursor no longer shows between photos, and letting go commits
+  the order - on a photo, in a gap, or abandoned if released outside the grid.
+  Tiles keep a stable identity (they were keyed by position, which would have
+  cancelled a drag as they moved), and Firefox gets the data it needs to start
+  a drag.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

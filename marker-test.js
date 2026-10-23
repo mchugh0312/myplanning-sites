@@ -4679,7 +4679,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'cd5c9235');
+    ('0000000' + h.toString(16)).slice(-8), '110dd3b0');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7412,7 +7412,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-registry-seam');
+  check('the stamp names the change it shipped with', version, '2026-10-23-gallery-drag');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7420,7 +7420,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '11c506e2');
+    ('0000000' + bh.toString(16)).slice(-8), '9b3c3da0');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9480,6 +9480,36 @@ check('two blocks -> two cards', blocks(mark(
     /sec\.classList\.toggle\('mp-reg-has-band', !hidden\)/.test(rt) &&
     /'\.mp-reg-has-band\{padding-bottom:16px!important\}'/.test(rt) &&
     /'#mp-reg-band\{padding-top:16px!important\}'/.test(rt), true);
+}
+
+
+// ── MP-933: nothing sticks out past the screen edge on a phone ───────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('MP-933 a closed menu drawer is clipped to the screen', /'\.menu-overlay\{overflow:hidden\}' \+/.test(rt), true);
+  check('Pressed Petals clips the flower at Other Events\' edge',
+    /#other-events\{overflow-x:clip\}/.test(fs.readFileSync('template-pressedpetals.html', 'utf8')), true);
+  const mm = fs.readFileSync('template-modernminimal.html', 'utf8');
+  check('Modern Minimal\'s RSVP pull matches the frame at each size',
+    /@media\(max-width:768px\)\{\.rsvp-section\{margin:0 -8px -8px;\}\}/.test(mm) &&
+    /@media\(max-width:400px\)\{\.rsvp-section\{margin:0 -6px -6px;\}\}/.test(mm), true);
+}
+
+
+// ── MP-914: dragging a photo shows where it will land ────────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const set = ws.slice(ws.indexOf('function ImageSet('), ws.indexOf('function ImageSet(') + 9000);
+  check('MP-914 the grid re-flows while a photo is dragged',
+    /const order = \(\(\) => \{/.test(set) && /order\.map\(\(idx, pos\) => tile\(urls\[idx\], idx, pos\)\)/.test(set), true);
+  check('tiles keep their identity while they move',
+    /key=\{keys\[idx\]\}/.test(set) && !/key=\{url \+ "-" \+ idx\}/.test(set), true);
+  check('the whole grid accepts the drop, gaps included',
+    /onDrop=\{e => \{ if \(live\.current\) \{ e\.preventDefault\(\); commitDrag\(\); \} \}\}/.test(set), true);
+  check('a drop on the dragged photo itself still commits',
+    /if \(d && !d\.done && d\.inGrid\) commitDrag\(\);/.test(set), true);
+  check('and Firefox is given the data it needs to start a drag',
+    /e\.dataTransfer\.setData\("text\/plain", String\(idx\)\)/.test(set), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

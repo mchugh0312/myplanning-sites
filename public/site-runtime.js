@@ -7066,6 +7066,13 @@
    top - covering exactly the 8px stitch at the footer's top edge. Raising
    the dot contrast twice did nothing because the line was never visible to
    begin with, whatever colour it was. */
+    /* MP-933. A template's own menu drawer is parked past the right edge when
+       closed, inside a full-screen fixed overlay. That overlay did not clip, so
+       the closed drawer stuck out 200-300px - which Chrome ignores, but mobile
+       browsers have been known to widen the page to include it and shrink
+       everything to fit: the hero narrower than the screen, a gap on its right.
+       Clipped to the screen now; the drawer still slides in, inside it. */
+    '.menu-overlay{overflow:hidden}' +
     /* 100vw is the VIEWPORT, and the viewport includes the vertical scrollbar -
        so on any page long enough to scroll, a 100vw element is wider than the
        space actually available and the page gains a thin horizontal scroll.
@@ -7728,7 +7735,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-registry-seam';
+  var MP_RUNTIME_BUILD = '2026-10-23-gallery-drag';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

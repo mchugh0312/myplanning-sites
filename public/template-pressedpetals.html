@@ -1115,6 +1115,11 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 @media(max-width:340px){
   .story-flower-r,.flower-mid-right{display:none;}
 }
+/* MP-933. The flower that bleeds off Other Events' right edge stuck out past
+   the screen; some mobile browsers widen the page to fit that and shrink
+   the whole site, hero included. Clipped at the section - it is cut at the
+   same edge it always appeared to be (clip, not hidden: no scroll box). */
+#other-events{overflow-x:clip}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1140,7 +1145,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'pressedpetals:1021434a';
+    window.__mpTemplate = 'pressedpetals:17b5b947';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
