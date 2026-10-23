@@ -23,6 +23,15 @@ def cfg_for(tid):
     return {'scriptVar': val(sv), 'displayVar': val(dv), 'bodyVar': val(bv),
             'fonts': {'display': fonts.group(1), 'body': fonts.group(2)} if fonts else None}
 
+def runtime_menu_var(cfg):
+    """What Menu Links writes, read from applyFontSettings in the runtime
+    source rather than assumed. Either a CFG field or a literal name."""
+    blk = RT[RT.find('function applyFontSettings'):]
+    blk = blk[:blk.find('};')]
+    m = re.search(r"\bmenu:\s*(?:CFG\.(\w+)|'([^']+)')", blk)
+    if not m: return None
+    return cfg.get(m.group(1)) if m.group(1) else m.group(2)
+
 def colorvars_for(tid):
     m = re.search(r"\n    %s:\s*\{([^}]*)\}" % tid, RT[RT.find('var TEMPLATE_COLOR_VARS'):])
     out = {}
@@ -112,7 +121,7 @@ def analyse(tid):
                              if l['section'] in CONTENT | {'nav'}
                              and not any(i == h[0] for e in fx.values() for h in e['hits'])
                              and l['text'] not in ('+', '−', '×', '-')})
-    role_var = {'heading': cfg['scriptVar'] or cfg['displayVar'], 'body': cfg['bodyVar'], 'menu': cfg['bodyVar']}
+    role_var = {'heading': cfg['scriptVar'] or cfg['displayVar'], 'body': cfg['bodyVar'], 'menu': runtime_menu_var(cfg)}
     def moved_by(var):
         if not var or var not in fx: return {}
         out = {}

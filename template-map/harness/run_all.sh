@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 # Regenerate the template map. Needs: python3, playwright (pip) with chromium,
 # tinycss2, beautifulsoup4.
-#   TEMPLATE_DIR  folder holding template-*.html and site-runtime.js (default: ../..)
+#   TEMPLATE_DIR  folder holding template-*.html and site-runtime.js
+#                 (default: ../../public if it exists, else ../..)
 #   MAP_OUT       where results go (default: ./out)
 #   MAP_PORT      local port for the static server (default: 8765)
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-export TEMPLATE_DIR="${TEMPLATE_DIR:-$(cd "$HERE/../.." && pwd)}"
+# Default: the repo's public/ folder (myplanning-sites/public), where
+# site-runtime.js and the templates live; else the folder two levels up.
+ROOT="$(cd "$HERE/../.." && pwd)"
+if [ -z "${TEMPLATE_DIR:-}" ]; then
+  if [ -f "$ROOT/public/site-runtime.js" ]; then TEMPLATE_DIR="$ROOT/public"; else TEMPLATE_DIR="$ROOT"; fi
+fi
+if [ ! -f "$TEMPLATE_DIR/site-runtime.js" ]; then
+  echo "No site-runtime.js in $TEMPLATE_DIR - set TEMPLATE_DIR to the folder holding the templates." >&2; exit 2
+fi
+export TEMPLATE_DIR
 export MAP_OUT="${MAP_OUT:-$HERE/out}"
 export MAP_PORT="${MAP_PORT:-8765}"
 mkdir -p "$MAP_OUT"

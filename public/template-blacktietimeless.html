@@ -52,6 +52,12 @@
 @font-face{font-family:'Goudy';src:url('/fonts/SORTSMILLGOUDYItalic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap;}
 
 :root{
+  /* Text2 for copy on the dark bands, at the design's exact tone. The
+     runtime's Text2 slot writes this alongside --on-dark (MP-910). */
+  --on-dark-copy: #f9f7f5;
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--serif);
   --black:   #1c2120;
   --offwhite:#f9f7f5;
   /* Third text tone, split from --offwhite so it can be changed without
@@ -121,7 +127,7 @@ img{max-width:100%;display:block;}
 .menu-links a{
   /* Larger than before — in the design the links are close to body-copy size,
      not micro-type. Underline on hover / active, as specified. */
-  font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.22rem);
+  font-family:var(--menu-font);font-size:clamp(1rem,1.5vw,1.22rem);
   letter-spacing:0.01em;
   color:var(--ink);text-decoration:none;
   display:inline-block;width:fit-content;
@@ -385,7 +391,7 @@ img{max-width:100%;display:block;}
 }
 .ntk-answer{
   font-family:var(--serif);font-size:0.88rem;font-style:italic;
-  color:rgba(249,247,245,0.85);line-height:2;
+  color:rgba(249,247,245,0.85);color:color-mix(in srgb, var(--on-dark-copy) 85%, transparent);line-height:2;
   text-align:center;max-width:480px;margin:0 auto;
 }
 /* Candelabra image at bottom of NTK section */
@@ -1582,10 +1588,10 @@ function hydrateTemplate(d) {
           block = block.trim();
           if (!block) return null;
           var brIdx = block.search(/<br\s*\/?>/i);
-          if (brIdx === -1) return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+          if (brIdx === -1) return { q: _mpQuestion(block), a: '' };
           var questionHtml = block.substring(0, brIdx);
           var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
-          return { q: questionHtml.replace(/<[^>]+>/g, '').trim(), a: answerHtml };
+          return { q: _mpQuestion(questionHtml), a: answerHtml };
         }).filter(Boolean);
         if (faqPairs.length === 0) faqPairs = [{ q: 'FAQs', a: d.faqs }];
         faqPairs.forEach(function(pair) {
@@ -1967,6 +1973,18 @@ function _mpColParts(html, fallback) {
     title: m[1],
     rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
   };
+}
+
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
 }
 
 function _mpTitle(html) {

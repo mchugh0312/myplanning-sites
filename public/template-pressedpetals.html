@@ -100,6 +100,9 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--serif);
   --olive:#8d8863;
   /* Third text tone, split from --olive so it can be changed without
      repainting what --olive fills. */
@@ -156,7 +159,7 @@ body.hydrating{visibility:hidden;}
 .menu-links li a{
   /* 1rem sat noticeably smaller than the rest of the page. The drawer is a
      primary navigation, not a caption. */
-  font-family:var(--serif);font-size:1.18rem;
+  font-family:var(--menu-font);font-size:1.18rem;
   color:var(--ink);text-decoration:none;
   letter-spacing:0.04em;display:block;
   padding:0.85rem 0;
@@ -347,12 +350,13 @@ body:has(.mp-std-bottom) .hero{
 .event-card-detail{
   font-family:var(--serif);
   font-size:1rem;         /* was 0.8rem */
-  color:rgba(255,255,255,0.92);
+  color:rgba(255,255,255,0.92);color:color-mix(in srgb, var(--on-dark) 92%, transparent);
   font-weight:400;           /* slightly bold */
   line-height:2.1;
   letter-spacing:0.04em;
   color:var(--ink);             /* FIX 4: all text var(--text) — but on olive bg use white */
-  color:rgba(255,255,255,0.92);
+  /* The declaration that wins. Text2 reaches it now (MP-910). */
+  color:rgba(255,255,255,0.92);color:color-mix(in srgb, var(--on-dark) 92%, transparent);
 }
 /* FIX 3: Dress code in Citadel Script, Title Case (not uppercase) */
 /* The TRAILING <em> of an event block - the attire line - in the same face as
@@ -595,7 +599,7 @@ body:has(.mp-std-bottom) .hero{
 .accom-address{
   font-family:var(--serif);
   font-size:1rem;
-  color:rgba(255,255,255,0.78);
+  color:rgba(255,255,255,0.78);color:color-mix(in srgb, var(--on-dark) 78%, transparent);
   line-height:1.9;
   font-style:italic;         /* italic */
   margin-bottom:2rem;
@@ -1852,12 +1856,12 @@ function hydrateTemplate(d) {
         var brIdx = block.search(/<br\s*\/?>/i);
         if (brIdx === -1) {
           // No <br> inside block — whole block is the question, no answer
-          return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+          return { q: _mpQuestion(block), a: '' };
         }
         var questionHtml = block.substring(0, brIdx);
         var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
         // Strip tags from question for display
-        var questionText = questionHtml.replace(/<[^>]+>/g, '').trim();
+        var questionText = _mpQuestion(questionHtml);
         return { q: questionText, a: answerHtml };
       }).filter(Boolean);
 
@@ -2173,6 +2177,18 @@ document.addEventListener('click', function(e) {
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

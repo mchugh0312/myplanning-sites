@@ -88,6 +88,13 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--sub);
+  /* Phones show the runtime's drawer, which has always inherited this
+     design's --body face rather than the desktop menu's; kept as it was
+     by the rule after this block. A couple's choice is set on <html> and
+     overrides both. */
   /* Sage & Still palette */
   --sage:#a8a99b;        /* light sage / accent */
   --offwhite:#f5f3ee;
@@ -111,6 +118,7 @@
   --sub:'Ovo', Georgia, serif;
   --body:'DM Sans', system-ui, -apple-system, sans-serif;
 }
+@media (max-width:768px){:root{--menu-font:var(--body);}}
 html{scroll-behavior:smooth}
 body{
   font-family:var(--body);color:var(--ink);
@@ -148,7 +156,7 @@ body.hydrating{visibility:hidden;}
    links now start 1.8rem plus the heading's height higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;}
 .menu-links li a{
-  font-family:var(--sub);
+  font-family:var(--menu-font);
   font-size:1.02rem;
   /* White on the sage panel, per the design. */
   color:#ffffff;
@@ -1835,11 +1843,11 @@ function hydrateTemplate(d) {
         if (!block) return null;
         var brIdx = block.search(/<br\s*\/?>/i);
         if (brIdx === -1) {
-          return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+          return { q: _mpQuestion(block), a: '' };
         }
         var questionHtml = block.substring(0, brIdx);
         var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
-        var questionText = questionHtml.replace(/<[^>]+>/g, '').trim();
+        var questionText = _mpQuestion(questionHtml);
         return { q: questionText, a: answerHtml };
       }).filter(Boolean);
 
@@ -2104,6 +2112,18 @@ function _mpColParts(html, fallback) {
     title: m[1],
     rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
   };
+}
+
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
 }
 
 function _mpTitle(html) {

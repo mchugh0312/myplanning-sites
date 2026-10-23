@@ -15,12 +15,15 @@ Formatting key: ✓ shows on the page, = invisible because the text already had 
 
 | Variable | Face | Paints |
 |---|---|---|
-| `--script` | Ballet | section heading: faqs, rsvp, story, things_to_do; block title: other_events, travel, wedding; italic line: wedding; menu |
+| `--menu-font` | Goudy | menu |
+| `--script` | Ballet | section heading: faqs, rsvp, story, things_to_do; block title: other_events, travel, wedding; body: travel; italic line: wedding; menu |
 | `--serif` | Goudy | block title: faqs; body: faqs, other_events, rsvp, story, things_to_do, travel, wedding; italic line: other_events; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, rsvp, story, things_to_do; block title: other_events, travel, wedding; italic line: wedding; menu.  
+Headings control writes `--script`, which reaches: section heading: faqs, rsvp, story, things_to_do; block title: other_events, travel, wedding; body: travel; italic line: wedding; menu.  
 Body control writes `--serif`, which reaches: block title: faqs; body: faqs, other_events, rsvp, story, things_to_do, travel, wedding; italic line: other_events; menu.  
-Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--serif` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -29,14 +32,9 @@ Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--seri
 | Site Background | `--offwhite` | - | home, nav, other_events, rsvp, story | backgroundColor |
 | Accent Color | `--black` | - | faqs, footer, things_to_do, travel, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: rsvp, story; block title: other_events, travel; body: other_events, rsvp, story, travel; italic line: other_events; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: faqs, things_to_do; block title: faqs, wedding; body: wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark`, `--on-dark-copy` | section heading: faqs, things_to_do; block title: faqs, wedding; body: faqs, things_to_do, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | - | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--white` | - | - | backgroundColor |
-
-Text no colour control can reach:
-
-- faqs, body ("Cocktail attire. Think elega"): `.ntk-answer { color: rgba(249, 247, 245, 0.85) }` on rgb(28, 33, 32)
-- things_to_do, body ("Visit La Jolla Cove for stun"): `.ntk-answer { color: rgba(249, 247, 245, 0.85) }` on rgb(28, 33, 32)
 
 ### Block titles: Content box vs page
 
@@ -47,8 +45,8 @@ Text no colour control can reach:
 | events_info | Welcome Cocktails | Ballet 400 (`div.other-event-name`) | Ballet 400 |
 | faqs | What should I wear? | Goudy 700 (`div.ntk-question`) | Goudy 700 |
 | faqs | Will there be transportation | Goudy 700 (`div.ntk-question`) | Goudy 700 |
-| travel_info | Hyatt Regency La Jolla At Av | **not a title on the page** | (heading face) |
-| travel_info | The nearest airport is San D | Goudy 400 (`div.arch-card-name`) | (heading face) |
+| travel_info | Hyatt Regency La Jolla At Av | Ballet 400 (`div.arch-card-label`) | (heading face) |
+| travel_info | The nearest airport is San D | Ballet 400 (`div.arch-card-label`) | (heading face) |
 
 Wholly italic lines (dress codes, notes):
 
@@ -61,7 +59,6 @@ Wholly italic lines (dress codes, notes):
 
 ### Defaults imposed on body copy (must stay overridable)
 
-- wedding `em`: face Ballet (`.wedding-card-detail em:last-child`)
 - other_events `em`: italic
 - faqs `div.ntk-answer`: italic (`.ntk-answer`)
 - things_to_do `div#thingsToDoText`: italic (`.ntk-answer`)
@@ -70,10 +67,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | = ✗ ✗ ✗ | ✓ = ✓ ✓ | ✗ = ✗ = | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -88,14 +85,17 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Lexend Deca | menu |
 | `--script` | La Belle Aurore | - |
 | `--body` | Lexend Deca | section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
 
 Headings control writes `--script`, which reaches: -.  
 Body control writes `--body`, which reaches: section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
-Menu Links writes `--body`. The menu is set in `--body` on desktop and `--body` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Section headings the Headings control does not reach: faqs (Lexend Deca), registry (Lexend Deca), rsvp (Lexend Deca), things_to_do (Lexend Deca), travel (Lexend Deca), wedding (Lexend Deca).
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -104,14 +104,9 @@ Section headings the Headings control does not reach: faqs (Lexend Deca), regist
 | Site Background | `--ivory` | - | registry, travel | backgroundColor |
 | Accent Color | `--navy` | - | faqs, nav, registry, rsvp, things_to_do, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: registry, travel; block title: travel; body: registry, travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: registry, rsvp, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark`, `--on-dark-copy` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, registry, rsvp, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color **(nothing visible at rest)** | `--white` | - | - | - |
-
-Text no colour control can reach:
-
-- faqs, body ("The dress code for the eveni"): `.faq-answer { color: rgba(255, 255, 255, 0.85) }` on rgb(27, 42, 65)
-- things_to_do, body ("Probe things to do line."): `.faq-answer { color: rgba(255, 255, 255, 0.85) }` on rgb(27, 42, 65)
 
 ### Block titles: Content box vs page
 
@@ -122,12 +117,16 @@ Text no colour control can reach:
 | events_info | Beach Day | Lexend Deca 700 uppercase (`div.schedule-event-name`) | Lexend Deca 700 |
 | faqs | What should I wear to the we | Lexend Deca 500 (`span.faq-q-text`) | Lexend Deca 500 |
 | faqs | Will there be transportation | Lexend Deca 500 (`span.faq-q-text`) | Lexend Deca 500 |
-| travel_info | AIRPORT | **not a title on the page** | Lexend Deca 600 |
-| travel_info | HOTEL | **not a title on the page** | Lexend Deca 600 |
+| travel_info | AIRPORT | Lexend Deca 700 uppercase (`div.travel-block-label`) | Lexend Deca 600 |
+| travel_info | HOTEL | Lexend Deca 700 uppercase (`div.travel-block-label`) | Lexend Deca 600 |
 
 Wholly italic lines (dress codes, notes):
 
 - travel_info "*Request the Liz & Nic r": page shows Lexend Deca italic via `.travel-note`
+
+### CSS that restyles the couple's own tags
+
+- `strong)` → font-weight: 600
 
 ### Defaults imposed on body copy (must stay overridable)
 
@@ -144,12 +143,12 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✗ ✓ ✓ ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✗ ✓ ✓ ✓ | ✗ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ |
-| story | ✗ ✓ ✓ ✓ | ✗ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
-| things_to_do | ✗ ✓ ✓ ✓ | ✗ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
 ### Sections
 
@@ -168,12 +167,15 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
-| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; italic line: other_events, wedding |
+| `--menu-font` | EB Garamond | menu |
+| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: travel; italic line: other_events, wedding |
 | `--serif` | EB Garamond | block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, travel, wedding; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; italic line: other_events, wedding.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: travel; italic line: other_events, wedding.  
 Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, travel, wedding; menu.  
-Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--serif` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -182,17 +184,9 @@ Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--seri
 | Site Background | `--white` | - | accommodations, home, nav, registry, travel | backgroundColor |
 | Accent Color | `--blue` | - | faqs, nav, other_events, rsvp, story, things_to_do, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: registry; block title: accommodations; body: accommodations, travel; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: faqs, rsvp, story, things_to_do; block title: faqs, other_events, wedding; body: accommodations, story, travel; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: faqs, rsvp, story, things_to_do; block title: faqs, other_events, wedding; body: accommodations, faqs, other_events, rsvp, story, things_to_do, travel, wedding; italic line: other_events, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 **(nothing visible at rest)** | `--ink3` | - | - | - |
 | Highlight Color | `--dark` | - | accommodations, footer, travel | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor |
-
-Text no colour control can reach:
-
-- wedding, body ("Saturday, April Fourth, 2026"): `.wedding-card-detail { color: rgba(255, 255, 255, 0.88) }` on rgb(215, 221, 228)
-- other_events, body ("Friday, April Third, 20267 O"): `.event-detail { color: rgba(255, 255, 255, 0.88) }` on rgb(215, 221, 228)
-- faqs, body ("The dress code for the eveni"): `.ntk-answer { color: rgba(255, 255, 255, 0.8) }` on rgb(215, 221, 228)
-- things_to_do, body ("Probe things to do line."): `.ntk-answer { color: rgba(255, 255, 255, 0.8) }` on rgb(215, 221, 228)
-- rsvp, body ("by February 15<sup>th</sup>,"): `.rsvp-deadline { color: rgba(255, 255, 255, 0.75) }` on rgb(215, 221, 228)
 
 ### Block titles: Content box vs page
 
@@ -203,8 +197,8 @@ Text no colour control can reach:
 | events_info | Welcome Cocktails | La Belle Aurore 400 (`div.event-name`) | La Belle Aurore 400 |
 | faqs | What should I wear to the we | EB Garamond 400 (`div.ntk-question`) | EB Garamond 400 |
 | faqs | Will there be transportation | EB Garamond 400 (`div.ntk-question`) | EB Garamond 400 |
-| travel_info | Hotel | **not a title on the page** | La Belle Aurore 400 |
-| travel_info | San Diego National Airport.  | EB Garamond 600 (`div.split-name`) | La Belle Aurore 400 |
+| travel_info | Hotel | La Belle Aurore 400 (`div.split-label`) | La Belle Aurore 400 |
+| travel_info | San Diego National Airport.  | La Belle Aurore 400 (`div.split-label`) | La Belle Aurore 400 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -219,10 +213,7 @@ Wholly italic lines (dress codes, notes):
 
 ### Defaults imposed on body copy (must stay overridable)
 
-- wedding `em`: face La Belle Aurore (`.wedding-card-detail em:last-child`)
-- other_events `em`: face La Belle Aurore (`.event-detail em:last-child`)
 - accommodations `div.split-name`: weight 600 (`.split-name`)
-- travel `div.split-name`: weight 600 (`.split-name`)
 - faqs `div.ntk-answer`: italic (`.ntk-answer`)
 - things_to_do `div#thingsToDoText`: italic (`.ntk-answer`)
 
@@ -230,10 +221,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ = ✓ ✓ | ✗ = ✗ = | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | = ✗ ✗ ✗ | = ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | = ✗ ✗ ✗ | = ✗ ✗ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ |
 | story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -248,12 +239,15 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
-| `--script` | Luxurious Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; italic line: other_events, wedding |
+| `--menu-font` | Lancelot | menu |
+| `--script` | Luxurious Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations; italic line: other_events, wedding |
 | `--serif` | Lancelot | block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; italic line: other_events, wedding.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations; italic line: other_events, wedding.  
 Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu.  
-Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--serif` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -262,14 +256,10 @@ Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--seri
 | Site Background | `--offwhite` | - | accommodations, faqs, home, nav, things_to_do, wedding | backgroundColor |
 | Accent Color | `--berry` | - | footer, other_events | backgroundColor |
 | Text1 | `--ink` | section heading: faqs, registry, story, things_to_do; block title: accommodations, faqs, wedding; body: accommodations, faqs, story, things_to_do, wedding; italic line: wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: rsvp; block title: other_events; body: other_events; italic line: other_events | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: rsvp; block title: other_events; body: other_events, rsvp; italic line: other_events | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | - | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--gold` | - | registry, story | backgroundColor |
 | Additional Color | `--gray` | - | rsvp | backgroundColor |
-
-Text no colour control can reach:
-
-- rsvp, body ("by February 15th, 2026"): `.rsvp-deadline { color: rgba(242, 236, 231, 0.75) }` on rgb(105, 108, 98)
 
 ### Block titles: Content box vs page
 
@@ -280,8 +270,8 @@ Text no colour control can reach:
 | events_info | Welcome Cocktails | Luxurious Script 400 (`div.other-event-name`) | Luxurious Script 400 |
 | faqs | What should I wear to the we | Lancelot 400 (`div.ntk-question`) | Lancelot 400 |
 | faqs | Will there be transportation | Lancelot 400 (`div.ntk-question`) | Lancelot 400 |
-| travel_info | Estancia La Jolla Hotel & Sp | **not a title on the page** | Luxurious Script 400 |
-| travel_info | The nearest airport is San D | Lancelot 400 (`div.accom-detail`) | Luxurious Script 400 |
+| travel_info | Estancia La Jolla Hotel & Sp | Luxurious Script 400 (`div.accom-col-title`) | Luxurious Script 400 |
+| travel_info | The nearest airport is San D | Luxurious Script 400 (`div.accom-col-title`) | Luxurious Script 400 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -293,19 +283,14 @@ Wholly italic lines (dress codes, notes):
 - `.wedding-card-detail em:last-child` → font-family: var(--script); font-style: normal
 - `.other-event-detail em:last-child` → font-family: var(--script); font-style: normal
 
-### Defaults imposed on body copy (must stay overridable)
-
-- wedding `em`: face Luxurious Script (`.wedding-card-detail em:last-child`)
-- other_events `em`: face Luxurious Script (`.other-event-detail em:last-child`)
-
 ### Formatting survival
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ ✓ ✓ ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -320,16 +305,17 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
-| `--heading` | DIN Next Condensed | section heading: faqs, other_events, registry, rsvp, things_to_do, wedding; block title: wedding |
+| `--menu-font` | Poppins | menu |
+| `--heading` | DIN Next Condensed | section heading: faqs, other_events, registry, rsvp, things_to_do, wedding; block title: other_events, wedding |
 | `--body` | Poppins | block title: faqs, other_events, wedding; body: faqs, other_events, rsvp, things_to_do, wedding; menu |
 
 Headings control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, rsvp, things_to_do, wedding; menu.  
 Body control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, rsvp, things_to_do, wedding; menu.  
-Menu Links writes `--body`. The menu is set in `--body` on desktop and `--body` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Section headings the Headings control does not reach: faqs (DIN Next Condensed), other_events (DIN Next Condensed), registry (DIN Next Condensed), rsvp (DIN Next Condensed), things_to_do (DIN Next Condensed), wedding (DIN Next Condensed).
 
-Font variables the runtime config does not know: `--heading`.
+Font variables the runtime config does not know: `--menu-font`, `--heading`.
 
 ### Colour slots
 
@@ -349,8 +335,8 @@ Font variables the runtime config does not know: `--heading`.
 |---|---|---|---|
 | weddings_info | Ceremony | DIN Next Condensed 700 (`div.event-name`) | DIN Next Condensed 700 |
 | weddings_info | Reception | DIN Next Condensed 700 (`div.event-name`) | DIN Next Condensed 700 |
-| events_info | Welcome Party | Poppins 400 (`mp-title`) | DIN Next Condensed 700 |
-| events_info | Vault 27 | Poppins 400 (`mp-title`) | DIN Next Condensed 700 |
+| events_info | Welcome Party | DIN Next Condensed 700 (`mp-title`) | DIN Next Condensed 700 |
+| events_info | Vault 27 | DIN Next Condensed 700 (`mp-title`) | DIN Next Condensed 700 |
 | faqs | What should I wear to the we | Poppins 700 (`span.faq-q-text`) | Poppins 700 |
 | faqs | Will there be transportation | Poppins 700 (`span.faq-q-text`) | Poppins 700 |
 | travel_info | The Penny Hotel Williamsburg | **not a title on the page** | DIN Next Condensed 600 |
@@ -379,10 +365,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
-| faqs | = ✗ ✗ ✗ | ✓ = ✓ ✓ | ✗ = ✗ = | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
 | things_to_do | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -403,12 +389,15 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Instrument Serif | menu |
 | `--script` | Pinyon Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; italic line: wedding |
 | `--serif` | Instrument Serif | block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, travel, wedding; menu |
 
 Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; italic line: wedding.  
 Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, travel, wedding; menu.  
-Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--serif` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -417,15 +406,9 @@ Menu Links writes `--serif`. The menu is set in `--serif` on desktop and `--seri
 | Site Background | `--offwhite` | - | faqs, home, nav, other_events, rsvp, story, things_to_do | backgroundColor |
 | Accent Color | `--olive` | - | accommodations, footer, registry, travel, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: rsvp, story, things_to_do; block title: faqs, other_events; body: faqs, other_events, story, things_to_do; menu | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | block title: accommodations, travel, wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | block title: accommodations, travel, wedding; body: accommodations, travel, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | body: faqs, rsvp | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--white` | section heading: faqs, registry | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-
-Text no colour control can reach:
-
-- wedding, body ("Saturday, April 5th, 2026 · "): `.event-card-detail { color: rgba(255, 255, 255, 0.92) }` on rgb(141, 136, 99)
-- accommodations, body ("Hyatt Regency La Jolla At Av"): `.accom-address { color: rgba(255, 255, 255, 0.78) }` on rgb(141, 136, 99)
-- travel, body ("The nearest airport is San D"): `.accom-address { color: rgba(255, 255, 255, 0.78) }` on rgb(141, 136, 99)
 
 ### Block titles: Content box vs page
 
@@ -434,10 +417,10 @@ Text no colour control can reach:
 | weddings_info | The Ceremony | Pinyon Script 500 (`div.event-card-name`) | Pinyon Script 500 |
 | weddings_info | The Reception | Pinyon Script 500 (`div.event-card-name`) | Pinyon Script 500 |
 | events_info | Welcome Cocktails | Pinyon Script 500 (`div.event-card-name`) | Pinyon Script 500 |
-| faqs | What should I wear? | Instrument Serif 400 (`span.faq-q-text`) | Arial 400 |
-| faqs | Will there be transportation | Instrument Serif 400 (`span.faq-q-text`) | Arial 400 |
-| travel_info | Hotel | **not a title on the page** | Pinyon Script 500 |
-| travel_info | Flights | **not a title on the page** | Pinyon Script 500 |
+| faqs | What should I wear? | Instrument Serif 400 (`span.faq-q-text`) | Instrument Serif 400 |
+| faqs | Will there be transportation | Instrument Serif 400 (`span.faq-q-text`) | Instrument Serif 400 |
+| travel_info | Hotel | Pinyon Script 500 (`div.accom-col-title`) | Pinyon Script 500 |
+| travel_info | Flights | Pinyon Script 500 (`div.accom-col-title`) | Pinyon Script 500 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -461,10 +444,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ = ✓ ✓ | ✗ = ✗ = | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✗ ✗ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ = ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -479,12 +462,15 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Libre Baskerville | menu |
 | `--display` | Libre Baskerville | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story, travel; menu |
 | `--body` | Noto Serif | block title: travel; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding |
 
 Headings control writes `--display`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story, travel; menu.  
 Body control writes `--body`, which reaches: block title: travel; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding.  
-Menu Links writes `--body`. The menu is set in `--display` on desktop and `--body` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **no**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--display, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -507,8 +493,8 @@ Menu Links writes `--body`. The menu is set in `--display` on desktop and `--bod
 | events_info | Welcome Dinner | Libre Baskerville 400 italic (`div.event-col-name`) | Libre Baskerville 400 |
 | faqs | What should I wear to the we | Libre Baskerville 400 italic (`div.faq-q-text`) | Libre Baskerville 400 |
 | faqs | Will there be transportation | Libre Baskerville 400 italic (`div.faq-q-text`) | Libre Baskerville 400 |
-| travel_info | Fairmont San Francisco | **not a title on the page** | (heading face) |
-| travel_info | San Francisco International  | **not a title on the page** | (heading face) |
+| travel_info | Fairmont San Francisco | Noto Serif 400 (`span.travel-item-name`) | (heading face) |
+| travel_info | San Francisco International  | Noto Serif 400 (`span.travel-item-name`) | (heading face) |
 
 Wholly italic lines (dress codes, notes):
 
@@ -527,10 +513,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ = ✓ ✓ | ✓ ✓ ✓ ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ = ✓ ✓ | ✓ ✓ ✓ ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ = ✗ ✗ | ✓ ✓ ✓ ✓ | = ✗ = ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ = ✓ ✓ | ✓ ✓ ✓ ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ = ✓ ✓ | ✓ ✓ ✓ ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ = ✓ ✓ | ✓ ✓ ✓ ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -552,15 +538,16 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Ovo | menu |
 | `--display` | Aboreto | section heading: faqs, rsvp, things_to_do, wedding; block title: accommodations; menu |
 | `--sub` | Ovo | block title: accommodations, wedding; body: accommodations, rsvp; italic line: accommodations; menu |
 | `--body` | DM Sans | block title: faqs; body: faqs, things_to_do, wedding; italic line: wedding; menu |
 
 Headings control writes `--display`, which reaches: section heading: faqs, rsvp, things_to_do, wedding; block title: accommodations; menu.  
 Body control writes `--body`, which reaches: block title: faqs; body: faqs, things_to_do, wedding; italic line: wedding; menu.  
-Menu Links writes `--body`. The menu is set in `--sub` on desktop and `--body, --sub` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **no**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --sub` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
-Font variables the runtime config does not know: `--sub`.
+Font variables the runtime config does not know: `--menu-font`, `--sub`.
 
 ### Colour slots
 
@@ -583,8 +570,8 @@ Font variables the runtime config does not know: `--sub`.
 | events_info | The Welcome Cocktails | Ovo 400 (`div.weekend-event-name`) | Ovo 400 |
 | faqs | What should I wear to the we | DM Sans 400 (`span.faq-q-text`) | DM Sans 400 |
 | faqs | Will there be transportation | DM Sans 400 (`span.faq-q-text`) | DM Sans 400 |
-| travel_info | Hyatt Regency La Jolla At Av | **not a title on the page** | Aboreto 400 |
-| travel_info | San Diego National Airport | Ovo 400 (`div.accom-card-name`) | Aboreto 400 |
+| travel_info | Hyatt Regency La Jolla At Av | Aboreto 400 uppercase (`div.accom-card-title`) | Aboreto 400 |
+| travel_info | San Diego National Airport | Aboreto 400 uppercase (`div.accom-card-title`) | Aboreto 400 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -600,10 +587,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ ✓ ✓ ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ |
 | story | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -612,18 +599,25 @@ Wholly italic lines (dress codes, notes):
 Shipped with `display:none` until hydrated: `#our-story`, `#travel-section`, `#things-to-do`, `#gallery`.
 Visibility: every section hides with its toggle off and (except Registry, by design) when its box is emptied.
 
+### Mobile only
+
+- nav: font Ovo → DM Sans
+
 ## Vintage Love Story (`vintagelovestory`)
 
 ### Fonts
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Stack Sans Headline | menu |
 | `--display` | Instrument Serif | section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story, travel; menu |
 | `--sans` | Stack Sans Headline | block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
 
 Headings control writes `--display`, which reaches: section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story, travel; menu.  
 Body control writes `--sans`, which reaches: block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
-Menu Links writes `--sans`. The menu is set in `--sans` on desktop and `--display` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **no**.
+Menu Links writes `--menu-font`. The menu is set in `--menu-font, --sans` on desktop and `--display, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -647,8 +641,8 @@ Menu Links writes `--sans`. The menu is set in `--sans` on desktop and `--displa
 | events_info | Sunday Brunch | Instrument Serif 400 (`h3.event-col-title`) | Instrument Serif 400 |
 | faqs | What should I wear to the we | Instrument Serif 400 (`div.faq-q-text`) | Instrument Serif 400 |
 | faqs | Will there be transportation | Instrument Serif 400 (`div.faq-q-text`) | Instrument Serif 400 |
-| travel_info | Windy City Inn | **not a title on the page** | (heading face) |
-| travel_info | Lakeshore Plaza Hotel | **not a title on the page** | (heading face) |
+| travel_info | Windy City Inn | Stack Sans Headline 400 (`span.travel-item-name`) | (heading face) |
+| travel_info | Lakeshore Plaza Hotel | Stack Sans Headline 400 (`span.travel-item-name`) | (heading face) |
 
 Wholly italic lines (dress codes, notes):
 
@@ -669,10 +663,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ ✓ ✓ ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
 | things_to_do | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 
@@ -691,15 +685,18 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
+| `--menu-font` | Avenir Next | menu |
 | `--display` | Corben | section heading: accommodations, faqs, rsvp, things_to_do; block title: faqs |
 | `--script` | Pinyon Script | section heading: wedding; block title: accommodations, wedding; menu |
 | `--body` | Avenir Next | body: accommodations, faqs, rsvp, story, things_to_do, wedding; italic line: accommodations; menu |
 
 Headings control writes `--script`, which reaches: section heading: wedding; block title: accommodations, wedding; menu.  
 Body control writes `--body`, which reaches: body: accommodations, faqs, rsvp, story, things_to_do, wedding; italic line: accommodations; menu.  
-Menu Links writes `--body`. The menu is set in `--body` on desktop and `--body` on mobile. Own menu variable: **none**. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
+Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Section headings the Headings control does not reach: accommodations (Corben), faqs (Corben), rsvp (Corben), things_to_do (Corben).
+
+Font variables the runtime config does not know: `--menu-font`.
 
 ### Colour slots
 
@@ -722,7 +719,7 @@ Section headings the Headings control does not reach: accommodations (Corben), f
 | events_info | Welcome Party | Pinyon Script 400 (`div.itinerary-event-name`) | Pinyon Script 400 |
 | faqs | What should I wear to the we | Corben 400 (`div.faq-q-text`) | Corben 400 |
 | faqs | Will there be transportation | Corben 400 (`div.faq-q-text`) | Corben 400 |
-| travel_info | Hilton Minneapolis | **not a title on the page** | Corben 400 |
+| travel_info | Hilton Minneapolis | Pinyon Script 400 (`div.accom-name`) | Corben 400 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -742,10 +739,10 @@ Wholly italic lines (dress codes, notes):
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
 |---|---|---|---|---|---|
-| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✗ ✓ ✗ |
-| faqs | ✗ ✗ ✗ ✗ | ✓ = ✓ ✓ | ✗ = ✗ = | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ |
-| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✗ ✗ |
+| weddings_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| events_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| faqs | ✓ ✓ ✓ ✓ | ✓ = ✓ ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
+| travel_info | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | story | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 | things_to_do | ✓ = ✓ ✓ | ✓ = ✓ ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ |
 

@@ -48,6 +48,9 @@
 @font-face{font-family:'Lancelot';src:url('/fonts/LANCELOTREGULARScript.woff2') format('woff2'),url('/fonts/LANCELOTREGULARScript.woff') format('woff');font-display:swap;}
 
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--serif);
   --gold:    #afab57;
   --offwhite:#f2ece7;
   /* Text on dark panels. Same tone as --offwhite, its own variable so the
@@ -114,7 +117,7 @@ img{max-width:100%;display:block;}
    The links now sit 1.6rem plus the heading's height higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:1.1rem;}
 .menu-links a{
-  font-family:var(--serif);font-size:0.95rem;letter-spacing:0.1em;
+  font-family:var(--menu-font);font-size:0.95rem;letter-spacing:0.1em;
   text-transform:uppercase;color:var(--ink);text-decoration:none;
   transition:color 0.2s;
 }
@@ -538,7 +541,7 @@ a.registry-title:hover{border-bottom-color:currentColor;}
 }
 .rsvp-deadline{
   font-family:var(--serif);font-size:1.05rem;
-  color:rgba(242,236,231,0.75);
+  color:rgba(242,236,231,0.75);color:color-mix(in srgb, var(--on-dark) 75%, transparent);
   margin-bottom:2rem;letter-spacing:0.04em;
 }
 .rsvp-deadline sup{font-size:0.6em;vertical-align:super;}
@@ -1569,8 +1572,8 @@ function hydrateTemplate(d) {
         .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
       var pairs=blocks.map(function(block){
         var brIdx=block.search(/<br\s*\/?>/i);
-        if(brIdx===-1) return{q:block.replace(/<[^>]+>/g,'').trim(),a:''};
-        return{q:block.substring(0,brIdx).replace(/<[^>]+>/g,'').trim(),
+        if(brIdx===-1) return{q:_mpQuestion(block),a:''};
+        return{q:_mpQuestion(block.substring(0,brIdx)),
                a:block.substring(brIdx).replace(/^(<br\s*\/?>)+/i,'').trim()};
       });
       if(!pairs.length) pairs=[{q:'',a:d.faqs}];
@@ -1716,6 +1719,18 @@ function _mpColBlock(html, detailClass) {
   var rest = (m ? s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '') : s).trim();
   return (title ? '<div class="accom-col-title">' + title + '</div>' : '') +
          (rest ? '<div class="' + (detailClass || 'accom-detail') + '">' + rest + '</div>' : '');
+}
+
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
 }
 
 function _mpTitle(html) {

@@ -78,6 +78,14 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* Text2 for copy on the dark bands, at the design's exact tone. The
+     runtime's Text2 slot writes this alongside --on-dark (MP-910). */
+  --on-dark-copy: #ffffff;
+  /* Section headings read var(--heading-font, <design face>): the design's face
+     until a couple picks one in Section Headings, which sets --heading-font. */
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--body);
   --navy:#1b2a41;
   --dusty-navy:#324a5f;
   --gray-blue:#5f7689;
@@ -157,7 +165,7 @@ body.hydrating{visibility:hidden;}
   list-style:none;
 }
 .nav-links a{
-  font-family:var(--body);
+  font-family:var(--menu-font);
   font-weight:500;
   font-size:0.82rem;
   letter-spacing:0.18em;
@@ -212,7 +220,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .schedule-title{
-  font-family:var(--body);
+  font-family:var(--heading-font, var(--body));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -267,7 +275,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:300;
   font-size:0.74rem;
-  color:rgba(255,255,255,0.78);
+  color:rgba(255,255,255,0.78);color:color-mix(in srgb, var(--on-dark-copy) 78%, transparent);
   line-height:1.7;
 }
 
@@ -291,7 +299,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .travel-title{
-  font-family:var(--body);
+  font-family:var(--heading-font, var(--body));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -406,7 +414,7 @@ body.hydrating{visibility:hidden;}
 }
 .faq-inner{max-width:680px;margin:0 auto;}
 .faq-title{
-  font-family:var(--body);
+  font-family:var(--heading-font, var(--body));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -431,7 +439,7 @@ body.hydrating{visibility:hidden;}
   font-family:var(--body);
   font-weight:300;
   font-size:0.84rem;
-  color:rgba(255,255,255,0.85);
+  color:rgba(255,255,255,0.85);color:color-mix(in srgb, var(--on-dark-copy) 85%, transparent);
   line-height:1.8;
   max-width:520px;
   margin:0 auto;
@@ -445,7 +453,7 @@ body.hydrating{visibility:hidden;}
 }
 .registry-inner{max-width:560px;margin:0 auto;}
 .registry-title{
-  font-family:var(--body);
+  font-family:var(--heading-font, var(--body));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -504,7 +512,7 @@ body.hydrating{visibility:hidden;}
   position:relative;z-index:2;
 }
 .rsvp-title{
-  font-family:var(--body);
+  font-family:var(--heading-font, var(--body));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -819,6 +827,12 @@ body.hydrating{visibility:hidden;}
   color:var(--ink);
   margin-bottom:1.5rem;
 }
+/* Bold the couple applies, on this design's light (300) copy. The browser's
+   default 'bolder' lifts 300 only to 400, so a bolded word looked unchanged
+   (MP-333). 600 is what the design's own emphasis uses. Scoped to the light
+   copy so bold inside a 700 title is never made lighter. */
+:where(.schedule-event-detail,.schedule-event-address,.travel-block-detail,.travel-note,
+  .faq-answer,.registry-info,.rsvp-deadline,.story-text,.accom-content) :is(b,strong){font-weight:600;}
 .story-text{
   font-family:var(--body);font-weight:300;
   font-size:1.02rem;color:var(--ink);
@@ -1671,7 +1685,10 @@ function hydrateTemplate(d){
           // Extract the first <strong>…</strong> as the label, if present.
           var labelMatch = section.match(/^\s*<strong[^>]*>([\s\S]*?)<\/strong>/i);
           var label = labelMatch
-            ? labelMatch[1].replace(/<[^>]+>/g, '').trim()
+            /* The couple's own formatting kept. Stripping every tag here meant a
+               font, italic or underline on a Travel heading never reached the
+               page; only bold is dropped, since the label is bold already. */
+            ? labelMatch[1].replace(/<\/?(strong|b)\b[^>]*>/gi, '').trim()
             : '';
           var detail = labelMatch
             ? section.substring(labelMatch[0].length).replace(/^(<br\s*\/?>)+/i, '').trim()
@@ -1821,7 +1838,7 @@ function hydrateTemplate(d){
         var brIdx = block.search(/<br\s*\/?>/i);
         var qHtml = brIdx === -1 ? block : block.substring(0, brIdx);
         var aHtml = brIdx === -1 ? '' : block.substring(brIdx).replace(/^(<br\s*\/?>)+/i,'').trim();
-        var qText = qHtml.replace(/<[^>]+>/g,'').trim();
+        var qText = _mpQuestion(qHtml);
         var item = document.createElement('div');
         item.className = 'faq-item';
         item.innerHTML =
@@ -2139,6 +2156,18 @@ function _mpColParts(html, fallback) {
     title: m[1],
     rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
   };
+}
+
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
 }
 
 function _mpTitle(html) {

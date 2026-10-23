@@ -94,9 +94,14 @@
   const root = document.documentElement.style;
   const effects = {};
   let k = 0;
+  /* Classified by the RESOLVED value. A variable declared as var(--other)
+     passes CSS.supports('color', ...) whatever it holds, because var() makes
+     any declaration valid at parse time - so a font alias such as
+     --menu-font: var(--serif) used to be tested as a colour and never seen. */
+  const rootCS = getComputedStyle(document.documentElement);
   Object.keys(vars).forEach(v => {
-    const val = vars[v];
-    const isColor = CSS.supports('color', val) || /^rgba?\(|^#/.test(val);
+    const val = (rootCS.getPropertyValue(v) || vars[v]).trim();
+    const isColor = !/var\(/.test(val) && (CSS.supports('color', val) || /^rgba?\(|^#/.test(val));
     const isFont = !isColor && /serif|sans|cursive|script|'|"|,/.test(val) && !/px|rem|%/.test(val);
     if (!isColor && !isFont) return;
     k++;

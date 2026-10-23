@@ -134,6 +134,11 @@
       footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/ac1909d1-dfb8-4acd-9fa3-4fa478c1015a.svg',
       scriptVar: null, displayVar: '--body', bodyVar: '--body',
+      /* The face its section headings actually use. displayVar stays --body
+         for the Save the Date screen and the legacy single-font path; only the
+         Section Headings control reads this. It wrote --body, so choosing a
+         heading font changed the body copy and no heading. */
+      headingVar: '--heading',
       palette: { bg: '#fffdf5', ink: '#000000', accent: '#004aad', rule: 'rgba(0,0,0,0.18)' },
       // The template's page frame and RSVP band are blue, so the mobile drawer
       // matches rather than taking the ivory page ground.
@@ -2302,10 +2307,13 @@
      to special-case a design. Keep TEMPLATE_PALETTES in Website.txt in step:
      this decides which variable moves, that decides which colour the picker
      opens on. */
+  /* MP-910. On Black Tie Timeless and Coastal Chic the copy on dark bands is a
+     tone the design sets apart from --on-dark, so it has its own variable and
+     Text2 writes both. On the other templates that copy reads --on-dark itself. */
   var TEMPLATE_COLOR_VARS = {
     pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold', accent3: '--gray' },
-    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
+    blacktietimeless:    { bg: '--offwhite', accent: '--black',      ink: '--ink',     ink2: ['--on-dark', '--on-dark-copy'], ink3: '--ink3', accent2: '--white' },
     goldenhour:          { bg: '--white',    accent: '--blue',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--dark' },
     /* accent is --green-gray, and --sage is the highlight.
 
@@ -2339,7 +2347,7 @@
        That is MP-910 on this template: some text changed and some did not, with
        no pattern a couple could see. A slot may name an array. */
     whimsicalromance:    { bg: '--rose',     accent: '--burgundy',   ink: ['--ink', '--text'], ink2: '--on-dark', ink3: '--ink3', accent2: '--ivory',    accent3: '--yellow' },
-    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
+    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: ['--on-dark', '--on-dark-copy'], ink3: '--ink3', accent2: '--white' },
     /* --black painted the Submit button and was mapped to nothing, so that one
        control could not be recoloured. It takes the free slot. */
     vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue',     accent3: '--black' },
@@ -2748,9 +2756,111 @@
     if (open.length) {
       for (var c = open.length - 1; c >= 0; c--) line += '</' + open[c].name + '>';
     }
-    lines[f] = '<mp-title>' + line + '</mp-title>' +
-      open.map(function (t) { return t.tag; }).join('');
+    /* Re-opened at the start of the NEXT line, after its <br>, not straight
+       after </mp-title>. A template takes everything before the first <br> as
+       the title line and strips it whole, so tags re-opened on that line went
+       with it: a font applied to a whole Events box reached the titles and
+       none of the lines under them. <i> and <u> only survived because the
+       HTML parser re-opens formatting elements on its own; <span> it does not.
+       See template-map/harness/trace_title_span.js. */
+    var reopen = open.map(function (t) { return t.tag; }).join('');
+    lines[f] = '<mp-title>' + line + '</mp-title>';
+    if (reopen) {
+      if (f + 2 < lines.length) lines[f + 2] = reopen + lines[f + 2];
+      else lines[f] += reopen;
+    }
     return lines.join('');
+  }
+
+  /* Blocks that each stand alone: whatever is open at the end of one is closed
+     there and re-opened at the start of the next, with its attributes. The
+     same rule markStructure applies to the event fields. */
+  function _balanceBlocks(parts) {
+    var carry = [];
+    return parts.map(function (p) {
+      var block = carry.map(function (t) { return t.tag; }).join('') + p;
+      var open = _openTags(block);
+      for (var c = open.length - 1; c >= 0; c--) block += '</' + open[c].name + '>';
+      carry = open;
+      return block;
+    });
+  }
+
+  /* A Travel card's first line is its title, which is what the Content box has
+     always shown it as. Templates only take a title from a line wholly in
+     <strong>, and the editor no longer writes that bold, so a heading typed
+     today rendered as body text. Marked here the way the templates read it.
+
+     Left alone: a wholly italic line (a note, as markBlock treats it) and any
+     line that already has bold in it - wholly bold is already a title, and
+     partial bold keeps whatever meaning it has today. */
+  function _markTravelCard(card) {
+    var lines = String(card).split(/(<br\s*\/?>)/i);
+    var f = -1;
+    for (var i = 0; i < lines.length; i += 2) if (_text(lines[i])) { f = i; break; }
+    if (f === -1) return card;
+    var line = lines[f].trim();
+    if (_wrapsWhole(line, 'em') || _wrapsWhole(line, 'i')) return card;
+    if (/<(strong|b)\b/i.test(line)) return card;
+    var open = _openTags(line);
+    for (var c = open.length - 1; c >= 0; c--) line += '</' + open[c].name + '>';
+    var reopen = open.map(function (t) { return t.tag; }).join('');
+    lines[f] = '<strong>' + line + '</strong>';
+    if (reopen) {
+      if (f + 2 < lines.length) lines[f + 2] = reopen + lines[f + 2];
+      else lines[f] += reopen;
+    }
+    return lines.join('');
+  }
+
+  function _markTravelField(html) {
+    if (typeof html !== 'string' || !html) return html;
+    var parts = html.split(/((?:<br\s*\/?>\s*){2,})/i);
+    var idx = [], blocks = [];
+    for (var i = 0; i < parts.length; i += 2) if (parts[i] && parts[i].trim()) { idx.push(i); blocks.push(parts[i]); }
+    blocks = _balanceBlocks(blocks).map(_markTravelCard);
+    for (var k = 0; k < idx.length; k++) parts[idx[k]] = blocks[k];
+    return parts.join('');
+  }
+
+  /* The first line of a block made to stand alone: anything still open at its
+     end is closed there and re-opened after the <br>. A template takes that
+     line out as the question and renders it in its own element, so a tag left
+     open across it reached the question and not the answer. */
+  function _firstLineAlone(block) {
+    var lines = String(block).split(/(<br\s*\/?>)/i);
+    var f = -1;
+    for (var i = 0; i < lines.length; i += 2) if (_text(lines[i])) { f = i; break; }
+    if (f === -1) return block;
+    var open = _openTags(lines[f]);
+    if (!open.length) return block;
+    for (var c = open.length - 1; c >= 0; c--) lines[f] += '</' + open[c].name + '>';
+    var reopen = open.map(function (t) { return t.tag; }).join('');
+    if (f + 2 < lines.length) lines[f + 2] = reopen + lines[f + 2];
+    else lines[f] += reopen;
+    return lines.join('');
+  }
+
+  /* Need to Knows, made safe to cut the way the templates cut it: each
+     question block standing alone, and each question line standing alone
+     within it. Formatting applied to the whole box reached the first question
+     only (MP-337's fault, in the one list field markStructure does not cover).
+     No title marking - every FAQ parser takes the first line as the question
+     already. */
+  function balanceFaqs(d) {
+    if (!d || typeof d.faqs !== 'string' || !d.faqs) return;
+    var parts = d.faqs.split(/((?:<br\s*\/?>\s*){2,})/i);
+    var idx = [], blocks = [];
+    for (var i = 0; i < parts.length; i += 2) if (parts[i] && parts[i].trim()) { idx.push(i); blocks.push(parts[i]); }
+    blocks = _balanceBlocks(blocks).map(_firstLineAlone);
+    for (var k = 0; k < idx.length; k++) parts[idx[k]] = blocks[k];
+    d.faqs = parts.join('');
+  }
+
+  function markTravelTitles(d) {
+    if (!d) return;
+    d.accommodation_info = _markTravelField(d.accommodation_info);
+    d.travel_info = _markTravelField(d.travel_info);
   }
 
   /* Inline elements left open at the end of a fragment, outermost first, each
@@ -2984,8 +3094,16 @@
         '.weekend-event-name');
       /* The FAQ question face, on its own. Note .faq-q does NOT match
          class="faq-q-text" - a class selector matches whole tokens. */
-      var _questionStyle = _styleOf(
-        '.faq-question,.faq-q,.faq-q-text,.ntk-question');
+      /* Tried ONE AT A TIME, the element that holds the words first.
+         querySelector returns the first match in DOCUMENT order, not list
+         order, so the list form found Pressed Petals' <button class=
+         "faq-question"> before the span inside it - and a button does not
+         inherit the page font, so the editor was told its questions were
+         Arial. */
+      var _questionStyle = null;
+      ['.faq-q-text', '.ntk-question', '.faq-q', '.faq-question'].some(function (sel) {
+        return (_questionStyle = _styleOf(sel));
+      });
 
       parent.postMessage({
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
@@ -3710,11 +3828,23 @@
     });
   }
 
+  /* Every font variable this file can set on <html>. Cleared before each pass
+     and on reset, so a role the couple has since un-chosen goes back to the
+     design. Only setting meant a cleared choice stayed on the preview until a
+     reload - including the two role variables added for MP-354. */
+  function _clearRoleFonts(root) {
+    [CFG.scriptVar, CFG.displayVar, CFG.bodyVar, CFG.headingVar,
+     '--menu-font', '--heading-font'].forEach(function (v) {
+      if (v) { try { root.removeProperty(v); } catch (e) {} }
+    });
+  }
+
   function applyFontSettings(d) {
     var settings = (d && d.font_settings) || null;
     if (!settings || !Object.keys(settings).length) return false;
 
     var root = document.documentElement.style;
+    _clearRoleFonts(root);
     var families = [];
     var roleVar = {
       // scriptVar FIRST. On half the templates displayVar is the same variable
@@ -3722,9 +3852,15 @@
       // heading face there changed the body copy and left the headings alone,
       // which is exactly what it looked like. The decorative face these
       // templates use for section titles is scriptVar.
-      heading: CFG.scriptVar || CFG.displayVar,
+      heading: CFG.headingVar || CFG.scriptVar || CFG.displayVar,
       body: CFG.bodyVar,
-      menu: CFG.bodyVar,   /* templates rarely give the menu its own variable */
+      /* MP-354. Every template declares --menu-font, defaulting to the face its
+         menu already used (often the body face, through var()), and both the
+         desktop menu and the phone drawer read it. This wrote CFG.bodyVar,
+         so Menu Links changed all body text and, on Regal Boho and Sage &
+         Still, never reached the menu at all. A template without the variable
+         simply ignores it. */
+      menu: '--menu-font',
     };
     Object.keys(settings.sections || {}).forEach(function (k) {
       var f = settings.sections[k] && settings.sections[k].font;
@@ -3735,10 +3871,11 @@
       if (!cfg.font) return;
       families.push(cfg.font);
       var v = roleVar[role];
-      /* Menu shares the body variable in most templates; only set it when the
-         body has not already claimed it, or one would silently win. */
-      if (role === 'menu' && settings.body && settings.body.font) return;
       if (v) root.setProperty(v, "'" + cfg.font + "',serif");
+      /* Headings that a design sets in a face other than v read
+         var(--heading-font, <their face>), so the choice reaches them too
+         (Coastal Chic, Whimsical Romance). Unused everywhere else. */
+      if (role === 'heading') root.setProperty('--heading-font', "'" + cfg.font + "',serif");
     });
 
     if (families.length) loadGoogleFonts(families);
@@ -3927,10 +4064,8 @@
     // Clearing has to actively undo, not quietly do nothing. "Reset to template
     // default" sends an empty value, and returning early left the previous font
     // on the page — so the button looked broken.
+    _clearRoleFonts(root);
     if (!fontName) {
-      [CFG.scriptVar, CFG.displayVar, CFG.bodyVar].forEach(function (v) {
-        if (v) { try { root.removeProperty(v); } catch (e) {} }
-      });
       var stale = document.getElementById('mp-custom-font');
       if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
       return;
@@ -5379,7 +5514,11 @@
            smaller than the designs, which read closer to a normal body line.
            The uppercase and the wide tracking make a given size look smaller
            again, so this is sized up and the tracking eased slightly. */
+        /* --menu-font is the menu's own face (MP-354). On a template that does
+           not declare it the declaration is invalid at computed-value time and
+           the drawer inherits, exactly as it always has. */
         '.mp-mnav-panel a{display:block;padding:15px 0;text-decoration:none;color:' + dp.ink + ';' +
+          'font-family:var(--menu-font);' +
           'font-size:1.06rem;letter-spacing:0.1em;text-transform:uppercase;' +
           'border-bottom:1px solid ' + dp.rule + '}' +
         '.mp-mnav-panel a:last-child{border-bottom:none}' +
@@ -7276,6 +7415,9 @@
         return;
       }
       d._mpTravelCut = true;
+      /* Balanced before the cut, so formatting applied to the whole box reaches
+         the flights card too instead of ending with the hotel. */
+      parts = _balanceBlocks(parts);
       d.accommodation_info = parts[0];
       /* Rejoined with the separator they were cut on, so a design that splits
          its travel copy into several cards still finds its own boundaries. */
@@ -7368,6 +7510,8 @@
     /* Before markTitles, before any template sees the payload: the two fields
        downstream code reads have to exist by the time it reads them. */
     _splitTravelBlob(d);
+    try { markTravelTitles(d); } catch (e) {}
+    try { balanceFaqs(d); } catch (e) {}
 
     /* The couple's event order, taken from the payload before any template
        has had a chance to reshape it. Templates build their own array for the

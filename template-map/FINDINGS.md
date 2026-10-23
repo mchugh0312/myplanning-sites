@@ -5,10 +5,65 @@ Companion to `EDITOR-TYPOGRAPHY-PLAN.md`. Everything below was measured
 the gate reads `template-map.json`. No code was changed.
 
 
+
+## Status
+
+Everything marked DONE is in `deploy/`, verified in the browser before and
+after, and covered by the regenerated map. `deploy/all-changes.diff` holds
+every change against the original files.
+
+**DONE**
+- Content loss: Coastal Chic and Modern Minimal FAQs, Vintage Love Story
+  sample hotels and fused airports.
+- Step 2: Menu Links has its own font on all ten templates, at both widths.
+- Step 2: Section Headings reaches every section heading. It used to miss them
+  on Coastal Chic, Modern Minimal and Whimsical Romance, and on Modern Minimal
+  it changed the body copy instead.
+- Font reset: un-choosing a font, or Reset to template default, clears every
+  variable the runtime set. Before, a face could stay on the preview until a
+  reload.
+- Step 3: a Travel card's first line is a title on the page, as the Content
+  box always showed it. Checked on Modern Minimal directly; the map's
+  exact-text match cannot find it there.
+- Step 3: the editor is told the right FAQ question face (Pressed Petals
+  reported Arial).
+- Step 3: Modern Minimal's Other Events names render in its event-name face.
+- Step 4: a font applied to a whole Events box reaches every line, not only
+  the titles.
+- Step 4: whole-box formatting carries across the Travel hotel/flights cut and
+  across FAQ questions and answers.
+- Step 4: FAQ questions keep bold, italic, underline and fonts (MP-333) on all
+  ten. Existing records with a bold delimiter render as before.
+- Step 4: Coastal Chic bold shows on its 300-weight copy.
+- Step 5: Text2 reaches the 13 fixed white texts on five templates (MP-910).
+  The default look is pixel-identical; older browsers keep today's colour.
+
+**OPEN: needs a decision**
+- Cocktail Attire: should the box show the dress-code line in the script
+  face, or should the site honour the italic?
+- Defaults a couple cannot undo (Pressed Petals' italic Our Story and others
+  listed below). The editor needs a way to write "not italic".
+- Six colour controls that move nothing at rest: hide them? On Sage & Still
+  that is Accent.
+- Registry: stays visible when emptied (open question 1).
+- A second hotel lands under Flights on every template (the runtime's cut).
+
+**OPEN: work**
+- Golden Hour and Sage & Still strip formatting from Travel body lines. The
+  stripping is tied to removing pasted booking links.
+- Vintage Love Story's Our Story loses formatting and line breaks in its
+  two-column word split. A fix changes layout; review before shipping.
+- Modern Minimal shows Our Story only as a plain 280-character hero tagline.
+  This is the design, noted in case it is not wanted.
+- MP-936 needs an iPhone check. The Registry colour swap needs the template
+  name. MP-911 was not reproduced.
+
+The sections below record the state Step 1 found. Where one says DONE or
+FIXED, this Status section is the current word.
+
 ## The questions Step 1 was expected to settle
 
-**Is there a real menu font variable anywhere?** No. No template has a variable
-used by the menu alone.
+**Is there a real menu font variable anywhere?** There was not; there is now (see Step 2). Before the change:
 
 | Template | Menu face (desktop / mobile) | Menu Links writes | Reaches menu (desktop / mobile) |
 |---|---|---|---|
@@ -48,6 +103,45 @@ Exact rules and backgrounds are under "Text no colour control can reach" in
 
 
 ## Font roles (Step 2)
+
+### Menu: DONE (in `deploy/`)
+
+Each template now declares `--menu-font`, set to the face its menu has always
+used, and its menu rule reads it. Menu Links writes `--menu-font`. The phone
+drawer (built by the runtime) reads it too. A couple's choice is set on
+`<html>` and overrides the default at every width.
+
+- **Default look:** unchanged on all ten templates at desktop and phone width.
+  On the three templates where the phone drawer always inherited a different
+  face (Regal Boho and Sage & Still: body; Vintage Love Story: display), a
+  phone-width default keeps it exactly as it was. The one measurable
+  difference is Sage & Still's own menu on a phone, which sits off-screen in
+  a drawer phones cannot open.
+- **Menu Links now reaches the menu at both widths on all ten.** Before:
+  Regal Boho and Sage & Still never at desktop, Vintage Love Story never on
+  phones, and the other seven only by changing all body text with it.
+- **Body Text no longer changes the menu,** except where the menu's default
+  *is* the body face, which is the "default to inherit" decision.
+- **Choosing both now works.** The runtime used to drop the menu choice
+  whenever a body font was also set.
+- **The editor's Menu Links dropdown shows the menu's real face:** Libre
+  Baskerville on Regal Boho and Ovo on Sage & Still, instead of the body face.
+- **Deploy order is safe either way.** An old runtime with new templates
+  behaves as today. A new runtime with old templates leaves the menu
+  unchanged and breaks nothing.
+
+Two harness bugs were found and fixed while verifying this:
+
+- The analyser assumed Menu Links writes the body variable instead of reading
+  it from the runtime. That is a pinned literal, the kind of gate the plan
+  warns about.
+- The probe classified a variable declared as `var(--x)` as a colour, because
+  `CSS.supports('color', 'var(…)')` is always true.
+
+The corrected harness reproduces the previous map exactly, so neither bug had
+affected earlier results; both would have hidden this step's.
+
+### Headings: DONE (see Status). Before:
 
 The Headings control writes `scriptVar || displayVar`. Where that is not the
 face the section headings use:
@@ -163,7 +257,7 @@ seen on?
 ## Faults outside the typography bundle: FIXED
 
 Found while mapping. Each was a couple's content not appearing at all. Fixed
-in `fixes/` (diff: `fixes/content-loss-fixes.diff`), each verified in the
+in `deploy/` (diff: `deploy/all-changes.diff`), each verified in the
 browser before and after. The map in this folder was regenerated against the
 fixed templates; the gate showed differences only in these three templates,
 all of them intended.

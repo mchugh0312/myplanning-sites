@@ -5,7 +5,9 @@
    Usage: node trace_title_span.js [TEMPLATE_DIR] [template-id]
    Expected today: the "detail" line has lost its opening <span>. */
 const fs = require('fs'), path = require('path');
-const dir = process.argv[2] || path.join(__dirname, '..', '..');
+const root = path.join(__dirname, '..', '..');
+const dir = process.argv[2] ||
+  (fs.existsSync(path.join(root, 'public', 'site-runtime.js')) ? path.join(root, 'public') : root);
 const tid = process.argv[3] || 'whimsicalromance';
 function grab(src, name) {
   const i = src.indexOf('function ' + name + '(');

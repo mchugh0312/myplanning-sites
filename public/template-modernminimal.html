@@ -58,6 +58,9 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--body);
   --black:#000000;
   --blue:#004aad;
   /* Third text tone, split from --blue so it can be changed without
@@ -123,7 +126,7 @@ body.hydrating{visibility:hidden;}
   gap:1.8rem 2.2rem;
 }
 .site-nav a{
-  font-family:var(--body);
+  font-family:var(--menu-font);
   font-weight:500;
   font-size:0.92rem;
   color:var(--ink);
@@ -322,6 +325,14 @@ body.hydrating{visibility:hidden;}
   color:var(--ink);
   margin-bottom:0.7rem;
   letter-spacing:0.01em;
+}
+/* The couple's Other Events copy goes into this one card whole, so its event
+   names are the lines the runtime marks <mp-title>. Set like the design's own
+   .other-event-name, which is how the Content box already shows them; they
+   rendered as plain body text. Inline, because a <br> follows each one. */
+.other-event-detail mp-title{
+  font-family:var(--heading);font-weight:700;font-size:1.15rem;
+  letter-spacing:0.01em;color:var(--ink);
 }
 .other-event-detail{
   font-family:var(--body);
@@ -1771,7 +1782,7 @@ function hydrateTemplate(d){
         var brIdx = block.search(/<br\s*\/?>/i);
         var qHtml = brIdx === -1 ? block : block.substring(0, brIdx);
         var aHtml = brIdx === -1 ? '' : block.substring(brIdx).replace(/^(<br\s*\/?>)+/i,'').trim();
-        var qText = qHtml.replace(/<[^>]+>/g,'').trim();
+        var qText = _mpQuestion(qHtml);
         var item = document.createElement('div');
         item.className = 'faq-item';
         item.innerHTML =
@@ -2042,6 +2053,18 @@ document.addEventListener('click', function(e){
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

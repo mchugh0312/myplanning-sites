@@ -3,6 +3,14 @@
   "template": "blacktietimeless",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Goudy','Georgia',serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--script": {
      "value": "'Ballet',cursive",
      "roles": {
@@ -22,6 +30,9 @@
       ],
       "italic-line": [
        "wedding"
+      ],
+      "body": [
+       "travel"
       ],
       "menu": [
        "nav"
@@ -77,7 +88,9 @@
      "exists": true,
      "face": "Goudy"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Parfumerie Script',cursive",
      "body": "'Goudy',Georgia,serif"
@@ -103,6 +116,9 @@
       ],
       "italic-line": [
        "wedding"
+      ],
+      "body": [
+       "travel"
       ],
       "menu": [
        "nav"
@@ -142,41 +158,23 @@
      }
     },
     "menu": {
-     "var": "--serif",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "body": [
-       "faqs",
-       "other_events",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "italic-line": [
-       "other_events"
-      ],
-      "block-title": [
-       "faqs"
-      ],
-      "other": [
-       "other"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
+     "--menu-font",
      "--script",
      "--serif"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -187,12 +185,14 @@
      "section-heading"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--serif"
     ],
     "mobile_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "menu_control_writes": "--serif",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -339,10 +339,12 @@
     "ink2": {
      "label": "Text2",
      "vars": [
-      "--on-dark"
+      "--on-dark",
+      "--on-dark-copy"
      ],
      "value": [
-      "#ffffff"
+      "#ffffff",
+      "#f9f7f5"
      ],
      "text": {
       "block-title": [
@@ -350,6 +352,8 @@
        "wedding"
       ],
       "body": [
+       "faqs",
+       "things_to_do",
        "wedding"
       ],
       "italic-line": [
@@ -368,7 +372,9 @@
        "br",
        "em",
        "div.ntk-title",
-       "div.ntk-question"
+       "div.ntk-question",
+       "div.ntk-answer",
+       "div#thingsToDoText"
       ],
       "borderBottomColor": [
        "div.wedding-card-name",
@@ -376,7 +382,9 @@
        "br",
        "em",
        "div.ntk-title",
-       "div.ntk-question"
+       "div.ntk-question",
+       "div.ntk-answer",
+       "div#thingsToDoText"
       ],
       "borderLeftColor": [
        "div.wedding-card-name",
@@ -384,7 +392,9 @@
        "br",
        "em",
        "div.ntk-title",
-       "div.ntk-question"
+       "div.ntk-question",
+       "div.ntk-answer",
+       "div#thingsToDoText"
       ],
       "outlineColor": [
        "div.wedding-card-name",
@@ -392,7 +402,9 @@
        "br",
        "em",
        "div.ntk-title",
-       "div.ntk-question"
+       "div.ntk-question",
+       "div.ntk-answer",
+       "div#thingsToDoText"
       ],
       "textDecorationColor": [
        "div.wedding-card-name",
@@ -400,7 +412,9 @@
        "br",
        "em",
        "div.ntk-title",
-       "div.ntk-question"
+       "div.ntk-question",
+       "div.ntk-answer",
+       "div#thingsToDoText"
       ]
      },
      "visible_at_rest": true
@@ -482,35 +496,7 @@
     "--text",
     "--white"
    ],
-   "content_text_no_slot": [
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "Cocktail attire. Think elegant dresses, ",
-     "color": "rgba(249, 247, 245, 0.85)",
-     "ground": "rgb(28, 33, 32)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(249, 247, 245, 0.85) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "Shuttle services will be arranged from t",
-     "color": "rgba(249, 247, 245, 0.85)",
-     "ground": "rgb(28, 33, 32)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(249, 247, 245, 0.85) }"
-    },
-    {
-     "section": "things_to_do",
-     "role": "body",
-     "text": "Visit La Jolla Cove for stunning coastal",
-     "color": "rgba(249, 247, 245, 0.85)",
-     "ground": "rgb(28, 33, 32)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(249, 247, 245, 0.85) }"
-    }
-   ],
+   "content_text_no_slot": [],
    "text_on_dark_grounds": [
     {
      "section": "wedding",
@@ -637,8 +623,12 @@
      "section": "faqs",
      "role": "body",
      "text": "Cocktail attire. Think elegant dress",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "faqs",
@@ -655,8 +645,12 @@
      "section": "faqs",
      "role": "body",
      "text": "Shuttle services will be arranged fr",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "things_to_do",
@@ -673,8 +667,12 @@
      "section": "things_to_do",
      "role": "body",
      "text": "Visit La Jolla Cove for stunning coa",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     }
    ]
   },
@@ -891,8 +889,8 @@
      "variant": "sample",
      "line": "The nearest airport is San Diego Interna",
      "onsite": {
-      "el": "div.arch-card-name",
-      "font": "Goudy",
+      "el": "div.arch-card-label",
+      "font": "Ballet",
       "style": "normal",
       "weight": "400",
       "caps": "none"
@@ -907,7 +905,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Hyatt Regency La Jolla At Aventine",
-     "onsite": null,
+     "onsite": {
+      "el": "div.arch-card-label",
+      "font": "Ballet",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "(heading face)",
       "style": null,
@@ -919,8 +923,8 @@
      "variant": "editor",
      "line": "The nearest airport is San Diego Interna",
      "onsite": {
-      "el": "div.arch-card-name",
-      "font": "Goudy",
+      "el": "div.arch-card-label",
+      "font": "Ballet",
       "style": "normal",
       "weight": "400",
       "caps": "none"
@@ -954,17 +958,6 @@
    ]
   },
   "imposed_on_body_copy": [
-   {
-    "section": "wedding",
-    "el": "em",
-    "flags": [
-     "face Ballet"
-    ],
-    "example": "Cocktail Attire",
-    "selectors": [
-     ".wedding-card-detail em:last-child"
-    ]
-   },
    {
     "section": "other_events",
     "el": "em",
@@ -1113,12 +1106,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -1131,30 +1124,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "same",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "same",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 = \u2717 =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "ok",
@@ -1168,11 +1161,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 \u2717 \u2717",
-    "_wu": "\u2713 \u2713 \u2717 \u2717",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "travel_info": {
     "Kilo": "ok",
@@ -1186,11 +1179,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 \u2717 \u2717",
-    "_wu": "\u2713 \u2713 \u2717 \u2717",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "ok",
@@ -1234,6 +1227,14 @@
   "template": "coastalchic",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Lexend Deca','Lexend Deca Local',sans-serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--script": {
      "value": "'La Belle Aurore','La Belle Aurore Local',cursive",
      "roles": {
@@ -1294,7 +1295,9 @@
      "exists": true,
      "face": "Lexend Deca"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'La Belle Aurore',cursive",
      "body": "'Lexend Deca',sans-serif"
@@ -1345,46 +1348,22 @@
      }
     },
     "menu": {
-     "var": "--body",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "section-heading": [
-       "faqs",
-       "registry",
-       "rsvp",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs",
-       "travel",
-       "wedding"
-      ],
-      "body": [
-       "faqs",
-       "registry",
-       "rsvp",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "italic-line": [
-       "travel"
-      ],
-      "other": [
-       "other"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -1393,12 +1372,14 @@
      "section-heading"
     ],
     "desktop_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
     "mobile_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "menu_control_writes": "--body",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -1554,10 +1535,12 @@
     "ink2": {
      "label": "Text2",
      "vars": [
-      "--on-dark"
+      "--on-dark",
+      "--on-dark-copy"
      ],
      "value": [
-      "#fefaf1"
+      "#fefaf1",
+      "#ffffff"
      ],
      "text": {
       "home": [
@@ -1577,8 +1560,10 @@
        "wedding"
       ],
       "body": [
+       "faqs",
        "registry",
        "rsvp",
+       "things_to_do",
        "wedding"
       ]
      },
@@ -1590,7 +1575,9 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name"
+       "div.schedule-event-name",
+       "div.faq-answer",
+       "div#thingsToDoText"
       ],
       "borderBottomColor": [
        "div#heroCoupleNames",
@@ -1598,7 +1585,9 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name"
+       "div.schedule-event-name",
+       "div.faq-answer",
+       "div#thingsToDoText"
       ],
       "borderLeftColor": [
        "div#heroCoupleNames",
@@ -1606,7 +1595,9 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name"
+       "div.schedule-event-name",
+       "div.faq-answer",
+       "div#thingsToDoText"
       ],
       "outlineColor": [
        "div#heroCoupleNames",
@@ -1614,7 +1605,9 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name"
+       "div.schedule-event-name",
+       "div.faq-answer",
+       "div#thingsToDoText"
       ],
       "textDecorationColor": [
        "div#heroCoupleNames",
@@ -1622,7 +1615,9 @@
        "a",
        "h2.schedule-title",
        "div.schedule-event",
-       "div.schedule-event-name"
+       "div.schedule-event-name",
+       "div.faq-answer",
+       "div#thingsToDoText"
       ]
      },
      "visible_at_rest": true
@@ -1719,44 +1714,7 @@
     "--text",
     "--white"
    ],
-   "content_text_no_slot": [
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "The dress code for the evening of our we",
-     "color": "rgba(255, 255, 255, 0.85)",
-     "ground": "rgb(27, 42, 65)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".faq-answer { color: rgba(255, 255, 255, 0.85) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "No need to worry about getting from poin",
-     "color": "rgba(255, 255, 255, 0.85)",
-     "ground": "rgb(27, 42, 65)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".faq-answer { color: rgba(255, 255, 255, 0.85) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "Here is a little more about the setting ",
-     "color": "rgba(255, 255, 255, 0.85)",
-     "ground": "rgb(27, 42, 65)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".faq-answer { color: rgba(255, 255, 255, 0.85) }"
-    },
-    {
-     "section": "things_to_do",
-     "role": "body",
-     "text": "Probe things to do line.",
-     "color": "rgba(255, 255, 255, 0.85)",
-     "ground": "rgb(27, 42, 65)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".faq-answer { color: rgba(255, 255, 255, 0.85) }"
-    }
-   ],
+   "content_text_no_slot": [],
    "text_on_dark_grounds": [
     {
      "section": "nav",
@@ -1938,8 +1896,12 @@
      "section": "faqs",
      "role": "body",
      "text": "The dress code for the evening of ou",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "faqs",
@@ -1956,8 +1918,12 @@
      "section": "faqs",
      "role": "body",
      "text": "No need to worry about getting from ",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "faqs",
@@ -1974,8 +1940,12 @@
      "section": "faqs",
      "role": "body",
      "text": "Here is a little more about the sett",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "things_to_do",
@@ -1992,8 +1962,12 @@
      "section": "things_to_do",
      "role": "body",
      "text": "Probe things to do line.",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark-copy"
+     ]
     },
     {
      "section": "registry",
@@ -2277,7 +2251,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "AIRPORT",
-     "onsite": null,
+     "onsite": {
+      "el": "div.travel-block-label",
+      "font": "Lexend Deca",
+      "style": "normal",
+      "weight": "700",
+      "caps": "uppercase"
+     },
      "box": {
       "font": "Lexend Deca",
       "style": "normal",
@@ -2288,7 +2268,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "HOTEL",
-     "onsite": null,
+     "onsite": {
+      "el": "div.travel-block-label",
+      "font": "Lexend Deca",
+      "style": "normal",
+      "weight": "700",
+      "caps": "uppercase"
+     },
      "box": {
       "font": "Lexend Deca",
       "style": "normal",
@@ -2412,6 +2398,13 @@
     "media": null,
     "props": {
      "display": "block"
+    }
+   },
+   {
+    "sel": "strong)",
+    "media": null,
+    "props": {
+     "font-weight": "600"
     }
    }
   ],
@@ -2642,12 +2635,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -2660,30 +2653,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
-    "Bravo": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
+    "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "GONE",
@@ -2704,29 +2697,29 @@
     "_wf": "\u2205 \u2205 \u2205 \u2205"
    },
    "travel_info": {
-    "Kilo": "LOST",
+    "Kilo": "ok",
     "Lima": "ok",
     "Mike": "ok",
     "Oscar": "ok",
-    "Bravo": "LOST",
+    "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
+    "Sierra": "ok",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
-    "Kilo": "LOST",
+    "Kilo": "ok",
     "Lima": "ok",
     "Mike": "ok",
     "Oscar": "ok",
-    "Bravo": "LOST",
+    "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
@@ -2740,11 +2733,11 @@
     "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "things_to_do": {
-    "Kilo": "LOST",
+    "Kilo": "ok",
     "Lima": "ok",
     "Mike": "ok",
     "Oscar": "ok",
-    "Bravo": "LOST",
+    "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
@@ -2763,6 +2756,14 @@
   "template": "goldenhour",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'EB Garamond','Garamond',Georgia,serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--script": {
      "value": "'La Belle Aurore',cursive",
      "roles": {
@@ -2787,6 +2788,9 @@
       "italic-line": [
        "other_events",
        "wedding"
+      ],
+      "body": [
+       "travel"
       ],
       "footer": [
        "footer"
@@ -2837,7 +2841,9 @@
      "exists": true,
      "face": "EB Garamond"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Holiday','Parfumerie Script',cursive",
      "body": "'EB Garamond',Georgia,serif"
@@ -2868,6 +2874,9 @@
       "italic-line": [
        "other_events",
        "wedding"
+      ],
+      "body": [
+       "travel"
       ],
       "footer": [
        "footer"
@@ -2902,38 +2911,22 @@
      }
     },
     "menu": {
-     "var": "--serif",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "other": [
-       "other"
-      ],
-      "body": [
-       "accommodations",
-       "faqs",
-       "other_events",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -2941,12 +2934,14 @@
      "other"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--serif"
     ],
     "mobile_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "menu_control_writes": "--serif",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -3115,11 +3110,20 @@
       ],
       "body": [
        "accommodations",
+       "faqs",
+       "other_events",
+       "rsvp",
        "story",
-       "travel"
+       "things_to_do",
+       "travel",
+       "wedding"
       ],
       "block-title": [
        "faqs",
+       "other_events",
+       "wedding"
+      ],
+      "italic-line": [
        "other_events",
        "wedding"
       ],
@@ -3221,107 +3225,7 @@
    "dead_vars": [
     "--ink3"
    ],
-   "content_text_no_slot": [
-    {
-     "section": "wedding",
-     "role": "body",
-     "text": "Saturday, April Fourth, 20266 O'Clock in",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".wedding-card-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "wedding",
-     "role": "italic-line",
-     "text": "Cocktail Attire",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".wedding-card-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "wedding",
-     "role": "body",
-     "text": "Saturday, April Fourth, 20267 O'Clock in",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".wedding-card-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "wedding",
-     "role": "italic-line",
-     "text": "Cocktail Attire",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".wedding-card-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "other_events",
-     "role": "body",
-     "text": "Friday, April Third, 20267 O'Clock in th",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "other_events",
-     "role": "italic-line",
-     "text": "Evening Casual",
-     "color": "rgba(255, 255, 255, 0.88)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-detail { color: rgba(255, 255, 255, 0.88) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "The dress code for the evening of our we",
-     "color": "rgba(255, 255, 255, 0.8)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(255, 255, 255, 0.8) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "No need to worry about getting from poin",
-     "color": "rgba(255, 255, 255, 0.8)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(255, 255, 255, 0.8) }"
-    },
-    {
-     "section": "faqs",
-     "role": "body",
-     "text": "Here is a little more about the setting ",
-     "color": "rgba(255, 255, 255, 0.8)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(255, 255, 255, 0.8) }"
-    },
-    {
-     "section": "things_to_do",
-     "role": "body",
-     "text": "Probe things to do line.",
-     "color": "rgba(255, 255, 255, 0.8)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".ntk-answer { color: rgba(255, 255, 255, 0.8) }"
-    },
-    {
-     "section": "rsvp",
-     "role": "body",
-     "text": "by February 15<sup>th</sup>, 2026",
-     "color": "rgba(255, 255, 255, 0.75)",
-     "ground": "rgb(215, 221, 228)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".rsvp-deadline { color: rgba(255, 255, 255, 0.75) }"
-    }
-   ],
+   "content_text_no_slot": [],
    "text_on_dark_grounds": [
     {
      "section": "accommodations",
@@ -3555,10 +3459,10 @@
      "variant": "sample",
      "line": "San Diego National Airport. Approximatel",
      "onsite": {
-      "el": "div.split-name",
-      "font": "EB Garamond",
+      "el": "div.split-label",
+      "font": "La Belle Aurore",
       "style": "normal",
-      "weight": "600",
+      "weight": "400",
       "caps": "none"
      },
      "box": {
@@ -3571,7 +3475,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Hotel",
-     "onsite": null,
+     "onsite": {
+      "el": "div.split-label",
+      "font": "La Belle Aurore",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "La Belle Aurore",
       "style": "normal",
@@ -3583,10 +3493,10 @@
      "variant": "editor",
      "line": "San Diego National Airport. Approximatel",
      "onsite": {
-      "el": "div.split-name",
-      "font": "EB Garamond",
+      "el": "div.split-label",
+      "font": "La Belle Aurore",
       "style": "normal",
-      "weight": "600",
+      "weight": "400",
       "caps": "none"
      },
      "box": {
@@ -3611,45 +3521,12 @@
   },
   "imposed_on_body_copy": [
    {
-    "section": "wedding",
-    "el": "em",
-    "flags": [
-     "face La Belle Aurore"
-    ],
-    "example": "Cocktail Attire",
-    "selectors": [
-     ".wedding-card-detail em:last-child"
-    ]
-   },
-   {
-    "section": "other_events",
-    "el": "em",
-    "flags": [
-     "face La Belle Aurore"
-    ],
-    "example": "Evening Casual",
-    "selectors": [
-     ".event-detail em:last-child"
-    ]
-   },
-   {
     "section": "accommodations",
     "el": "div.split-name",
     "flags": [
      "weight 600"
     ],
     "example": "Hyatt Regency La Jolla at AventineReques",
-    "selectors": [
-     ".split-name"
-    ]
-   },
-   {
-    "section": "travel",
-    "el": "div.split-name",
-    "flags": [
-     "weight 600"
-    ],
-    "example": "San Diego National Airport. Approximatel",
     "selectors": [
      ".split-name"
     ]
@@ -3818,12 +3695,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -3836,30 +3713,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "same",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 = \u2717 =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "same",
@@ -3871,13 +3748,13 @@
     "Delta": "LOST",
     "Echo": "LOST",
     "Papa": "ok",
-    "Quebec": "LOST",
+    "Quebec": "ok",
     "Romeo": "LOST",
     "Sierra": "LOST",
     "Tango": "LOST",
-    "_wi": "\u2717 \u2717 = =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "_wi": "\u2713 \u2717 \u2717 =",
+    "_wu": "\u2713 \u2717 \u2717 \u2717",
+    "_wf": "\u2713 \u2717 \u2717 \u2717"
    },
    "travel_info": {
     "Kilo": "same",
@@ -3889,13 +3766,13 @@
     "Delta": "LOST",
     "Echo": "LOST",
     "Papa": "ok",
-    "Quebec": "LOST",
+    "Quebec": "ok",
     "Romeo": "LOST",
-    "Sierra": "LOST",
+    "Sierra": "ok",
     "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "_wi": "\u2713 \u2717 \u2713 \u2717",
+    "_wu": "\u2713 \u2717 \u2713 \u2717",
+    "_wf": "\u2713 \u2717 \u2713 \u2717"
    },
    "story": {
     "Kilo": "ok",
@@ -3939,6 +3816,14 @@
   "template": "heirloombloom",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Lancelot',Georgia,serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--script": {
      "value": "'Luxurious Script',cursive",
      "roles": {
@@ -3960,6 +3845,9 @@
       "italic-line": [
        "other_events",
        "wedding"
+      ],
+      "body": [
+       "accommodations"
       ],
       "footer": [
        "footer"
@@ -4009,7 +3897,9 @@
      "exists": true,
      "face": "Lancelot"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Sloop Script Pro','Parfumerie Script',cursive",
      "body": "'Lancelot',Georgia,serif"
@@ -4037,6 +3927,9 @@
       "italic-line": [
        "other_events",
        "wedding"
+      ],
+      "body": [
+       "accommodations"
       ],
       "footer": [
        "footer"
@@ -4070,37 +3963,22 @@
      }
     },
     "menu": {
-     "var": "--serif",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "body": [
-       "accommodations",
-       "faqs",
-       "other_events",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs"
-      ],
-      "other": [
-       "other"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -4108,12 +3986,14 @@
      "other"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--serif"
     ],
     "mobile_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "menu_control_writes": "--serif",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -4266,7 +4146,8 @@
        "other_events"
       ],
       "body": [
-       "other_events"
+       "other_events",
+       "rsvp"
       ],
       "italic-line": [
        "other_events"
@@ -4289,7 +4170,7 @@
        "br",
        "em",
        "div.rsvp-title",
-       "span#footerCouple"
+       "div#rsvpDeadline"
       ],
       "borderBottomColor": [
        "div.other-event-name",
@@ -4297,7 +4178,7 @@
        "br",
        "em",
        "div.rsvp-title",
-       "span#footerCouple"
+       "div#rsvpDeadline"
       ],
       "borderLeftColor": [
        "div.other-event-name",
@@ -4305,7 +4186,7 @@
        "br",
        "em",
        "div.rsvp-title",
-       "span#footerCouple"
+       "div#rsvpDeadline"
       ],
       "outlineColor": [
        "div.other-event-name",
@@ -4313,7 +4194,7 @@
        "br",
        "em",
        "div.rsvp-title",
-       "span#footerCouple"
+       "div#rsvpDeadline"
       ],
       "textDecorationColor": [
        "div.other-event-name",
@@ -4321,7 +4202,7 @@
        "br",
        "em",
        "div.rsvp-title",
-       "span#footerCouple"
+       "div#rsvpDeadline"
       ]
      },
      "visible_at_rest": true
@@ -4412,17 +4293,7 @@
    },
    "vars_not_in_any_slot": {},
    "dead_vars": [],
-   "content_text_no_slot": [
-    {
-     "section": "rsvp",
-     "role": "body",
-     "text": "by February 15th, 2026",
-     "color": "rgba(242, 236, 231, 0.75)",
-     "ground": "rgb(105, 108, 98)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".rsvp-deadline { color: rgba(242, 236, 231, 0.75) }"
-    }
-   ],
+   "content_text_no_slot": [],
    "text_on_dark_grounds": [
     {
      "section": "other_events",
@@ -4472,8 +4343,12 @@
      "section": "rsvp",
      "role": "body",
      "text": "by February 15th, 2026",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     }
    ]
   },
@@ -4697,8 +4572,8 @@
      "variant": "sample",
      "line": "The nearest airport is San Diego Interna",
      "onsite": {
-      "el": "div.accom-detail",
-      "font": "Lancelot",
+      "el": "div.accom-col-title",
+      "font": "Luxurious Script",
       "style": "normal",
       "weight": "400",
       "caps": "none"
@@ -4713,7 +4588,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Estancia La Jolla Hotel & Spa",
-     "onsite": null,
+     "onsite": {
+      "el": "div.accom-col-title",
+      "font": "Luxurious Script",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "Luxurious Script",
       "style": "normal",
@@ -4725,8 +4606,8 @@
      "variant": "editor",
      "line": "The nearest airport is San Diego Interna",
      "onsite": {
-      "el": "div.accom-detail",
-      "font": "Lancelot",
+      "el": "div.accom-col-title",
+      "font": "Luxurious Script",
       "style": "normal",
       "weight": "400",
       "caps": "none"
@@ -4761,30 +4642,7 @@
     }
    ]
   },
-  "imposed_on_body_copy": [
-   {
-    "section": "wedding",
-    "el": "em",
-    "flags": [
-     "face Luxurious Script"
-    ],
-    "example": "Cocktail Attire",
-    "selectors": [
-     ".wedding-card-detail em:last-child"
-    ]
-   },
-   {
-    "section": "other_events",
-    "el": "em",
-    "flags": [
-     "face Luxurious Script"
-    ],
-    "example": "Evening Casual",
-    "selectors": [
-     ".other-event-detail em:last-child"
-    ]
-   }
-  ],
+  "imposed_on_body_copy": [],
   "css_restyling_inline_tags": [
    {
     "sel": ".nav-hamburger span",
@@ -4915,12 +4773,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -4933,30 +4791,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "ok",
@@ -4988,11 +4846,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 \u2717 \u2717",
-    "_wu": "\u2713 \u2713 \u2717 \u2717",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "ok",
@@ -5036,6 +4894,14 @@
   "template": "modernminimal",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Poppins',sans-serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--heading": {
      "value": "'DIN Next Condensed','Oswald','Poppins',sans-serif",
      "roles": {
@@ -5051,6 +4917,7 @@
        "wedding"
       ],
       "block-title": [
+       "other_events",
        "wedding"
       ]
      }
@@ -5099,6 +4966,7 @@
      "face": "Poppins"
     },
     "unlisted_font_vars": [
+     "--menu-font",
      "--heading"
     ],
     "fallback_fonts": {
@@ -5160,37 +5028,22 @@
      }
     },
     "menu": {
-     "var": "--body",
+     "var": "--menu-font",
      "moves": {
-      "home": [
-       "home"
-      ],
       "menu": [
        "nav"
-      ],
-      "other": [
-       "other"
-      ],
-      "body": [
-       "faqs",
-       "other_events",
-       "rsvp",
-       "things_to_do",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs",
-       "other_events",
-       "wedding"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -5198,12 +5051,14 @@
      "other"
     ],
     "desktop_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
     "mobile_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "menu_control_writes": "--body",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -5621,9 +5476,9 @@
      "line": "Welcome Party",
      "onsite": {
       "el": "mp-title",
-      "font": "Poppins",
+      "font": "DIN Next Condensed",
       "style": "normal",
-      "weight": "400",
+      "weight": "700",
       "caps": "none"
      },
      "box": {
@@ -5638,9 +5493,9 @@
      "line": "Vault 27",
      "onsite": {
       "el": "mp-title",
-      "font": "Poppins",
+      "font": "DIN Next Condensed",
       "style": "normal",
-      "weight": "400",
+      "weight": "700",
       "caps": "none"
      },
      "box": {
@@ -5655,9 +5510,9 @@
      "line": "Welcome Party",
      "onsite": {
       "el": "mp-title",
-      "font": "Poppins",
+      "font": "DIN Next Condensed",
       "style": "normal",
-      "weight": "400",
+      "weight": "700",
       "caps": "none"
      },
      "box": {
@@ -5672,9 +5527,9 @@
      "line": "Vault 27",
      "onsite": {
       "el": "mp-title",
-      "font": "Poppins",
+      "font": "DIN Next Condensed",
       "style": "normal",
-      "weight": "400",
+      "weight": "700",
       "caps": "none"
      },
      "box": {
@@ -6133,12 +5988,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -6159,22 +6014,22 @@
     "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "same",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "same",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 = \u2717 =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "ok",
@@ -6206,11 +6061,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 \u2717 \u2717",
-    "_wu": "\u2713 \u2713 \u2717 \u2717",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "LOST",
@@ -6254,6 +6109,14 @@
   "template": "pressedpetals",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Instrument Serif',serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--script": {
      "value": "'Pinyon Script',cursive",
      "roles": {
@@ -6325,7 +6188,9 @@
      "exists": true,
      "face": "Instrument Serif"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Citadel Script','Dancing Script',cursive",
      "body": "'Instrument Serif',serif"
@@ -6387,38 +6252,22 @@
      }
     },
     "menu": {
-     "var": "--serif",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "body": [
-       "accommodations",
-       "faqs",
-       "other_events",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs"
-      ],
-      "other": [
-       "other"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -6426,12 +6275,14 @@
      "other"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--serif"
     ],
     "mobile_vars": [
+     "--menu-font",
      "--serif"
     ],
-    "menu_control_writes": "--serif",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -6591,6 +6442,14 @@
        "travel",
        "wedding"
       ],
+      "body": [
+       "accommodations",
+       "travel",
+       "wedding"
+      ],
+      "italic-line": [
+       "wedding"
+      ],
       "footer": [
        "footer"
       ]
@@ -6600,32 +6459,42 @@
       "borderTopColor": [
        "div#heroCoupleNames",
        "div.event-card-name",
-       "div.accom-col-title",
-       "div#footerNames"
+       "div.event-card-detail",
+       "br",
+       "em",
+       "div.accom-col-title"
       ],
       "borderBottomColor": [
        "div#heroCoupleNames",
        "div.event-card-name",
-       "div.accom-col-title",
-       "div#footerNames"
+       "div.event-card-detail",
+       "br",
+       "em",
+       "div.accom-col-title"
       ],
       "borderLeftColor": [
        "div#heroCoupleNames",
        "div.event-card-name",
-       "div.accom-col-title",
-       "div#footerNames"
+       "div.event-card-detail",
+       "br",
+       "em",
+       "div.accom-col-title"
       ],
       "outlineColor": [
        "div#heroCoupleNames",
        "div.event-card-name",
-       "div.accom-col-title",
-       "div#footerNames"
+       "div.event-card-detail",
+       "br",
+       "em",
+       "div.accom-col-title"
       ],
       "textDecorationColor": [
        "div#heroCoupleNames",
        "div.event-card-name",
-       "div.accom-col-title",
-       "div#footerNames"
+       "div.event-card-detail",
+       "br",
+       "em",
+       "div.accom-col-title"
       ]
      },
      "visible_at_rest": true
@@ -6729,62 +6598,7 @@
     "--black",
     "--text"
    ],
-   "content_text_no_slot": [
-    {
-     "section": "wedding",
-     "role": "body",
-     "text": "Saturday, April 5th, 2026 \u00b7 4:00 o\u2019clock",
-     "color": "rgba(255, 255, 255, 0.92)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-card-detail { color: rgba(255, 255, 255, 0.92) }"
-    },
-    {
-     "section": "wedding",
-     "role": "italic-line",
-     "text": "Cocktail Attire",
-     "color": "rgba(255, 255, 255, 0.92)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-card-detail { color: rgba(255, 255, 255, 0.92) }"
-    },
-    {
-     "section": "wedding",
-     "role": "body",
-     "text": "Saturday, April 5th, 2026 \u00b7 7:00 o\u2019clock",
-     "color": "rgba(255, 255, 255, 0.92)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-card-detail { color: rgba(255, 255, 255, 0.92) }"
-    },
-    {
-     "section": "wedding",
-     "role": "italic-line",
-     "text": "Cocktail Attire",
-     "color": "rgba(255, 255, 255, 0.92)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".event-card-detail { color: rgba(255, 255, 255, 0.92) }"
-    },
-    {
-     "section": "accommodations",
-     "role": "body",
-     "text": "Hyatt Regency La Jolla At AventineBeyond",
-     "color": "rgba(255, 255, 255, 0.78)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".accom-address { color: rgba(255, 255, 255, 0.78) }"
-    },
-    {
-     "section": "travel",
-     "role": "body",
-     "text": "The nearest airport is San Diego Interna",
-     "color": "rgba(255, 255, 255, 0.78)",
-     "ground": "rgb(141, 136, 99)",
-     "via": "literal or inherited from a non-root value",
-     "rule": ".accom-address { color: rgba(255, 255, 255, 0.78) }"
-    }
-   ],
+   "content_text_no_slot": [],
    "text_on_dark_grounds": [
     {
      "section": "wedding",
@@ -6801,15 +6615,23 @@
      "section": "wedding",
      "role": "body",
      "text": "Saturday, April 5th, 2026 \u00b7 4:00 o\u2019c",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "wedding",
      "role": "italic-line",
      "text": "Cocktail Attire",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "wedding",
@@ -6826,15 +6648,23 @@
      "section": "wedding",
      "role": "body",
      "text": "Saturday, April 5th, 2026 \u00b7 7:00 o\u2019c",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "wedding",
      "role": "italic-line",
      "text": "Cocktail Attire",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "accommodations",
@@ -6851,8 +6681,12 @@
      "section": "accommodations",
      "role": "body",
      "text": "Hyatt Regency La Jolla At AventineBe",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "travel",
@@ -6869,8 +6703,12 @@
      "section": "travel",
      "role": "body",
      "text": "The nearest airport is San Diego Int",
-     "slots": [],
-     "vars": []
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
     },
     {
      "section": "registry",
@@ -6904,12 +6742,12 @@
      "color": "rgb(255, 255, 255)"
     },
     "question": {
-     "font": "Arial",
+     "font": "Instrument Serif",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
-     "size": "13.3333px",
-     "color": "rgb(0, 0, 0)"
+     "size": "16.8px",
+     "color": "rgb(4, 5, 5)"
     }
    },
    "rows": [
@@ -7027,7 +6865,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Arial",
+      "font": "Instrument Serif",
       "style": "normal",
       "weight": "400"
      }
@@ -7044,7 +6882,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Arial",
+      "font": "Instrument Serif",
       "style": "normal",
       "weight": "400"
      }
@@ -7061,7 +6899,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Arial",
+      "font": "Instrument Serif",
       "style": "normal",
       "weight": "400"
      }
@@ -7078,7 +6916,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Arial",
+      "font": "Instrument Serif",
       "style": "normal",
       "weight": "400"
      }
@@ -7121,7 +6959,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Hotel",
-     "onsite": null,
+     "onsite": {
+      "el": "div.accom-col-title",
+      "font": "Pinyon Script",
+      "style": "normal",
+      "weight": "500",
+      "caps": "none"
+     },
      "box": {
       "font": "Pinyon Script",
       "style": "normal",
@@ -7132,7 +6976,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Flights",
-     "onsite": null,
+     "onsite": {
+      "el": "div.accom-col-title",
+      "font": "Pinyon Script",
+      "style": "normal",
+      "weight": "500",
+      "caps": "none"
+     },
      "box": {
       "font": "Pinyon Script",
       "style": "normal",
@@ -7350,12 +7200,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -7368,30 +7218,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "same",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 = \u2717 =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "ok",
@@ -7407,7 +7257,7 @@
     "Romeo": "ok",
     "Sierra": "ok",
     "Tango": "ok",
-    "_wi": "= = = =",
+    "_wi": "\u2713 = = =",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
     "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
@@ -7423,11 +7273,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "= = = =",
-    "_wu": "\u2713 \u2713 \u2717 \u2717",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "ok",
@@ -7471,6 +7321,14 @@
   "template": "regalboho",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Libre Baskerville', 'Sorts Mill Goudy', Georgia, serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--display": {
      "value": "'Libre Baskerville', 'Sorts Mill Goudy', Georgia, serif",
      "roles": {
@@ -7543,7 +7401,9 @@
      "exists": true,
      "face": "Noto Serif"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Sorts Mill Goudy',Georgia,serif",
      "body": "'Noto Serif',Georgia,serif"
@@ -7606,38 +7466,22 @@
      }
     },
     "menu": {
-     "var": "--body",
+     "var": "--menu-font",
      "moves": {
-      "body": [
-       "faqs",
-       "registry",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "italic-line": [
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "travel"
-      ],
-      "other": [
-       "other"
-      ],
-      "footer": [
-       "footer"
+      "menu": [
+       "nav"
       ]
      }
     }
    },
    "menu": {
     "nav_link_vars": [
-     "--display"
+     "--display",
+     "--menu-font"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -7645,14 +7489,16 @@
      "section-heading"
     ],
     "desktop_vars": [
-     "--display"
+     "--display",
+     "--menu-font"
     ],
     "mobile_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "menu_control_writes": "--body",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
-     "desktop": false,
+     "desktop": true,
      "mobile": true
     }
    },
@@ -8254,7 +8100,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Fairmont San Francisco",
-     "onsite": null,
+     "onsite": {
+      "el": "span.travel-item-name",
+      "font": "Noto Serif",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "(heading face)",
       "style": null,
@@ -8265,7 +8117,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "San Francisco International Airport",
-     "onsite": null,
+     "onsite": {
+      "el": "span.travel-item-name",
+      "font": "Noto Serif",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "(heading face)",
       "style": null,
@@ -8610,12 +8468,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "= \u2713 = \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -8628,30 +8486,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "= \u2713 = \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
+    "Kilo": "ok",
     "Lima": "same",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "= \u2717 = \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "= \u2713 = \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "GONE",
@@ -8683,11 +8541,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 = =",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "ok",
@@ -8731,6 +8589,14 @@
   "template": "sageandstill",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Ovo', Georgia, serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--display": {
      "value": "'Aboreto', 'Cormorant Garamond', serif",
      "roles": {
@@ -8816,6 +8682,7 @@
      "face": "DM Sans"
     },
     "unlisted_font_vars": [
+     "--menu-font",
      "--sub"
     ],
     "fallback_fonts": {
@@ -8870,24 +8737,10 @@
      }
     },
     "menu": {
-     "var": "--body",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "body": [
-       "faqs",
-       "things_to_do",
-       "wedding"
-      ],
-      "italic-line": [
-       "wedding"
-      ],
-      "block-title": [
-       "faqs"
-      ],
-      "other": [
-       "other"
       ]
      }
     }
@@ -8896,9 +8749,12 @@
     "nav_link_vars": [
      "--body",
      "--display",
+     "--menu-font",
      "--sub"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -8909,15 +8765,16 @@
      "section-heading"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--sub"
     ],
     "mobile_vars": [
      "--body",
-     "--sub"
+     "--menu-font"
     ],
-    "menu_control_writes": "--body",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
-     "desktop": false,
+     "desktop": true,
      "mobile": true
     }
    },
@@ -9297,7 +9154,7 @@
      "weight": "400",
      "caps": "none",
      "italic": "normal",
-     "size": "13.3333px",
+     "size": "16.8px",
      "color": "rgb(0, 0, 0)"
     }
    },
@@ -9510,7 +9367,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Hyatt Regency La Jolla At Aventine",
-     "onsite": null,
+     "onsite": {
+      "el": "div.accom-card-title",
+      "font": "Aboreto",
+      "style": "normal",
+      "weight": "400",
+      "caps": "uppercase"
+     },
      "box": {
       "font": "Aboreto",
       "style": "normal",
@@ -9522,11 +9385,11 @@
      "variant": "editor",
      "line": "San Diego National Airport",
      "onsite": {
-      "el": "div.accom-card-name",
-      "font": "Ovo",
+      "el": "div.accom-card-title",
+      "font": "Aboreto",
       "style": "normal",
       "weight": "400",
-      "caps": "none"
+      "caps": "uppercase"
      },
      "box": {
       "font": "Aboreto",
@@ -9660,7 +9523,78 @@
     }
    }
   },
-  "mobile_only": [],
+  "mobile_only": [
+   {
+    "section": "nav",
+    "text": "Home",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "The Weekend",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "Travel",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "Need to Knows",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "Things to Do",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "Our Registry",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "RSVP",
+    "changes": {
+     "font": [
+      "Ovo",
+      "DM Sans"
+     ]
+    }
+   }
+  ],
   "probe": {
    "errors": {
     "desktop-sample": [],
@@ -9683,12 +9617,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -9701,30 +9635,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "LOST",
@@ -9736,13 +9670,13 @@
     "Delta": "LOST",
     "Echo": "LOST",
     "Papa": "ok",
-    "Quebec": "LOST",
+    "Quebec": "ok",
     "Romeo": "LOST",
-    "Sierra": "LOST",
+    "Sierra": "ok",
     "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "_wi": "\u2713 \u2717 \u2713 \u2717",
+    "_wu": "\u2713 \u2717 \u2713 \u2717",
+    "_wf": "\u2713 \u2717 \u2713 \u2717"
    },
    "travel_info": {
     "Kilo": "LOST",
@@ -9754,13 +9688,13 @@
     "Delta": "LOST",
     "Echo": "LOST",
     "Papa": "ok",
-    "Quebec": "LOST",
+    "Quebec": "ok",
     "Romeo": "LOST",
-    "Sierra": "LOST",
+    "Sierra": "ok",
     "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "_wi": "\u2713 \u2717 \u2713 \u2717",
+    "_wu": "\u2713 \u2717 \u2713 \u2717",
+    "_wf": "\u2713 \u2717 \u2713 \u2717"
    },
    "story": {
     "Kilo": "ok",
@@ -9804,6 +9738,14 @@
   "template": "vintagelovestory",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Stack Sans Headline', 'Inter', system-ui, -apple-system, sans-serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--display": {
      "value": "'Instrument Serif', Georgia, serif",
      "roles": {
@@ -9883,7 +9825,9 @@
      "exists": true,
      "face": "Stack Sans Headline"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Instrument Serif',Georgia,serif",
      "body": "'Inter',system-ui,sans-serif"
@@ -9953,30 +9897,10 @@
      }
     },
     "menu": {
-     "var": "--sans",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "home": [
-       "home"
-      ],
-      "body": [
-       "faqs",
-       "other_events",
-       "rsvp",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "travel"
-      ],
-      "italic-line": [
-       "travel"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
@@ -9984,9 +9908,12 @@
    "menu": {
     "nav_link_vars": [
      "--display",
+     "--menu-font",
      "--sans"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -9997,15 +9924,17 @@
      "section-heading"
     ],
     "desktop_vars": [
+     "--menu-font",
      "--sans"
     ],
     "mobile_vars": [
-     "--display"
+     "--display",
+     "--menu-font"
     ],
-    "menu_control_writes": "--sans",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
-     "mobile": false
+     "mobile": true
     }
    },
    "section_headings_not_moved_by_heading_control": [],
@@ -10763,7 +10692,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Windy City Inn",
-     "onsite": null,
+     "onsite": {
+      "el": "span.travel-item-name",
+      "font": "Stack Sans Headline",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "(heading face)",
       "style": null,
@@ -10774,7 +10709,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Lakeshore Plaza Hotel",
-     "onsite": null,
+     "onsite": {
+      "el": "span.travel-item-name",
+      "font": "Stack Sans Headline",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "(heading face)",
       "style": null,
@@ -11047,12 +10988,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -11065,30 +11006,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "ok",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 \u2717 \u2717 \u2717",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "GONE",
@@ -11120,11 +11061,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2713 \u2713 = =",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "LOST",
@@ -11168,6 +11109,14 @@
   "template": "whimsicalromance",
   "fonts": {
    "vars": {
+    "--menu-font": {
+     "value": "'Avenir Next','Avenir','DM Sans',system-ui,-apple-system,sans-serif",
+     "roles": {
+      "menu": [
+       "nav"
+      ]
+     }
+    },
     "--display": {
      "value": "'Corben', Georgia, serif",
      "roles": {
@@ -11248,7 +11197,9 @@
      "exists": true,
      "face": "Avenir Next"
     },
-    "unlisted_font_vars": [],
+    "unlisted_font_vars": [
+     "--menu-font"
+    ],
     "fallback_fonts": {
      "display": "'Pinyon Script','Dancing Script',cursive",
      "body": "'DM Sans',system-ui,sans-serif"
@@ -11302,27 +11253,10 @@
      }
     },
     "menu": {
-     "var": "--body",
+     "var": "--menu-font",
      "moves": {
       "menu": [
        "nav"
-      ],
-      "body": [
-       "accommodations",
-       "faqs",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "wedding"
-      ],
-      "italic-line": [
-       "accommodations"
-      ],
-      "other": [
-       "other"
-      ],
-      "footer": [
-       "footer"
       ]
      }
     }
@@ -11330,9 +11264,12 @@
    "menu": {
     "nav_link_vars": [
      "--body",
+     "--menu-font",
      "--script"
     ],
-    "own_menu_var": null,
+    "own_menu_var": [
+     "--menu-font"
+    ],
     "shares_with": [
      "block-title",
      "body",
@@ -11343,12 +11280,14 @@
      "section-heading"
     ],
     "desktop_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
     "mobile_vars": [
-     "--body"
+     "--body",
+     "--menu-font"
     ],
-    "menu_control_writes": "--body",
+    "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
      "desktop": true,
      "mobile": true
@@ -12066,7 +12005,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "Hilton Minneapolis",
-     "onsite": null,
+     "onsite": {
+      "el": "div.accom-name",
+      "font": "Pinyon Script",
+      "style": "normal",
+      "weight": "400",
+      "caps": "none"
+     },
      "box": {
       "font": "Corben",
       "style": "normal",
@@ -12240,12 +12185,12 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "events_info": {
     "Kilo": "ok",
@@ -12258,30 +12203,30 @@
     "Echo": "ok",
     "Papa": "ok",
     "Quebec": "ok",
-    "Romeo": "LOST",
+    "Romeo": "ok",
     "Sierra": "ok",
-    "Tango": "LOST",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2717 \u2713 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "faqs": {
-    "Kilo": "LOST",
-    "Lima": "LOST",
-    "Mike": "LOST",
-    "Oscar": "LOST",
+    "Kilo": "ok",
+    "Lima": "ok",
+    "Mike": "ok",
+    "Oscar": "ok",
     "Bravo": "ok",
     "Charlie": "same",
     "Delta": "ok",
     "Echo": "ok",
     "Papa": "ok",
-    "Quebec": "LOST",
-    "Romeo": "LOST",
-    "Sierra": "LOST",
-    "Tango": "LOST",
-    "_wi": "\u2717 = \u2717 =",
-    "_wu": "\u2717 \u2717 \u2717 \u2717",
-    "_wf": "\u2717 \u2717 \u2717 \u2717"
+    "Quebec": "ok",
+    "Romeo": "ok",
+    "Sierra": "ok",
+    "Tango": "ok",
+    "_wi": "\u2713 = \u2713 =",
+    "_wu": "\u2713 \u2713 \u2713 \u2713",
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "accommodation_info": {
     "Kilo": "ok",
@@ -12313,11 +12258,11 @@
     "Papa": "ok",
     "Quebec": "ok",
     "Romeo": "ok",
-    "Sierra": "LOST",
-    "Tango": "LOST",
+    "Sierra": "ok",
+    "Tango": "ok",
     "_wi": "\u2713 \u2713 \u2713 \u2713",
     "_wu": "\u2713 \u2713 \u2713 \u2713",
-    "_wf": "\u2713 \u2713 \u2717 \u2717"
+    "_wf": "\u2713 \u2713 \u2713 \u2713"
    },
    "story": {
     "Kilo": "ok",

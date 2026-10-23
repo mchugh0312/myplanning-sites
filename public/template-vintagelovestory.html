@@ -92,6 +92,13 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--sans);
+  /* Phones show the runtime's drawer, which has always inherited this
+     design's --display face rather than the desktop menu's; kept as it was
+     by the rule after this block. A couple's choice is set on <html> and
+     overrides both. */
   --brown:#513229;
   /* Third text tone, split from --brown so it can be changed without
      repainting what --brown fills. */
@@ -111,6 +118,7 @@
   --display:'Instrument Serif', Georgia, serif;
   --sans:'Stack Sans Headline', 'Inter', system-ui, -apple-system, sans-serif;
 }
+@media (max-width:768px){:root{--menu-font:var(--display);}}
 html{scroll-behavior:smooth}
 body{
   font-family:var(--display);color:var(--ink);
@@ -135,7 +143,7 @@ body.hydrating{visibility:hidden;}
   z-index:50;
 }
 .top-nav a{
-  font-family:var(--sans);
+  font-family:var(--menu-font);
   font-size:0.74rem;
   letter-spacing:0.18em;
   text-transform:uppercase;
@@ -2045,11 +2053,11 @@ function hydrateTemplate(d) {
         if (!block) return null;
         var brIdx = block.search(/<br\s*\/?>/i);
         if (brIdx === -1) {
-          return { q: block.replace(/<[^>]+>/g, '').trim(), a: '' };
+          return { q: _mpQuestion(block), a: '' };
         }
         var questionHtml = block.substring(0, brIdx);
         var answerHtml   = block.substring(brIdx).replace(/^(<br\s*\/?>)+/i, '').trim();
-        var questionText = questionHtml.replace(/<[^>]+>/g, '').trim();
+        var questionText = _mpQuestion(questionHtml);
         return { q: questionText, a: answerHtml };
       }).filter(Boolean);
 
@@ -2309,6 +2317,18 @@ document.addEventListener('click', function(e) {
    makes their formatting show on the site. A line with text OUTSIDE the marker
    ("Join us at <strong>The Ritz</strong>") is a sentence, not a title, and is
    left alone. */
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
+}
+
 function _mpTitle(html) {
   var s = String(html);
   var br = s.search(/<br\s*\/?>/i);

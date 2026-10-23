@@ -1,0 +1,81 @@
+                              TITLE: b  i  u  f | BODY: b  i  u  f | 2nd | WHOLE-I q r s t | WHOLE-U q r s t | WHOLE-FONT q r s t
+== blacktietimeless
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== coastalchic
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== goldenhour
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    =  ✗  ✗  ✗  =  ✗  ✗  ✗  ✓ | ✓ ✗ ✗ = | ✓ ✗ ✗ ✗ | ✓ ✗ ✗ ✗
+  travel_info           =  ✗  ✗  ✗  =  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== heirloombloom
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== modernminimal
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗
+  things_to_do          ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== pressedpetals
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== regalboho
+  weddings_info         ✓  =  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  =  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  =  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | = ✓ = ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== sageandstill
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
+  travel_info           ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗ | ✓ ✗ ✓ ✗
+  story                 ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== vintagelovestory
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅  ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅ | ∅ ∅ ∅ ∅
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✗  ✓ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗ | ✗ ✗ ✗ ✗
+  things_to_do          ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+== whimsicalromance
+  weddings_info         ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  events_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  faqs                  ✓  ✓  ✓  ✓  ✓  =  ✓  ✓  ✓ | ✓ = ✓ = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  accommodation_info    ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  travel_info           ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  story                 ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓  ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓
+  things_to_do          ✓  =  ✓  ✓  ✓  =  ✓  ✓  ✓ | = = = = | ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓

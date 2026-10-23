@@ -46,6 +46,9 @@
 <link href="https://fonts.googleapis.com/css2?family=La+Belle+Aurore&family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 :root{
+  /* The menu's own face (MP-354). Defaults to the face the menu has always
+     used, so nothing changes until a couple picks one in Menu Links. */
+  --menu-font: var(--serif);
   --blue:    #d7dde4;
   /* Third text tone, split from --blue so it can be changed without
      repainting what --blue fills. */
@@ -156,7 +159,7 @@ body.thumbnail-mode .hero-names-text{
    links now start 1.8rem higher in the drawer. */
 .menu-links{list-style:none;display:flex;flex-direction:column;gap:0.85rem;}
 /* Title Case serif in ink — the navy uppercase micro-type didn't match. */
-.menu-links a{font-family:var(--serif);font-size:clamp(0.95rem,1.35vw,1.12rem);
+.menu-links a{font-family:var(--menu-font);font-size:clamp(0.95rem,1.35vw,1.12rem);
   letter-spacing:0.005em;text-transform:none;color:var(--ink);
   text-decoration:none;transition:opacity 0.2s;
   border-bottom:1px solid transparent;padding-bottom:2px;width:fit-content;}
@@ -231,7 +234,7 @@ body.thumbnail-mode .hero-names-text{
    trick: a couple italicising a word mid-sentence is not the last thing in the
    detail, so it stays an italic word inline. */
 .wedding-card-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
-.wedding-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);line-height:2;}
+.wedding-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);color:color-mix(in srgb, var(--on-dark) 88%, transparent);line-height:2;}
 .wedding-card-dress{display:block;margin-top:1rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
 /* ── OTHER EVENTS ─────────────────────────────────────────────── */
@@ -241,7 +244,7 @@ body.thumbnail-mode .hero-names-text{
   border:1px solid rgba(255,255,255,0.45);}
 .event-name{font-family:var(--script);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--on-dark);margin-bottom:1.4rem;line-height:1.2;}
 .event-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
-.event-detail{font-family:var(--serif);font-size:0.83rem;color:rgba(255,255,255,0.88);line-height:2;}
+.event-detail{font-family:var(--serif);font-size:0.83rem;color:rgba(255,255,255,0.88);color:color-mix(in srgb, var(--on-dark) 88%, transparent);line-height:2;}
 .event-dress{display:block;margin-top:1.2rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
 /* ── ACCOMMODATION & TRAVEL ───────────────────────────────────── */
@@ -270,7 +273,7 @@ body.thumbnail-mode .hero-names-text{
 .ntk-inner{max-width:520px;margin:0 auto;}
 .ntk-item{margin-bottom:2.5rem;}
 .ntk-question{font-family:var(--serif);font-size:1.02rem;font-weight:400;color:var(--on-dark);margin-bottom:0.7rem;line-height:1.4;}
-.ntk-answer{font-family:var(--serif);font-size:0.82rem;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.9;max-width:440px;margin:0 auto;}
+.ntk-answer{font-family:var(--serif);font-size:0.82rem;font-style:italic;color:rgba(255,255,255,0.8);color:color-mix(in srgb, var(--on-dark) 80%, transparent);line-height:1.9;max-width:440px;margin:0 auto;}
 .ntk-decoration{width:100px;margin:2.5rem auto 0;opacity:0.55;filter:brightness(10);}
 
 /* ── GALLERY ──────────────────────────────────────────────────── */
@@ -294,7 +297,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
 /* ── RSVP ─────────────────────────────────────────────────────── */
 .rsvp-section{background:var(--blue);padding:5rem 2rem;text-align:center;}
 .rsvp-title{font-family:var(--script);font-size:clamp(2.2rem,5vw,3.2rem);color:var(--on-dark);margin-bottom:0.5rem;}
-.rsvp-deadline{font-family:var(--serif);font-size:0.8rem;color:rgba(255,255,255,0.75);margin-bottom:2rem;}
+.rsvp-deadline{font-family:var(--serif);font-size:0.8rem;color:rgba(255,255,255,0.75);color:color-mix(in srgb, var(--on-dark) 75%, transparent);margin-bottom:2rem;}
 .rsvp-deadline sup{font-size:0.6em;vertical-align:super;}
 .rsvp-wrap{max-width:480px;margin:0 auto;text-align:left;}
 .rsvp-name-input{width:min(100%,420px);margin-left:auto;margin-right:auto;display:block;background:var(--white);border:1px solid rgba(50,52,75,0.15);font-family:var(--serif);font-size:0.9rem;color:var(--ink);padding:0.85rem 1.2rem;outline:none;text-align:center;margin-bottom:1.5rem;border-radius:999px;}
@@ -1135,7 +1138,7 @@ function hydrateTemplate(d){
         .split('||SPLIT||').map(function(b){return b.trim();}).filter(Boolean);
       blocks.forEach(function(block){
         var bi=block.search(/<br\s*\/?>/i);
-        var q=bi===-1?block.replace(/<[^>]+>/g,'').trim():block.substring(0,bi).replace(/<[^>]+>/g,'').trim();
+        var q=bi===-1?_mpQuestion(block):_mpQuestion(block.substring(0,bi));
         var a=bi===-1?'':block.substring(bi).replace(/^(<br\s*\/?>)+/i,'').trim();
         var item=document.createElement('div');item.className='ntk-item';
         item.innerHTML=(q?'<div class="ntk-question">'+q+'</div>':'')+(a?'<div class="ntk-answer">'+a+'</div>':'');
@@ -1267,6 +1270,18 @@ function _mpColParts(html, fallback) {
     title: m[1],
     rest: s.replace(m[0], '').replace(/^<br\s*\/?>\s*/i, '').trim()
   };
+}
+
+/* A Need to Knows question, keeping the couple's own formatting (MP-333).
+   Every tag used to be stripped, so bold, italic or a font on part of a
+   question showed in the Content box and never on the page. Only a <strong>
+   or <b> around the WHOLE line is dropped: that was the old title delimiter,
+   still in existing records, and keeping it would bold every question on
+   sites that never asked for it. */
+function _mpQuestion(html) {
+  var s = String(html || '').trim();
+  var m = _mpTitle(s);
+  return (m ? m[1] : s).trim();
 }
 
 function _mpTitle(html) {
