@@ -370,7 +370,7 @@
        "div.wedding-card-name",
        "div.wedding-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.ntk-title",
        "div.ntk-question",
        "div.ntk-answer",
@@ -380,7 +380,7 @@
        "div.wedding-card-name",
        "div.wedding-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.ntk-title",
        "div.ntk-question",
        "div.ntk-answer",
@@ -390,7 +390,7 @@
        "div.wedding-card-name",
        "div.wedding-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.ntk-title",
        "div.ntk-question",
        "div.ntk-answer",
@@ -400,7 +400,7 @@
        "div.wedding-card-name",
        "div.wedding-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.ntk-title",
        "div.ntk-question",
        "div.ntk-answer",
@@ -410,7 +410,7 @@
        "div.wedding-card-name",
        "div.wedding-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.ntk-title",
        "div.ntk-question",
        "div.ntk-answer",
@@ -1994,18 +1994,7 @@
     {
      "section": "rsvp",
      "role": "body",
-     "text": "Please send your response by June 10",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
-     "section": "rsvp",
-     "role": "body",
-     "text": "th",
+     "text": "Please send your response by [your R",
      "slots": [
       "ink2"
      ],
@@ -2366,22 +2355,11 @@
    },
    {
     "section": "rsvp",
-    "el": "p#rsvpDeadline",
+    "el": "span.mp-rsvp-hint",
     "flags": [
      "weight 300"
     ],
-    "example": "Please send your response by June 10",
-    "selectors": [
-     ".rsvp-deadline"
-    ]
-   },
-   {
-    "section": "rsvp",
-    "el": "sup",
-    "flags": [
-     "weight 300"
-    ],
-    "example": "th",
+    "example": "Please send your response by [your RSVP ",
     "selectors": []
    }
   ],
@@ -4168,7 +4146,7 @@
        "div.other-event-name",
        "div.other-event-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.rsvp-title",
        "div#rsvpDeadline"
       ],
@@ -4176,7 +4154,7 @@
        "div.other-event-name",
        "div.other-event-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.rsvp-title",
        "div#rsvpDeadline"
       ],
@@ -4184,7 +4162,7 @@
        "div.other-event-name",
        "div.other-event-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.rsvp-title",
        "div#rsvpDeadline"
       ],
@@ -4192,7 +4170,7 @@
        "div.other-event-name",
        "div.other-event-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.rsvp-title",
        "div#rsvpDeadline"
       ],
@@ -4200,7 +4178,7 @@
        "div.other-event-name",
        "div.other-event-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.rsvp-title",
        "div#rsvpDeadline"
       ]
@@ -5263,23 +5241,28 @@
      "other_paint": {
       "borderTopColor": [
        "h2.rsvp-title",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "borderBottomColor": [
        "h2.rsvp-title",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "borderLeftColor": [
        "h2.rsvp-title",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "outlineColor": [
        "h2.rsvp-title",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "textDecorationColor": [
        "h2.rsvp-title",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ]
      },
      "visible_at_rest": true
@@ -5633,7 +5616,7 @@
     {
      "field": "weddings_info",
      "line": "Dress Code Suggestion: Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Poppins",
      "style": "italic",
      "rules": []
@@ -5641,7 +5624,7 @@
     {
      "field": "events_info",
      "line": "Dress Code Suggestion: Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Poppins",
      "style": "italic",
      "rules": []
@@ -5691,14 +5674,12 @@
    },
    {
     "section": "rsvp",
-    "el": "p#rsvpDeadline",
+    "el": "span.mp-rsvp-hint",
     "flags": [
      "weight 600"
     ],
     "example": "Please let us know if you can make it by",
-    "selectors": [
-     ".rsvp-deadline"
-    ]
+    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -6465,7 +6446,7 @@
        "div.event-card-name",
        "div.event-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.accom-col-title"
       ],
       "borderBottomColor": [
@@ -6473,7 +6454,7 @@
        "div.event-card-name",
        "div.event-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.accom-col-title"
       ],
       "borderLeftColor": [
@@ -6481,7 +6462,7 @@
        "div.event-card-name",
        "div.event-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.accom-col-title"
       ],
       "outlineColor": [
@@ -6489,7 +6470,7 @@
        "div.event-card-name",
        "div.event-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.accom-col-title"
       ],
       "textDecorationColor": [
@@ -6497,7 +6478,7 @@
        "div.event-card-name",
        "div.event-card-detail",
        "br",
-       "em",
+       "em.mp-attire",
        "div.accom-col-title"
       ]
      },
@@ -6521,23 +6502,28 @@
      "other_paint": {
       "borderTopColor": [
        "span.faq-icon",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "borderBottomColor": [
        "span.faq-icon",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "borderLeftColor": [
        "span.faq-icon",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "outlineColor": [
        "span.faq-icon",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ],
       "textDecorationColor": [
        "span.faq-icon",
-       "p#rsvpDeadline"
+       "p#rsvpDeadline",
+       "span.mp-rsvp-hint"
       ]
      },
      "visible_at_rest": true
@@ -7051,14 +7037,12 @@
    },
    {
     "section": "rsvp",
-    "el": "p#rsvpDeadline",
+    "el": "span.mp-rsvp-hint",
     "flags": [
      "italic"
     ],
-    "example": "By February 8th, 2026",
-    "selectors": [
-     ".rsvp-deadline"
-    ]
+    "example": "By [your RSVP date]",
+    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -8116,7 +8100,7 @@
     {
      "field": "weddings_info",
      "line": "Formal",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Noto Serif",
      "style": "italic",
      "rules": []
@@ -8124,7 +8108,7 @@
     {
      "field": "events_info",
      "line": "Semi-Formal",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Noto Serif",
      "style": "italic",
      "rules": []
@@ -8155,7 +8139,7 @@
    },
    {
     "section": "wedding",
-    "el": "em",
+    "el": "em.mp-attire",
     "flags": [
      "italic"
     ],
@@ -8961,7 +8945,7 @@
        "div.faq-answer",
        "div#thingsToDoText",
        "p#rsvpDeadline",
-       "sup"
+       "span.mp-rsvp-hint"
       ],
       "borderBottomColor": [
        "div.accom-card-meta",
@@ -8969,7 +8953,7 @@
        "div.faq-answer",
        "div#thingsToDoText",
        "p#rsvpDeadline",
-       "sup"
+       "span.mp-rsvp-hint"
       ],
       "borderLeftColor": [
        "div.accom-card-meta",
@@ -8977,7 +8961,7 @@
        "div.faq-answer",
        "div#thingsToDoText",
        "p#rsvpDeadline",
-       "sup"
+       "span.mp-rsvp-hint"
       ],
       "outlineColor": [
        "div.accom-card-meta",
@@ -8985,7 +8969,7 @@
        "div.faq-answer",
        "div#thingsToDoText",
        "p#rsvpDeadline",
-       "sup"
+       "span.mp-rsvp-hint"
       ],
       "textDecorationColor": [
        "div.accom-card-meta",
@@ -8993,7 +8977,7 @@
        "div.faq-answer",
        "div#thingsToDoText",
        "p#rsvpDeadline",
-       "sup"
+       "span.mp-rsvp-hint"
       ]
      },
      "visible_at_rest": true
@@ -9383,7 +9367,7 @@
     {
      "field": "weddings_info",
      "line": "Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "DM Sans",
      "style": "italic",
      "rules": []
@@ -9401,7 +9385,7 @@
   "imposed_on_body_copy": [
    {
     "section": "wedding",
-    "el": "em",
+    "el": "em.mp-attire",
     "flags": [
      "italic"
     ],
@@ -10153,30 +10137,10 @@
      "value": [
       "#513229"
      ],
-     "text": {
-      "body": [
-       "travel"
-      ]
-     },
+     "text": {},
      "ground": [],
-     "other_paint": {
-      "borderTopColor": [
-       "div.travel-note"
-      ],
-      "borderBottomColor": [
-       "div.travel-note"
-      ],
-      "borderLeftColor": [
-       "div.travel-note"
-      ],
-      "outlineColor": [
-       "div.travel-note"
-      ],
-      "textDecorationColor": [
-       "div.travel-note"
-      ]
-     },
-     "visible_at_rest": true
+     "other_paint": {},
+     "visible_at_rest": false
     },
     "accent2": {
      "label": "Highlight Color",
@@ -10233,7 +10197,8 @@
    },
    "vars_not_in_any_slot": {},
    "dead_vars": [
-    "--black"
+    "--black",
+    "--ink3"
    ],
    "content_text_no_slot": [],
    "text_on_dark_grounds": [
@@ -10716,17 +10681,6 @@
    ]
   },
   "imposed_on_body_copy": [
-   {
-    "section": "travel",
-    "el": "div.travel-note",
-    "flags": [
-     "italic"
-    ],
-    "example": "*Request the Iris & Nathan room block",
-    "selectors": [
-     ".travel-note"
-    ]
-   },
    {
     "section": "travel",
     "el": "em",

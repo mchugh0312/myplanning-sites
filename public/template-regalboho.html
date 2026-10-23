@@ -1088,6 +1088,10 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
 #things-to-do.mp-ttd-alt{background:var(--ivory);}
 #things-to-do.mp-ttd-alt .faq-title,
 #things-to-do.mp-ttd-alt .faq-answer{color:var(--ink);}
+/* MP-952 / MP-948: titles follow Section Headings and body copy follows Body
+   Text on every design. This element set no face of its own; it inherits
+   one, so it reads the role variable and falls back to inheriting. */
+.travel-item-name{font-family:var(--heading-font, inherit);}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the

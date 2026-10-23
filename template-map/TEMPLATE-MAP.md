@@ -136,8 +136,7 @@ Wholly italic lines (dress codes, notes):
 - things_to_do `div#thingsToDoText`: weight 300 (`.faq-answer`)
 - registry `div#registryInfo`: weight 300 (`.registry-info`)
 - registry `a#registryBtn`: weight 600, uppercase (`.registry-btn`)
-- rsvp `p#rsvpDeadline`: weight 300 (`.rsvp-deadline`)
-- rsvp `sup`: weight 300
+- rsvp `span.mp-rsvp-hint`: weight 300
 
 ### Formatting survival
 
@@ -359,7 +358,7 @@ Wholly italic lines (dress codes, notes):
 - other_events `em`: italic
 - faqs `div.faq-answer`: italic (`.faq-answer`)
 - things_to_do `div#thingsToDoText`: italic (`.faq-answer`)
-- rsvp `p#rsvpDeadline`: weight 600 (`.rsvp-deadline`)
+- rsvp `span.mp-rsvp-hint`: weight 600
 
 ### Formatting survival
 
@@ -438,7 +437,7 @@ Wholly italic lines (dress codes, notes):
 - travel `div.accom-address`: italic (`.accom-address`)
 - faqs `span.faq-icon`: face Arial
 - faqs `div.faq-answer`: italic (`.faq-answer`)
-- rsvp `p#rsvpDeadline`: italic (`.rsvp-deadline`)
+- rsvp `span.mp-rsvp-hint`: italic
 
 ### Formatting survival
 
@@ -505,7 +504,7 @@ Wholly italic lines (dress codes, notes):
 ### Defaults imposed on body copy (must stay overridable)
 
 - story `span.ampersand`: italic (`.our-story-names .ampersand`)
-- wedding `em`: italic
+- wedding `em.mp-attire`: italic
 - travel `h3.travel-col-title`: italic (`.travel-col-title`)
 - travel `div.travel-note`: italic (`.travel-note`)
 
@@ -580,7 +579,7 @@ Wholly italic lines (dress codes, notes):
 
 ### Defaults imposed on body copy (must stay overridable)
 
-- wedding `em`: italic
+- wedding `em.mp-attire`: italic
 - accommodations `em`: italic
 
 ### Formatting survival
@@ -627,7 +626,7 @@ Font variables the runtime config does not know: `--menu-font`.
 | Accent Color | `--brown` | - | footer, nav, story | backgroundColor |
 | Text1 | `--ink` | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: faqs, other_events, travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, fill, outlineColor, textDecorationColor |
 | Text2 | `--on-dark` | section heading: story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text3 | `--ink3` | body: travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text3 **(nothing visible at rest)** | `--ink3` | - | - | - |
 | Highlight Color | `--blue` | - | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Additional Color **(nothing visible at rest)** | `--black` | - | - | - |
 
@@ -656,7 +655,6 @@ Wholly italic lines (dress codes, notes):
 
 ### Defaults imposed on body copy (must stay overridable)
 
-- travel `div.travel-note`: italic (`.travel-note`)
 - travel `em`: italic
 
 ### Formatting survival

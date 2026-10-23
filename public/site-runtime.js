@@ -3991,7 +3991,7 @@
      reload - including the two role variables added for MP-354. */
   function _clearRoleFonts(root) {
     [CFG.scriptVar, CFG.displayVar, CFG.bodyVar, CFG.headingVar,
-     '--menu-font', '--heading-font'].forEach(function (v) {
+     '--menu-font', '--heading-font', '--body-font'].forEach(function (v) {
       if (v) { try { root.removeProperty(v); } catch (e) {} }
     });
   }
@@ -4033,6 +4033,11 @@
          var(--heading-font, <their face>), so the choice reaches them too
          (Coastal Chic, Whimsical Romance). Unused everywhere else. */
       if (role === 'heading') root.setProperty('--heading-font', "'" + cfg.font + "',serif");
+      /* The same for body copy a design sets in a face of its own - Sage &
+         Still's Ovo, Vintage Love Story's Our Story (MP-948): those rules read
+         var(--body-font, <their face>). Titles follow Section Headings and body
+         copy follows Body Text on every design. */
+      if (role === 'body') root.setProperty('--body-font', "'" + cfg.font + "',serif");
     });
 
     if (families.length) loadGoogleFonts(families);
@@ -4969,7 +4974,30 @@
            A heading on its own is already the link on every design. The button
            is for when there is a paragraph between the heading and the gifts
            and the heading has stopped looking clickable. */
-        var _wantMore = !!_registryUrl && !_blanked && hasCopy;
+        /* MP-941. Only where the design has NO registry button of its own.
+           Five designs carry one already - Modern Minimal and Coastal Chic a
+           button, Whimsical Romance, Regal Boho and Vintage Love Story a "View
+           our registry" inside the section link - and got this one as well:
+           two buttons for one registry. Read off what the section shows, not
+           a list: any control saying "view ... registry" other than this one. */
+        var _ownCta = false;
+        try {
+          var _root = (typeof _regSection === 'function' && _regSection()) || info.parentNode;
+          var _cands = [_root].concat(Array.prototype.slice.call(_root.querySelectorAll('a, button')));
+          var _a = _root.parentElement;
+          for (var _h = 0; _a && _h < 3; _h++, _a = _a.parentElement) if (_a.tagName === 'A') _cands.push(_a);
+          _ownCta = _cands.some(function (el) {
+            if (!el || (el.classList && el.classList.contains('mp-registry-more'))) return false;
+            var c = el.cloneNode(true);
+            Array.prototype.forEach.call(c.querySelectorAll('.mp-registry-more, #registryInfo, #registryText, #registryBody'),
+              function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+            return /\bview\b[^.]{0,24}\bregistry\b/i.test(c.textContent || '');
+          });
+        } catch (e) {}
+        /* MP-946. In the preview too, so it shows what the live site shows. It
+           has no address there - the preview keeps every registry link inert -
+           so it is a button that goes nowhere, like the preview's others. */
+        var _wantMore = (!!_registryUrl || _isPreview) && !_blanked && hasCopy && !_ownCta;
         if (_wantMore && !_more && info.parentNode) {
           _more = document.createElement('a');
           _more.className = 'mp-registry-more';
@@ -4994,7 +5022,8 @@
            than none. */
         if (_more) {
           if (_wantMore) {
-            _more.setAttribute('href', _registryUrl);
+            if (_registryUrl) _more.setAttribute('href', _registryUrl);
+            else _more.removeAttribute('href');
             _more.style.display = 'block';
           } else {
             _more.style.display = 'none';
@@ -6496,6 +6525,18 @@
          they would collapse out through it and reopen the white strip. */
       '#mp-reg-band > #registryGrid[data-mp-built]{margin-top:0;margin-bottom:0}' +
       '@media(max-width:900px){#registryGrid[data-mp-built]{grid-template-columns:repeat(2,minmax(0,1fr))}}' +
+      /* MP-941. CENTRED, whatever the count. A four-column grid put two or three
+         gifts against the left edge, and Modern Minimal's own grid (1fr
+         columns, which a wide Purchase button can stretch) ran four tiles past
+         its right edge. A wrapping row of equal tiles centres any number:
+         four across on a desktop, two on a tablet. Phones keep the two-column
+         grid above, which is already full width. */
+      '@media(min-width:641px){#registryGrid{display:flex!important;flex-wrap:wrap;' +
+        'justify-content:center;gap:1.2rem!important;grid-template-columns:none!important}' +
+        '#registryGrid > .registry-card{box-sizing:border-box;min-width:0;' +
+        'flex:0 0 calc((100% - 3.6rem) / 4);max-width:calc((100% - 3.6rem) / 4)}}' +
+      '@media(min-width:641px) and (max-width:900px){#registryGrid > .registry-card{' +
+        'flex-basis:calc((100% - 1.2rem) / 2);max-width:calc((100% - 1.2rem) / 2)}}' +
       '#registryGrid[data-mp-built] .registry-card{display:flex;flex-direction:column;' +
         'align-items:center;text-align:center;gap:0.5rem;min-width:0}' +
       '#registryGrid[data-mp-built] .registry-card img{width:100%;aspect-ratio:1;' +

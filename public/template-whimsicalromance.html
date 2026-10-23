@@ -655,7 +655,7 @@ body.hydrating{visibility:hidden;}
   padding:0;
 }
 .faq-q-text{
-  font-family:var(--display);
+  font-family:var(--heading-font, var(--display));
   font-size:clamp(1.02rem,1.7vw,1.2rem);
   color:var(--ink);
   font-weight:400;
@@ -1637,18 +1637,14 @@ function renderAccomContent(html, travelHtml) {
   var urlMatch = html.match(/href=["']([^"']+)["']/i);
   var bookUrl = _mpBookUrl(html, (window.MP_DATA && window.MP_DATA.accommodation_url) || '');
 
-  // The design always carries the room-block line and the button. Fall back to
-  // the template's own copy when the couple hasn't written one, the same way
-  // other placeholder text works, and keep the button inert without a URL
-  // rather than dropping it out of the layout.
-  if (!meta) {
-    var _names = (window.MP_DATA && window.MP_DATA.couple_names) || '';
-    meta = _names ? 'Request the ' + _names + ' room block' : 'Request the room block';
-  }
+  /* The room-block line is the couple's, or absent (MP-951). It was invented
+     from their names when they had written none - "Request the Partner One &
+     Partner Two room block" on the site, nowhere in their Travel box, for a
+     room block that may not exist. */
   var hotelBlock = html
     ? (name ? '<div class="accom-name">' + name + '</div>' : '') +
       (address ? '<div class="accom-address">' + address + '</div>' : '') +
-      '<div class="accom-meta">' + meta + '</div>' +
+      (meta ? '<div class="accom-meta">' + meta + '</div>' : '') +
       (bookUrl
         ? '<a class="accom-cta" href="' + bookUrl + '" target="_blank" rel="noopener">Book Now</a>'
         : '<a class="accom-cta" href="#">Book Now</a>')

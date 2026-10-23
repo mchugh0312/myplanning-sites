@@ -104,8 +104,46 @@ every change against the original files.
     records already saved that way, so existing sites are repaired without
     re-saving. Clicking a spacer and typing now starts a line above it.
 
+- Group A, text on the site that was not in the box:
+  - MP-954: Vintage Love Story showed its sample Other Events (Welcome Party,
+    Sunday Brunch) whenever the couple had fewer; now always theirs. No other
+    "keep the sample" rule remains in any template (checked structurally).
+  - MP-951: Whimsical Romance and Vintage Love Story invented a "Request the
+    ... room block" line (Whimsical even named the SAMPLE couple) and Vintage
+    Love Story rewrote a note the couple did write. Now: their note, verbatim,
+    or none. Vintage Love Story also showed their note twice; now once.
+  - MP-944: on the four combined-schedule designs the Event Schedule box now
+    shows any old Other Events text, in the order the design renders it, and
+    saving moves it in and empties the old field - so box, preview and live
+    agree and switching template cannot bring it back.
+- Group B, decision: titles (event names, FAQ questions, Travel card titles)
+  follow Section Headings and body copy follows Body Text, on every design.
+  Measured on all ten: every heading, title and body line now follows its
+  control. Fixed: FAQ questions on 8 designs, Coastal Chic's titles and Our
+  Story heading, Travel card names on Regal Boho and Vintage Love Story, Sage
+  & Still's event names and its Ovo body copy (MP-948), Vintage Love Story's
+  Our Story. MP-940 and MP-947 were the pre-Step-2 behaviour; MP-952's
+  Gallery heading already followed. Defaults unchanged (drift gate).
+
+- Group C, buttons. Tested in LIVE mode as well as the preview (the test
+  hands the page a couple's data the way the landing page does):
+  - MP-941: the runtime's extra "View our registry" button is added only
+    where the design has no registry button of its own. Modern Minimal,
+    Coastal Chic, Whimsical Romance, Regal Boho and Vintage Love Story showed
+    two; now one. Gift tiles are centred for any count (they sat left with 2
+    or 3; Modern Minimal's four overflowed its grid).
+  - MP-946: that button now shows in the preview too (inert, like the
+    preview's other buttons), so live and preview match on all ten.
+  - MP-953: Vintage Love Story gets Book Now under hotels and airports when
+    there is a booking link, drawn like its own outlined button.
+  - MP-919: no Book Now without a link on any design, desktop or phone, live
+    or preview; desktop and phone match. Already fixed by earlier work.
+  - Noted, not changed: Heirloom Bloom and Regal Boho have one booking
+    button (hotel) by design, even when a flights link is set.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
-MP-918, MP-915, MP-916, MP-920, MP-921, MP-935. What to check for each is in the chat summary of this round.
+MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
+MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953. What to check for each is in the chat summary of this round.
 
 **OPEN: needs a decision**
 - Registry when emptied: kept as is (shown unless switched off), by decision.
