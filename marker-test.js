@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '249b6715');
+    ('0000000' + h.toString(16)).slice(-8), 'c9533bb3');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7379,7 +7379,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-rsvp-reset');
+  check('the stamp names the change it shipped with', version, '2026-10-23-active-buttons');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9320,6 +9320,16 @@ check('two blocks -> two cards', blocks(mark(
     /marginTop: "4px" \}\}>\s*↺ Reset to default/.test(ws), false);
   check('RSVP\'s resets its line from the header row',
     /if \(s\.section === "rsvp"\) _resetRsvpNote\(\);/.test(ws), true);
+}
+
+
+// ── A pressed B / I / U looks pressed (MP-333, as tested) ────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* The selected state was a pale beige on the off-white bar: the state was
+     right and nobody could see it. Filled and inverted now. */
+  check('a selected toolbar button is filled, not tinted',
+    /background: active \? "#4B5244" : "none"/.test(ws) && /color: active \? "#FFFFFF" : "#4B5244"/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
