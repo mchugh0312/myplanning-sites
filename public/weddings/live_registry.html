@@ -556,6 +556,9 @@
 <script>
 /* Shown on experiences whose booking link goes to Viator (the backend sends
    booking_partner; the link itself stays server-side). */
+/* An experience the couple has marked funded (or completed) takes no more
+   contributions; the backend refuses them too. */
+function expIsFunded(e){ const s=String((e&&e.status)||"").toLowerCase(); return s==="funded"||s==="completed"; }
 const VIATOR_DISCLOSURE_HTML='<div class="hint" style="margin-top:6px;font-size:11px">Booked through Viator, a Tripadvisor company.</div>';
 
 
@@ -1298,6 +1301,8 @@ function renderCard(t){
         + '</div>';
   } else if(t.kind==="fund"){
     cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
+  } else if(expIsFunded(t.raw)){
+    cta = '<div class="cta-row col"><button class="cta" disabled style="cursor:default;opacity:.75">Fully funded ✓</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else {
     cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openExp(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   }
@@ -2163,7 +2168,9 @@ function openExp(id){
   const received=exp.amount_received_cents||0, remaining=Math.max(0,cost-received);
   const pct = cost>0?Math.min(100,Math.round((received/cost)*100)):0;
 
-  const form = stripeOk ?
+  const form = expIsFunded(exp)
+    ? '<div class="hint" style="text-align:left;margin:10px 0 0;font-size:13px">Fully funded, thank you! The couple has this one covered.</div>'
+    : stripeOk ?
       ((exp.allow_partial
         ? '<div class="field"><label>Your contribution ($)</label><input type="number" id="e-amt" min="'+(min/100)+'" step="1" value="'+Math.max(25,Math.round(min/100))+'"></div>'
         : '<div class="hint" style="text-align:left;margin:8px 0 0">This experience is gifted in full: <strong>'+fmt(cost)+'</strong>.</div>')
