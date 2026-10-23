@@ -7773,7 +7773,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-event-match';
+  var MP_RUNTIME_BUILD = '2026-10-23-divider-label';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

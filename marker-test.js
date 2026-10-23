@@ -4685,7 +4685,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'ba5f6a9f');
+    ('0000000' + h.toString(16)).slice(-8), 'b9023cb8');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7426,7 +7426,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-event-match');
+  check('the stamp names the change it shipped with', version, '2026-10-23-divider-label');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9689,6 +9689,16 @@ check('two blocks -> two cards', blocks(mark(
   const set = ws.slice(ws.indexOf('function ImageSet('), ws.indexOf('function ImageSet(') + 9000);
   check('MP-914 tiles and grid cancel dragenter too (Firefox)',
     (set.match(/onDragEnter=\{e => \{ if \(live\.current\) \{ e\.preventDefault\(\); overGrid\(/g) || []).length, 2);
+}
+
+
+// ── MP-918: the Divider button says what it is ───────────────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* A bare "⎯" read as a minus sign; the button couples asked for was there and
+     went unnoticed. Labelled, with the dashed line the box draws. */
+  check('MP-918 the Divider button is labelled',
+    /\{isMobile \? null : "Divider"\}/.test(ws) && /borderTop: "1\.5px dashed currentColor"/.test(ws) && !/>⎯<\/button>/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

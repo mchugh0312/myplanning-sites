@@ -420,6 +420,12 @@ every change against the original files.
   kept its old order. Matched by id, then by name, now; and the console logs,
   per event, the position it took and how it was matched (or that it was not).
 
+- MP-918, the button: the Divider button (in place of Line break in Events,
+  FAQs and Travel) was there, but as a bare "⎯" it read as a minus sign and
+  went unnoticed. Labelled "Divider" now, with a dashed line, styled like
+  "+ Event" (the line alone on a phone). Pressing it mid-card splits the card
+  and the dashed line shows at once.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
