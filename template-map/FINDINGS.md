@@ -258,6 +258,12 @@ every change against the original files.
 - MP-932 (live_registry.html): the registry page uses the couple's heading and
   body fonts, not only the template's.
 
+- Un-bolding one title after select-all + B also un-bolded the other titles
+  (Travel: Hotel took Flights with it). The editor's title marks stated the
+  design's weight inline, and the browser read "font-weight:400" on a mark as
+  "this text is not bold" when re-bolding the rest. Weight and slant now ride
+  on attributes the editor's stylesheet turns into the same look.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

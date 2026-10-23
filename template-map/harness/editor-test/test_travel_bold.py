@@ -16,8 +16,10 @@ with sync_playwright() as p:
     x = pg.evaluate(POS, 'Hyatt'); pg.mouse.click(x[0], x[1]); pg.keyboard.press('Control+a'); pg.wait_for_timeout(150)
     b = pg.evaluate(BTN, 'Bold'); pg.mouse.click(b[0], b[1]); pg.wait_for_timeout(300)
     show(pg, '1. select all, press B')
-    pg.mouse.click(630, 390); pg.wait_for_timeout(300); show(pg, '2. after clicking outside')
+    print('   saved:', pg.evaluate('window.__val'))
+    y = pg.evaluate(POS, 'San Diego'); pg.mouse.click(y[2] + 2, y[1]); pg.wait_for_timeout(200)   # click away first
     x = pg.evaluate(POS, 'Hotel'); pg.mouse.move(x[0], x[1]); pg.mouse.down(); pg.mouse.move(x[2], x[1]); pg.mouse.up(); pg.wait_for_timeout(200)
-    show(pg, '3. select "Hotel"')
-    b = pg.evaluate(BTN, 'Bold'); pg.mouse.click(b[0], b[1]); pg.wait_for_timeout(300); show(pg, '4. press B to unbold')
+    b = pg.evaluate(BTN, 'Bold'); pg.mouse.click(b[0], b[1]); pg.wait_for_timeout(300)
+    show(pg, '2. select "Hotel", press B')
+    print('   saved:', pg.evaluate('window.__val'))
     print('errors', errs); br.close()

@@ -3208,8 +3208,11 @@ check('two blocks -> two cards', blocks(mark(
   // Face and weight alone left italic, size and ink to drift.
   check('slant and ink are reported too',
     /italic: cs\.fontStyle \|\| '',/.test(rt) && /color: cs\.color \|\| ''/.test(rt), true);
+  /* Weight and slant ride on attributes now (data-tw / data-ti, turned into
+     CSS by editorCss): stated inline, the browser read the mark's weight as
+     "not bold" and un-bolding one title stripped the others. Ink stays inline. */
   check('and the box wears them',
-    /caps \+ ital \+ ink \+ 'font-family/.test(block), true);
+    /caps \+ ink \+ 'font-family/.test(block) && /' data-tw="' \+ tw \+ '"' \+ \(ti \? ' data-ti="' \+ ti \+ '"' : ''\)/.test(block), true);
   // Coastal Chic is why both are needed: it sets block titles AND labels in bold
   // uppercase body, where every other design uses its script or display face.
   {
@@ -4676,7 +4679,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '2925a9f0');
+    ('0000000' + h.toString(16)).slice(-8), 'cd5c9235');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5206,7 +5209,7 @@ check('two blocks -> two cards', blocks(mark(
   const src = wt.slice(wt.indexOf('      const wholeBold ='), wt.indexOf("      return '<mp-t'"));
   check('the whole-line test exists', src.length > 60, true);
   // The slice also holds the MP-918 card counter, which reads these two.
-  const isWhole = new Function('head', 'var _cards = 0, titleLine = false;\n' + src + ' return wholeBold;');
+  const isWhole = new Function('head', 'var _cards = 0, titleLine = false, weight = "400", ls = null;\n' + src + ' return wholeBold;');
   check('a wholly bold title is flattened',
     isWhole('<strong>What should I wear?</strong>'), true);
   check('even with markup inside it',
@@ -7409,7 +7412,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-one-section-rule');
+  check('the stamp names the change it shipped with', version, '2026-10-23-title-weights');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9436,6 +9439,17 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-932 the registry page reads the couple\'s font choices',
     /fonts: data\.font_settings \|\| \{\}/.test(reg) &&
     /r\.setProperty\("--skin-display", headFont \?/.test(reg) && /r\.setProperty\("--skin-body", bodyFont \?/.test(reg), true);
+}
+
+
+// ── Un-bolding one title leaves the others alone (Travel, as tested) ─────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* The mark's design weight is not inline style: the browser took an inline
+     font-weight:400 on a title mark as "not bold", so after select-all + B,
+     un-bolding Hotel re-bolded everything except the other titles. */
+  check('a title mark states no weight or slant inline',
+    !/';font-weight:' \+ weight \+ ';'/.test(ws) && /\[100, 200, 300, 400, 500, 600, 700, 800, 900\]\.map\(w => "\[contenteditable\] mp-t\[data-tw='" \+ w/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
