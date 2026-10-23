@@ -2454,13 +2454,74 @@
         if (key === 'travel') _hideSection('accommodations');
         if (key === 'accommodations') _hideSection('travel');
       });
+      /* MP-901 / MP-904, decided: ONLY the Design toggle hides a section. An
+         emptied section used to collapse (and come back when the couple typed),
+         except Registry and RSVP - two rules where couples expect one. Now an
+         emptied section stays, heading and all, and only what is under the
+         heading is put away: the design's own sample copy, which a template
+         leaves standing when its field is empty, must not show as theirs. */
       Object.keys(SECTION_CONTENT).forEach(function (key) {
+        if (menu[key] === false) return;          /* already hidden above */
         var fields = SECTION_CONTENT[key];
         var any = fields.some(function (f) { return _hasText(d[f]); });
-        if (any) return;
-        _hideSection(key);
+        if (any) _unemptySection(key);
+        else _emptySection(key);
       });
     } catch (e) {}
+  }
+
+  /* What _emptySection put away, per section, so it can be given back exactly -
+     the same discipline as _blankedNodes: never reveal something the template
+     hid for its own reasons. */
+  var _emptiedNodes = {};
+
+  /* Keep the section and its heading; put away everything else in it. The
+     heading's own wrapper (a .sec-head with its rule, an oval title shell)
+     stays whole - it is found the way _blankHeading finds it. A section whose
+     template collapsed it for an empty field is shown again. */
+  function _emptySection(key) {
+    var ids = SECTION_ANCHORS[key] || [];
+    for (var i = 0; i < ids.length; i++) {
+      var sec = document.getElementById(ids[i]);
+      if (!sec) continue;
+      var saved = _emptiedNodes[key] || { nodes: [], sec: null };
+      /* The template may have collapsed it for the empty field. */
+      if (sec.style.display === 'none' && !saved.sec) {
+        saved.sec = { el: sec, prev: 'none' };
+        sec.style.display = '';
+      }
+      var head = null;
+      try { head = _headingNode(sec); } catch (e) {}
+      var wrap = head;
+      while (wrap && wrap.parentNode && wrap.parentNode !== sec &&
+             (wrap.parentNode.textContent || '').trim() === (head.textContent || '').trim()) {
+        wrap = wrap.parentNode;
+      }
+      var path = [];
+      for (var a = wrap; a && a !== sec; a = a.parentNode) path.push(a);
+      var parents = [sec].concat(path.slice(1).reverse());   /* sec ... wrap's parent */
+      parents.forEach(function (p) {
+        Array.prototype.slice.call(p.children).forEach(function (c) {
+          if (path.indexOf(c) !== -1) return;
+          if (/^(SCRIPT|STYLE|TEMPLATE)$/.test(c.tagName)) return;
+          if (c.style.display === 'none') return;     /* hidden already, not by us */
+          saved.nodes.push({ el: c, prev: c.style.display });
+          c.style.display = 'none';
+        });
+      });
+      _emptiedNodes[key] = saved;
+      return;
+    }
+  }
+
+  function _unemptySection(key) {
+    var saved = _emptiedNodes[key];
+    if (!saved) return;
+    saved.nodes.forEach(function (n) { try { n.el.style.display = n.prev || ''; } catch (e) {} });
+    /* The section's own display is left to the template now that it has
+       content again: putting back the collapse it made for the empty field
+       would hide a section with text in it. */
+    delete _emptiedNodes[key];
   }
 
   /* The first anchor that exists, then stop. The lists are fallbacks for
@@ -7657,7 +7718,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-marks-inherit';
+  var MP_RUNTIME_BUILD = '2026-10-23-one-section-rule';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

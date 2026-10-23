@@ -1253,6 +1253,7 @@
        "faqs",
        "registry",
        "rsvp",
+       "story",
        "things_to_do",
        "travel",
        "wedding"
@@ -1322,6 +1323,7 @@
        "faqs",
        "registry",
        "rsvp",
+       "story",
        "things_to_do",
        "travel",
        "wedding"
@@ -1399,6 +1401,10 @@
      "Lexend Deca"
     ],
     [
+     "story",
+     "Lexend Deca"
+    ],
+    [
      "things_to_do",
      "Lexend Deca"
     ],
@@ -1426,6 +1432,7 @@
      "text": {},
      "ground": [
       "registry",
+      "story",
       "travel"
      ],
      "other_paint": {
@@ -1477,6 +1484,7 @@
      "text": {
       "section-heading": [
        "registry",
+       "story",
        "travel"
       ],
       "block-title": [
@@ -8559,6 +8567,7 @@
       "section-heading": [
        "faqs",
        "rsvp",
+       "story",
        "things_to_do",
        "wedding"
       ],
@@ -8653,6 +8662,7 @@
       "section-heading": [
        "faqs",
        "rsvp",
+       "story",
        "things_to_do",
        "wedding"
       ],
@@ -8750,6 +8760,7 @@
       "faqs",
       "home",
       "rsvp",
+      "story",
       "things_to_do"
      ],
      "other_paint": {
@@ -8785,17 +8796,18 @@
       "#000000"
      ],
      "text": {
+      "section-heading": [
+       "faqs",
+       "rsvp",
+       "story",
+       "things_to_do"
+      ],
       "body": [
        "accommodations"
       ],
       "block-title": [
        "accommodations",
        "faqs"
-      ],
-      "section-heading": [
-       "faqs",
-       "rsvp",
-       "things_to_do"
       ]
      },
      "ground": [],

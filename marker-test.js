@@ -5636,18 +5636,31 @@ check('two blocks -> two cards', blocks(mark(
     const ids = ['hero', 'our-story', 'events-primary', 'other-events', 'travel-section',
                  'accommodations', 'need-to-know', 'things-to-do',
                  'registry-section', 'rsvp', 'gallery'];
-    const run = (d) => {
-      const doc = new JSDOM('<!doctype html><body>' +
-        ids.map(i => '<section id="' + i + '"></section>').join('') + '</body>').window.document;
-      new Function('document', anchors + '\n' + content + '\n' +
-        /* _hideSection too - the collapse calls it and a harness missing it
-           throws, which reads as a broken suite rather than a broken runtime. */
-        lift(rt, ['_hasText', '_hideSection', 'collapseEmptySections']) +
-        '\nreturn collapseEmptySections;')(doc)(d);
+    /* Each section has a heading and some of the design's sample copy, so the
+       three outcomes can be told apart: GONE (switched off in Design), EMPTIED
+       (the section and its heading stay, the copy under it is set aside -
+       MP-901/904: only the Design toggle hides a section), and SHOWN. */
+    const fresh = () => new JSDOM('<!doctype html><body>' +
+        ids.map(i => '<section id="' + i + '"><h2>Heading</h2><p>Sample copy</p></section>').join('') +
+        '</body>').window.document;
+    const make = (doc) => new Function('document', anchors + '\n' + content + '\n' +
+        'var _emptiedNodes = {};\n' +
+        /* Every helper the pass calls - a harness missing one throws, which
+           reads as a broken suite rather than a broken runtime. */
+        lift(rt, ['_hasText', '_hideSection', '_headingNode', '_emptySection', '_unemptySection',
+                  'collapseEmptySections']) +
+        '\nreturn collapseEmptySections;')(doc);
+    const state = (doc) => {
       const out = {};
-      ids.forEach(i => { out[i] = doc.getElementById(i).style.display === 'none' ? 'gone' : 'shown'; });
+      ids.forEach(i => {
+        const sec = doc.getElementById(i);
+        if (sec.style.display === 'none') out[i] = 'gone';
+        else if (sec.querySelector('p').style.display === 'none' && sec.querySelector('h2').style.display !== 'none') out[i] = 'emptied';
+        else out[i] = 'shown';
+      });
       return out;
     };
+    const run = (d) => { const doc = fresh(); make(doc)(d); return state(doc); };
 
     /* MP-911. A section the couple switched OFF goes, whatever the template
        does about it. Templates gate their own sections on the toggle and do it
@@ -5674,12 +5687,12 @@ check('two blocks -> two cards', blocks(mark(
 
     const all = run({ story: '', weddings_info: '', events_info: '', travel_info: '',
                       accommodation_info: '', faqs: '', things_to_do: '' });
-    check('an emptied story collapses', all['our-story'], 'gone');
-    check('an emptied wedding section collapses', all['events-primary'], 'gone');
-    check('an emptied other-events collapses', all['other-events'], 'gone');
-    check('an emptied travel collapses', all['travel-section'], 'gone');
-    check('an emptied faqs collapses', all['need-to-know'], 'gone');
-    check('an emptied things-to-do collapses', all['things-to-do'], 'gone');
+    check('an emptied story stays, its copy set aside', all['our-story'], 'emptied');
+    check('an emptied wedding section stays, its copy set aside', all['events-primary'], 'emptied');
+    check('an emptied other-events stays, its copy set aside', all['other-events'], 'emptied');
+    check('an emptied travel stays, its copy set aside', all['travel-section'], 'emptied');
+    check('an emptied faqs stays, its copy set aside', all['need-to-know'], 'emptied');
+    check('an emptied things-to-do stays, its copy set aside', all['things-to-do'], 'emptied');
 
     /* These are worth showing with nothing in them: a clickable registry title,
        a form, and photographs that are not copy at all. Collapsing them would
@@ -5692,9 +5705,15 @@ check('two blocks -> two cards', blocks(mark(
        clear left a filler <br>, which passed an `if (d.story)` test, so the
        section only went on the second. */
     check('a filler break counts as empty',
-      run({ story: '<br data-mp-filler="1">' })['our-story'], 'gone');
-    check('as does a single space', run({ story: '&nbsp;' })['our-story'], 'gone');
-    check('and empty markup', run({ story: '<b></b><br>' })['our-story'], 'gone');
+      run({ story: '<br data-mp-filler="1">' })['our-story'], 'emptied');
+    check('as does a single space', run({ story: '&nbsp;' })['our-story'], 'emptied');
+    check('and empty markup', run({ story: '<b></b><br>' })['our-story'], 'emptied');
+    /* Typing again gives back exactly what was set aside. */
+    {
+      const doc = fresh(); const pass = make(doc);
+      pass({ story: '' }); pass({ story: 'We met in 2019' });
+      check('typing again brings the copy back', state(doc)['our-story'], 'shown');
+    }
     check('but real words keep it', run({ story: 'We met in 2019' })['our-story'], 'shown');
     check('and words inside markup do too',
       run({ story: '<b>We met</b>' })['our-story'], 'shown');
@@ -7390,7 +7409,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-marks-inherit');
+  check('the stamp names the change it shipped with', version, '2026-10-23-one-section-rule');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7398,7 +7417,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '2874fc79');
+    ('0000000' + bh.toString(16)).slice(-8), 'e9a52ce7');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9389,6 +9408,34 @@ check('two blocks -> two cards', blocks(mark(
     /\[contenteditable\] :is\(b,strong\) mp-t,/.test(ws) && /mp-t\{font-weight:700!important\}/.test(ws), true);
   check('and so do italic and a font round it',
     /mp-t\{font-style:italic!important\}/.test(ws) && /\[style\*='font-family'\] mp-t\{font-family:inherit!important\}/.test(ws), true);
+}
+
+
+// ── RSVP backend and the registry page (MP-924, MP-925, MP-932) ──────────
+{
+  const py = fs.readFileSync('main.py', 'utf8');
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  /* MP-924. Every caller builds its answers with the entree under "entree";
+     the writer read "entree_choice", so every entree was dropped at the last
+     step. It reads both now. */
+  const w = py.slice(py.indexOf('def _replace_event_answers'), py.indexOf('def _merge_event_answers'));
+  check('MP-924 the RSVP writer keeps the entree its callers send',
+    /a\.get\("entree"\) or a\.get\("entree_choice"\)/.test(w), true);
+  check('and every caller sends it under that name',
+    (py.match(/"entree":\s+str\(_(?:ev|he)\.get\("entree(?:_choice)?"\)/g) || []).length >= 3, true);
+  /* MP-925. The date reads as a guest reads it, and the person who answered
+     for their party gets everyone on one card. */
+  check('MP-925 the confirmation date is Month Day, Year',
+    /_received = f"\{_now\.strftime\('%B'\)\} \{_now\.day\}, \{_now\.year\}"/.test(py) &&
+    !/strftime\("%d %B %Y"\)/.test(py), true);
+  check('MP-925 the submitter\'s card lists the whole party',
+    /_rsvp_card_html\(_celeb_label, _party if _i == 0 else \[_p\], _received\)/.test(py), true);
+  check('and plus-ones are on it',
+    /_party = \[p for p in card_people \+ _card_extras if p\.get\("events"\)\]/.test(py), true);
+  /* MP-932. The registry page wears the couple's fonts, not only the template's. */
+  check('MP-932 the registry page reads the couple\'s font choices',
+    /fonts: data\.font_settings \|\| \{\}/.test(reg) &&
+    /r\.setProperty\("--skin-display", headFont \?/.test(reg) && /r\.setProperty\("--skin-body", bodyFont \?/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

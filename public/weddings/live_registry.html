@@ -693,7 +693,7 @@ function skinFor(data){
   if (!data) return null;
   const label = String(data.template || "").toLowerCase().replace(/[^a-z]/g, "");
   const byId = TEMPLATE_SKIN[label];
-  if (byId) return { skin: byId, customization: data.customization || {} };
+  if (byId) return { skin: byId, customization: data.customization || {}, fonts: data.font_settings || {} };
   const alias = {
     sagestill:"sageandstill", sageandstill:"sageandstill",
     pressedpetals:"pressedpetals", heirloombloom:"heirloombloom",
@@ -702,7 +702,7 @@ function skinFor(data){
     coastalchic:"coastalchic", vintagelovestory:"vintagelovestory",
     regalboho:"regalboho",
   }[label];
-  return alias ? { skin: TEMPLATE_SKIN[alias], customization: data.customization || {} } : null;
+  return alias ? { skin: TEMPLATE_SKIN[alias], customization: data.customization || {}, fonts: data.font_settings || {} } : null;
 }
 
 function applySkin(found){
@@ -719,12 +719,32 @@ function applySkin(found){
     document.head.appendChild(l);
   }
 
+  /* MP-932. The couple's own fonts, ahead of the template's. Their colours
+     were already applied from `customization`, but the type came only from the
+     fixed table above, so a couple who changed Section Headings or Body Text
+     saw the change everywhere on their site except the registry guests open
+     from it. Each face is loaded on its own, with no weight list - several
+     ship one weight only, and asking for one they lack fails the whole
+     request (the site runtime loads them the same way). */
+  const fset = found.fonts || {};
+  const clean = n => String(n || "").replace(/["'<>;]/g, "").trim();
+  const headFont = clean(fset.heading && fset.heading.font);
+  const bodyFont = clean(fset.body && fset.body.font);
+  [headFont, bodyFont].filter(Boolean).forEach(n => {
+    const id = "skin-font-" + n.replace(/[^A-Za-z0-9]+/g, "-");
+    if (document.getElementById(id)) return;
+    const l = document.createElement("link");
+    l.id = id; l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?family=" + encodeURIComponent(n).replace(/%20/g, "+") + "&display=swap";
+    document.head.appendChild(l);
+  });
+
   const r = document.documentElement.style;
   r.setProperty("--cream", bg);
   r.setProperty("--olive", accent);
   r.setProperty("--ink", ink);
-  r.setProperty("--skin-display", s.display);
-  r.setProperty("--skin-body", s.body);
+  r.setProperty("--skin-display", headFont ? "'" + headFont + "', " + s.display : s.display);
+  r.setProperty("--skin-body", bodyFont ? "'" + bodyFont + "', " + s.body : s.body);
 
   // The page ground alone wasn't enough to make this read as part of the
   // wedding site: the chrome around the cards — chips, borders, rules, the

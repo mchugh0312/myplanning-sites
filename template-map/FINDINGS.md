@@ -239,6 +239,25 @@ every change against the original files.
   which is why un-bolding a title then took several clicks. The couple's
   bold, italic or font round a mark now wins over the mark's default.
 
+- MP-901 / MP-904, decided: ONLY the Design tab hides a section. An emptied
+  section stays, with its heading; what is under the heading (the design's
+  sample copy, which a template leaves standing for an empty field) is set
+  aside and given back exactly when the couple types again. Registry, RSVP and
+  Gallery were already never hidden for being empty. Tested on all ten: no
+  sample copy shows in any emptied section; merged schedules are untouched.
+  Note: Pressed Petals' Wedding and Other Events bands have no heading in the
+  design, so emptied they show as the band alone.
+- MP-911: already fixed - all ten, live and preview: Travel off hides Hotel and
+  Flights; FAQs off hides questions and heading even with Things to Do on.
+- MP-922: already fixed - each Purchase button opens its own gift on the
+  registry page (tested on the site and on the real registry page).
+- MP-924 (main.py): every entree was dropped - the callers pass "entree", the
+  writer read "entree_choice". Reads both now.
+- MP-925 (main.py): confirmation date reads "October 23, 2026"; the guest who
+  answered for a party gets one card with everyone, plus-ones included.
+- MP-932 (live_registry.html): the registry page uses the couple's heading and
+  body fonts, not only the template's.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

@@ -87,13 +87,13 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 |---|---|---|
 | `--menu-font` | Lexend Deca | menu |
 | `--script` | La Belle Aurore | - |
-| `--body` | Lexend Deca | section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
+| `--body` | Lexend Deca | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
 
 Headings control writes `--script`, which reaches: -.  
-Body control writes `--body`, which reaches: section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
+Body control writes `--body`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
-Section headings the Headings control does not reach: faqs (Lexend Deca), registry (Lexend Deca), rsvp (Lexend Deca), things_to_do (Lexend Deca), travel (Lexend Deca), wedding (Lexend Deca).
+Section headings the Headings control does not reach: faqs (Lexend Deca), registry (Lexend Deca), rsvp (Lexend Deca), story (Lexend Deca), things_to_do (Lexend Deca), travel (Lexend Deca), wedding (Lexend Deca).
 
 Font variables the runtime config does not know: `--menu-font`.
 
@@ -101,9 +101,9 @@ Font variables the runtime config does not know: `--menu-font`.
 
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
-| Site Background | `--ivory` | - | registry, travel | backgroundColor |
+| Site Background | `--ivory` | - | registry, story, travel | backgroundColor |
 | Accent Color | `--navy` | - | faqs, nav, registry, rsvp, things_to_do, wedding | backgroundColor |
-| Text1 | `--ink` | section heading: registry, travel; block title: travel; body: registry, travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: registry, story, travel; block title: travel; body: registry, travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 | `--on-dark` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, registry, rsvp, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color **(nothing visible at rest)** | `--white` | - | - | - |
@@ -538,11 +538,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Ovo | menu |
-| `--display` | Aboreto | section heading: faqs, rsvp, things_to_do, wedding; block title: accommodations; menu |
+| `--display` | Aboreto | section heading: faqs, rsvp, story, things_to_do, wedding; block title: accommodations; menu |
 | `--sub` | Ovo | block title: accommodations, wedding; body: accommodations, rsvp; italic line: accommodations; menu |
 | `--body` | DM Sans | block title: faqs; body: faqs, things_to_do, wedding; italic line: wedding; menu |
 
-Headings control writes `--display`, which reaches: section heading: faqs, rsvp, things_to_do, wedding; block title: accommodations; menu.  
+Headings control writes `--display`, which reaches: section heading: faqs, rsvp, story, things_to_do, wedding; block title: accommodations; menu.  
 Body control writes `--body`, which reaches: block title: faqs; body: faqs, things_to_do, wedding; italic line: wedding; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --sub` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
@@ -552,9 +552,9 @@ Font variables the runtime config does not know: `--menu-font`, `--sub`.
 
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
-| Site Background | `--offwhite` | - | accommodations, faqs, home, rsvp, things_to_do | backgroundColor |
+| Site Background | `--offwhite` | - | accommodations, faqs, home, rsvp, story, things_to_do | backgroundColor |
 | Accent Color **(nothing visible at rest)** | `--green-gray` | - | - | - |
-| Text1 | `--ink` | section heading: faqs, rsvp, things_to_do; block title: accommodations, faqs; body: accommodations | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: faqs, rsvp, story, things_to_do; block title: accommodations, faqs; body: accommodations | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 | `--on-dark` | body: wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | body: faqs, rsvp, things_to_do; italic line: accommodations | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--sage` | - | nav, wedding | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
