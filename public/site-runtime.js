@@ -2485,9 +2485,13 @@
       var sec = document.getElementById(ids[i]);
       if (!sec) continue;
       var saved = _emptiedNodes[key] || { nodes: [], sec: null };
-      /* The template may have collapsed it for the empty field. */
-      if (sec.style.display === 'none' && !saved.sec) {
-        saved.sec = { el: sec, prev: 'none' };
+      /* The template may have collapsed it for the empty field - and the Design
+         switch may have hidden it since. It is on (switched-off sections never
+         reach here), so it is shown EVERY time. Showing it only the first time
+         left it hidden after off-then-on: the menu link came back, pointing at
+         a section that was not there, and clicking it did nothing. */
+      if (sec.style.display === 'none') {
+        if (!saved.sec) saved.sec = { el: sec, prev: 'none' };
         sec.style.display = '';
       }
       var head = null;
@@ -7735,7 +7739,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-gallery-drag';
+  var MP_RUNTIME_BUILD = '2026-10-23-rsvp-hint-nav';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8065,7 +8069,11 @@
            shipped. ALWAYS written, never left: "leave it" meant leaving the
            previous note in the editor preview after the couple cleared it
            (MP-905), and the phrasing was read back off that same stale text. */
-        var _empty = _rsvpEmptyLineHtml(d, _isPreview);
+        /* The PAGE shows only what the couple has: their note, else the design's
+           line with their deadline, else nothing - in the preview as on the live
+           site. The "[your RSVP date]" hint is for the Content box alone; the
+           report to the editor (reportSectionHeadings) still carries it. */
+        var _empty = _rsvpEmptyLineHtml(d, false);
         deadlineEl.innerHTML = _empty;
         /* Nothing to say on the live site: the line goes, rather than leaving
            an empty gap or a sample date. */

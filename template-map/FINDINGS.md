@@ -299,6 +299,17 @@ every change against the original files.
   cancelled a drag as they moved), and Firefox gets the data it needs to start
   a drag.
 
+- RSVP: the "[your RSVP date]" hint showed in the preview as well as the
+  Content box. The page now shows only what the couple has (their note, else
+  the design's line with their deadline, else nothing); the hint stays as the
+  Content box placeholder.
+- Travel switched off and on again with an empty box: the section stayed
+  hidden, so its menu link came back pointing at nothing and clicking it did
+  nothing - on all ten designs, desktop and phone menus. The emptied-section
+  code showed a collapsed section only the first time; it is shown every time
+  now. (The link REMAINING after switching off did not reproduce on the current
+  build in either menu - worth re-checking once deployed.)
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

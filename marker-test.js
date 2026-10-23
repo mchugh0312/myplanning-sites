@@ -5782,7 +5782,7 @@ check('two blocks -> two cards', blocks(mark(
      else - live - nothing, else - preview - a hint. */
   const emptyFn = lift(rt, ['_rsvpEmptyLineHtml']);
   check('a deadline still fills the line when there is no note',
-    /_rsvpEmptyLineHtml\(d, _isPreview\)/.test(hyd) && /if \(deadline\) return/.test(emptyFn), true);
+    /_rsvpEmptyLineHtml\(d, false\)/.test(hyd) && /if \(deadline\) return/.test(emptyFn), true);
   check('and the template keeps its own phrasing around the date',
     /lead \? lead\[1\] : 'by '/.test(emptyFn), true);
 }
@@ -7412,7 +7412,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-gallery-drag');
+  check('the stamp names the change it shipped with', version, '2026-10-23-rsvp-hint-nav');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7420,7 +7420,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '9b3c3da0');
+    ('0000000' + bh.toString(16)).slice(-8), '51422edc');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9510,6 +9510,22 @@ check('two blocks -> two cards', blocks(mark(
     /if \(d && !d\.done && d\.inGrid\) commitDrag\(\);/.test(set), true);
   check('and Firefox is given the data it needs to start a drag',
     /e\.dataTransfer\.setData\("text\/plain", String\(idx\)\)/.test(set), true);
+}
+
+
+// ── The RSVP hint is for the Content box; a switched-on section is shown ──
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* The page shows only what the couple has - no "[your RSVP date]" in the
+     preview. The report to the editor still carries the hint for the box. */
+  check('the page never shows the RSVP date hint',
+    /var _empty = _rsvpEmptyLineHtml\(d, false\);/.test(rt), true);
+  check('the editor\'s placeholder still gets it',
+    /_rsvpLine = _rsvpEmptyLineHtml\(d, _isPreview\)/.test(rt), true);
+  /* Off then on again with the box still empty: the section has to come back,
+     or its menu link points at nothing. It was shown only the first time. */
+  check('an emptied, switched-on section is shown every time',
+    /if \(sec\.style\.display === 'none'\) \{\s*\n\s*if \(!saved\.sec\) saved\.sec = \{ el: sec, prev: 'none' \};\s*\n\s*sec\.style\.display = '';/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
