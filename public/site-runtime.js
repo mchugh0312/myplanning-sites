@@ -7773,7 +7773,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-event-order-all';
+  var MP_RUNTIME_BUILD = '2026-10-23-open-at-top';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8250,7 +8250,32 @@
   /* ==========================================================================
      BOOT
      ========================================================================== */
+  /* The site opens at its top - the hero - not wherever a visit last ended.
+     A menu link is a plain #anchor, so clicking "The Main Event" put
+     #events-primary into the address; reopening or reloading that address,
+     from history or a bookmark, then landed on The Main Event, and a reload
+     restored the old scroll position on top of that. Menu clicks now scroll
+     without writing the anchor into the address, and the browser's own scroll
+     restoration is off. A link deliberately made to a section (…/couple#rsvp
+     in an invitation) still opens there - only the menu stops leaving them. */
+  function keepAddressClean() {
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!a) return;
+      var id = (a.getAttribute('href') || '').slice(1);
+      if (!id) return;
+      var t = document.getElementById(id);
+      if (!t) return;
+      e.preventDefault();
+      try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) { t.scrollIntoView(); }
+      try { if (location.hash) history.replaceState(history.state, '', location.pathname + location.search); } catch (err) {}
+    }, false);
+  }
+
   function boot() {
+    keepAddressClean();
     // Editor preview: no slug. Wait for a HYDRATE_TEMPLATE postMessage from the
     // Softr block; fall back to the template's SAMPLE_DATA if none arrives.
     if (_isPreview) {

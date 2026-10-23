@@ -434,6 +434,19 @@ every change against the original files.
   about the reception before the ceremony): the editor now sends each event's
   real sequence and date, and re-sends the preview when the order arrives.
 
+- Live site opening at The Main Event (Modern Minimal, as tested): could not
+  be reproduced on a fresh load by any path (hand-over, direct, slow photos,
+  desktop or phone). The likely cause: menu links are plain #anchors, so a
+  click put #events-primary into the address, and reopening that address -
+  history, a bookmark, a reload - lands there; reloads also restored the old
+  scroll position. Menu clicks now scroll without changing the address, and
+  scroll restoration is off. A deliberate section link (#rsvp) still works.
+- Comic Sans on Modern Minimal's loading screen: the runtime's own text there
+  is Poppins and held back until loaded, so it is not that. Modern Minimal's
+  loading motif is an SVG image (like Vintage Love Story's; the rest are PNG):
+  lettering inside an SVG image cannot use web fonts, and Windows substitutes
+  Comic Sans for a script face. Needs the file (ac1909d1-...svg) to confirm.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
