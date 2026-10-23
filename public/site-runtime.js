@@ -3016,7 +3016,114 @@
         have no heading element at all, so this is not an edge case. Sending an
         explicit null overwrites the stale entry and lets the editor fall back
         to its own label. */
-  function reportSectionHeadings() {
+  /* ── WHAT EACH CONTENT BOX SHOULD LOOK LIKE (MP-337) ─────────────────────
+     The rule: what is in the box shows on the site, and what the site shows is
+     in the box. The second half needs the DESIGN's own treatment of each kind
+     of line - Pressed Petals sets Our Story in italic, five designs set FAQ
+     answers in italic, Coastal Chic sets its copy at weight 300, six set the
+     dress-code line in a script face - so the box can show it and its B/I/U
+     buttons can light for it.
+
+     Measured, not listed: the couple's own text is found on the rendered page
+     and the element the DESIGN styles is read. Their own inline tags (a bold
+     word, a font span) are climbed out of, so a default is never confused with
+     their formatting. Two exceptions: an element carrying a class is the
+     design's (the mp-attire line, a template's own span), and an element
+     wrapping a WHOLE title line is the title itself - the runtime's own Travel
+     <strong>, or the old whole-line bold delimiter. */
+  var BOX_FIELDS = {
+    story: 'story', wedding: 'weddings_info', other_events: 'events_info',
+    travel: 'travel_info', faqs: 'faqs', things_to_do: 'things_to_do',
+    registry: 'registry_info'
+  };
+  var BOX_TITLED = { wedding: 1, other_events: 1, travel: 1, faqs: 1 };
+  var _COUPLE_TAG = /^(B|STRONG|I|EM|U|S|SPAN|FONT|A|SMALL|SUB|SUP|MARK)$/;
+
+  function _norm(t) { return String(t || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+  function _boxLines(html, titled) {
+    var out = { title: null, body: null, attire: null };
+    var blocks = String(html || '').split(/(?:<br\s*\/?>\s*){2,}/i);
+    var plainBody = null, anyBody = null;
+    blocks.forEach(function (blk) {
+      var lines = blk.split(/<br\s*\/?>/i).filter(function (l) { return _text(l); });
+      lines.forEach(function (l, i) {
+        var t = _norm(_text(l));
+        if (/class="[^"]*\bmp-attire\b/.test(l)) { if (!out.attire) out.attire = t; return; }
+        if (titled && i === 0) { if (!out.title) out.title = t; return; }
+        if (!anyBody) anyBody = t;
+        if (!plainBody && !/<[a-z]/i.test(l)) plainBody = t;
+      });
+    });
+    out.body = plainBody || anyBody;
+    return out;
+  }
+
+  /* The first visible text node holding the sample, or holding the start of it
+     (a line the couple formatted in parts is split across several nodes). */
+  function _findText(sample, roots) {
+    if (!sample || sample.length < 2) return null;
+    var probe = sample.slice(0, 40);
+    for (var r = 0; r < roots.length; r++) {
+      var tw = document.createTreeWalker(roots[r], NodeFilter.SHOW_TEXT, null);
+      var n;
+      while ((n = tw.nextNode())) {
+        var t = _norm(n.textContent);
+        if (t.length < 2) continue;
+        if (t.indexOf(probe) === -1 && probe.indexOf(t) !== 0) continue;
+        var el = n.parentElement;
+        if (!el || !el.getClientRects().length) continue;
+        return n;
+      }
+    }
+    return null;
+  }
+
+  function _designStyle(node, wholeText) {
+    var el = node.parentElement;
+    while (el && _COUPLE_TAG.test(el.tagName) && !el.getAttribute('class')) {
+      if (wholeText && _norm(el.textContent) === wholeText) break;
+      el = el.parentElement;
+    }
+    if (!el) return null;
+    var cs = getComputedStyle(el);
+    var underline = false, a = el;
+    for (var hop = 0; a && hop < 4; hop++, a = a.parentElement) {
+      if (/underline/.test(getComputedStyle(a).textDecorationLine || '')) { underline = true; break; }
+    }
+    return {
+      font: (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim(),
+      weight: cs.fontWeight || '', italic: cs.fontStyle || '',
+      caps: cs.textTransform || '', underline: underline,
+      size: cs.fontSize || '', color: cs.color || ''
+    };
+  }
+
+  function _boxStyles(d) {
+    var out = {};
+    if (!d) return out;
+    Object.keys(BOX_FIELDS).forEach(function (key) {
+      var html = d[BOX_FIELDS[key]];
+      if (key === 'travel' && d.accommodation_info) html = d.accommodation_info + '<br><br>' + (d.travel_info || '');
+      if (!_text(html)) return;
+      var roots = [];
+      (SECTION_ANCHORS[key] || []).concat(key === 'travel' ? (SECTION_ANCHORS.accommodations || []) : [])
+        .forEach(function (id) { var e = document.getElementById(id); if (e && roots.indexOf(e) === -1) roots.push(e); });
+      roots.push(document.body);
+      var want = _boxLines(html, !!BOX_TITLED[key]);
+      var res = {};
+      ['title', 'body', 'attire'].forEach(function (role) {
+        if (!want[role]) return;
+        var n = _findText(want[role], roots);
+        var st = n && _designStyle(n, role === 'title' ? want[role] : null);
+        if (st) res[role] = st;
+      });
+      if (Object.keys(res).length) out[key] = res;
+    });
+    return out;
+  }
+
+  function reportSectionHeadings(d) {
     if (!_isPreview) return;
     try {
       var out = {};
@@ -3143,7 +3250,8 @@
         type: 'MP_SECTION_HEADINGS', headings: out, template: _file,
         rsvpLine: _rsvpLine, registryGrid: _hasGifts,
         labelStyle: _labelStyle, titleStyle: _titleStyle,
-        questionStyle: _questionStyle
+        questionStyle: _questionStyle,
+        boxStyles: (function () { try { return _boxStyles(d); } catch (e) { return {}; } })()
       }, '*');
     } catch (e) {}
   }
@@ -7697,7 +7805,7 @@
     } catch (e) {}
 
     // After any rename, so the editor is told what the page ends up saying.
-    reportSectionHeadings();
+    reportSectionHeadings(d);
 
     // The template has just written the couple's real names over the sample
     // ones. Anything longer than the sample can overflow, so check now.

@@ -52,9 +52,19 @@ every change against the original files.
   that line in the script face in the Content box is part of the site-to-box
   work below.
 
+- MP-337, site to box: each Content box now shows the design's own treatment
+  of its lines, measured from the rendered page by the runtime (never from a
+  list): the body face, weight and slant (Pressed Petals' italic Our Story, the
+  italic FAQ answers, Coastal Chic's 300 weight), each box's own title style,
+  and the dress-code line in the script face where the site uses one. The
+  B/I/U buttons light from what the box shows, so I is lit inside default
+  italic. Turning it off writes font-style:normal, which the site honours -
+  verified end to end on Pressed Petals' Our Story. A whole-line bold title
+  now shows at the design's title weight in the box (it was forced to 400).
+  Known edge: a box italicised from its very first character still shows its
+  first line as a title in the box; the site does not treat it as one.
+
 **OPEN: needs a decision**
-- Defaults a couple cannot undo (Pressed Petals' italic Our Story and others
-  listed below). The editor needs a way to write "not italic".
 - Registry when emptied. Every live site has a registry link (built from its
   address), so "no words and no link" never happens. Choose: (a) keep it shown
   unless switched off, as today (suggested), or (b) hide it when it has no
