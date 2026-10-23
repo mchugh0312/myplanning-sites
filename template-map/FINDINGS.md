@@ -44,9 +44,15 @@ every change against the original files.
   other five "idle" controls were kept, because each colours hover states,
   focus rings, rules or a later RSVP step.
 
+- Cocktail Attire, narrowed (MP-337): only a dress-code line - the last line
+  of an event block, wholly italic, in a block that is not italic throughout -
+  gets the design's script face. A single italic word, or a whole box in
+  italics, stays italic in the body face; both used to turn into script. The
+  runtime tags the line (mp-attire) and six templates style the tag. Showing
+  that line in the script face in the Content box is part of the site-to-box
+  work below.
+
 **OPEN: needs a decision**
-- Cocktail Attire: should the box show the dress-code line in the script
-  face, or should the site honour the italic?
 - Defaults a couple cannot undo (Pressed Petals' italic Our Story and others
   listed below). The editor needs a way to write "not italic".
 - Registry when emptied. Every live site has a registry link (built from its

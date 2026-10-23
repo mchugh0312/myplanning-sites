@@ -304,7 +304,10 @@ body.hydrating{visibility:hidden;}
    detail, so it inherited the address styling instead. :last-child is the whole
    trick: a couple italicising a word mid-sentence is not the last thing in the
    detail, so it stays an italic word inline. */
-.wedding-col-meta em:last-child{
+/* The dress-code line, tagged mp-attire by the runtime: the last line of an
+   event block when that whole line is italic. Was em:last-child, which also
+   turned a single italic word at the end of a card into script (MP-337). */
+.wedding-col-meta :is(em,i).mp-attire{
   font-family:var(--display);
   font-size:1.05rem;
   font-style:normal;
@@ -429,7 +432,7 @@ body.hydrating{visibility:hidden;}
   color:var(--ink);
   font-weight:400;
 }
-.event-col-meta em:last-child{
+.event-col-meta :is(em,i).mp-attire{
   font-family:var(--display);
   font-size:1.05rem;
   font-style:normal;

@@ -50,16 +50,16 @@ Font variables the runtime config does not know: `--menu-font`.
 
 Wholly italic lines (dress codes, notes):
 
-- weddings_info "Cocktail Attire": page shows Ballet normal via `.wedding-card-detail em:last-child`
+- weddings_info "Cocktail Attire": page shows Ballet normal via `.wedding-card-detail :is(em, i).mp-attire`
 - events_info "Evening Casual": page shows Goudy italic
 
 ### CSS that restyles the couple's own tags
 
-- `.wedding-card-detail em:last-child` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
 
 ### Defaults imposed on body copy (must stay overridable)
 
-- other_events `em`: italic
+- other_events `em.mp-attire`: italic
 - faqs `div.ntk-answer`: italic (`.ntk-answer`)
 - things_to_do `div#thingsToDoText`: italic (`.ntk-answer`)
 
@@ -202,14 +202,14 @@ Font variables the runtime config does not know: `--menu-font`.
 
 Wholly italic lines (dress codes, notes):
 
-- events_info "Evening Casual": page shows La Belle Aurore normal via `.event-detail em:last-child`
+- events_info "Evening Casual": page shows La Belle Aurore normal via `.event-detail :is(em, i).mp-attire`
 
 ### CSS that restyles the couple's own tags
 
 - `.wedding-invite em` → font-family: var(--script); font-style: normal
 - `.wedding-invite i` → font-family: var(--script); font-style: normal
-- `.wedding-card-detail em:last-child` → font-family: var(--script); font-style: normal
-- `.event-detail em:last-child` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
 
 ### Defaults imposed on body copy (must stay overridable)
 
@@ -275,13 +275,13 @@ Font variables the runtime config does not know: `--menu-font`.
 
 Wholly italic lines (dress codes, notes):
 
-- weddings_info "Cocktail Attire": page shows Luxurious Script normal via `.wedding-card-detail em:last-child`
-- events_info "Evening Casual": page shows Luxurious Script normal via `.other-event-detail em:last-child`
+- weddings_info "Cocktail Attire": page shows Luxurious Script normal via `.wedding-card-detail :is(em, i).mp-attire`
+- events_info "Evening Casual": page shows Luxurious Script normal via `.other-event-detail :is(em, i).mp-attire`
 
 ### CSS that restyles the couple's own tags
 
-- `.wedding-card-detail em:last-child` → font-family: var(--script); font-style: normal
-- `.other-event-detail em:last-child` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
 
 ### Formatting survival
 
@@ -424,16 +424,16 @@ Font variables the runtime config does not know: `--menu-font`.
 
 Wholly italic lines (dress codes, notes):
 
-- weddings_info "Cocktail Attire": page shows Pinyon Script normal via `.event-card-detail em:last-child`
+- weddings_info "Cocktail Attire": page shows Pinyon Script normal via `.event-card-detail :is(em, i).mp-attire`
 
 ### CSS that restyles the couple's own tags
 
-- `.event-card-detail em:last-child` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
 
 ### Defaults imposed on body copy (must stay overridable)
 
 - story `p#storyText`: italic (`.story-text`)
-- wedding `em`: face Pinyon Script (`.event-card-detail em:last-child`)
+- wedding `em.mp-attire`: face Pinyon Script (`.event-card-detail :is(em, i).mp-attire`)
 - accommodations `div.accom-address`: italic (`.accom-address`)
 - travel `div.accom-address`: italic (`.accom-address`)
 - faqs `span.faq-icon`: face Arial
@@ -651,8 +651,8 @@ Wholly italic lines (dress codes, notes):
 ### CSS that restyles the couple's own tags
 
 - `.oval-title span` → font-family: var(--display); font-weight: 400
-- `.wedding-col-meta em:last-child` → font-family: var(--display); font-style: normal
-- `.event-col-meta em:last-child` → font-family: var(--display); font-style: normal
+- `i).mp-attire` → font-family: var(--display); font-style: normal
+- `i).mp-attire` → font-family: var(--display); font-style: normal
 
 ### Defaults imposed on body copy (must stay overridable)
 
@@ -727,7 +727,7 @@ Wholly italic lines (dress codes, notes):
 
 ### CSS that restyles the couple's own tags
 
-- `.itinerary-event-detail em:last-child` → font-family: var(--script); font-style: normal
+- `i).mp-attire` → font-family: var(--script); font-style: normal
 
 ### Defaults imposed on body copy (must stay overridable)
 

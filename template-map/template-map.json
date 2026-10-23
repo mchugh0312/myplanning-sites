@@ -940,17 +940,17 @@
     {
      "field": "weddings_info",
      "line": "Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Ballet",
      "style": "normal",
      "rules": [
-      ".wedding-card-detail em:last-child"
+      ".wedding-card-detail :is(em, i).mp-attire"
      ]
     },
     {
      "field": "events_info",
      "line": "Evening Casual",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Goudy",
      "style": "italic",
      "rules": []
@@ -960,7 +960,7 @@
   "imposed_on_body_copy": [
    {
     "section": "other_events",
-    "el": "em",
+    "el": "em.mp-attire",
     "flags": [
      "italic"
     ],
@@ -992,7 +992,7 @@
   ],
   "css_restyling_inline_tags": [
    {
-    "sel": ".wedding-card-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -3510,11 +3510,11 @@
     {
      "field": "events_info",
      "line": "Evening Casual",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "La Belle Aurore",
      "style": "normal",
      "rules": [
-      ".event-detail em:last-child"
+      ".event-detail :is(em, i).mp-attire"
      ]
     }
    ]
@@ -3572,7 +3572,7 @@
     }
    },
    {
-    "sel": ".wedding-card-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -3580,7 +3580,7 @@
     }
    },
    {
-    "sel": ".event-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -4623,21 +4623,21 @@
     {
      "field": "weddings_info",
      "line": "Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Luxurious Script",
      "style": "normal",
      "rules": [
-      ".wedding-card-detail em:last-child"
+      ".wedding-card-detail :is(em, i).mp-attire"
      ]
     },
     {
      "field": "events_info",
      "line": "Evening Casual",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Luxurious Script",
      "style": "normal",
      "rules": [
-      ".other-event-detail em:last-child"
+      ".other-event-detail :is(em, i).mp-attire"
      ]
     }
    ]
@@ -4652,7 +4652,7 @@
     }
    },
    {
-    "sel": ".wedding-card-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -4660,7 +4660,7 @@
     }
    },
    {
-    "sel": ".other-event-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -6975,11 +6975,11 @@
     {
      "field": "weddings_info",
      "line": "Cocktail Attire",
-     "el": "em",
+     "el": "em.mp-attire",
      "font": "Pinyon Script",
      "style": "normal",
      "rules": [
-      ".event-card-detail em:last-child"
+      ".event-card-detail :is(em, i).mp-attire"
      ]
     }
    ]
@@ -6998,13 +6998,13 @@
    },
    {
     "section": "wedding",
-    "el": "em",
+    "el": "em.mp-attire",
     "flags": [
      "face Pinyon Script"
     ],
     "example": "Cocktail Attire",
     "selectors": [
-     ".event-card-detail em:last-child"
+     ".event-card-detail :is(em, i).mp-attire"
     ]
    },
    {
@@ -7070,7 +7070,7 @@
     }
    },
    {
-    "sel": ".event-card-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",
@@ -10754,7 +10754,7 @@
     }
    },
    {
-    "sel": ".wedding-col-meta em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--display)",
@@ -10769,7 +10769,7 @@
     }
    },
    {
-    "sel": ".event-col-meta em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--display)",
@@ -12058,7 +12058,7 @@
     }
    },
    {
-    "sel": ".itinerary-event-detail em:last-child",
+    "sel": "i).mp-attire",
     "media": null,
     "props": {
      "font-family": "var(--script)",

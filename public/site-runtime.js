@@ -2889,6 +2889,40 @@
     return stack;
   }
 
+  /* The dress-code line: the LAST line of an event block, when that whole line
+     is italic. Tagged class="mp-attire" so a design can set it apart (six set
+     it in their script face). Those designs used to select em:last-child, which
+     also caught a single italic word at the end of any card - the couple
+     italicised one phrase and it turned into script (MP-337). A phrase inside
+     a line, or an italic line followed by more text, is no longer caught. */
+  function _markAttire(block) {
+    var lines = String(block).split(/(<br\s*\/?>)/i);
+    var l = -1;
+    for (var i = lines.length - 1; i >= 0; i -= 2) {
+      if (i % 2) continue;
+      if (_text(lines[i])) { l = i; break; }
+    }
+    if (l === -1) return block;
+    var line = lines[l].trim();
+    var tag = _wrapsWhole(line, 'em') ? 'em' : (_wrapsWhole(line, 'i') ? 'i' : null);
+    if (!tag) return block;
+    /* A line that is also the block's only line is its title, not a note. */
+    var first = -1;
+    for (var k = 0; k < lines.length; k += 2) if (_text(lines[k])) { first = k; break; }
+    if (first === l) return block;
+    /* Everything italic - the couple italicised the whole box - leaves no line
+       standing apart as a note, so nothing is tagged. */
+    var fl = lines[first].replace(/^<mp-title>|<\/mp-title>$/gi, '').trim();
+    if (_wrapsWhole(fl, 'em') || _wrapsWhole(fl, 'i')) return block;
+    if (/\bmp-attire\b/.test(line.slice(0, line.indexOf('>') + 1))) return block;
+    var open = line.match(new RegExp('^<' + tag + '\\b[^>]*>', 'i'))[0];
+    var tagged = /\bclass\s*=\s*"/i.test(open)
+      ? open.replace(/\bclass\s*=\s*"/i, 'class="mp-attire ')
+      : open.replace(new RegExp('^<' + tag, 'i'), '<' + tag + ' class="mp-attire"');
+    lines[l] = lines[l].replace(open, tagged);
+    return lines.join('');
+  }
+
   function markStructure(html) {
     if (!html || typeof html !== 'string') return html;
     var parts = html.split(/((?:<br\s*\/?>\s*){2,})/i);
@@ -2917,7 +2951,7 @@
       var block = carry.map(function (t) { return t.tag; }).join('') + parts[i];
       var open = _openTags(block);
       for (var c = open.length - 1; c >= 0; c--) block += '</' + open[c].name + '>';
-      parts[i] = markBlock(block);
+      parts[i] = _markAttire(markBlock(block));
       carry = open;
     }
     return parts.join('');

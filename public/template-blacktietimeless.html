@@ -215,7 +215,10 @@ img{max-width:100%;display:block;}
    .wedding-card-dress; the SEEDED copy carries its attire as a trailing <em>
    inside the detail, so it inherited the address styling instead. :last-child
    keeps a mid-sentence italic inline. */
-.wedding-card-detail em:last-child{
+/* The dress-code line, tagged mp-attire by the runtime: the last line of an
+   event block when that whole line is italic. Was em:last-child, which also
+   turned a single italic word at the end of a card into script (MP-337). */
+.wedding-card-detail :is(em,i).mp-attire{
   font-family:var(--script);
   font-size:1.5rem;
   font-style:normal;

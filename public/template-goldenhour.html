@@ -233,7 +233,10 @@ body.thumbnail-mode .hero-names-text{
    detail, so it inherited the address styling instead. :last-child is the whole
    trick: a couple italicising a word mid-sentence is not the last thing in the
    detail, so it stays an italic word inline. */
-.wedding-card-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
+/* The dress-code line, tagged mp-attire by the runtime: the last line of an
+   event block when that whole line is italic. Was em:last-child, which also
+   turned a single italic word at the end of a card into script (MP-337). */
+.wedding-card-detail :is(em,i).mp-attire{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
 .wedding-card-detail{font-family:var(--serif);font-size:0.82rem;color:rgba(255,255,255,0.88);color:color-mix(in srgb, var(--on-dark) 88%, transparent);line-height:2;}
 .wedding-card-dress{display:block;margin-top:1rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
@@ -243,7 +246,7 @@ body.thumbnail-mode .hero-names-text{
 .event-box{padding:2rem 1.75rem;text-align:center;margin-bottom:1.5rem;
   border:1px solid rgba(255,255,255,0.45);}
 .event-name{font-family:var(--script);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--on-dark);margin-bottom:1.4rem;line-height:1.2;}
-.event-detail em:last-child{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
+.event-detail :is(em,i).mp-attire{font-family:var(--script);font-size:1.1rem;font-style:normal;line-height:1.3;}
 .event-detail{font-family:var(--serif);font-size:0.83rem;color:rgba(255,255,255,0.88);color:color-mix(in srgb, var(--on-dark) 88%, transparent);line-height:2;}
 .event-dress{display:block;margin-top:1.2rem;font-family:var(--script);font-size:1.1rem;color:rgba(255,255,255,0.8);}
 
