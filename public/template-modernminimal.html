@@ -1059,7 +1059,7 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'modernminimal:f4870a2b';
+    window.__mpTemplate = 'modernminimal:d7cca6d8';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1163,7 +1163,9 @@ body.thumbnail-mode .site-nav{gap:0.8rem 1.2rem;}
     <a href="#hero"            onclick="handleNavClick(this)" class="active">Home</a>
     <a href="#events-primary"  onclick="handleNavClick(this)">The Main Event</a>
     <a href="#other-events"    onclick="handleNavClick(this)">Other Events</a>
-    <a href="#accommodations"  onclick="handleNavClick(this)">Travel</a>
+    <!-- #travel-section: where this design draws hotel and flights. It pointed at
+         #accommodations, an always-hidden placeholder, so Travel did nothing. -->
+    <a href="#travel-section"  onclick="handleNavClick(this)">Travel</a>
     <a href="#faq-section"     onclick="handleNavClick(this)">FAQs</a>
     <a href="#registry-section" onclick="handleNavClick(this)">Registry</a>
     <a href="#rsvp"            onclick="handleNavClick(this)">RSVP</a>
@@ -1925,7 +1927,10 @@ function _buildNav(menu, rsvpOn, d){
        section with a single toggle and a single box of copy now, so a second
        link would point at half of it - and on the designs where both entries
        showed, a couple saw two menu items for one thing. */
-    { show: !!(menu.accommodations || menu.travel),      href:'#accommodations',    label:'Travel' },
+    /* #travel-section, where this design draws hotel AND flights. #accommodations
+       is only an empty, always-hidden anchor here, so the link scrolled to
+       nothing and Travel appeared to do nothing, live and in the preview. */
+    { show: !!(menu.accommodations || menu.travel),      href:'#travel-section',    label:'Travel' },
     { show: !!(menu.faqs || menu.things_to_do),         href:'#faq-section',       label:'FAQs'        },
     // Things to Do has its own section now, so it gets its own entry.
     { show: !!menu.things_to_do,                              href: '#things-to-do',    label: 'Things to Do'   },

@@ -7773,7 +7773,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-hero-pair';
+  var MP_RUNTIME_BUILD = '2026-10-23-booking-travel-link';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7883,6 +7883,18 @@
     try {
       if (d.menu_config && typeof d.menu_config === 'object' && 'travel' in d.menu_config) {
         d.menu_config.accommodations = d.menu_config.travel;
+      }
+    } catch (e) {}
+    /* MP-919. ONE booking link, under the hotel, as in the editor (one box) and
+       its preview. A backend that sends it as the flights link as well, or an
+       old separate hotel link beside it, drew two Book Now buttons live against
+       one in the preview. The couple's link is the hotel's; no flights link. */
+    try {
+      if (d.travel_url) {
+        // Travel URL is where the editor saves the couple's link; an older
+        // separate hotel link beside it is stale and gives way.
+        d.accommodation_url = d.travel_url;
+        d.travel_url = '';
       }
     } catch (e) {}
     if (_designRsvpLine === null) {

@@ -387,6 +387,21 @@ every change against the original files.
   order by accident; real https photos are left where the template puts them.
   Re-tested with real web addresses.
 
+- MP-919, re-opened: two Book Now live, one in the preview. The editor has one
+  booking-link box (saved to Travel URL) and its preview sends it as the hotel
+  link only; the live payload sent Travel URL as the FLIGHTS link and the old
+  Accomodation URL column as the hotel link. main.py and the runtime now both
+  send one link - the couple's - under the hotel. One button on all ten.
+- Modern Minimal's Travel menu link did nothing, live and in the preview: its
+  nav pointed at #accommodations, an always-hidden anchor on this design (the
+  content is in #travel-section). Older suite checks pinned that target; they
+  now require #travel-section.
+- MP-923: the editor now logs what the event-order request returns ([MP-923]
+  in the browser console) - HTTP status, or each event with its sequence and
+  date - to tell an undeployed endpoint from events that have nothing to order by.
+- The password-site "Your celebration is loading" flash is NOT in any file here
+  (the runtime's own screen says "awaits"): it is the landing page, index.html.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

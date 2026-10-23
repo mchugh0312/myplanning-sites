@@ -4685,7 +4685,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'f9bc1f6e');
+    ('0000000' + h.toString(16)).slice(-8), 'b1c1d557');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5146,7 +5146,9 @@ check('two blocks -> two cards', blocks(mark(
        the live site, so its Book Now never rendered while the preview showed
        it. The same shape as the two colour columns. */
     check('the hotel link falls back to the column the editor writes',
-      /"accommodation_url":\s*_clean_url\(_cf\(wedding, CF_ACCOMMODATION_URL, ""\)\)\s*\n\s*or _clean_url\(_cf\(wedding, CF_TRAVEL_URL, ""\)\)/.test(py), true);
+      /* MP-919: the editor's column FIRST now - it is the couple's link; the old
+         Accomodation URL column is only a fallback for records that predate it. */
+      /"accommodation_url":\s*_clean_url\(_cf\(wedding, CF_TRAVEL_URL, ""\)\)\s*\n\s*or _clean_url\(_cf\(wedding, CF_ACCOMMODATION_URL, ""\)\)/.test(py), true);
     /* The two constants still name different columns - the fallback is a
        fallback, not a reason to point them at one place. */
     check('they remain two distinct columns',
@@ -7424,7 +7426,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-hero-pair');
+  check('the stamp names the change it shipped with', version, '2026-10-23-booking-travel-link');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7434,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'afa0fe22');
+    ('0000000' + bh.toString(16)).slice(-8), '976f5b26');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -8462,7 +8464,9 @@ check('two blocks -> two cards', blocks(mark(
   /* Three, not four. Accommodations and Travel merged into one entry after
      this gate was written; the two event sections are still separate here. */
   for (const [key, href] of [['wedding', '#events-primary'], ['other_events', '#other-events'],
-                             ['travel', '#accommodations']]) {
+                             /* #travel-section: where the Travel content is drawn.
+                                #accommodations is an always-hidden anchor here. */
+                             ['travel', '#travel-section']]) {
     const on = build(Object.assign({}, OFF, { [key]: true }), false, {});
     const shown = on.filter(l => l.show).map(l => l.href);
     check('modernminimal links ' + href + ' when only ' + key + ' is on',
@@ -8476,16 +8480,18 @@ check('two blocks -> two cards', blocks(mark(
                       accommodations: true, travel: true }, false, {})
     .filter(l => l.show).map(l => l.href);
   check('all three sections are reachable at once',
-    ['#events-primary', '#other-events', '#accommodations']
+    ['#events-primary', '#other-events', '#travel-section']
       .every(h => all.indexOf(h) > -1), true);
   check('and the merged pair is offered once, not twice',
     all.filter(h => h === '#accommodations' || h === '#travel-section').length, 1);
   // The shipped nav is what shows before hydrate; it must agree.
   const staticHrefs = (mm.match(/<a href="#[a-z-]+"/g) || []).map(x => x.slice(9, -1));
   check('the shipped nav offers them too',
-    ['#other-events', '#accommodations'].every(h => staticHrefs.indexOf(h) > -1), true);
+    ['#other-events', '#travel-section'].every(h => staticHrefs.indexOf(h) > -1), true);
   check('and does not still ship the second one',
-    staticHrefs.indexOf('#travel-section'), -1);
+    /* #accommodations is an always-hidden anchor on this design now - the
+       Travel content is in #travel-section - so a link to it scrolled nowhere. */
+    staticHrefs.indexOf('#accommodations'), -1);
 }
 
 // ── Golden Hour: the invitation belongs to the hero ───────────────────────
@@ -9644,6 +9650,24 @@ check('two blocks -> two cards', blocks(mark(
      the couple's own and are left exactly where the template put them. */
   check('MP-942 the pair takes the 2nd and 3rd photographs',
     /_pa\.src = _gal\[1\];\s*\n\s*_pb\.src = _gal\[2\] \|\| _gal\[1\];/.test(mm) && !/_pa\.src = _gal\[0\];/.test(mm), true);
+}
+
+
+// ── MP-919 one booking link live; Modern Minimal's Travel link ───────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* One link, under the hotel, as in the editor and its preview: live data sent
+     the couple's link as the flights link AND an old hotel link beside it. */
+  check('MP-919 the runtime keeps one booking link, the couple\'s, for the hotel',
+    /d\.accommodation_url = d\.travel_url;\s*\n\s*d\.travel_url = '';/.test(rt), true);
+  check('and the live payload sends it that way',
+    /"travel_url":\s+"",/.test(py) && /"accommodation_url":\s+_clean_url\(_cf\(wedding, CF_TRAVEL_URL, ""\)\)/.test(py), true);
+  /* Modern Minimal's menu pointed Travel at #accommodations, an always-hidden
+     anchor on this design - the link did nothing, live and in the preview. */
+  const mm = fs.readFileSync('template-modernminimal.html', 'utf8');
+  check('Modern Minimal\'s Travel link goes to its Travel section',
+    /href:'#travel-section',\s+label:'Travel'/.test(mm) && !/href:'#accommodations',\s+label:'Travel'/.test(mm), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
