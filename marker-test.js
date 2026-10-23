@@ -5922,8 +5922,10 @@ check('two blocks -> two cards', blocks(mark(
 
   /* The five that make it a control rather than a line of text. Each one is
      what a heading style would otherwise impose. */
+  /* text-transform still wins over the template - now as NONE: the button
+     reads "Purchase This Item" as written on every design (decided). */
   for (const prop of ['display:inline-block', 'font-size:0.75rem',
-                      'line-height:1.4', 'width:auto', 'text-transform:uppercase']) {
+                      'line-height:1.4', 'width:auto', 'text-transform:none']) {
     check(prop + ' wins over the template',
       new RegExp(prop.replace(/[.[\]]/g, '\\$&') + '!important').test(rule), true);
   }
@@ -7419,7 +7421,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-hero-frames');
+  check('the stamp names the change it shipped with', version, '2026-10-23-purchase-case');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7427,7 +7429,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '22bd4a29');
+    ('0000000' + bh.toString(16)).slice(-8), 'a788f263');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9604,6 +9606,18 @@ check('two blocks -> two cards', blocks(mark(
      section it was invisible though clickable. */
   check('MP-953 Vintage Love Story\'s Book Now is drawn in Travel\'s ink',
     /\.travel-cta\{color:var\(--ink\);border-color:var\(--ink\);background:transparent;\}/.test(vls), true);
+}
+
+
+// ── "Purchase This Item" on every design ─────────────────────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('the gift button is written "Purchase This Item"',
+    (rt.match(/Purchase This Item/g) || []).length >= 2 && !/>Purchase this Item</.test(rt) && !/: 'Purchase this Item'\)/.test(rt), true);
+  check('and its case is not copied from the design',
+    !/'letter-spacing', 'text-transform', 'text-decoration-line',/.test(rt), true);
+  check('Modern Minimal\'s own sample buttons match',
+    !/>Purchase this Item</.test(fs.readFileSync('template-modernminimal.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

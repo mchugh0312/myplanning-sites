@@ -360,8 +360,13 @@ every change against the original files.
   which is cream on the dark registry band - invisible on the light Travel
   section though clickable. Drawn in Travel's ink now, sized for the column.
 - Registry text without spaces wraps on all ten (desktop and phone) since the
-  long-word fix. "Purchase this item" is in capitals on nine designs; Modern
-  Minimal alone is mixed case - awaiting a decision on one style.
+  long-word fix. "Purchase This Item" decided - see below.
+
+- Decided: the gift button reads "Purchase This Item" on every design. It was
+  forced to capitals by the runtime's fallback button rule (nine designs) while
+  Modern Minimal's own grid skipped that rule. Now written in title case and
+  shown as written on all ten. (Noted: on Golden Hour the gift button draws as
+  plain text, not an outlined button - unchanged, flagged.)
 
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,

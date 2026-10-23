@@ -6186,7 +6186,7 @@
              a span was never found, never given an href, and clicking it did
              nothing. Every gift in the grid this function builds had a dead
              button. */
-          '<a class="registry-buy-btn" href="#">Purchase this Item</a>';
+          '<a class="registry-buy-btn" href="#">Purchase This Item</a>';
         grid.appendChild(card);
       }
       /* Its own band, carrying the section's background colour so the seam does
@@ -6665,7 +6665,11 @@
          - colour, face, the card around it - is still the template's. */
       '#registryGrid[data-mp-built] .registry-buy-btn{display:inline-block!important;' +
       'font-size:0.75rem!important;line-height:1.4!important;' +
-      'width:auto!important;text-transform:uppercase!important;' +
+      /* text-transform:none - "Purchase This Item" as written on every design
+         (it was forced to capitals here, which is why nine designs showed
+         PURCHASE THIS ITEM and Modern Minimal, whose own grid skips this rule,
+         did not). */
+      'width:auto!important;text-transform:none!important;' +
         'letter-spacing:0.08em;text-decoration:none;max-width:100%;' +
         'color:' + _btnInk + ';border:1px solid ' + _btnInk + ';' +
         'border-radius:999px;padding:0.45rem 1rem}' +
@@ -6756,8 +6760,12 @@
       var _solid = _bg && !/transparent/i.test(_bg) &&
                    !/rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(_bg);
 
+      /* Not text-transform: the gift buttons read "Purchase This Item" as
+         written on every design. Copying the design's case set them in
+         capitals on nine templates and not on Modern Minimal - one button, two
+         wordings. Font, colour, border and padding still come from the design. */
       var css = ['font-family', 'font-size', 'font-weight', 'font-style',
-                 'letter-spacing', 'text-transform', 'text-decoration-line',
+                 'letter-spacing', 'text-decoration-line',
                  'color', 'background-color', 'border-top-width',
                  'border-top-style', 'border-top-color', 'border-radius',
                  'padding-top', 'padding-right', 'padding-bottom', 'padding-left']
@@ -6927,7 +6935,7 @@
       btn.setAttribute('target', '_blank');
       btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
-      btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase this Item');
+      btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase This Item');
       card.classList.toggle('mp-reg-gifted', !!soldOut);
     }
   }
@@ -7091,6 +7099,10 @@
        every design. Long words now break where they must; ordinary text,
        which always has somewhere to wrap, is unaffected. */
     'body{overflow-wrap:break-word}' +
+    /* "Purchase This Item", as written, on every design: nine set the gift
+       buttons in capitals and Modern Minimal did not, so the same button read
+       two ways across the templates. */
+    'html body #registryGrid a.registry-buy-btn,html body #registryGrid .registry-btn{text-transform:none!important}' +
     /* Where the copy sits in a flex or grid layout, "break if needed" is not
        enough - the layout first sizes the box to the whole word - so these
        boxes may also shrink to the screen and break inside a word. */
@@ -7757,7 +7769,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-hero-frames';
+  var MP_RUNTIME_BUILD = '2026-10-23-purchase-case';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
