@@ -225,6 +225,13 @@ every change against the original files.
   browser leaves are not saved. The runtime no longer reports a couple's
   underline round a whole title as the design's title style.
 
+- The eraser (Clear formatting) clears the selected words only, or the whole
+  section when nothing is selected - as its hint now says. It used to read the
+  selection through window.getSelection(), which cannot see into Softr's
+  shadow root, so it always cleared and selected the whole section. The
+  selection is also kept through it, so bold on the same words as a font is
+  removed too.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

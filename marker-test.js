@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'd86078f6');
+    ('0000000' + h.toString(16)).slice(-8), 'ad2fa020');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5343,13 +5343,16 @@ check('two blocks -> two cards', blocks(mark(
 {
   const { JSDOM } = (() => { try { return require('jsdom'); } catch (e) { return {}; } })();
   const wt = fs.readFileSync('Website.txt', 'utf8');
-  check('the strip exists', /const _stripFonts = \(host\) =>/.test(wt), true);
+  /* It takes the range to work in now - the selected words, or null for the
+     whole section - because reading window.getSelection() inside it could not
+     see into Softr's shadow root and always stripped the whole section. */
+  check('the strip exists', /const _stripFonts = \(host, range\) =>/.test(wt), true);
   check('and the eraser calls it before removeFormat',
-    /_stripFonts\(host\);\s*\n\s*exec\("removeFormat"\);/.test(wt), true);
+    /_stripFonts\(host, hasSel \? picked : null\);[\s\S]{0,1400}exec\("removeFormat"\);/.test(wt), true);
 
   if (!JSDOM) { check('eraser behaviour (jsdom not installed - SKIPPED)', true, true); }
   else {
-    const src = wt.slice(wt.indexOf('const _stripFonts = (host) =>'),
+    const src = wt.slice(wt.indexOf('const _stripFonts = (host, range) =>'),
                          wt.indexOf('  const exec = (cmd) =>'));
     const dom = new JSDOM('<!doctype html><body><div id=h></div></body>');
     const host = dom.window.document.getElementById('h');
@@ -5454,11 +5457,13 @@ check('two blocks -> two cards', blocks(mark(
   check('both fields are still saved',
     /applyChanges\(\{ showRSVP: c, rsvpEnabled: c \}\)/.test(wt), true);
 
-  /* MP-917. The eraser strips fonts. It cannot strip colours - there is no
-     colour control at the content level - so saying it does describes a thing
-     the button has never done. */
+  /* MP-917. The tooltip claims only what the button does. It clears fonts and
+     sizes (_stripFonts) AND bold, italic and underline (removeFormat, which
+     always ran after it), from the selected words - or the whole section when
+     nothing is selected, which it now actually honours. Not colours: there is
+     no colour control at the content level. */
   check('the eraser tooltip claims only what it does',
-    /title="Strip fonts, so this matches your template"/.test(wt), true);
+    /title="Clear formatting — the selected words, or the whole section if nothing is selected"/.test(wt), true);
   check('and no longer mentions colours',
     /Strip fonts and colours/.test(wt), false);
 }
@@ -7385,7 +7390,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-caret-format');
+  check('the stamp names the change it shipped with', version, '2026-10-23-eraser-selection');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9356,6 +9361,21 @@ check('two blocks -> two cards', blocks(mark(
   const rt = fs.readFileSync('site-runtime.js', 'utf8');
   check('only <strong>/<b> round a whole title counts as the design\'s',
     /\/\^\(STRONG\|B\)\$\/\.test\(el\.tagName\) && _norm\(el\.textContent\) === wholeText/.test(rt), true);
+}
+
+
+// ── The eraser works on the selected words (as tested) ───────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* It decided "nothing selected" through window.getSelection(), which cannot
+     see into Softr's shadow root, so it always selected and cleared the whole
+     section. It asks the shadow-aware selection now. */
+  check('the eraser reads the selection where the box lives',
+    /const picked = _liveRangeInBox\(\);/.test(ws) && /if \(!hasSel\) \{/.test(ws), true);
+  /* Taking a font off unwraps its span and drops the selection; it is put back
+     before removeFormat, or bold on the same words would survive. */
+  check('and keeps the selection through it, for removeFormat',
+    /if \(done\) \{ const sel = _win\(\)\.getSelection\(\); sel\.removeAllRanges\(\); sel\.addRange\(r\); \}/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
