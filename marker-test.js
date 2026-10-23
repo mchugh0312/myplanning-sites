@@ -2779,19 +2779,22 @@ check('two blocks -> two cards', blocks(mark(
     (rt.match(/heroSlots: 3,/g) || []).length, 2);
   check('the runtime fills the slots before hydrating',
     /var _slots = CFG\.heroSlots \|\| 0;/.test(rt) &&
-    /_filled\.push\(_own\[_i % _own\.length\]\)/.test(rt), true);
+    /_filled\.push\(_rest\[\(_i - 1\) % _rest\.length\]\)/.test(rt), true);
   // A carousel takes as many as it is given; padding would loop one photo.
   check('a design without a fixed count is not padded',
     /if \(_slots > 1 && _own\.length && _own\.length < _slots\)/.test(rt), true);
   {
     const fill = (slots, own) => {
       if (!(slots > 1 && own.length && own.length < slots)) return own;
-      const out = [];
-      for (let i = 0; i < slots; i++) out.push(own[i % own.length]);
+      /* MP-942: the hero first, then the OTHER photographs; the hero repeats
+         only when it is the only one. */
+      const rest = own.length > 1 ? own.slice(1) : own;
+      const out = [own[0]];
+      for (let i = 1; i < slots; i++) out.push(rest[(i - 1) % rest.length]);
       return out;
     };
     check('one photo fills three slots', fill(3, ['a']), ['a', 'a', 'a']);
-    check('two photos alternate', fill(3, ['a', 'b']), ['a', 'b', 'a']);
+    check('two photos: the second repeats, not the hero', fill(3, ['a', 'b']), ['a', 'b', 'b']);
     check('three are used once each', fill(3, ['a', 'b', 'c']), ['a', 'b', 'c']);
     check('more than the slots is left alone', fill(3, ['a', 'b', 'c', 'd']), ['a', 'b', 'c', 'd']);
     check('no photos stays empty, so the gate still blocks', fill(3, []), []);
@@ -4679,7 +4682,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '7bc5074a');
+    ('0000000' + h.toString(16)).slice(-8), 'f9bc1f6e');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7416,7 +7419,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-carousel-buttons');
+  check('the stamp names the change it shipped with', version, '2026-10-23-hero-frames');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7424,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '66d900f9');
+    ('0000000' + bh.toString(16)).slice(-8), '22bd4a29');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9555,6 +9558,52 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-939 the hero has previous and next arrows',
     /id="carouselPrev"[^>]*onclick="shiftCarousel\(-1, true\)"/.test(hb) && /id="carouselNext"[^>]*onclick="shiftCarousel\(1, true\)"/.test(hb), true);
   check('and moves itself every 3 seconds', /setInterval\(function\(\)\{ shiftCarousel\(1\); \}, 3000\)/.test(hb), true);
+}
+
+
+// ── Loading screen font, long words, RSVP event order (as tested) ────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* The loading screen never falls back to 'cursive' (Comic Sans on Windows
+     while the script face downloads), and holds its words until the face is in. */
+  const sl = rt.slice(rt.indexOf('function showLoading()'), rt.indexOf('function showLoading()') + 4000);
+  check('the loading screen has no cursive fallback',
+    /replace\(\/,\\s\*cursive\\s\*\$\/i, ''\) \+ ', Georgia, serif'/.test(sl), true);
+  check('and shows its words only once the face is ready',
+    /visibility:hidden;animation:mpPulse/.test(sl) && /document\.fonts\.load\(/.test(sl) && /setTimeout\(_show, 1200\)/.test(sl), true);
+  /* A word too long for its line breaks rather than running off the side. */
+  check('MP-941 long words wrap', /'body\{overflow-wrap:break-word\}'/.test(rt) &&
+    /#registryInfo,#registryText,#registryBody,\.story-col,#storyText,#heroDescription\{overflow-wrap:anywhere\}/.test(rt), true);
+  /* MP-923. The RSVP settings follow the RSVP form's order. */
+  check('MP-923 the backend gives a celebration\'s events in RSVP order',
+    /@app\.get\("\/celebration\/\{celebration_id\}\/event-order"\)/.test(py) &&
+    /out\.sort\(key=lambda e: \(0 if e\["sort_order"\] is not None else 1,/.test(py), true);
+  check('and the editor lists them in that order',
+    /\/celebration\/\$\{encodeURIComponent\(_celebRecordId\)\}\/event-order/.test(ws) &&
+    /r: eventOrder \? eventOrder\.indexOf\(e\.id\) : -1/.test(ws), true);
+  /* Hooks above the component's first return, never inside a callback. */
+  const hookAt = ws.indexOf('const [eventOrder, setEventOrder] = useState(null);');
+  check('the order is fetched where hooks are allowed',
+    hookAt > ws.indexOf('  const currentData = celebration ?') &&
+    hookAt < ws.slice(ws.indexOf('export default function Block(')).search(/\n  return \(\r?\n/) + ws.indexOf('export default function Block('), true);
+}
+
+
+// ── MP-942 hero frames; MP-953 Vintage Love Story's Book Now is visible ──
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* The first frame is the hero; the others cycle the OTHER photographs and
+     only repeat the hero when it is the only one (A B B, not A B A). */
+  check('MP-942 fixed hero frames repeat another photo before the hero',
+    /var _rest = _own\.length > 1 \? _own\.slice\(1\) : _own;/.test(rt) &&
+    /_filled\.push\(_rest\[\(_i - 1\) % _rest\.length\]\)/.test(rt), true);
+  const vls = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  /* It copied the registry button, drawn cream-on-dark; on the light Travel
+     section it was invisible though clickable. */
+  check('MP-953 Vintage Love Story\'s Book Now is drawn in Travel\'s ink',
+    /\.travel-cta\{color:var\(--ink\);border-color:var\(--ink\);background:transparent;\}/.test(vls), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

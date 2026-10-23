@@ -335,6 +335,34 @@ every change against the original files.
   longer measured in the editor scenario (the page no longer shows the
   "[your RSVP date]" hint there).
 
+- Password-protected sites flashed "Your celebration awaits" in Comic Sans:
+  the loading screen's font list ended in the generic 'cursive', which Windows
+  draws as Comic Sans while the script face downloads - and a protected site
+  always passes through this screen (its data is not cached before the
+  password). The fallback is Georgia now, and the words stay hidden until the
+  template's face has loaded (at most 1.2s). Seven of the ten designs ended in
+  'cursive'.
+- MP-941, as tested: a word too long for its line (a pasted link, an unbroken
+  test string) ran off the side - the Registry and hero text on Modern Minimal,
+  and Our Story / FAQs / Registry on a phone on every design. Long words break
+  now; zero overflows across all ten at desktop and phone width.
+- MP-923 (RSVP settings event order): new endpoint in main.py,
+  GET /celebration/{id}/event-order, returning the celebration's events in the
+  RSVP form's order (Event Sequence, then date, then name - the same events and
+  the same rule the site uses). The editor fetches it and orders the list;
+  anything it does not return keeps its place after.
+
+- MP-942, decided and done: fixed hero frames (Modern Minimal, Golden Hour)
+  put the hero first and then cycle the couple's OTHER photographs, repeating
+  the hero only when it is the only one - two photos give A B B (were A B A).
+  Coastal Chic's Travel photo already took the second.
+- MP-953, as tested: Vintage Love Story's Book Now copied the registry button,
+  which is cream on the dark registry band - invisible on the light Travel
+  section though clickable. Drawn in Travel's ink now, sized for the column.
+- Registry text without spaces wraps on all ten (desktop and phone) since the
+  long-word fix. "Purchase this item" is in capitals on nine designs; Modern
+  Minimal alone is mixed case - awaiting a decision on one style.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

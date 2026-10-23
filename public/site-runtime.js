@@ -7085,6 +7085,16 @@
        everything to fit: the hero narrower than the screen, a gap on its right.
        Clipped to the screen now; the drawer still slides in, inside it. */
     '.menu-overlay{overflow:hidden}' +
+    /* MP-941, as tested. A word too long for its line - a pasted link, an
+       unbroken test string - ran off the side instead of wrapping: the Registry
+       text on Modern Minimal, and Our Story, FAQs and Registry on a phone on
+       every design. Long words now break where they must; ordinary text,
+       which always has somewhere to wrap, is unaffected. */
+    'body{overflow-wrap:break-word}' +
+    /* Where the copy sits in a flex or grid layout, "break if needed" is not
+       enough - the layout first sizes the box to the whole word - so these
+       boxes may also shrink to the screen and break inside a word. */
+    '#registryInfo,#registryText,#registryBody,.story-col,#storyText,#heroDescription{overflow-wrap:anywhere}' +
     /* 100vw is the VIEWPORT, and the viewport includes the vertical scrollbar -
        so on any page long enough to scroll, a 100vw element is wider than the
        space actually available and the page gains a thin horizontal scroll.
@@ -7747,7 +7757,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-carousel-buttons';
+  var MP_RUNTIME_BUILD = '2026-10-23-hero-frames';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8005,8 +8015,14 @@
         var _slots = CFG.heroSlots || 0;
         var _own = (d && Array.isArray(d.hero_images)) ? d.hero_images.filter(Boolean) : [];
         if (_slots > 1 && _own.length && _own.length < _slots) {
-          var _filled = [];
-          for (var _i = 0; _i < _slots; _i++) _filled.push(_own[_i % _own.length]);
+          /* MP-942. The first slot is the hero; the others cycle through the
+             couple's OTHER photographs, and only fall back on the hero when it
+             is the only one. Cycling all of them put the hero straight back
+             in the third frame - hero, second, hero - when the second photo was
+             right there to repeat instead: now hero, second, second. */
+          var _rest = _own.length > 1 ? _own.slice(1) : _own;
+          var _filled = [_own[0]];
+          for (var _i = 1; _i < _slots; _i++) _filled.push(_rest[(_i - 1) % _rest.length]);
           d = Object.assign({}, d, { hero_images: _filled });
         }
       } catch (e) {}
@@ -8157,6 +8173,13 @@
      ========================================================================== */
   function showLoading() {
     var p = CFG.loading || CFG.palette;
+    /* Never the generic 'cursive' as the fallback: while the template's script
+       face is still downloading, Windows draws 'cursive' as Comic Sans, and a
+       password-protected site - which always shows this screen while its data
+       is fetched - opened on a large Comic Sans "Your celebration awaits".
+       Georgia stands in instead, and the words are held back (below) until
+       the real face is ready. */
+    var _face = String(CFG.fonts.display || '').replace(/,\s*cursive\s*$/i, '') + ', Georgia, serif';
     document.body.innerHTML =
       '<style>@keyframes mpPulse{0%,100%{opacity:0.35}50%{opacity:1}}' +
       // The motif is static — no rotation, no pulse.
@@ -8168,8 +8191,8 @@
           ? '<img class="mp-motif" src="' + CFG.loadingImage + '" alt="" ' +
             'style="width:72px;height:72px;object-fit:contain">'
           : '') +
-        '<p style="font-family:' + CFG.fonts.display + ';font-size:1.6rem;margin:0;' +
-          'animation:mpPulse 2.2s ease-in-out infinite">Your celebration awaits</p>' +
+        '<p id="mp-loading-words" style="font-family:' + _face.replace(/"/g, '&quot;') + ';font-size:1.6rem;margin:0;' +
+          'visibility:hidden;animation:mpPulse 2.2s ease-in-out infinite">Your celebration awaits</p>' +
         '<div style="width:120px;height:1px;background:' + p.rule + ';position:relative;overflow:hidden;border-radius:999px">' +
           '<div style="position:absolute;left:-100%;top:0;width:100%;height:100%;background:' + p.accent + ';' +
             'animation:mpSlide 1.8s ease-in-out infinite"></div>' +
@@ -8177,6 +8200,23 @@
       '</div>';
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
+    /* The words appear once the template's own face is loaded - or after
+       1.2s, in Georgia - never in a stand-in face first. */
+    var _shown = false;
+    var _show = function () {
+      if (_shown) return; _shown = true;
+      var w = document.getElementById('mp-loading-words');
+      if (w) w.style.visibility = 'visible';
+    };
+    setTimeout(_show, 1200);
+    try {
+      var first = (String(CFG.fonts.display || '').match(/'([^']+)'/) || [])[1];
+      if (first && document.fonts && document.fonts.load) {
+        document.fonts.load('1.6rem "' + first + '"').then(function (list) {
+          if (list && list.length) _show();
+        }, function () {});
+      } else { _show(); }
+    } catch (e) { _show(); }
   }
 
   /* ==========================================================================

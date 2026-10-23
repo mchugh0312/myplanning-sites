@@ -1130,6 +1130,15 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
   transition:background 0.25s, color 0.25s;
 }
 .travel-cta{margin-top:1.1rem;text-decoration:none;}
+/* MP-953, as tested: the registry button it copies is drawn for the dark
+   registry band - cream text, cream border - so on the light Travel section it
+   was invisible, though it still worked when clicked. Travel's own ink here;
+   on hover it softens - a text colour may not fill a panel, nor a background
+   colour letter text. */
+.travel-cta{color:var(--ink);border-color:var(--ink);background:transparent;}
+/* Sized for the Travel column, not the registry band's large oval. */
+.travel-cta{font-size:1rem!important;padding:0.5rem 1.6rem!important;min-height:0!important;width:auto!important;height:auto!important;}
+.travel-cta:hover,.travel-cta:focus-visible{opacity:0.7;}
 @media (max-width:768px){.travel-cta{min-height:44px;padding:0.7rem 2rem;
     display:inline-flex;align-items:center;justify-content:center;}}
 /* Our Story as one block flowing across two columns (MP-333): the couple's
@@ -1163,7 +1172,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:37b78759';
+    window.__mpTemplate = 'vintagelovestory:8981551a';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
