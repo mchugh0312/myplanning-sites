@@ -6620,8 +6620,16 @@
          four across on a desktop, two on a tablet. Phones keep the two-column
          grid above, which is already full width. */
       '@media(min-width:641px){#registryGrid{display:flex!important;flex-wrap:wrap;' +
-        'justify-content:center;gap:1.2rem!important;grid-template-columns:none!important}' +
-        '#registryGrid > .registry-card{box-sizing:border-box;min-width:0;' +
+        /* align-items:stretch - every card in a row as tall as the tallest, so
+           each Purchase button (pushed down by margin-top:auto) lines up. The
+           grid's own align-items, kept from before, stopped them stretching:
+           a card with no "3 of 3 left" line had its button higher. */
+        'justify-content:center;align-items:stretch!important;gap:1.2rem!important;grid-template-columns:none!important}' +
+        /* height:auto, not the 100% the grid used: in a row, a card held at
+           100% of an auto-height row is held at its OWN height and cannot be
+           stretched to match the tallest - so the Purchase buttons, pushed to
+           the bottom, sat at different heights. */
+        '#registryGrid > .registry-card{box-sizing:border-box;min-width:0;height:auto!important;' +
         'flex:0 0 calc((100% - 3.6rem) / 4);max-width:calc((100% - 3.6rem) / 4)}}' +
       '@media(min-width:641px) and (max-width:900px){#registryGrid > .registry-card{' +
         'flex-basis:calc((100% - 1.2rem) / 2);max-width:calc((100% - 1.2rem) / 2)}}' +
@@ -7739,7 +7747,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-new-question';
+  var MP_RUNTIME_BUILD = '2026-10-23-carousel-buttons';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

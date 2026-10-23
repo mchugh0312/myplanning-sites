@@ -322,6 +322,19 @@ every change against the original files.
 - Decided: Pressed Petals' heading-less Wedding / Other Events stay as a plain
   band when emptied.
 
+- Registry Purchase buttons out of line (regression from the MP-941 centring):
+  the gift row became a wrapping row, and the cards kept the grid's
+  height:100%, which stopped them stretching - a card without a quantity line
+  had its button higher. Cards now size automatically and the row stretches
+  them; aligned on all ten, centring unchanged.
+- MP-939 (Heirloom Bloom hero): there were no arrows (only dots and swipe) and
+  autoplay ran every 6s. Added previous / next arrows (next on the last photo
+  goes round to the first; previous on the first, to the last) and autoplay
+  every 3s, restarted after any arrow, dot or swipe.
+- Map baseline re-taken: the only change on every design is the RSVP line no
+  longer measured in the editor scenario (the page no longer shows the
+  "[your RSVP date]" hint there).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

@@ -7416,7 +7416,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-new-question');
+  check('the stamp names the change it shipped with', version, '2026-10-23-carousel-buttons');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '51422edc');
+    ('0000000' + bh.toString(16)).slice(-8), '66d900f9');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9271,7 +9271,7 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-941 the extra registry button defers to the design\'s own',
     /var _ownCta = false;/.test(rt) && /&& !_ownCta;/.test(rt), true);
   check('MP-941 gift tiles are centred whatever the count',
-    /#registryGrid\{display:flex!important;flex-wrap:wrap;' \+\s*'justify-content:center/.test(rt), true);
+    /#registryGrid\{display:flex!important;flex-wrap:wrap;' \+[\s\S]{0,400}'justify-content:center;/.test(rt), true);
 
   /* MP-337, site to box. Each Content box is told the design's own styles. */
   check('the runtime reports each box\'s styles to the editor', /boxStyles: \(function \(\)/.test(rt), true);
@@ -9540,6 +9540,21 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-921 a new block is marked straight away (divider above it)',
     /host\.innerHTML = _markTitles\(_gapBreaks\(_clean\(host\.innerHTML\)\)\);/.test(fn), true);
   check('and its title is selected, ready to type over', /r\.selectNodeContents\(last\);/.test(fn), true);
+}
+
+
+// ── Gift buttons line up; Heirloom Bloom's hero has arrows and autoplay ───
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* MP-941's centring turned the gift grid into a wrapping row; the cards kept
+     the grid's height:100% and stopped stretching, so a card with no quantity
+     line had its Purchase button higher than its neighbours'. */
+  check('gift cards stretch to the tallest in the row',
+    /align-items:stretch!important/.test(rt) && /#registryGrid > \.registry-card\{box-sizing:border-box;min-width:0;height:auto!important;/.test(rt), true);
+  const hb = fs.readFileSync('template-heirloombloom.html', 'utf8');
+  check('MP-939 the hero has previous and next arrows',
+    /id="carouselPrev"[^>]*onclick="shiftCarousel\(-1, true\)"/.test(hb) && /id="carouselNext"[^>]*onclick="shiftCarousel\(1, true\)"/.test(hb), true);
+  check('and moves itself every 3 seconds', /setInterval\(function\(\)\{ shiftCarousel\(1\); \}, 3000\)/.test(hb), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

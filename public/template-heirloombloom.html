@@ -867,6 +867,16 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
    its own band. */
 .gallery-section .gallery-title{color:var(--ink);}
 .gallery-section .gallery-rule{background:rgba(103,61,69,0.45);}
+/* MP-939. Previous / next on the hero, quiet until the photo is hovered. */
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;padding:0;
+  background:rgba(0,0,0,0.28);color:#fff;font-size:28px;line-height:40px;text-align:center;
+  font-family:Georgia,serif;opacity:0.7;transition:opacity .2s ease,background .2s ease;}
+.carousel-arrow:hover,.carousel-arrow:focus-visible{opacity:1;background:rgba(0,0,0,0.45);}
+.carousel-arrow-prev{left:14px;}
+.carousel-arrow-next{right:14px;}
+@media(max-width:768px){.carousel-arrow{width:34px;height:34px;font-size:22px;line-height:32px;}
+  .carousel-arrow-prev{left:8px;}.carousel-arrow-next{right:8px;}}
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -892,7 +902,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:4f1b9b32';
+    window.__mpTemplate = 'heirloombloom:0310ca07';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1025,6 +1035,10 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
     </div>
   </div>
   <div class="carousel-dots" id="carouselDots"></div>
+  <!-- MP-939: previous / next. On the last photo, next goes on round to the
+       first; on the first, previous goes round to the last. -->
+  <button class="carousel-arrow carousel-arrow-prev" id="carouselPrev" type="button" aria-label="Previous photo" onclick="shiftCarousel(-1, true)">&#8249;</button>
+  <button class="carousel-arrow carousel-arrow-next" id="carouselNext" type="button" aria-label="Next photo" onclick="shiftCarousel(1, true)">&#8250;</button>
   <!-- Initials bottom-left, large gold, two letters with & between -->
   <div class="hero-initials-wrap" id="heroInitialsWrap">
     <span class="hero-initial-left"  id="heroInitL">T</span><span class="hero-initial-amp">&amp;</span><span class="hero-initial-right" id="heroInitR">L</span>
@@ -1192,6 +1206,10 @@ function buildCarousel(urls) {
     });
   }
   c.style.transform = 'translateX(0)';
+  ['carouselPrev', 'carouselNext'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b) b.style.display = urls.length > 1 ? '' : 'none';
+  });
   startCarouselAuto();
   attachCarouselSwipe(c);
 }
@@ -1262,7 +1280,9 @@ function shiftCarousel(dir, userInitiated) {
 function startCarouselAuto() {
   if (_carouselTimer) clearInterval(_carouselTimer);
   if (_carouselUrls.length < 2) return;
-  _carouselTimer = setInterval(function(){ shiftCarousel(1); }, 6000);
+  /* Every 3 seconds (MP-939); restarted after an arrow, dot or swipe so the
+     photo a guest chose is not moved on at once. */
+  _carouselTimer = setInterval(function(){ shiftCarousel(1); }, 3000);
 }
 
 // Swipe on touch devices.
