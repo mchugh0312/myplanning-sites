@@ -7681,8 +7681,28 @@
       esc((lead ? lead[1] : 'RSVP by ') + RSVP_DATE_HINT) + '</span>';
   }
 
+  /* MP-916. A spacer the couple inserts is a block-level <span class="mp-gap">,
+     and the browser drops the line break beside it when it goes in - so the
+     editor saved "The Ceremony<gap>4pm" for what the box showed as two lines.
+     Every template splits lines on <br>, so on the site "4pm" became part of
+     the TITLE. A break is put back in front of any spacer that directly
+     follows text, which repairs records already saved that way. The box looks
+     the same either way: a break right before a block draws nothing extra. */
+  var GAP_FIELDS = ['story', 'weddings_info', 'events_info', 'faqs', 'things_to_do',
+                    'travel_info', 'accommodation_info', 'registry_info'];
+  function _gapBreaks(html) {
+    if (typeof html !== 'string' || html.indexOf('mp-gap') === -1) return html;
+    return html.replace(/<span\b[^>]*\bmp-gap\b[^>]*>\s*<\/span>/gi, function (m, off, all) {
+      var before = all.slice(0, off).replace(/\s+$/, '');
+      if (!before || /<br\s*\/?>$/i.test(before) ||
+          /\bmp-gap\b[^>]*>\s*<\/span>$/i.test(before)) return m;
+      return '<br>' + m;
+    });
+  }
+
   function hydrate(d) {
     if (!d) return;
+    GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
     if (_designRsvpLine === null) {
       try {
         var _dl0 = document.getElementById('rsvpDeadline');

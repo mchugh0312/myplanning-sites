@@ -88,8 +88,24 @@ every change against the original files.
   mark: nothing is added to the saved text, and dividers refresh when the box
   loses focus, like titles.
 
+- Content box group, tested in the real editor (harness/editor-test):
+  - MP-915: B/I/U light inside bold/italic/underlined text - by click, by
+    arrow keys, while typing, after pressing B on an empty caret, at the edge
+    of a bold word. Already working; no change needed.
+  - MP-935: every click of the spacer button adds exactly one spacer, at the
+    end or start of a line, mid-word, and at the very end of the box.
+  - MP-920: New Event in an empty box adds no leading space.
+  - MP-921: a new question goes at the end; the first question stays first.
+  - MP-916: text never lands inside a spacer. FIXED the rest of it: the
+    browser drops the line break beside a spacer it inserts, so the site
+    (which splits lines on <br>) read the line AFTER a spacer as part of the
+    line before - after a title, the next line joined the title. The break is
+    restored by the editor on insert and on save, and by the runtime for
+    records already saved that way, so existing sites are repaired without
+    re-saving. Clicking a spacer and typing now starts a line above it.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
-MP-918. What to check for each is in the chat summary of this round.
+MP-918, MP-915, MP-916, MP-920, MP-921, MP-935. What to check for each is in the chat summary of this round.
 
 **OPEN: needs a decision**
 - Registry when emptied: kept as is (shown unless switched off), by decision.
