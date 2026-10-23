@@ -1383,7 +1383,10 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
   <div class="ntk-header">
     <div class="ntk-header-bg" id="needToKnowBg" style="background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/9ca34132-d494-4bf5-8b44-c7c96b8a8daa.png')"></div>
     <div class="ntk-header-content">
-      <h2 class="section-title" style="color:var(--white)">Need to Knows</h2>
+      <!-- Text2 (--on-dark), like all copy on this design's dark bands. It was
+           --white, the Highlight slot, so moving Highlight recoloured this
+           heading (MP-357). Both are #ffffff, so the default is unchanged. -->
+      <h2 class="section-title" style="color:var(--on-dark)">Need to Knows</h2>
       <div class="ntk-rule"></div>
     </div>
   </div>
@@ -1440,7 +1443,8 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
 </div>
 <!-- REGISTRY — uses the original .registry olive strip design -->
 <div class="registry" id="registry-section" style="display:none">
-  <a class="registry-title registry-cta" id="registryCta" href="#" style="color:var(--white)">See Our Registry</a>
+  <!-- Text2, not Highlight: see the Need to Knows heading (MP-357). -->
+  <a class="registry-title registry-cta" id="registryCta" href="#" style="color:var(--on-dark)">See Our Registry</a>
   <div id="registryInfo" style="font-family:var(--serif);font-size:0.88rem;color:rgba(255,255,255,0.88);line-height:1.9;max-width:560px;margin:1.2rem auto 0;font-style:italic;"></div>
 </div>
 

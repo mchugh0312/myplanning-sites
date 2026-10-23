@@ -37,15 +37,22 @@ every change against the original files.
 - Step 4: Coastal Chic bold shows on its 300-weight copy.
 - Step 5: Text2 reaches the 13 fixed white texts on five templates (MP-910).
   The default look is pixel-identical; older browsers keep today's colour.
+- Pressed Petals' Need to Knows and Registry headings follow Text2, like the
+  rest of its copy on dark bands, instead of Highlight (MP-357). Default
+  unchanged.
+- Golden Hour's Text3 control is hidden: its variable is used nowhere. The
+  other five "idle" controls were kept, because each colours hover states,
+  focus rings, rules or a later RSVP step.
 
 **OPEN: needs a decision**
 - Cocktail Attire: should the box show the dress-code line in the script
   face, or should the site honour the italic?
 - Defaults a couple cannot undo (Pressed Petals' italic Our Story and others
   listed below). The editor needs a way to write "not italic".
-- Six colour controls that move nothing at rest: hide them? On Sage & Still
-  that is Accent.
-- Registry: stays visible when emptied (open question 1).
+- Registry when emptied. Every live site has a registry link (built from its
+  address), so "no words and no link" never happens. Choose: (a) keep it shown
+  unless switched off, as today (suggested), or (b) hide it when it has no
+  words and the backend confirms zero items, never on a failed request.
 - A second hotel lands under Flights on every template (the runtime's cut).
 
 **OPEN: work**

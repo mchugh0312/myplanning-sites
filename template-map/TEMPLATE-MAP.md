@@ -406,9 +406,9 @@ Font variables the runtime config does not know: `--menu-font`.
 | Site Background | `--offwhite` | - | faqs, home, nav, other_events, rsvp, story, things_to_do | backgroundColor |
 | Accent Color | `--olive` | - | accommodations, footer, registry, travel, wedding | backgroundColor |
 | Text1 | `--ink` | section heading: rsvp, story, things_to_do; block title: faqs, other_events; body: faqs, other_events, story, things_to_do; menu | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | block title: accommodations, travel, wedding; body: accommodations, travel, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: faqs, registry; block title: accommodations, travel, wedding; body: accommodations, travel, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | body: faqs, rsvp | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Highlight Color | `--white` | section heading: faqs, registry | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Highlight Color | `--white` | - | - | backgroundColor |
 
 ### Block titles: Content box vs page
 

@@ -6450,6 +6450,10 @@
       "italic-line": [
        "wedding"
       ],
+      "section-heading": [
+       "faqs",
+       "registry"
+      ],
       "footer": [
        "footer"
       ]
@@ -6546,33 +6550,9 @@
      "value": [
       "#ffffff"
      ],
-     "text": {
-      "section-heading": [
-       "faqs",
-       "registry"
-      ]
-     },
+     "text": {},
      "ground": [],
      "other_paint": {
-      "borderTopColor": [
-       "h2.section-title",
-       "a#registryCta"
-      ],
-      "borderBottomColor": [
-       "h2.section-title"
-      ],
-      "borderLeftColor": [
-       "h2.section-title",
-       "a#registryCta"
-      ],
-      "outlineColor": [
-       "h2.section-title",
-       "a#registryCta"
-      ],
-      "textDecorationColor": [
-       "h2.section-title",
-       "a#registryCta"
-      ],
       "backgroundColor": [
        "input#rsvpNameInput"
       ]
@@ -6596,7 +6576,8 @@
    },
    "dead_vars": [
     "--black",
-    "--text"
+    "--text",
+    "--white"
    ],
    "content_text_no_slot": [],
    "text_on_dark_grounds": [
@@ -6715,10 +6696,10 @@
      "role": "section-heading",
      "text": "Our Registry",
      "slots": [
-      "accent2"
+      "ink2"
      ],
      "vars": [
-      "--white"
+      "--on-dark"
      ]
     }
    ]
