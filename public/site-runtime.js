@@ -3120,6 +3120,15 @@
       });
       if (Object.keys(res).length) out[key] = res;
     });
+    /* The RSVP box is the line itself, so its body style is that element's -
+       the design's own, since the runtime writes the couple's note into it. */
+    try {
+      var _rl = document.getElementById('rsvpDeadline');
+      if (_rl && _rl.firstChild && _rl.getClientRects().length) {
+        var _rs = _designStyle({ parentElement: _rl }, null);
+        if (_rs) out.rsvp = { body: _rs };
+      }
+    } catch (e) {}
     return out;
   }
 
@@ -3164,10 +3173,16 @@
          make it by...", "Kindly send your response by...", "By..."), so the
          editor cannot seed its box without being told. Same channel, same
          template check - there is no reason for a second one. */
+      /* What the site shows when the note is EMPTY - the editor's placeholder.
+         Read off the page, this was whatever happened to be there at that
+         moment: the couple's previous note, or a template's unfilled sample,
+         because this report runs before the deadline is written (MP-905). */
       var _rsvpLine = '';
       try {
-        var _dl = document.getElementById('rsvpDeadline');
-        _rsvpLine = _dl ? (_dl.textContent || '').replace(/\s+/g, ' ').trim() : '';
+        if (document.getElementById('rsvpDeadline')) {
+          _rsvpLine = _rsvpEmptyLineHtml(d).replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim();
+        }
       } catch (e) {}
 
       /* Every design can show gifts now: ensureRegistryGrid builds the grid where
@@ -7636,8 +7651,35 @@
       ' by ' + (_v.by || '-'));
   } catch (e) {}
 
+  /* The design's own RSVP line, exactly as shipped, captured before the first
+     hydrate writes anything (MP-905). hydrate() runs again on every payload the
+     editor posts without reloading, so the element's CURRENT text is often the
+     couple's previous note; without this, clearing the note left the old note
+     standing, and there was nothing to put back. */
+  var _designRsvpLine = null;
+
+  /* What the RSVP line says when the couple has written no note of their own:
+     the design's line with their deadline swapped in, or the design's line as
+     shipped. One function for the page and for the editor's placeholder, so the
+     box always shows what the site does. */
+  function _rsvpEmptyLineHtml(d) {
+    var design = _designRsvpLine || '';
+    var deadline = (d && d.rsvp_config && d.rsvp_config.deadline) || (d && d.rsvp_deadline) || '';
+    if (!deadline) return design;
+    var raw = design.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+    var lead = raw.match(/^(.*\bby\s+)/i);
+    var text = (lead ? lead[1] : 'by ') + fmtDate(deadline);
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function hydrate(d) {
     if (!d) return;
+    if (_designRsvpLine === null) {
+      try {
+        var _dl0 = document.getElementById('rsvpDeadline');
+        _designRsvpLine = _dl0 ? _dl0.innerHTML.trim() : '';
+      } catch (e) { _designRsvpLine = ''; }
+    }
 
     // 1. Gate screens first — these never fall through to the template.
     if (d.password_required) { renderPasswordScreen(coupleNames(d), d.password_hint); return; }
@@ -7844,14 +7886,13 @@
            returning here would have skipped the mobile drawer, the footer and
            everything after it. */
         deadlineEl.innerHTML = note;
-      } else if (deadline) {
-        // Keep each template's phrasing ("Please send your response by …",
-        // "Kindly …", "By …") and swap only the date.
-        var raw = (deadlineEl.textContent || '').trim();
-        var lead = raw.match(/^(.*\bby\s+)/i);
-        deadlineEl.textContent = (lead ? lead[1] : 'by ') + fmtDate(deadline);
+      } else {
+        /* The deadline in the design's own phrasing, or the design's line as
+           shipped. ALWAYS written, never left: "leave it" meant leaving the
+           previous note in the editor preview after the couple cleared it
+           (MP-905), and the phrasing was read back off that same stale text. */
+        deadlineEl.innerHTML = _rsvpEmptyLineHtml(d);
       }
-      // else: the template's placeholder stands, as with any other sample copy
     }
 
     // 5. Mobile navigation. Built from the links the template just rendered,

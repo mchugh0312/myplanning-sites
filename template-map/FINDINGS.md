@@ -64,7 +64,21 @@ every change against the original files.
   Known edge: a box italicised from its very first character still shows its
   first line as a title in the box; the site does not treat it as one.
 
+- MP-905, RSVP box. The box holds only the couple's own line; when empty it
+  shows, greyed, exactly what the site shows then (the design's line, with
+  their deadline in the design's wording). Reset to default removes their
+  line. Fixed in the runtime: clearing the note left the OLD note on the
+  preview; the editor was told a stale line (the previous note or a sample),
+  which refilled the box; a deadline lost the design's wording; Golden Hour
+  printed "by <the wedding day>" with no deadline set. "By Month Day, Year"
+  appears in none of the current files, so it came from an older version.
+- Editor: event titles in a box whose body is italic now show upright, as on
+  the site (found by the new editor test, harness/editor-test).
+
 **OPEN: needs a decision**
+- RSVP line with no note and no deadline shows the design's SAMPLE date
+  (e.g. "by February 15th, 2026") to guests. Keep, or hide the line until a
+  deadline or note exists?
 - Registry when emptied. Every live site has a registry link (built from its
   address), so "no words and no link" never happens. Choose: (a) keep it shown
   unless switched off, as today (suggested), or (b) hide it when it has no

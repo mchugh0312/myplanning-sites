@@ -866,10 +866,11 @@ function hydrateTemplate(d){
   }
   if(el('footerDate'))el('footerDate').textContent=dateStr;
 
-  if(el('rsvpDeadline')&&d.rsvp_config&&d.rsvp_config.deadline)
-    el('rsvpDeadline').innerHTML='by '+d.rsvp_config.deadline;
-  else if(el('rsvpDeadline')&&dateStr)
-    el('rsvpDeadline').textContent='by '+dateStr;
+  /* The RSVP line is the runtime's, as on every other design: the couple's note,
+     else their deadline in this line's phrasing, else the line as shipped.
+     This wrote "by <the wedding day>" whenever there was no deadline - a
+     deadline nobody set, the one thing the runtime refuses to invent - and the
+     raw, unformatted deadline when there was one. */
 
   if(d.rsvp_config&&d.rsvp_config.entrees&&d.rsvp_config.entrees.length)
     _rsvpEntreeOptions=d.rsvp_config.entrees.map(function(e){return{value:e,label:e};});
