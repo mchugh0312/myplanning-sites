@@ -4372,7 +4372,10 @@ check('two blocks -> two cards', blocks(mark(
      tone is dark ink on a dark ground. `inherit` takes the band's own text
      colour - the colour that design already uses ON that background. */
   check('an unfilled button falls back to the band\'s own ink',
-    /var readable = _solid \? '' : 'color:inherit;background-color:transparent;';/.test(fn), true);
+    /var readable = _solid \? '' : 'color:inherit;background-color:transparent;border-color:currentColor;';/.test(fn), true);
+  /* And the outline with it: label and ring one colour, not a label in the
+     band's ink inside a ring copied from the design. */
+  check('an unfilled button\'s outline follows its label', /border-color:currentColor;';/.test(fn), true);
   check('and that fallback is written into the rule',
     /css \+ readable \+/.test(fn), true);
 }
@@ -7421,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-purchase-case');
+  check('the stamp names the change it shipped with', version, '2026-10-23-vls-registry');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7429,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'a788f263');
+    ('0000000' + bh.toString(16)).slice(-8), 'afa0fe22');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9605,7 +9608,7 @@ check('two blocks -> two cards', blocks(mark(
   /* It copied the registry button, drawn cream-on-dark; on the light Travel
      section it was invisible though clickable. */
   check('MP-953 Vintage Love Story\'s Book Now is drawn in Travel\'s ink',
-    /\.travel-cta\{color:var\(--ink\);border-color:var\(--ink\);background:transparent;\}/.test(vls), true);
+    /\.travel-cta\{color:var\(--ink\);border-color:var\(--ink\);background:transparent;border-width:3px!important;/.test(vls), true);
 }
 
 
@@ -9618,6 +9621,17 @@ check('two blocks -> two cards', blocks(mark(
     !/'letter-spacing', 'text-transform', 'text-decoration-line',/.test(rt), true);
   check('Modern Minimal\'s own sample buttons match',
     !/>Purchase this Item</.test(fs.readFileSync('template-modernminimal.html', 'utf8')), true);
+}
+
+
+// ── Vintage Love Story's registry: mirrored corners, text clear of them ───
+{
+  const vls = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  check('the registry text keeps to the middle, clear of the lace corners',
+    /\.registry-info\{position:relative;z-index:2;max-width:min\(620px,/.test(vls), true);
+  check('with gifts showing, the bottom-right lace closes the gift band',
+    /\.registry-wrap\.mp-reg-has-band \.registry-lace\.br\{display:none;\}/.test(vls) &&
+    /\.registry-wrap\.mp-reg-has-band \+ #mp-reg-band::after\{/.test(vls), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

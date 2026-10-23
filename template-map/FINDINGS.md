@@ -368,6 +368,16 @@ every change against the original files.
   shown as written on all ten. (Noted: on Golden Hour the gift button draws as
   plain text, not an outlined button - unchanged, flagged.)
 
+- Vintage Love Story registry: the couple's text ran the full width, under the
+  lace corner at each end of a long line, and with the gift preview showing the
+  bottom-right corner sat at the seam above the gifts, so the pair no longer
+  mirrored. The text keeps to the middle now, and the bottom-right corner moves
+  to the bottom of the gift band (gifts above it).
+- Gift buttons with no solid fill: the label took the band's own colour but the
+  outline was still copied from the design (with a couple's colours: black
+  label in a white ring). The outline follows the label now - every design.
+- Vintage Love Story's Book Now: 3px outline.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

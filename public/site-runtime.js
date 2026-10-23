@@ -6784,7 +6784,11 @@
          button is an outline rather than a filled pill. `inherit` takes the
          band's own text colour, which is by definition the colour that design
          uses ON that background, so it cannot clash with it. */
-      var readable = _solid ? '' : 'color:inherit;background-color:transparent;';
+      /* And the OUTLINE follows the text: the border was still copied from the
+         design while the label took the band's own colour, so with a couple's
+         colours the label read black inside a white ring. An outlined button is
+         one colour, label and ring together. */
+      var readable = _solid ? '' : 'color:inherit;background-color:transparent;border-color:currentColor;';
       /* The layout, restated in THIS sheet rather than only in the fallback.
 
          The fallback is deliberately injected first so the copied colours win -
@@ -7769,7 +7773,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-purchase-case';
+  var MP_RUNTIME_BUILD = '2026-10-23-vls-registry';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
