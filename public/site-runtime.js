@@ -6238,6 +6238,13 @@
       var cs = getComputedStyle(sec);
       var hidden = (sec.style && sec.style.display === 'none');
       band.style.display = hidden ? 'none' : '';
+      /* MP-931. While the gifts are showing, the seam between the section and
+         its band is tightened. Both kept their full spacing - the design's
+         bottom padding (up to 5rem) on top of the band's own - so the gifts sat
+         64-98px below the button, and the same with no text at all. The class
+         is only on while the band is visible: a section with no gift preview
+         keeps the padding its design gave it. */
+      try { sec.classList.toggle('mp-reg-has-band', !hidden); } catch (e) {}
       /* The nearest ancestor-or-self that actually PAINTS something, not
          whatever the section's own background-color happens to be.
 
@@ -6598,6 +6605,9 @@
       /* Inside the band those margins are the band's padding's job - left here
          they would collapse out through it and reopen the white strip. */
       '#mp-reg-band > #registryGrid[data-mp-built]{margin-top:0;margin-bottom:0}' +
+      /* MP-931: one even seam, about 32px, on every design. */
+      '.mp-reg-has-band{padding-bottom:16px!important}' +
+      '#mp-reg-band{padding-top:16px!important}' +
       '@media(max-width:900px){#registryGrid[data-mp-built]{grid-template-columns:repeat(2,minmax(0,1fr))}}' +
       /* MP-941. CENTRED, whatever the count. A four-column grid put two or three
          gifts against the left edge, and Modern Minimal's own grid (1fr
@@ -7718,7 +7728,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-title-weights';
+  var MP_RUNTIME_BUILD = '2026-10-23-registry-seam';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7818,6 +7828,18 @@
   function hydrate(d) {
     if (!d) return;
     GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
+    /* ONE Travel switch. Accommodations and Travel are one section fed by one
+       box, and the editor has a single Travel switch that sends both keys - but
+       the live site reads them from two record fields, and "Show Accomodations"
+       has had no control since the merge, so it is false for many couples.
+       Templates gate on one key or the other, and collapseEmptySections hides
+       the merged band if EITHER is off: Travel switched on, Travel gone from
+       the live site. Travel decides, before any template reads either. */
+    try {
+      if (d.menu_config && typeof d.menu_config === 'object' && 'travel' in d.menu_config) {
+        d.menu_config.accommodations = d.menu_config.travel;
+      }
+    } catch (e) {}
     if (_designRsvpLine === null) {
       try {
         var _dl0 = document.getElementById('rsvpDeadline');

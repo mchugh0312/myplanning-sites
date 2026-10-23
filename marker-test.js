@@ -7412,7 +7412,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-title-weights');
+  check('the stamp names the change it shipped with', version, '2026-10-23-registry-seam');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7420,7 +7420,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'e9a52ce7');
+    ('0000000' + bh.toString(16)).slice(-8), '11c506e2');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9450,6 +9450,36 @@ check('two blocks -> two cards', blocks(mark(
      un-bolding Hotel re-bolded everything except the other titles. */
   check('a title mark states no weight or slant inline',
     !/';font-weight:' \+ weight \+ ';'/.test(ws) && /\[100, 200, 300, 400, 500, 600, 700, 800, 900\]\.map\(w => "\[contenteditable\] mp-t\[data-tw='" \+ w/.test(ws), true);
+}
+
+
+// ── One Travel switch, live as well as in the preview ────────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* The live site read Accommodations from its own record field, which has had
+     no control since the merge and is false for many couples; the merged band
+     is hidden if either key is off, so Travel vanished from live sites with
+     Travel switched on. Travel decides, in the runtime and in the payload. */
+  check('the runtime makes Accommodations follow Travel before templates read it',
+    /d\.menu_config\.accommodations = d\.menu_config\.travel;/.test(rt), true);
+  check('and the live payload sends one value for both',
+    /"accommodations": bool\(_cf\(wedding, CF_SHOW_TRAVEL,\s+False\)\),/.test(py), true);
+  /* MP-945. Coastal Chic uses the corrected stamp, not the one that painted a
+     white rectangle into the gaps between its scallops. */
+  const cc = fs.readFileSync('template-coastalchic.html', 'utf8');
+  check('MP-945 Coastal Chic uses the corrected stamp',
+    cc.includes('748b56c0-25fb-404b-add1-e130d8758f64.svg') && !cc.includes('9b5e87fe-b224-4bc4-9489-3488fd7e5964'), true);
+}
+
+
+// ── MP-931: the gifts sit close under the registry copy ──────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('MP-931 the seam is tightened only while the gift band shows',
+    /sec\.classList\.toggle\('mp-reg-has-band', !hidden\)/.test(rt) &&
+    /'\.mp-reg-has-band\{padding-bottom:16px!important\}'/.test(rt) &&
+    /'#mp-reg-band\{padding-top:16px!important\}'/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

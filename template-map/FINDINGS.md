@@ -183,8 +183,6 @@ every change against the original files.
   kept. A long story flows across the two columns on its own (CSS columns)
   instead of being cut by counting words of plain text, which could split a
   sentence anywhere; a short story stays one centred column; phones one.
-- MP-945 (Coastal Chic): needs the stamp SVG - the asset CDN is not reachable
-  from here.
 
 - MP-915 / MP-333, re-opened in testing and fixed at the cause. Reproduced in
   the real editor: (1) B, I and U never saved anything themselves - they
@@ -263,6 +261,23 @@ every change against the original files.
   design's weight inline, and the browser read "font-weight:400" on a mark as
   "this text is not bold" when re-bolding the rest. Weight and slant now ride
   on attributes the editor's stylesheet turns into the same look.
+
+- LIVE BUG, found while testing MP-945: on the live site, Travel disappeared
+  for any couple whose old "Show Accomodations" field was off - which is many,
+  since that switch has had no control since Travel and Accommodations merged.
+  The runtime hides the merged band if either key is off, and main.py read the
+  two keys from separate fields (the editor's preview sends both from the one
+  Travel switch, so the preview never showed it). Confirmed on all ten live
+  templates; fixed in both: the runtime makes Accommodations follow Travel
+  before any template reads it, and main.py sends Travel's value for both.
+- MP-945 (Coastal Chic stamp): the SVG drew a full white rectangle behind the
+  stamp art, which showed in every gap between the scallops. Removed; the
+  corrected file is on the asset CDN (748b56c0-...svg) and the template uses it.
+
+- MP-931: the gift preview is its own band under the registry section, and the
+  seam kept both paddings (the design's bottom padding plus the band's top):
+  64-98px between the button and the gifts, with or without text. While the
+  band shows, the seam is now an even ~32px on every design.
 
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
