@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '63184ab9');
+    ('0000000' + h.toString(16)).slice(-8), 'd86078f6');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5302,7 +5302,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the repair runs on the way out',
     /* _gapBreaks too (MP-916): the line break the browser drops beside a
        spacer goes back before the record is written. */
-    /const str = _gapBreaks\(_emptyGaps\(_stripTitleMarks\(html\)\)\);/.test(wt), true);
+    /const str = _gapBreaks\(_emptyGaps\(_stripTitleMarks\(html\)\)\)/.test(wt), true);
 
   if (!JSDOM) { check('spacer repair (jsdom not installed - SKIPPED)', true, true); }
   else {
@@ -7385,7 +7385,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-shadow-selection');
+  check('the stamp names the change it shipped with', version, '2026-10-23-caret-format');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7393,7 +7393,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '40be9987');
+    ('0000000' + bh.toString(16)).slice(-8), '2874fc79');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9336,6 +9336,26 @@ check('two blocks -> two cards', blocks(mark(
      right and nobody could see it. Filled and inverted now. */
   check('a selected toolbar button is filled, not tinted',
     /background: active \? "#4B5244" : "none"/.test(ws) && /color: active \? "#FFFFFF" : "#4B5244"/.test(ws), true);
+}
+
+
+// ── Underline through a title, and B/I/U at a caret (as tested on Heirloom Bloom) ─
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Title marks are inline: as inline-block, a <u> round the title did not
+     reach the words in the box (CSS does not carry decorations into an
+     inline-block), the browser's U then ADDED an underline the couple meant to
+     remove, and the toolbar showed U on. */
+  check('title marks are inline, so formatting reaches through them',
+    /' style="display:inline;line-height:1\.35;font-size:'/.test(ws) && !/style="display:inline-block;line-height:1\.35/.test(ws), true);
+  check('B, I and U at a caret act on the word it is in',
+    /if \(cmd === "bold" \|\| cmd === "italic" \|\| cmd === "underline"\) _wordAtCaret\(\);/.test(ws), true);
+  check('empty formatting left by the browser is not saved',
+    /\.replace\(\/<\(u\|b\|i\|em\|strong\|s\)>\\s\*<\\\/\\1>\/gi, ""\)/.test(ws), true);
+  /* The runtime: a couple's <u> round a whole title is theirs, not the design's. */
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('only <strong>/<b> round a whole title counts as the design\'s',
+    /\/\^\(STRONG\|B\)\$\/\.test\(el\.tagName\) && _norm\(el\.textContent\) === wholeText/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

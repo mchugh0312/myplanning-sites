@@ -214,6 +214,17 @@ every change against the original files.
   look was also made unmistakable (filled green, white letter). Both are now in
   harness/editor-test, including a shadow-root run.
 
+- Formatting a box that is underlined throughout (Heirloom Bloom, as tested):
+  the editor's title marks were inline-block, and CSS does not carry an
+  underline into an inline-block - so a title the site underlines showed plain
+  in the box, the browser's U command (judging by what was drawn) ADDED an
+  underline the couple meant to remove, and the toolbar (reading the tags)
+  showed U on. Marks are inline now. B, I and U with nothing selected act on
+  the word the cursor is in, as in most editors (the browser's own behaviour
+  changes only what is typed next, so nothing visible happened). Empty tags the
+  browser leaves are not saved. The runtime no longer reports a couple's
+  underline round a whole title as the design's title style.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

@@ -3091,7 +3091,11 @@
   function _designStyle(node, wholeText) {
     var el = node.parentElement;
     while (el && _COUPLE_TAG.test(el.tagName) && !el.getAttribute('class')) {
-      if (wholeText && _norm(el.textContent) === wholeText) break;
+      /* Only a <strong>/<b> round the whole title is the title's own (the old
+         marker, or the runtime's Travel <strong>). A couple's <u>, <i> or font
+         span round a whole title is THEIR formatting: stopping there reported
+         their underline as the design's title style. */
+      if (wholeText && /^(STRONG|B)$/.test(el.tagName) && _norm(el.textContent) === wholeText) break;
       el = el.parentElement;
     }
     if (!el) return null;
@@ -7653,7 +7657,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-shadow-selection';
+  var MP_RUNTIME_BUILD = '2026-10-23-caret-format';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
