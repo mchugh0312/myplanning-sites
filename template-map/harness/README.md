@@ -48,10 +48,18 @@ Node for the trace.
 
     pip install playwright tinycss2 beautifulsoup4
     python3 -m playwright install chromium
-    TEMPLATE_DIR=/path/to/site ./run_all.sh
+    ./run_all.sh
 
-`TEMPLATE_DIR` is the folder holding `template-*.html` and `site-runtime.js`.
-It is served at the root because the templates load `/site-runtime.js`. Output
+Place `template-map/` at the top of the repo, beside `public/`, never inside
+it, so it is not published:
+
+    myplanning-sites/
+    ├── public/            site-runtime.js and template-*.html
+    └── template-map/      this folder
+
+Run from anywhere with `template-map/harness/run_all.sh`; it finds `public/`
+on its own. `TEMPLATE_DIR` overrides that. The folder is served at the root
+because the templates load `/site-runtime.js`. Output
 goes to `./out` (override with `MAP_OUT`). A full run takes about ten minutes.
 Every measuring script accepts template ids as arguments, to rerun a subset.
 
@@ -75,11 +83,33 @@ than a pre-commit hook.
 
 ## Trace
 
-    node trace_title_span.js /path/to/site whimsicalromance
+    node trace_title_span.js            # or: node trace_title_span.js <dir> <template-id>
 
 This runs the runtime's own `markStructure` and a template's own `_mpTitle` on a
 whole-box font span, and prints where the font is lost. Both functions are
 extracted from the files, so the trace always tests the deployed source.
+
+## The editor test
+
+    bash editor-test/run.sh path/to/Website.txt
+
+Builds the editor's real Content box (`RichEditor`) from the code you paste
+into Softr, with Softr-only imports stubbed, and drives it in Chromium: the
+design's body style in the box, the I button lit inside default italic, un-
+italic saved as `font-style: normal`, the title and dress-code marks, and the
+RSVP placeholder. Run it after any editor change. It cannot reach anything that
+needs Softr itself (saving, the live preview), so a quick look in the editor is
+still worth it.
+
+## Release stamps
+
+    python3 stamp.py BUILD-NAME
+
+The last step of any change to the runtime, the editor or a template. Names the
+build in site-runtime.js and Website.txt (marker-test.js requires the two to
+match), rewrites each template's window.__mpTemplate marker, and re-pins
+marker-test.js. It hashes exactly as the suite does, so the suite's stamp checks
+pass only if the files are final when it runs.
 
 ## Files
 

@@ -38,7 +38,7 @@ const rt = fs.readFileSync('site-runtime.js', 'utf8');
    across the title boundary, and a harness missing it throws rather than
    failing - which reads as a broken suite, not a broken runtime. */
 const runtime = new Function(
-  lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', 'markStructure', 'markTitles']) +
+  lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', '_markAttire', 'markStructure', 'markTitles']) +
   rt.match(/var STRUCTURED_FIELDS = \[[\s\S]*?\];/)[0] + '\n' +
   rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
   "var _text = function (h) { return String(h||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/gi,' ').trim(); };\n" +
@@ -52,7 +52,9 @@ function parseCard(part) {
   const nm = tpl._mpTitle(part);
   const title = nm ? nm[1] : '';
   const rest = nm ? part.replace(nm[0], '').replace(/^<br\s*\/?>\s*/i, '') : part;
-  const dm = rest.match(/<em>([^<]+)<\/em>\s*$/i);          // UNCHANGED in the templates
+  /* Attributes allowed: the runtime tags the dress-code line class="mp-attire"
+     (MP-337) so a design can style that line and no other italic. */
+  const dm = rest.match(/<em(?:\s[^>]*)?>([^<]+)<\/em>\s*$/i);
   const dress = dm ? dm[1] : '';
   const detail = dm ? rest.replace(dm[0], '').replace(/<br\s*\/?>\s*$/i, '').trim() : rest.trim();
   return { title, detail, dress };
@@ -210,9 +212,9 @@ check('two blocks -> two cards', blocks(mark(
   // MP-332. A font on the attire line used to stop it matching /<em>([^<]+)…/,
   // so it was dropped from the dress slot and re-rendered in the body face.
   check('font on the attire line reaches the card intact',
-    ppCard(mark('<strong>The Ceremony</strong><br>4:00 PM<br><em><span style="font-family:\'Pinyon Script\'">Cocktail Attire</span></em>')),
+    ppCard(mark('<strong>The Ceremony</strong><br>4:00 PM<br><em class=\"mp-attire\"><span style="font-family:\'Pinyon Script\'">Cocktail Attire</span></em>')),
     { title: 'The Ceremony',
-      detail: '4:00 PM<br><em><span style="font-family:\'Pinyon Script\'">Cocktail Attire</span></em>' });
+      detail: '4:00 PM<br><em class=\"mp-attire\"><span style="font-family:\'Pinyon Script\'">Cocktail Attire</span></em>' });
 
   // MP-337. [^<] could not cross the <u>, and the trailing </strong> broke the
   // $ anchor. Neither matters when nothing is being matched.
@@ -223,8 +225,8 @@ check('two blocks -> two cards', blocks(mark(
 
   // A plain italic line is now just an italic line — no longer lifted out.
   check('plain italic attire line stays in the body',
-    ppCard(mark('<strong>The Ceremony</strong><br>4:00 PM<br><em>Cocktail Attire</em>')),
-    { title: 'The Ceremony', detail: '4:00 PM<br><em>Cocktail Attire</em>' });
+    ppCard(mark('<strong>The Ceremony</strong><br>4:00 PM<br><em class=\"mp-attire\">Cocktail Attire</em>')),
+    { title: 'The Ceremony', detail: '4:00 PM<br><em class=\"mp-attire\">Cocktail Attire</em>' });
 
   // A link mid-line used to be safe only by luck. It is content now.
   check('a link survives into the body',
@@ -238,9 +240,9 @@ check('two blocks -> two cards', blocks(mark(
 
   // The blank line is still the only separator.
   check('blank line still starts a card', blocks(mark(
-    '<strong>Ceremony</strong><br>4:00<br><em>Black Tie</em><br><br><strong>Reception</strong><br>6:00'
+    '<strong>Ceremony</strong><br>4:00<br><em class=\"mp-attire\">Black Tie</em><br><br><strong>Reception</strong><br>6:00'
   )).map(ppCard), [
-    { title: 'Ceremony', detail: '4:00<br><em>Black Tie</em>' },
+    { title: 'Ceremony', detail: '4:00<br><em class=\"mp-attire\">Black Tie</em>' },
     { title: 'Reception', detail: '6:00' },
   ]);
   // The spacer the editor inserts. It exists because a blank line would start a
@@ -291,7 +293,10 @@ check('two blocks -> two cards', blocks(mark(
     // no live page, so the heading face is the fallback path here.
     'var labelStyle = null;\n' +
     'var titleStyle = null;\n' +
-    grab('_stripTitleMarks') + '\n' + grab('_markTitles') +
+    // The box's own measured styles (MP-337); none in the harness, so the
+    // reported-style fallback path is the one exercised, as before.
+    'var boxStyle = null;\n' +
+    grab('_stripTitleMarks') + '\n' + grab('_markAttireLine') + '\n' + grab('_markTitles') +
     '\nreturn { mark: _markTitles, strip: _stripTitleMarks };')();
   const ed = mk('event');
 
@@ -779,6 +784,17 @@ check('two blocks -> two cards', blocks(mark(
                    ['accent3', 'accent3'], ['text', 'ink'], ['text2', 'ink2'], ['text3', 'ink3']];
     for (const [key, role] of pairs) {
       if (!roles[n][role]) continue;   // accent3 is optional
+      /* No swatch means the editor hides the control. That is only honest for
+         a slot whose variable the template never uses (Golden Hour's Text3):
+         a hidden control that DID paint something would be a colour the couple
+         cannot change. */
+      if (!g(key)) {
+        const v0 = [].concat(roles[n][role])[0];
+        const tsrc = fs.readFileSync('template-' + n + '.html', 'utf8');
+        if (new RegExp('var\\(' + v0.replace(/-/g, '\\-') + '\\)').test(tsrc))
+          drift.push(n + '.' + key + ': hidden in the editor but ' + v0 + ' paints');
+        continue;
+      }
       if (g(key) !== hex(roles[n][role])) {
         drift.push(n + '.' + key + ': swatch ' + g(key) + ' but ' + roles[n][role] + ' is ' + hex(roles[n][role]));
       }
@@ -1163,7 +1179,7 @@ check('two blocks -> two cards', blocks(mark(
     for (const [n, r] of Object.entries(roles)) {
       const root = (fs.readFileSync('template-' + n + '.html', 'utf8')
         .match(/:root\s*\{[\s\S]*?\}/) || [''])[0];
-      const hex = (v) => ((root.match(new RegExp(v.replace(/-/g, '\\-') +
+      const hex = (v) => ((root.match(new RegExp([].concat(v)[0].replace(/-/g, '\\-') +
         '\\s*:\\s*(#[0-9a-fA-F]{6})', 'i')) || [])[1] || '').toLowerCase();
       const bg = hex(r.accent); if (!bg) continue;
       const L = lum(bg);
@@ -1557,7 +1573,8 @@ check('two blocks -> two cards', blocks(mark(
   // writes the copy into the record instead.
   check('the payload does not seed content', /const _orSeed = \(value\) => value;/.test(block), true);
   check('the content box does not seed either',
-    /const displayVal = \(currentVal === undefined \|\| currentVal === null\)/.test(block), true);
+    /const _rawVal = \(currentVal === undefined \|\| currentVal === null\)/.test(block) &&
+    /const displayVal = _mergedBox/.test(block), true);
 
   const PP = '2b508102-48ef-4330-92ac-24b0a0abc094';
   const PD = { ...ctx.C, ...(ctx.T[PP] || {}) };
@@ -1585,7 +1602,8 @@ check('two blocks -> two cards', blocks(mark(
      preview part company here. */
   const tpl = fs.readFileSync('template-pressedpetals.html', 'utf8');
   const sampleOf = (k) => (tpl.match(new RegExp(k + ":'([^']*)'")) || [])[1];
-  const split = new Function(lift(rt, ['_splitTravelBlob']) + '\nreturn _splitTravelBlob;')();
+  const split = new Function(rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
+    lift(rt, ['_openTags', '_balanceBlocks', '_splitTravelBlob']) + '\nreturn _splitTravelBlob;')();
   const cut = { travel_info: PD.travelInfo, accommodation_info: '' };
   split(cut);
   check('the cut produces a hotel card', /Hyatt Regency/.test(cut.accommodation_info), true);
@@ -2992,7 +3010,7 @@ check('two blocks -> two cards', blocks(mark(
   // It runs inside hydrate, not a helper of its own: an early return here would
   // have skipped the mobile drawer, the footer and everything after it.
   check('and does not return out of hydrate',
-    /deadlineEl\.innerHTML = note;\s*\n\s*\} else if \(deadline\)/.test(rt), true);
+    /deadlineEl\.innerHTML = note;\s*\n\s*deadlineEl\.style\.display = '';\s*\n\s*\} else \{/.test(rt), true);
   {
     const line = (cfg, tpl) => {
       const note = (cfg && cfg.note) || '', deadline = (cfg && cfg.deadline) || '';
@@ -3178,8 +3196,10 @@ check('two blocks -> two cards', blocks(mark(
   // script the page never used. blockNoun says which box is which.
   check('questions are reported apart from event names',
     /questionStyle: _questionStyle/.test(rt), true);
+  /* One at a time, text element first: querySelector returns document order,
+     so the list form found Pressed Petals' <button> and reported Arial. */
   check('and sampled from their own selectors',
-    /_styleOf\(\s*'\.faq-question,\.faq-q,\.faq-q-text,\.ntk-question'\)/.test(rt), true);
+    /\['\.faq-q-text', '\.ntk-question', '\.faq-q', '\.faq-question'\]\.some\(/.test(rt), true);
   check('the event list no longer claims to speak for questions',
     (/var _titleStyle = _styleOf\(([\s\S]*?)\);/.exec(rt) || [0, ''])[1]
       .replace(/\/\*[\s\S]*?\*\//g, '').includes('faq'), false);
@@ -3197,7 +3217,9 @@ check('two blocks -> two cards', blocks(mark(
     const pp = fs.readFileSync('template-pressedpetals.html', 'utf8');
     const face = (src, cls) => {
       const m = src.match(new RegExp('\\n\\.' + cls + '\\{([^}]*)\\}'));
-      const g = m && m[1].match(/font-family:\s*var\((--[a-z]+)\)/);
+      /* The design's face, through the Section Headings wrapper where there is
+         one: var(--heading-font, var(--x)) is --x until a heading font is set. */
+      const g = m && m[1].match(/font-family:\s*var\((?:--heading-font,\s*var\()?(--[a-z]+)\)/);
       return g ? g[1] : null;
     };
     check('coastal chic sets event names in the body face',
@@ -3213,7 +3235,9 @@ check('two blocks -> two cards', blocks(mark(
   const pp = fs.readFileSync('template-pressedpetals.html', 'utf8');
   const ccLab = (cc.match(/\n\.travel-block-label\{([^}]*)\}/) || ['', ''])[1];
   const ppLab = (pp.match(/\n\.accom-col-title\{([^}]*)\}/) || ['', ''])[1];
-  check('coastal chic labels use the body face', /font-family:var\(--body\)/.test(ccLab), true);
+  /* Still the body face by default; Section Headings now reaches it through
+     var(--heading-font, ...) - titles follow Section Headings everywhere. */
+  check('coastal chic labels use the body face', /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab), true);
   check('pressed petals labels use the script face', /font-family:var\(--script\)/.test(ppLab), true);
 }
 
@@ -3330,8 +3354,8 @@ check('two blocks -> two cards', blocks(mark(
     check(n + ' can report a title style', hit, true);
     // And a question style, from its own list. Both must resolve: a template
     // that reports only one leaves the editor guessing for the other box.
-    const QSEL = (rt.match(/_styleOf\(\s*'([^']*faq[^']*)'\s*\)/) || [0, ''])[1]
-      .split(',').map(x => x.trim()).filter(Boolean);
+    const QSEL = ((rt.match(/\[('\.faq[^\]]*)\]\.some\(/) || [0, ''])[1].match(/'[^']+'/g) || [])
+      .map(x => x.replace(/'/g, '').trim()).filter(Boolean);
     const qhit = QSEL.some(s =>
       doc.querySelector(s) || src.includes('class="' + s.slice(1) + '"'));
     check(n + ' can report a question style', qhit, true);
@@ -3972,7 +3996,9 @@ check('two blocks -> two cards', blocks(mark(
      `em` rule here would have put it on a line of its own. */
   check('a mid-sentence italic is not restyled',
     /\.event-card-detail em\{/.test(pp), false);
-  const em = (pp.match(/\.event-card-detail em:last-child\{[^}]*\}/) || [''])[0];
+  /* The line the runtime tags mp-attire - the last line, wholly italic - not
+     the last <em>, which also caught one italic word at the end of a card. */
+  const em = (pp.match(/\.event-card-detail :is\(em,i\)\.mp-attire\{[^}]*\}/) || [''])[0];
   check('the attire line takes the title face',
     /font-family:var\(--script\)/.test(em), true);
   check('and is not left italic like the address',
@@ -4370,7 +4396,7 @@ check('two blocks -> two cards', blocks(mark(
     const src = fs.readFileSync('template-' + t + '.html', 'utf8');
     for (const [sel, titleSel] of pairs) {
       const label = t + ' .' + sel;
-      const m = src.match(new RegExp('^\\.' + sel + ' em:last-child\\{[^}]*\\}', 'm'));
+      const m = src.match(new RegExp('^\\.' + sel + ' :is\\(em,i\\)\\.mp-attire\\{[^}]*\\}', 'm'));
       check(label + ' styles the trailing attire line', !!m, true);
       const title = src.match(new RegExp('^\\.' + titleSel + '\\{[^}]*\\}', 'm'));
       check(label + ' has an event title rule to read', !!title, true);
@@ -4643,7 +4669,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '6dcf78c1');
+    ('0000000' + h.toString(16)).slice(-8), '87ac19c8');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -5172,7 +5198,8 @@ check('two blocks -> two cards', blocks(mark(
      either side of it still matches. */
   const src = wt.slice(wt.indexOf('      const wholeBold ='), wt.indexOf("      return '<mp-t'"));
   check('the whole-line test exists', src.length > 60, true);
-  const isWhole = new Function('head', src + ' return wholeBold;');
+  // The slice also holds the MP-918 card counter, which reads these two.
+  const isWhole = new Function('head', 'var _cards = 0, titleLine = false;\n' + src + ' return wholeBold;');
   check('a wholly bold title is flattened',
     isWhole('<strong>What should I wear?</strong>'), true);
   check('even with markup inside it',
@@ -5254,7 +5281,9 @@ check('two blocks -> two cards', blocks(mark(
   /* And everything leaving the box is repaired, for gaps saved before that
      attribute existed or dragged in since. */
   check('the repair runs on the way out',
-    /const str = _emptyGaps\(_stripTitleMarks\(html\)\);/.test(wt), true);
+    /* _gapBreaks too (MP-916): the line break the browser drops beside a
+       spacer goes back before the record is written. */
+    /const str = _gapBreaks\(_emptyGaps\(_stripTitleMarks\(html\)\)\);/.test(wt), true);
 
   if (!JSDOM) { check('spacer repair (jsdom not installed - SKIPPED)', true, true); }
   else {
@@ -5701,10 +5730,14 @@ check('two blocks -> two cards', blocks(mark(
   /* The two fallbacks behind it have to stay reachable: a couple with no note
      but a deadline keeps their date, and one with neither keeps the template's
      own wording. */
+  /* Both now live in _rsvpEmptyLineHtml (MP-905), which the page and the
+     editor's placeholder share: the deadline in the design's own phrasing,
+     else - live - nothing, else - preview - a hint. */
+  const emptyFn = lift(rt, ['_rsvpEmptyLineHtml']);
   check('a deadline still fills the line when there is no note',
-    /\} else if \(deadline\) \{/.test(hyd), true);
+    /_rsvpEmptyLineHtml\(d, _isPreview\)/.test(hyd) && /if \(deadline\) return/.test(emptyFn), true);
   check('and the template keeps its own phrasing around the date',
-    /lead \? lead\[1\] : 'by '/.test(hyd), true);
+    /lead \? lead\[1\] : 'by '/.test(emptyFn), true);
 }
 
 // ── Heirloom Bloom: the four it was reported for ─────────────────────────
@@ -5933,15 +5966,19 @@ check('two blocks -> two cards', blocks(mark(
 
   /* Only when there is somewhere to go. A button pointing at nothing is worse
      than no button. */
+  /* On the live site, still only with somewhere to go. The preview has no
+     address by design (every registry link is inert there) and shows the
+     button anyway, so preview and live show the same section (MP-946). And
+     never beside a registry button the design already has (MP-941). */
   check('it needs a registry url',
-    /var _wantMore = !!_registryUrl && !_blanked && hasCopy;/.test(fn), true);
+    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_blanked && hasCopy && !_ownCta;/.test(fn), true);
   /* AND copy. With the box empty the section is just the heading in its frame,
      and a button beside it reads as a second title rather than a control -
      which is what the live site showed while the preview, with no url to hang
      it on, showed nothing. A heading alone is already the link on every
      design; the button is for when a paragraph has come between the heading
      and the gifts and the heading has stopped looking clickable. */
-  check('and copy to sit under', /&& hasCopy;/.test(fn), true);
+  check('and copy to sit under', /&& hasCopy(?: && !_ownCta)?;/.test(fn), true);
   /* Block and centred, not inline: inline-block put it on the same line as
      whatever it followed, so inside a centred frame it sat beside the title. */
   check('it is laid out as its own block',
@@ -6339,7 +6376,7 @@ check('two blocks -> two cards', blocks(mark(
   const pre = "var _text=function(h){return String(h||'').replace(/<[^>]*>/g,'')" +
               ".replace(/&nbsp;/gi,' ').trim();};var _VOID=/^(br|img|hr|input|source|wbr)$/i;";
   const mark = new Function(pre +
-    lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', 'markStructure']) +
+    lift(rt, ['_openTags', '_wrapsWhole', '_unwrap', 'markBlock', '_markAttire', 'markStructure']) +
     '\nreturn markStructure;')();
 
   /* BALANCE is the property, checked by counting rather than by matching a
@@ -6393,7 +6430,10 @@ check('two blocks -> two cards', blocks(mark(
   check('and so is the title on its own', balanced(titleOf(whole)), true);
   /* The formatting must still reach past the title - closing it at the
      boundary without reopening is the same bug wearing the other hat. */
-  check('the underline continues after the title', /<\/mp-title><u>/.test(whole), true);
+  /* After the title's <br>, not straight after </mp-title>: a template strips
+     the whole first line as the title, and a tag re-opened ON it went too -
+     which is how a whole-box font reached titles and no lines under them. */
+  check('the underline continues after the title', /<\/mp-title><br\s*\/?><u>/.test(whole), true);
   /* lastIndexOf. The FIRST </u> is the one closing the title, so indexOf found
      it at position 20-odd and the comparison was always false - a gate that
      could not pass rather than one that could not fail, but wrong either way. */
@@ -7325,7 +7365,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-21-gate-motif');
+  check('the stamp names the change it shipped with', version, '2026-10-23-typography-map');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7333,7 +7373,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '9f96f12e');
+    ('0000000' + bh.toString(16)).slice(-8), 'd630f3b8');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -8105,7 +8145,8 @@ check('two blocks -> two cards', blocks(mark(
     /accommodations: d\.showTravel === true \|\| !!localChanges\.travelInfo/.test(wt), true);
 
   // ── The cut itself ──────────────────────────────────────────────────────
-  const split = new Function(lift(rt, ['_splitTravelBlob']) + '\nreturn _splitTravelBlob;')();
+  const split = new Function(rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
+    lift(rt, ['_openTags', '_balanceBlocks', '_splitTravelBlob']) + '\nreturn _splitTravelBlob;')();
 
   const two = { travel_info: 'A<br><br>B', accommodation_info: '' };
   split(two);
@@ -9108,6 +9149,86 @@ check('two blocks -> two cards', blocks(mark(
     /display:flex;align-items:center;justify-content:center;/.test(fn2), true);
   check('and is no longer an inline-block that only centres its text',
     /'display:inline-block;text-align:center;max-width:100%\}'/.test(fn2), false);
+}
+
+
+// ── Typography map rounds (template-map/FINDINGS.md) ───────────────────────
+// Behaviour checks for the fixes made from the template map. Lifted from the
+// shipping source like everything above, so they cannot pass against code that
+// isn't shipping. One line per finding; the ticket is in the name.
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const T10 = ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal',
+               'pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance'];
+  const src = n => fs.readFileSync('template-' + n + '.html', 'utf8');
+
+  /* MP-354. The menu has its own face on every design, and Menu Links writes it. */
+  check('MP-354 every template declares --menu-font',
+    T10.filter(n => !/--menu-font:\s*var\(--[a-z-]+\);/.test(src(n))), []);
+  check('MP-354 Menu Links writes --menu-font, not the body variable',
+    /menu: '--menu-font',/.test(rt) && !/menu: CFG\.bodyVar/.test(rt), true);
+  check('MP-354 the phone drawer reads it', /'font-family:var\(--menu-font\);'/.test(rt), true);
+
+  /* Section Headings and Body Text reach the faces a design sets apart, and a
+     reset clears every variable the runtime can write. */
+  check('headings write --heading-font, body copy --body-font',
+    /root\.setProperty\('--heading-font'/.test(rt) && /root\.setProperty\('--body-font'/.test(rt), true);
+  const clr = lift(rt, ['_clearRoleFonts']);
+  check('a font reset clears all of them',
+    ['--menu-font', '--heading-font', '--body-font'].every(v => clr.includes("'" + v + "'")), true);
+
+  /* MP-954 / MP-951. Nothing on the page the couple did not write. */
+  check('MP-954 no template keeps its sample when the couple has fewer',
+    T10.filter(n => /_placeholderCols|_phItems/.test(src(n))), []);
+  check('MP-951 no template invents a room-block line',
+    T10.filter(n => /'Request the ' \+/.test(src(n))), []);
+
+  /* MP-916. A spacer never swallows the line break beside it. */
+  const gb = new Function(lift(rt, ['_gapBreaks']) + 'return _gapBreaks;')();
+  const GAP = '<span class="mp-gap" contenteditable="false" style="display:block;height:12px"></span>';
+  check('MP-916 a break goes back in front of a spacer after text',
+    gb('Title' + GAP + '4pm'), 'Title<br>' + GAP + '4pm');
+  check('MP-916 and is not doubled where one is already there',
+    gb('Title<br>' + GAP + '4pm'), 'Title<br>' + GAP + '4pm');
+  check('MP-916 the runtime repairs saved records before reading them',
+    /GAP_FIELDS\.forEach\(function \(f\) \{ if \(typeof d\[f\] === 'string'\) d\[f\] = _gapBreaks\(d\[f\]\); \}\);/.test(rt), true);
+
+  /* MP-337. Only a whole italic LAST line is the dress code. */
+  const ma = new Function(rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
+    "var _text = function (h) { return String(h||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/gi,' ').trim(); };\n" +
+    lift(rt, ['_wrapsWhole', '_markAttire']) + 'return _markAttire;')();
+  check('MP-337 a whole italic last line is tagged',
+    /class="mp-attire"/.test(ma('Ceremony<br>4pm<br><em>Black tie</em>')), true);
+  check('MP-337 one italic word at the end is not',
+    /mp-attire/.test(ma('Ceremony<br>Join us <em>outside</em>')), false);
+  check('MP-337 nor a box in italics throughout',
+    /mp-attire/.test(ma('<em>Ceremony</em><br><em>4pm</em>')), false);
+
+  /* MP-905. With no note: the deadline in the design's words, else nothing live
+     and a hint in the editor. */
+  const re = new Function('var _designRsvpLine = "Please reply by June 10";\n' +
+    "var fmtDate = function () { return 'May 1, 2027'; };\n" +
+    lift(rt, ['_rsvpEmptyLineHtml']) + "\nvar RSVP_DATE_HINT = '[your RSVP date]';\nreturn _rsvpEmptyLineHtml;")();
+  check('MP-905 a deadline keeps the design wording',
+    re({ rsvp_config: { deadline: '2027-05-01' } }, false), 'Please reply by May 1, 2027');
+  check('MP-905 no deadline, live: no line at all', re({}, false), '');
+  check('MP-905 no deadline, editor: a hint where the date goes',
+    /Please reply by \[your RSVP date\]/.test(re({}, true)), true);
+
+  /* MP-941 / MP-946. One registry button, and the same one in the preview. */
+  check('MP-941 the extra registry button defers to the design\'s own',
+    /var _ownCta = false;/.test(rt) && /&& !_ownCta;/.test(rt), true);
+  check('MP-941 gift tiles are centred whatever the count',
+    /#registryGrid\{display:flex!important;flex-wrap:wrap;' \+\s*'justify-content:center/.test(rt), true);
+
+  /* MP-337, site to box. Each Content box is told the design's own styles. */
+  check('the runtime reports each box\'s styles to the editor', /boxStyles: \(function \(\)/.test(rt), true);
+  check('and the editor reads them', /let _liveBoxStyles = null;/.test(ws) && /boxStyle=\{_liveBoxStyles/.test(ws), true);
+
+  /* MP-918. The divider the site will put between cards is shown in the box. */
+  check('MP-918 the box draws a divider above each card after the first',
+    /mp-t\[data-follows\]::before/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

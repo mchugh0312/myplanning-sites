@@ -2307,9 +2307,10 @@
      to special-case a design. Keep TEMPLATE_PALETTES in Website.txt in step:
      this decides which variable moves, that decides which colour the picker
      opens on. */
-  /* MP-910. On Black Tie Timeless and Coastal Chic the copy on dark bands is a
-     tone the design sets apart from --on-dark, so it has its own variable and
-     Text2 writes both. On the other templates that copy reads --on-dark itself. */
+  /* MP-910. On Black Tie Timeless the copy on dark bands is a spec tone set
+     apart from --on-dark, so it has its own variable and Text2 writes both. On
+     the other templates that copy reads --on-dark itself - Coastal Chic's in
+     its spec ivory rather than the pure white it had, which is in no spec. */
   var TEMPLATE_COLOR_VARS = {
     pressedpetals:       { bg: '--offwhite', accent: '--olive',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     heirloombloom:       { bg: '--offwhite', accent: '--berry',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--gold', accent3: '--gray' },
@@ -2347,7 +2348,7 @@
        That is MP-910 on this template: some text changed and some did not, with
        no pattern a couple could see. A slot may name an array. */
     whimsicalromance:    { bg: '--rose',     accent: '--burgundy',   ink: ['--ink', '--text'], ink2: '--on-dark', ink3: '--ink3', accent2: '--ivory',    accent3: '--yellow' },
-    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: ['--on-dark', '--on-dark-copy'], ink3: '--ink3', accent2: '--white' },
+    coastalchic:         { bg: '--ivory',    accent: '--navy',       ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--white' },
     /* --black painted the Submit button and was mapped to nothing, so that one
        control could not be recoloured. It takes the free slot. */
     vintagelovestory:    { bg: '--ivory',    accent: '--brown',      ink: '--ink',     ink2: '--on-dark', ink3: '--ink3', accent2: '--blue',     accent3: '--black' },
@@ -7644,7 +7645,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-21-gate-motif';
+  var MP_RUNTIME_BUILD = '2026-10-23-typography-map';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

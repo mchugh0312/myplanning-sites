@@ -141,6 +141,16 @@ every change against the original files.
   - Noted, not changed: Heirloom Bloom and Regal Boho have one booking
     button (hotel) by design, even when a flights link is set.
 
+- marker-test.js: green on every file changed by these rounds. Run on the
+  original files and on the new ones under identical conditions (six files
+  this work never had were stubbed empty), the new files fail exactly the
+  checks the originals fail - the 11 that read WebsiteHelp.txt - and nothing
+  else. To get there: lift lists updated for the new helpers; checks pinned
+  to code that was deliberately rewritten now assert the new behaviour, each
+  with a comment saying why; 21 new checks cover this work; release stamped as
+  2026-10-23-typography-map with harness/stamp.py. Coastal Chic's text on dark
+  bands now uses its spec ivory, not a pure white that is in no spec.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953. What to check for each is in the chat summary of this round.
