@@ -4676,7 +4676,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'ad2fa020');
+    ('0000000' + h.toString(16)).slice(-8), '2925a9f0');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7390,7 +7390,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-eraser-selection');
+  check('the stamp names the change it shipped with', version, '2026-10-23-marks-inherit');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9376,6 +9376,19 @@ check('two blocks -> two cards', blocks(mark(
      before removeFormat, or bold on the same words would survive. */
   check('and keeps the selection through it, for removeFormat',
     /if \(done\) \{ const sel = _win\(\)\.getSelection\(\); sel\.removeAllRanges\(\); sel\.addRange\(r\); \}/.test(ws), true);
+}
+
+
+// ── Formatting round a title mark shows in the box (Travel, as tested) ───
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Select-all + B wraps the marks in one <b>; the mark's stated design weight
+     beat the inherited bold, so titles stayed plain in the box while the
+     preview was bold. The couple's formatting round a mark wins. */
+  check('a bold round a title mark shows in the box',
+    /\[contenteditable\] :is\(b,strong\) mp-t,/.test(ws) && /mp-t\{font-weight:700!important\}/.test(ws), true);
+  check('and so do italic and a font round it',
+    /mp-t\{font-style:italic!important\}/.test(ws) && /\[style\*='font-family'\] mp-t\{font-family:inherit!important\}/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
