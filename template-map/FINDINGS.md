@@ -596,6 +596,14 @@ every change against the original files.
   (Lancelot until one is chosen). The "&" between them already did, so a
   chosen heading font used to give a monogram in two faces.
 
+- Contribute centred: evening the gift buttons made a one-line "Contribute" as
+  tall as the two-line "Purchase This Item", but on designs whose button is a
+  plain block the text sat 9px above centre (align-items does nothing there).
+  Evened buttons become flex boxes; centred on all ten.
+- Registry page filter strip follows the page colour, like the gifts below it;
+  its pills stay white with dark text, the count in the page's guarded muted
+  ink (4.5-5.5:1; Heirloom Bloom 3.8:1, the same as its gift text on the site).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

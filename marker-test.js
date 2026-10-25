@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-hb-initials');
+  check('the stamp names the change it shipped with', version, '2026-10-23-centred-strip');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7443,7 +7443,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '9edb6d2b');
+    ('0000000' + bh.toString(16)).slice(-8), '9311ad5e');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9964,8 +9964,11 @@ check('two blocks -> two cards', blocks(mark(
     /const ink = gb \? _readableOn\(lookColour\(cz, gb\.text, gb\.dText\) \|\| ink0, bg, 3\) : ink0;/.test(reg), true);
   check('gifts sit on the band, as on the site (no white box)',
     /\.card\{display:flex;flex-direction:column;background:transparent;border-radius:4px;overflow:hidden;box-shadow:none\}/.test(reg), true);
-  check('white controls and the filter strip keep dark text',
-    /\.ext-card,\.pay-opt,\.m-cta\.ghost,\.badge,\.imgwrap,\.fsel,\.qf-sort,\.qf-sortmenu,[\s\S]{0,120}\.qf\{\s*\n\s*--ink:var\(--surface-ink,var\(--ink\)\)/.test(reg), true);
+  check('white controls keep dark text',
+    /\.ext-card,\.pay-opt,\.m-cta\.ghost,\.badge,\.imgwrap,\.fsel,\.qf-sort,\.qf-sortmenu\{\s*\n\s*--ink:var\(--surface-ink,var\(--ink\)\)/.test(reg), true);
+  /* The filter strip takes the page's colour, like the gifts below it. */
+  check('the filter strip follows the page colour',
+    /\.qf\{background:var\(--cream\);border-bottom:1px solid var\(--border\);\}/.test(reg), true);
   check('pop-ups sit on paper, buttons switching to the dark ink there',
     /\.drawer,\.modal,\.gate-card,\.modal-card\{\s*\n\s*--cream:var\(--paper,var\(--cream\)\);/.test(reg) && /--cta-text:var\(--cta-text-paper,var\(--cta-text\)\)/.test(reg), true);
   check('muted text never falls below 4.5:1', /r\.setProperty\("--muted",  _quiet\(ink, bg\)\);/.test(reg), true);
@@ -9981,6 +9984,15 @@ check('two blocks -> two cards', blocks(mark(
      Headings writes), so a chosen heading font gave a monogram in two faces. */
   check('MP-952 Heirloom Bloom\'s initials follow Section Headings',
     /\.hero-initial-left,\s*\n\.hero-initial-right\{\s*\n\s*position:relative;[\s\S]{0,300}font-family:var\(--heading-font, 'Lancelot',Georgia,serif\);/.test(fs.readFileSync('template-heirloombloom.html', 'utf8')), true);
+}
+
+
+// ── An evened gift button centres its text ───────────────────────────────
+{
+  /* "Contribute" on one line in a button as tall as the two-line ones sat at
+     the top: align-items does nothing on a plain block. */
+  check('an evened gift button is a flex box, text centred',
+    /if \(_disp\.indexOf\('flex'\) === -1\) b\.style\.setProperty\('display', _disp === 'inline-block' \|\| _disp === 'inline' \? 'inline-flex' : 'flex', 'important'\);/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

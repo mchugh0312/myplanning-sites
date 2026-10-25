@@ -538,9 +538,7 @@
    page has taken: their own copies of the ink and its tints. A custom property
    set on an element is the one that element's own rules read. */
 .allbtn,.search input,.sortbtn,.sortmenu,.chip,.btn-out,.m-note,.field input,.field textarea,
-.ext-card,.pay-opt,.m-cta.ghost,.badge,.imgwrap,.fsel,.qf-sort,.qf-sortmenu,
-/* the filter strip is its own light band (#F9F7F5), whatever the page colour */
-.qf{
+.ext-card,.pay-opt,.m-cta.ghost,.badge,.imgwrap,.fsel,.qf-sort,.qf-sortmenu{
   --ink:var(--surface-ink,var(--ink));--muted:var(--s-muted,var(--muted));
   --border:var(--s-border,var(--border));--line:var(--s-line,var(--line));--sage:var(--s-sage,var(--sage));}
 /* The pop-ups, the filter drawer and the password card sit on light PAPER with
@@ -552,6 +550,12 @@
   --cta-text:var(--cta-text-paper,var(--cta-text));--cta-border:var(--cta-border-paper,var(--cta-border));
   --cta-line:var(--cta-line-paper,var(--cta-line));
   background:var(--cream);color:var(--ink);}
+
+/* The filter strip takes the page's colour, like the gifts below it; its count
+   reads in the page's own (guarded) muted ink. The pills on it stay white with
+   dark text, as the photo frames do. */
+.qf{background:var(--cream);border-bottom:1px solid var(--border);}
+.qf .qf-count{color:var(--muted);}
 </style>
 </head>
 <body>

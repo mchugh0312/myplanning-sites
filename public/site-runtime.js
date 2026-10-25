@@ -7051,7 +7051,7 @@
       var run = function () {
         var btns = Array.prototype.filter.call(document.querySelectorAll('#registryGrid .registry-buy-btn'),
           function (b) { return b.offsetParent !== null; });
-        btns.forEach(function (b) { b.style.minHeight = ''; b.style.removeProperty('width'); b.style.removeProperty('min-width'); });
+        btns.forEach(function (b) { b.style.minHeight = ''; b.style.removeProperty('width'); b.style.removeProperty('min-width'); b.style.removeProperty('display'); });
         if (btns.length < 2) return;
         var h = 0, w = 0;
         btns.forEach(function (b) { var r = b.getBoundingClientRect(); h = Math.max(h, r.height); w = Math.max(w, r.width); });
@@ -7059,8 +7059,14 @@
           var card = b.parentElement ? b.parentElement.getBoundingClientRect().width : w;
           b.style.minHeight = h + 'px';
           b.style.setProperty('min-width', Math.min(w, card) + 'px', 'important');
+          /* A flex box, so the text is centred vertically in the taller button:
+             on a plain block (most designs) align-items does nothing and a
+             one-line "Contribute" sat at the top of the two-line height. */
+          var _disp = getComputedStyle(b).display;
+          if (_disp.indexOf('flex') === -1) b.style.setProperty('display', _disp === 'inline-block' || _disp === 'inline' ? 'inline-flex' : 'flex', 'important');
           b.style.setProperty('justify-content', 'center', 'important');
           b.style.setProperty('align-items', 'center', 'important');
+          b.style.setProperty('text-align', 'center', 'important');
         });
       };
       run();
@@ -8031,7 +8037,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-hb-initials';
+  var MP_RUNTIME_BUILD = '2026-10-23-centred-strip';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
