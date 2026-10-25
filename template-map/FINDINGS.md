@@ -511,6 +511,18 @@ every change against the original files.
   frame now carries the standard mask that makes Safari clip from the first
   paint. No visible change in Chromium; needs an iPhone/iPad check.
 
+- MP-958, as tested: Vintage Love Story headed the couple's Travel columns
+  with its own "Hotels" / "Airports", and Regal Boho with "Hotel" / "Airports"
+  (plus a rule under each) - labels nobody typed; a card titled "Hotels" showed
+  the word twice. Both removed; the couple's card titles head the columns.
+  Checked all ten: no other design invents a Travel label.
+
+- MP-952, decided: the couple's names follow Section Headings. Measured on all
+  ten - eight already did; Whimsical Romance now does too (Corben until a font
+  is chosen; its script "and" keeps its own face). Heirloom Bloom's hero shows
+  the couple's INITIALS as a monogram, which do not follow (its footer names
+  do) - awaiting a decision.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

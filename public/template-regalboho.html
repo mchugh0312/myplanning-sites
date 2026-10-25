@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Regal Boho</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1117,7 +1121,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:3ae916a7';
+    window.__mpTemplate = 'regalboho:9b6a012f';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1668,16 +1672,16 @@ function hydrateTravelInfo(d, menu) {
         (a.meta ? '<span class="travel-item-meta">' + a.meta + '</span>' : '') +
       '</div>';
     }).join('');
+    /* MP-958: no invented column heading (or the rule under it) - the couple's
+       own card titles head the column; "Hotel" / "Airports" were labels nobody
+       typed, and a card titled "Hotel" showed the word twice. */
     leftHtml = '<div class="travel-col">' +
-      '<h3 class="travel-col-title">Airports</h3>' +
-      '<div class="travel-col-divider"></div>' +
       airportItemsHtml +
     '</div>';
   }
 
   var rightHtml = '';
   if (hotelItems.length) {
-    var titleLabel = hotelItems.length > 1 ? 'Hotels' : 'Hotel';
     var hotelItemsHtml = hotelItems.map(function(h) {
       return '<div class="travel-item">' +
         (h.name ? '<span class="travel-item-name">' + h.name + '</span>' : '') +
@@ -1689,8 +1693,6 @@ function hydrateTravelInfo(d, menu) {
       if (hotelItems[i].note) { firstNote = hotelItems[i].note; break; }
     }
     rightHtml = '<div class="travel-col">' +
-      '<h3 class="travel-col-title">' + titleLabel + '</h3>' +
-      '<div class="travel-col-divider"></div>' +
       hotelItemsHtml +
       (firstNote ? '<div class="travel-note">' + firstNote + '</div>' : '') +
       (bookUrl

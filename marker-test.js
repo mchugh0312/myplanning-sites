@@ -7427,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-ios-fixes');
+  check('the stamp names the change it shipped with', version, '2026-10-23-wr-names');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9831,6 +9831,31 @@ check('two blocks -> two cards', blocks(mark(
   /* Safari did not clip the photo to the rounded frame until a repaint. */
   check('MP-961 Whimsical Romance\'s hero frame clips from the first paint',
     /-webkit-mask-image:-webkit-radial-gradient\(white, black\);\s*\n\s*isolation:isolate;/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+}
+
+
+// ── MP-958, as tested: no invented Travel column headings ────────────────
+{
+  /* Vintage Love Story ("Hotels" / "Airports") and Regal Boho ("Hotel" /
+     "Airports") headed the couple's Travel columns with labels nobody typed -
+     a card titled "Hotels" showed the word twice. */
+  const vls = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  const rb = fs.readFileSync('template-regalboho.html', 'utf8');
+  check('MP-958 Vintage Love Story builds no column heading of its own',
+    /'<h3 class="travel-col-title">(Hotels|Airports)<\/h3>' \+/.test(vls), false);
+  check('MP-958 nor does Regal Boho',
+    /'<h3 class="travel-col-title">(Airports|' \+ titleLabel \+ ')/.test(rb) || /var titleLabel = /.test(rb), false);
+}
+
+
+// ── MP-952: Whimsical Romance's couple names follow Section Headings ─────
+{
+  /* As on Black Tie, Coastal Chic, Golden Hour, Modern Minimal, Pressed Petals,
+     Regal Boho, Sage & Still and Vintage Love Story; Corben until chosen. */
+  const wr = fs.readFileSync('template-whimsicalromance.html', 'utf8');
+  const rule = wr.slice(wr.indexOf('.hero-couple-name{'), wr.indexOf('}', wr.indexOf('.hero-couple-name{')));
+  check('MP-952 Whimsical Romance\'s names follow Section Headings',
+    /font-family:var\(--heading-font, var\(--display\)\);/.test(rule), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

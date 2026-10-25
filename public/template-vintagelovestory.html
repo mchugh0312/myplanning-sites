@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Vintage Love Story</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1194,7 +1198,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:6c61ab76';
+    window.__mpTemplate = 'vintagelovestory:9825bf3b';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1819,13 +1823,14 @@ function hydrateTravelInfo(d, menu) {
      other. */
   var leftHtml = airportsHtml
     ? '<div class="travel-col">' +
-        '<h3 class="travel-col-title">Airports</h3>' + airportsHtml +
+        /* MP-958: no invented column heading - the couple's own card titles head
+           the column. "Hotels" / "Airports" were labels nobody typed, and a card
+           the couple titled "Hotels" showed the word twice. */
+        airportsHtml +
       '</div>'
     : '';
   var rightHtml = hotelsHtml
-    ? '<div class="travel-col">' +
-        '<h3 class="travel-col-title">Hotels</h3>' + hotelsHtml +
-      '</div>'
+    ? '<div class="travel-col">' + hotelsHtml + '</div>'
     : '';
   var dividerHtml = (leftHtml && rightHtml)
     ? '<div class="travel-divider"></div>' : '';
