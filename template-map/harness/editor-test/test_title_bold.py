@@ -20,4 +20,11 @@ with sync_playwright() as p:
     select(pg, 'cc', 'Flights Info'); print('5. design-bold title, before', weight(pg, 'cc', 'Flights'), '| B lit', lit(pg, 'cc')); press(pg, 'cc')
     print('   B makes it lighter', weight(pg, 'cc', 'Flights'), '| B lit', lit(pg, 'cc'), '|', pg.evaluate('window.__cc'))
     select(pg, 'cc', 'Flights Info'); press(pg, 'cc'); print('   B again          ', weight(pg, 'cc', 'Flights'), '|', pg.evaluate('window.__cc'))
+    select(pg, 'pp', 'Hotel'); print('6. weight-500 title "Hotel": weight', weight(pg, 'pp', 'Hotel'), '| B lit', lit(pg, 'pp'))
+    press(pg, 'pp'); print('   B                ', weight(pg, 'pp', 'Hotel'), '| B lit', lit(pg, 'pp'), '|', pg.evaluate('window.__pp')[:40])
+    select(pg, 'pp', 'Hotel'); press(pg, 'pp')
+    # Firefox-style: the selection starts and ends AROUND the title mark, not inside it
+    pg.evaluate("() => { const e = %s.querySelector('#pp [contenteditable]'); e.focus(); const m = [...e.querySelectorAll('mp-t')].find(x => /Flights/.test(x.textContent)); const p = m.parentNode, i = [...p.childNodes].indexOf(m); const r = document.createRange(); r.setStart(p, i); r.setEnd(p, i + 1); const s = %s.getSelection ? %s.getSelection() : getSelection(); s.removeAllRanges(); s.addRange(r); document.dispatchEvent(new Event('selectionchange')); }" % (R, R, R)); pg.wait_for_timeout(200)
+    print('7. widened selection, B lit', lit(pg, 'pp')); press(pg, 'pp')
+    print('   B                ', weight(pg, 'pp', 'Flights'), '|', pg.evaluate('window.__pp'))
     print('errors', errs); br.close()

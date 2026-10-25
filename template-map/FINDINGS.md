@@ -630,6 +630,14 @@ every change against the original files.
   bold (Coastal Chic), B makes it lighter (font-weight 400), which the site
   also honours. Body-text bold still uses the browser's command.
 
+- MP-337, Firefox, the B button lit on a title that was not bold ("Hotels"):
+  B's state came from the browser's own "is it bold?" OR the drawn weight, and
+  Firefox counted some design title weights (500/600-ish) as bold where Chrome
+  did not; pressing B then fell to Firefox's command, which "unbolded" nothing.
+  B is lit from the drawn weight alone now (600 and up), in every browser; and
+  the title step recognises a selection Firefox widened to a title's edges, so
+  B bolds that title by hand instead of handing it to Firefox.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
