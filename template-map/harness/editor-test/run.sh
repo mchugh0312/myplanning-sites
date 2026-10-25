@@ -10,7 +10,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SRC="${1:-$HERE/../../../Website.txt}"
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"; kill ${SRV:-0} 2>/dev/null || true' EXIT
-cp -r "$HERE/stubs" "$HERE/entry.jsx" "$HERE/entry_dividers.jsx" "$HERE/entry_group.jsx" "$HERE/entry_shadow.jsx" "$HERE/entry_underlined.jsx" "$HERE/entry_erase.jsx" "$HERE/entry_travel.jsx" "$HERE/entry_imgset.jsx" "$HERE/entry_faq.jsx" "$WORK/"
+cp -r "$HERE/stubs" "$HERE/entry.jsx" "$HERE/entry_dividers.jsx" "$HERE/entry_group.jsx" "$HERE/entry_shadow.jsx" "$HERE/entry_underlined.jsx" "$HERE/entry_erase.jsx" "$HERE/entry_travel.jsx" "$HERE/entry_imgset.jsx" "$HERE/entry_faq.jsx" "$HERE/entry_shadow918.jsx" "$HERE/entry_ital.jsx" "$WORK/"
 tr -d '\r' < "$SRC" > "$WORK/editor.jsx"; echo 'export { RichEditor, ImageSet };' >> "$WORK/editor.jsx"
 ( cd "$WORK" && npm init -y >/dev/null && npm i --silent esbuild@0.24.0 react@18.3.1 react-dom@18.3.1 lucide-react@0.383.0 >/dev/null )
 ( cd "$WORK" && npx esbuild entry.jsx --bundle --outfile=bundle.js --loader:.jsx=jsx --jsx=automatic \
@@ -47,6 +47,14 @@ echo '<!doctype html><html><body><div id="root"></div><script src="bundle_imgset
     --alias:@/lib/datasource=./stubs/datasource.js --alias:@/components/ui/switch=./stubs/switch.js \
     --alias:sonner=./stubs/sonner.js --define:process.env.NODE_ENV='"development"' --log-level=error )
 echo '<!doctype html><html><body style="margin:0"><div id="host"></div><script src="bundle_faq.js"></script></body></html>' > "$WORK/index_faq.html"
+( cd "$WORK" && npx esbuild entry_shadow918.jsx --bundle --outfile=bundle_s918.js --loader:.jsx=jsx --jsx=automatic \
+    --alias:@/lib/datasource=./stubs/datasource.js --alias:@/components/ui/switch=./stubs/switch.js \
+    --alias:sonner=./stubs/sonner.js --define:process.env.NODE_ENV='"development"' --log-level=error )
+echo '<!doctype html><html><body style="margin:0"><div id="host"></div><script src="bundle_s918.js"></script></body></html>' > "$WORK/index_s918.html"
+( cd "$WORK" && npx esbuild entry_ital.jsx --bundle --outfile=bundle_ital.js --loader:.jsx=jsx --jsx=automatic \
+    --alias:@/lib/datasource=./stubs/datasource.js --alias:@/components/ui/switch=./stubs/switch.js \
+    --alias:sonner=./stubs/sonner.js --define:process.env.NODE_ENV='"development"' --log-level=error )
+echo '<!doctype html><html><body style="margin:0"><div id="host"></div><script src="bundle_ital.js"></script></body></html>' > "$WORK/index_ital.html"
 echo '<!doctype html><html><body><div id="root"></div><script src="bundle.js"></script></body></html>' > "$WORK/index.html"
 echo '<!doctype html><html><body style="background:#fff"><div id="root"></div><script src="bundle_dividers.js"></script></body></html>' > "$WORK/index_dividers.html"
 PORT="${PORT:-8899}"; ( cd "$WORK" && exec python3 -m http.server "$PORT" >/dev/null 2>&1 ) & SRV=$!; sleep 1
@@ -73,3 +81,7 @@ python3 "$HERE/test_gallery_drag.py" "$PORT"
 
 echo "== + Question: a New answer line, and a divider at once - between new ones too (MP-921)"
 python3 "$HERE/test_new_question.py" "$PORT"
+echo "== Typing a new card: its divider and title show at once, and the cursor stays put (MP-918)"
+python3 "$HERE/test_typed_card.py" "$PORT"
+echo "== Un-italicising a design-italic box (Our Story on Pressed Petals) - MP-337, Firefox"
+python3 "$HERE/test_upright_italic.py" "$PORT"

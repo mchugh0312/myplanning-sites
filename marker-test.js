@@ -4694,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'c67ac2c9');
+    ('0000000' + h.toString(16)).slice(-8), '64da821f');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-registry-filters');
+  check('the stamp names the change it shipped with', version, '2026-10-23-upright-italic');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -10009,6 +10009,17 @@ check('two blocks -> two cards', blocks(mark(
   check('and Status no longer offers it twice', /\["preferred","Couple Preferred"\]/.test(reg), false);
   check('a back-to-top button appears down the page',
     /b\.className = 'to-top';/.test(reg) && /window\.scrollY > window\.innerHeight \* 1\.5/.test(reg), true);
+}
+
+
+// ── MP-337 (Firefox): un-italicising a design-italic box ─────────────────
+{
+  /* Firefox's italic command changed the box but recorded nothing the site
+     could see where the italic was the design's; done by hand now. */
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  check('MP-337 design italics are made upright by hand, in every browser',
+    /const _italicByHand = \(\) => \{/.test(ws) && /if \(cmd === "italic" && _italicByHand\(\)\) \{/.test(ws) &&
+    /span\.setAttribute\("style", "font-style: normal;"\);/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

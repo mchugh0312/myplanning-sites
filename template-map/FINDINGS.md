@@ -613,6 +613,15 @@ every change against the original files.
   320px. A back-to-top button appears bottom-right once a guest is a screen
   and a half down. Help updated with one sentence about the filters.
 
+- MP-337, Firefox (from the tester's case: Pressed Petals, Our Story selected
+  all, I pressed - upright in the box, still italic on the site): where the
+  italic is the DESIGN's there is no <i> to remove. Chrome's italic command
+  answers with an upright span, which the site honours; Firefox's did not
+  record anything the site could see. The editor now does it by hand in every
+  browser: I on design-italic words wraps them in an upright span, I again
+  removes it; an upright box still uses the browser's command. Tested in the
+  editor (whole box, two words, Ctrl+I, plain box) and on the site.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
