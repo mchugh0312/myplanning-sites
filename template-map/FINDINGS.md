@@ -447,6 +447,60 @@ every change against the original files.
   lettering inside an SVG image cannot use web fonts, and Windows substitutes
   Comic Sans for a script face. Needs the file (ac1909d1-...svg) to confirm.
 
+- Modern Minimal opening at #accommodations: the MP-901 empty-section rule
+  re-showed ANY hidden section on the page with an empty box - including
+  Modern Minimal's #accommodations, a heading-less placeholder the design
+  always hides - so a blank band appeared above The Main Event, and an address
+  ending in #accommodations (left by the old, dead Travel link) landed on it.
+  A hidden element with no heading is never re-shown now; and an address
+  ending in a section the page does not show opens at the top, the #... dropped.
+- MP-932, re-opened: the registry page used the copy of the site data left in
+  the browser tab and never fetched again, so fonts changed after visiting the
+  site stayed old on the registry for the session. It paints from the copy,
+  then always fetches the current data and applies it.
+- MP-933, as tested (Pressed Petals' thumbnail): its thumbnail-only rule fixes
+  the hero's height; with the phone rules' 5/4 aspect-ratio beside it, the
+  browser narrowed the hero to 230px of 276 - the pale strip on the right.
+  The ratio steps aside in thumbnail mode; full width on every thumbnail.
+
+- MP-958 (High): one Travel card left travel_info empty after the cut, and an
+  old rule hid #travel-section whenever travel_info was empty - on Vintage
+  Love Story (and Modern Minimal) that section holds the hotels too, so typed
+  Travel never appeared. The empty half is now hidden only while the other
+  half has words, and never an element holding them. (Map: Modern Minimal's
+  Travel is now measured in the one-card sample - the intended change.)
+- Empty Travel box, one rule on all ten: one heading at most (no doubled
+  Travel / Accommodations), the design's own Book Now if a link is set (alone
+  where the design has no heading), and the separator between hotel and
+  flights only when two cards show (Pressed Petals' .accom-pair divider).
+- MP-919: the preview put the template's sample booking link back after an
+  empty save (a cleared field reads like a never-set one). No sample link now.
+- MP-357: the registry page read Site Background and Accent the wrong way round.
+- MP-962: Body Text (eight designs) and Section Headings (Regal Boho) moved the
+  menu font; the menu keeps its design face unless Menu Links is set.
+- MP-947 / MP-952: Gallery headings follow Section Headings on all ten.
+- MP-942: Golden Hour's Travel photos take photographs not in its three-column
+  hero first; the second photo repeats before the main one.
+- MP-936: iPhone auto-linking of dates/addresses/phones off on all ten.
+
+- MP-959: deleting a Travel card could leave the card count the same while
+  every mark and its "Hotel card" / "Travel card" label belonged to a
+  different line. Marks are redrawn whenever they no longer sit on the cards'
+  first lines or carry the wrong label.
+- MP-964: U counted a link's own underline as the couple's, so it lit on every
+  link and pressing it tried to remove it (nothing in Chrome; the link lost in
+  Firefox). U on linked words now adds/removes the couple's own <u> by hand,
+  never touching the link; the Link button lights when the cursor is in one.
+- MP-960: the font and size menus are fixed where they open, so scrolling the
+  editor floated them off their buttons. Any scroll outside a menu closes it;
+  scrolling a list to its end no longer scrolls the page.
+- MP-963: "X of X left" sits on one line across a row of gifts (price and count
+  go to the bottom with the button) - aligned on all ten.
+- MP-910, as tested: the registry description (all but three designs) and the
+  Book Now label on Heirloom Bloom and Sage & Still kept fixed colours. They
+  follow the panel once a colour is chosen (Text on light bands, Text 2 on
+  dark ones, keeping the design's transparency).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

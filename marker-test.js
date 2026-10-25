@@ -4686,7 +4686,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'a99b878b');
+    ('0000000' + h.toString(16)).slice(-8), '53a7b281');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7427,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-open-at-top');
+  check('the stamp names the change it shipped with', version, '2026-10-23-editor-registry-batch');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'e150f850');
+    ('0000000' + bh.toString(16)).slice(-8), '70dc235f');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -8193,8 +8193,10 @@ check('two blocks -> two cards', blocks(mark(
   // an empty string.
   check('the payload still sends the key, empty',
     /accommodation_info: '',/.test(wt), true);
+  /* Still the surviving field - with no sample link standing in when it is empty
+     (MP-919: a cleared link came back as the template's sample after saving). */
   check('and points the old booking link at the surviving field',
-    /accommodation_url: \(d\.travelUrl === undefined \|\| d\.travelUrl === null\)/.test(wt), true);
+    /accommodation_url: _cleanUrl\(d\.travelUrl \|\| ''\),/.test(wt), true);
   /* ONE button, under the hotel. The single box has one URL, and sending it as
      both keys drew a Book Now under the flights card too - every design draws a
      button for whichever of the two URLs it is handed. */
@@ -9329,7 +9331,10 @@ check('two blocks -> two cards', blocks(mark(
 
   /* MP-937. Toolbar menus stay on screen. */
   check('MP-937 every toolbar menu is kept on screen',
-    (ws.match(/<div ref=\{_keepOnScreen\} style=\{(?:\{ \.\.\.)?menuStyle/g) || []).length, 2);
+    (ws.match(/<div ref=\{_keepOnScreen\} (?:data-mp-menu="1" )?style=\{(?:\{ \.\.\.)?menuStyle/g) || []).length, 2);
+  /* MP-960: both menus marked, so scrolling inside either keeps it open. */
+  check('MP-960 both toolbar menus are marked as menus',
+    (ws.match(/<div ref=\{_keepOnScreen\} data-mp-menu="1" style=/g) || []).length, 2);
 }
 
 
@@ -9729,6 +9734,89 @@ check('two blocks -> two cards', blocks(mark(
     /function keepAddressClean\(\)/.test(rt) && /history\.replaceState\(history\.state, '', location\.pathname \+ location\.search\)/.test(rt), true);
   check('and the browser\'s scroll restoration is off', /history\.scrollRestoration = 'manual'/.test(rt), true);
   check('it runs at boot', /function boot\(\) \{\s*\n\s*keepAddressClean\(\);/.test(rt), true);
+}
+
+
+// ── Dead anchors, placeholders, registry fonts, Pressed Petals thumbnail ──
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* An address ending in a section the page does not show opens at the top. */
+  check('a dead #anchor is dropped at reveal', /function reveal\(\) \{\s*\n\s*document\.body\.classList\.remove\('hydrating'\);\s*\n\s*document\.body\.style\.visibility = 'visible';\s*\n\s*dropDeadAnchor\(\);/.test(rt), true);
+  /* Modern Minimal's #accommodations placeholder: hidden, no heading - never re-shown. */
+  check('a heading-less hidden placeholder is never re-shown', /if \(sec\.style\.display === 'none' && !head\) return;/.test(rt), true);
+  /* MP-932: the registry fetches current data even when the tab holds an old copy. */
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('MP-932 the registry refreshes over a stale copy of the site',
+    /if \(stashed\) applySkin\(skinFor\(stashed\)\);\s*\n\s*\n\s*fetch\(RENDER_API \+ "\/wedding-site\/"/.test(reg), true);
+  /* MP-933: Pressed Petals' thumbnail hero keeps its full width. */
+  check('MP-933 Pressed Petals\' thumbnail hero is full width',
+    /body\.thumbnail-mode \.hero\{height:66\.67vw!important;min-height:0!important;aspect-ratio:auto!important;width:100%!important;\}/.test(fs.readFileSync('template-pressedpetals.html', 'utf8')), true);
+}
+
+
+// ── Travel: one rule when empty or single; menu font; gallery; iPhone links ──
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* MP-958: the empty-half hider only acts while the OTHER half has words, and
+     never on an element holding them - one card hid Vintage Love Story's and
+     Modern Minimal's whole Travel. */
+  check('MP-958 the empty half is hidden only beside content',
+    /var otherRaw = d\[FIELDS\[key === 'travel' \? 'accommodations' : 'travel'\]\];\s*\n\s*if \(!_txt\(otherRaw\)\) return;/.test(rt), true);
+  /* An empty Travel box: one heading, the design's own Book Now if linked, and
+     no separator unless two cards are showing. */
+  check('an empty Travel box shows one heading and its Book Now',
+    /function _travelWhenEmptyInner\(d, menu\)/.test(rt) && /wrap\.className = 'mp-empty-book';/.test(rt), true);
+  check('a separator only between two cards',
+    /if \(shown < 2\) pair\.setAttribute\('data-mp-travel-lone', '1'\);/.test(rt) &&
+    /\[data-mp-travel-lone\]::before,\[data-mp-travel-lone\]::after\{display:none!important/.test(rt), true);
+  check('the empty-state is undone before the template draws',
+    /try \{ _travelEmptyUndo\(\); \} catch \(e\) \{\}\s*\n\s*GAP_FIELDS\.forEach/.test(rt), true);
+  /* MP-962: the menu keeps its design face unless Menu Links is set. */
+  check('MP-962 Body Text and Section Headings do not move the menu',
+    /if \(!\(settings\.menu && settings\.menu\.font\) && _designMenuFont\) root\.setProperty\('--menu-font', _designMenuFont\);/.test(rt), true);
+  /* MP-947 / MP-952: Gallery headings follow Section Headings. */
+  check('Gallery headings follow Section Headings (Coastal Chic, Whimsical Romance)',
+    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    /\.gallery-title\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--display\)\)/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+  /* MP-936: no iPhone auto-links on any design. */
+  check('MP-936 every template turns off iPhone auto-linking',
+    ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
+      .filter(n => !/<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">/.test(fs.readFileSync('template-' + n + '.html', 'utf8'))), []);
+  /* MP-357: the registry page reads Site Background and Accent the right way. */
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('MP-357 the registry reads primary_color as the background',
+    /const bg\s+= cz\.primary_color \|\| s\.bg;/.test(reg) && /const accent = cz\.accent_color\s+\|\| s\.accent;/.test(reg), true);
+  /* MP-942: Golden Hour's Travel photos skip the three hero columns first. */
+  check('MP-942 Golden Hour\'s Travel photos are not the hero\'s first',
+    /var _sectionPool=_uniq\.slice\(3\)\.concat\(_uniq\.slice\(1,3\)\)/.test(fs.readFileSync('template-goldenhour.html', 'utf8')), true);
+}
+
+
+// ── MP-959 / 964 / 960 / 963 / 910 ───────────────────────────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* MP-959: marks and card labels redrawn when they no longer sit on the cards'
+     first lines - a deletion can leave the count the same. */
+  check('MP-959 stale card labels are redrawn',
+    /const stale = markEls\.some\(\(m, i\) => _t\(m\.textContent\) !== \(heads\[i\] \|\| ""\) \|\|/.test(ws) &&
+    /if \(cards === marks && !spilled && !stale\) return;/.test(ws), true);
+  /* MP-964: a link's own underline is not the couple's; U inside a link is the
+     editor's own toggle; the Link button lights in a link. */
+  check('MP-964 U ignores a link\'s built-in underline', /underline: inLink \? under : \(!!q\.underline \|\| under\),/.test(ws), true);
+  check('and toggles the couple\'s own underline inside a link', /if \(cmd === "underline" && _underlineInLink\(\)\) \{/.test(ws), true);
+  check('and the Link button lights in a link', /style=\{\{ \.\.\.btnStyle\(!!fmt\.link\), fontSize: "10px"/.test(ws), true);
+  /* MP-960: scrolling anything but the menu closes it; the list does not
+     scroll the page. */
+  check('MP-960 a scroll outside the menu closes it',
+    /w\.addEventListener\("scroll", onScroll, true\);/.test(ws) && /overscrollBehavior: "contain",/.test(ws) && /data-mp-menu="1"/.test(ws), true);
+  /* MP-963: price and count go to the bottom with the button. */
+  check('MP-963 the gift count sits on one line across a row',
+    /_first\.style\.marginTop = 'auto';\s*\n\s*btn\.style\.setProperty\('margin-top', '0\.7rem', 'important'\);/.test(rt), true);
+  /* MP-910: the registry description and two Book Now labels follow the panel. */
+  check('MP-910 fixed copy follows the Colours panel once chosen',
+    /function applyPanelToFixedCopy\(d\)/.test(rt) && /applyPanelToFixedCopy\(d\);/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

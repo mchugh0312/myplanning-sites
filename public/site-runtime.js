@@ -2467,7 +2467,103 @@
         if (any) _unemptySection(key);
         else _emptySection(key);
       });
+      _travelWhenEmpty(d, menu);
     } catch (e) {}
+  }
+
+  /* An EMPTY Travel box, done one way on every design (as tested on Pressed
+     Petals): no cards, so no separators or columns - only a heading; never two
+     headings where a design has a Travel AND an Accommodations area; and the
+     booking link, if there is one, still shown as the design's own Book Now -
+     under the heading, or on its own where the design has none. All of it is
+     undone as soon as the box has words in it again. */
+  var _travelEmptyHidden = [], _travelEmptyShown = [];
+  /* Undone at the START of every hydrate, before the template draws - undone
+     after it, it overrode the template's own choices for the new content (a
+     Travel section put back to hidden just as the template showed it). */
+  function _travelEmptyUndo() {
+    _travelEmptyHidden.forEach(function (el) { try { el.style.display = ''; } catch (e) {} });
+    _travelEmptyShown.forEach(function (el) { try { el.style.display = 'none'; el.removeAttribute('data-mp-empty-shown'); } catch (e) {} });
+    _travelEmptyHidden = []; _travelEmptyShown = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.mp-empty-book'), function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mp-travel-lone]'), function (n) { n.removeAttribute('data-mp-travel-lone'); });
+  }
+  /* A separator only between two cards: a design that draws a divider between
+     its hotel and flights columns on the wrapper round both (Pressed Petals'
+     .accom-pair) drew it with one column showing, or none - a line separating
+     nothing. Marked here; the stylesheet drops the wrapper's drawn decoration. */
+  function _travelLonePair() {
+    var secs = [];
+    ['travel', 'accommodations'].forEach(function (key) {
+      (SECTION_ANCHORS[key] || []).forEach(function (id) { var el = document.getElementById(id); if (el && secs.indexOf(el) === -1) secs.push(el); });
+    });
+    if (secs.length < 2) return;
+    var pair = secs[0].parentElement;
+    while (pair && pair !== document.body && !secs.every(function (el) { return pair.contains(el); })) pair = pair.parentElement;
+    if (!pair || pair === document.body) return;
+    var shown = secs.filter(function (el) {
+      return el.getClientRects().length > 0 && getComputedStyle(el).display !== 'none' &&
+             _hasText(el.textContent) && !el.hasAttribute('data-mp-empty-shown');
+    }).length;
+    if (shown < 2) pair.setAttribute('data-mp-travel-lone', '1');
+    else pair.removeAttribute('data-mp-travel-lone');
+  }
+  function _travelWhenEmpty(d, menu) {
+    _travelEmptyUndo();           /* in case no hydrate ran it (a second pass) */
+    try { _travelWhenEmptyInner(d, menu); } finally { try { _travelLonePair(); } catch (e) {} }
+  }
+  function _travelWhenEmptyInner(d, menu) {
+    if (menu.travel === false) return;
+    if (_hasText(d.travel_info) || _hasText(d.accommodation_info)) return;
+    var vis = function (el) { return !!el && el.getClientRects().length > 0 && getComputedStyle(el).display !== 'none'; };
+    var secs = [];
+    ['travel', 'accommodations'].forEach(function (key) {
+      (SECTION_ANCHORS[key] || []).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && secs.indexOf(el) === -1) secs.push(el);
+      });
+    });
+    /* One heading at most: the first visible section keeps it; any other visible
+       one goes. */
+    var keep = null;
+    secs.forEach(function (el) {
+      if (!vis(el)) return;
+      if (!keep) { keep = el; return; }
+      if (keep.contains(el) || el.contains(keep)) return;
+      el.style.display = 'none';
+      _travelEmptyHidden.push(el);
+    });
+    var url = String(d.accommodation_url || d.travel_url || '').trim();
+    if (!url) return;
+    /* No section showing (a design with no Travel heading): the first one that
+       exists is shown for the button alone, its own content put away. */
+    if (!keep) {
+      for (var i = 0; i < secs.length && !keep; i++) {
+        var el = secs[i];
+        Array.prototype.forEach.call(el.children, function (c) {
+          if (c.style.display !== 'none') { c.style.display = 'none'; _travelEmptyHidden.push(c); }
+        });
+        if (el.style.display === 'none') { el.style.display = ''; _travelEmptyShown.push(el); }
+        el.setAttribute('data-mp-empty-shown', '1');
+        keep = el;
+      }
+    }
+    if (!keep) return;
+    /* The design's own Book Now: its sample button, even hidden, carries every
+       class and style the design gives one. Copied, pointed at the link. */
+    var src = null;
+    Array.prototype.forEach.call(document.querySelectorAll('a, button'), function (a) {
+      if (!src && /book\s*now/i.test(a.textContent || '') && !a.closest('.mp-empty-book')) src = a;
+    });
+    var btn;
+    if (src) { btn = src.cloneNode(true); btn.removeAttribute('id'); btn.style.display = ''; btn.style.visibility = ''; }
+    else { btn = document.createElement('a'); btn.textContent = 'Book Now'; }
+    if (btn.tagName === 'A') { btn.setAttribute('href', url); btn.setAttribute('target', '_blank'); btn.setAttribute('rel', 'noopener'); }
+    var wrap = document.createElement('div');
+    wrap.className = 'mp-empty-book';
+    wrap.style.cssText = 'display:flex;justify-content:center;padding:1.2rem 1rem 2rem;position:relative;z-index:2;';
+    wrap.appendChild(btn);
+    keep.appendChild(wrap);
   }
 
   /* What _emptySection put away, per section, so it can be given back exactly -
@@ -2485,6 +2581,16 @@
       var sec = document.getElementById(ids[i]);
       if (!sec) continue;
       var saved = _emptiedNodes[key] || { nodes: [], sec: null };
+      var head = null;
+      try { head = _headingNode(sec); } catch (e) {}
+      /* A hidden element with NO heading is not an emptied section: it is a
+         design's own placeholder - Modern Minimal's #accommodations, an empty
+         anchor it always hides, its Travel living in #travel-section. Showing
+         it put a blank band on the page, and an address ending in
+         #accommodations landed on that band, just above The Main Event. With
+         no heading there is nothing to show anyway, so it is left as the
+         template made it. */
+      if (sec.style.display === 'none' && !head) return;
       /* The template may have collapsed it for the empty field - and the Design
          switch may have hidden it since. It is on (switched-off sections never
          reach here), so it is shown EVERY time. Showing it only the first time
@@ -2494,8 +2600,6 @@
         if (!saved.sec) saved.sec = { el: sec, prev: 'none' };
         sec.style.display = '';
       }
-      var head = null;
-      try { head = _headingNode(sec); } catch (e) {}
       var wrap = head;
       while (wrap && wrap.parentNode && wrap.parentNode !== sec &&
              (wrap.parentNode.textContent || '').trim() === (head.textContent || '').trim()) {
@@ -3921,6 +4025,44 @@
     return f === false;
   }
 
+  /* MP-910, as tested. Two pieces of copy kept a fixed colour when the couple
+     set their text colours: the registry description (a fixed translucent dark
+     on the light registry bands, white or cream on the dark ones) and the Book
+     Now label on Heirloom Bloom's and Sage & Still's filled buttons (white,
+     where every other filled button follows Text 2). They follow the panel now
+     - Text on a light band, Text 2 on a dark one, keeping the design's slight
+     transparency - and only once the couple has chosen; the design's colours
+     stand otherwise. */
+  var _REG_NOTE_DARK = { pressedpetals: 1, sageandstill: 1, vintagelovestory: 1, whimsicalromance: 1 };
+  var _BOOK_ON_TEXT2 = { heirloombloom: 1, sageandstill: 1 };
+  function applyPanelToFixedCopy(d) {
+    try {
+      var c = (d && d.customization) || {};
+      var v = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+      // #registryBody on Golden Hour and Heirloom Bloom; #registryInfo elsewhere.
+      var note = document.getElementById('registryInfo') || document.getElementById('registryBody');
+      if (note) {
+        var dark = !!_REG_NOTE_DARK[TID];
+        var chosen = dark ? c.text2_color : c.text_color;
+        var varName = dark ? v.ink2 : v.ink;
+        if (note.dataset.mpNoteAlpha === undefined) {
+          note.style.color = '';
+          var m = /rgba?\(([^)]+)\)/.exec(getComputedStyle(note).color || '');
+          var parts = m ? m[1].split(',') : [];
+          note.dataset.mpNoteAlpha = parts.length > 3 ? String(Math.round(parseFloat(parts[3]) * 100)) : '100';
+        }
+        note.style.color = (chosen && varName)
+          ? 'color-mix(in srgb, var(' + varName + ') ' + note.dataset.mpNoteAlpha + '%, transparent)' : '';
+      }
+      if (_BOOK_ON_TEXT2[TID]) {
+        Array.prototype.forEach.call(document.querySelectorAll('a'), function (a) {
+          if (!/book\s*now/i.test(a.textContent || '')) return;
+          a.style.color = (c.text2_color && v.ink2) ? 'var(' + v.ink2 + ')' : '';
+        });
+      }
+    } catch (e) {}
+  }
+
   function applyCustomColors(d) {
     var c = d && d.customization;
     if (!c) return;
@@ -4080,6 +4222,12 @@
 
     var root = document.documentElement.style;
     _clearRoleFonts(root);
+    /* MP-962. The design's own menu face, read now - with every role variable
+       just cleared back to the design's - before Body Text or Section Headings
+       is written. A template's --menu-font is often var(--body) (or a heading
+       variable), so writing the body face carried straight into the menu. */
+    var _designMenuFont = '';
+    try { _designMenuFont = getComputedStyle(document.documentElement).getPropertyValue('--menu-font').trim(); } catch (e) {}
     var families = [];
     var roleVar = {
       // scriptVar FIRST. On half the templates displayVar is the same variable
@@ -4117,6 +4265,9 @@
          copy follows Body Text on every design. */
       if (role === 'body') root.setProperty('--body-font', "'" + cfg.font + "',serif");
     });
+    /* The menu changes only with Menu Links. Without a menu choice it keeps the
+       face it was designed with, whatever Body Text or Section Headings do. */
+    if (!(settings.menu && settings.menu.font) && _designMenuFont) root.setProperty('--menu-font', _designMenuFont);
 
     if (families.length) loadGoogleFonts(families);
 
@@ -5678,6 +5829,7 @@
       accommodations: 'accommodation_info',
       travel: 'travel_info'
     };
+    var _txt = function (h) { return String(h || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim(); };
     Object.keys(FIELDS).forEach(function (key) {
       var v = d[FIELDS[key]];
       /* undefined or null means the field was never set, and the template's own
@@ -5685,11 +5837,27 @@
          section here relies on, and it must not be hidden. Empty means they
          emptied it. */
       if (v === undefined || v === null) return;
-      if (String(v).replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim()) return;
+      if (_txt(v)) return;
+      /* Only the EMPTY HALF of a design that draws hotel and flights apart, and
+         only while the other half has something to show (MP-958). The single
+         Travel box is cut so that one card goes to accommodation_info, leaving
+         travel_info empty - and this hid #travel-section, which on Vintage Love
+         Story holds the hotels too: typed Travel never appeared. With BOTH
+         halves empty the one-section rule decides (collapseEmptySections), not
+         this. And never an element that holds the other half's own words. */
+      var otherRaw = d[FIELDS[key === 'travel' ? 'accommodations' : 'travel']];
+      if (!_txt(otherRaw)) return;
+      // Its FIRST LINE, spaces ignored on both sides: a template sets a card's
+      // lines in separate elements, so "Hyatt<br>1 Main St" reads "Hyatt1 Main St".
+      var _squash = function (t) { return String(t || '').replace(/\s+/g, '').toLowerCase(); };
+      var probe = _squash(_txt(String(otherRaw).split(/<br\s*\/?>/i).filter(function (l) { return _txt(l); })[0] || '')).slice(0, 20);
       var ids = SECTION_ANCHORS[key] || [];
       for (var i = 0; i < ids.length; i++) {
         var el = document.getElementById(ids[i]);
-        if (el) el.style.display = 'none';
+        if (!el) continue;
+        // Four characters at least: a shorter probe ("x") matches almost anything.
+        if (probe.length >= 4 && _squash(el.textContent).indexOf(probe) !== -1) continue;
+        el.style.display = 'none';
       }
     });
   }
@@ -6940,6 +7108,19 @@
       btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
       btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase This Item');
+      /* MP-963. The price and "2 of 3 left" go to the bottom WITH the button, so
+         they sit on one line across the row whatever the length of the gift's
+         name above them. Only the button was pushed down, and the lines above
+         it followed each name - a long name put its count lower than the
+         neighbour's. The first of them that shows takes the push; the button
+         then follows it at a fixed gap rather than sharing the free space. */
+      try {
+        var _first = [priceEl, metaEl].filter(function (el) { return el && el.style.display !== 'none'; })[0];
+        if (_first) {
+          _first.style.marginTop = 'auto';
+          btn.style.setProperty('margin-top', '0.7rem', 'important');
+        }
+      } catch (e) {}
       card.classList.toggle('mp-reg-gifted', !!soldOut);
     }
   }
@@ -7103,6 +7284,11 @@
        every design. Long words now break where they must; ordinary text,
        which always has somewhere to wrap, is unaffected. */
     'body{overflow-wrap:break-word}' +
+    /* A Travel section shown only for the Book Now of an empty box: none of the
+       design's drawn decoration - the separator Pressed Petals draws between
+       its hotel and flights columns sat behind the lone button. */
+    '[data-mp-empty-shown]::before,[data-mp-empty-shown]::after{display:none!important;content:none!important}' +
+    '[data-mp-travel-lone]::before,[data-mp-travel-lone]::after{display:none!important;content:none!important}' +
     /* "Purchase This Item", as written, on every design: nine set the gift
        buttons in capitals and Modern Minimal did not, so the same button read
        two ways across the templates. */
@@ -7619,6 +7805,7 @@
   function reveal() {
     document.body.classList.remove('hydrating');
     document.body.style.visibility = 'visible';
+    dropDeadAnchor();
     // The live page is held hidden by a script in the template's head until
     // this moment, so the couple's photographs are the first thing painted.
     styleContentLinks();
@@ -7773,7 +7960,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-open-at-top';
+  var MP_RUNTIME_BUILD = '2026-10-23-editor-registry-batch';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -7872,6 +8059,7 @@
 
   function hydrate(d) {
     if (!d) return;
+    try { _travelEmptyUndo(); } catch (e) {}
     GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
     /* ONE Travel switch. Accommodations and Travel are one section fed by one
        box, and the editor has a single Travel switch that sends both keys - but
@@ -8189,6 +8377,7 @@
     /* After the template has built itself, so a section it populated from its
        own markup is still taken down when the couple's copy is empty. */
     collapseEmptySections(d);
+    applyPanelToFixedCopy(d);    // MP-910: after the template has drawn the copy
 
     // Both paths wait for the hero. The preview needs it as much as the live
     // site: its placeholder lifts on the ack, and the ack now comes from
@@ -8258,6 +8447,26 @@
      without writing the anchor into the address, and the browser's own scroll
      restoration is off. A link deliberately made to a section (…/couple#rsvp
      in an invitation) still opens there - only the menu stops leaving them. */
+  /* An address that ends in a section the page does not show - a #anchor left
+     by an old menu click (Modern Minimal's Travel link pointed at
+     #accommodations, a hidden anchor), or one for a section since switched off
+     - opened somewhere unrelated: the browser could not land on it and stayed
+     wherever it was. Run at reveal, once it is known what is visible: such an
+     anchor is dropped and the page opens at its top. A link to a section that
+     IS shown is left alone. */
+  function dropDeadAnchor() {
+    try {
+      if (_isPreview || !location.hash || location.hash.length < 2) return;
+      var t = null;
+      try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) {}
+      var shown = !!t && t.getClientRects().length > 0 &&
+                  getComputedStyle(t).visibility !== 'hidden' && t.getBoundingClientRect().height > 2;
+      if (shown) return;
+      history.replaceState(history.state, '', location.pathname + location.search);
+      window.scrollTo(0, 0);
+    } catch (e) {}
+  }
+
   function keepAddressClean() {
     try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
     document.addEventListener('click', function (e) {

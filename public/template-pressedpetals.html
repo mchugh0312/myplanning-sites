@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Pressed Petals</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1030,7 +1034,10 @@ footer{background:var(--olive);padding:2.5rem;text-align:center;}
 
    The class itself says when these rules are wanted, so it is the only test
    they need. */
-body.thumbnail-mode .hero{height:66.67vw!important;min-height:0!important;}
+/* MP-933. aspect-ratio:auto - the phone rules give the hero a 5/4 ratio, and a
+   ratio beside this fixed height made the browser NARROW the hero to keep it:
+   230px of a 276px card, the pale strip down the thumbnail's right side. */
+body.thumbnail-mode .hero{height:66.67vw!important;min-height:0!important;aspect-ratio:auto!important;width:100%!important;}
 body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!important;}
 
 
@@ -1145,7 +1152,7 @@ body.thumbnail-mode .hero-carousel{height:66.67vw!important;min-height:0!importa
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'pressedpetals:17b5b947';
+    window.__mpTemplate = 'pressedpetals:41e2e313';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

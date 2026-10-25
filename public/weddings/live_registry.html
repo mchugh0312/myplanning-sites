@@ -708,8 +708,12 @@ function skinFor(data){
 function applySkin(found){
   if (!found || !found.skin) return;
   const s = found.skin, cz = found.customization || {};
-  const bg     = cz.accent_color  || s.bg;
-  const accent = cz.primary_color || s.accent;
+  /* MP-357. primary_color is SITE BACKGROUND - the editor's Site Background
+     control writes it, and the site paints the page with it - and accent_color
+     is Accent. Read the other way round here, so changing Accent recoloured the
+     cream behind the gifts and Site Background coloured the accents. */
+  const bg     = cz.primary_color || s.bg;
+  const accent = cz.accent_color  || s.accent;
   const ink    = cz.text_color    || s.ink;
 
   if (s.gfont && !document.getElementById("skin-font")) {
@@ -794,8 +798,12 @@ function initSkin(){
   }
   document.body.classList.remove("brandskin");
 
+  /* The copy the site left in this tab paints at once - and the current data is
+     ALWAYS fetched after it and applied over it. Returning on the copy meant a
+     couple who changed their fonts (or colours) after visiting their site saw
+     the old ones on the registry for the rest of the session (MP-932). */
   const stashed = readStashedSite(state.slug);
-  if (stashed) { applySkin(skinFor(stashed)); return; }
+  if (stashed) applySkin(skinFor(stashed));
 
   fetch(RENDER_API + "/wedding-site/" + encodeURIComponent(state.slug))
     .then(r => r.ok ? r.json() : null)
@@ -804,9 +812,9 @@ function initSkin(){
       // couple previewing their own registry should see their skin either way.
       const found = d ? skinFor(d) : null;
       if (found) applySkin(found);
-      else document.body.classList.add("brandskin");
+      else if (!stashed) document.body.classList.add("brandskin");
     })
-    .catch(() => { document.body.classList.add("brandskin"); });
+    .catch(() => { if (!stashed) document.body.classList.add("brandskin"); });
 }
 
 
