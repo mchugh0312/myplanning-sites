@@ -4686,7 +4686,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '53a7b281');
+    ('0000000' + h.toString(16)).slice(-8), '90e16f67');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7427,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-editor-registry-batch');
+  check('the stamp names the change it shipped with', version, '2026-10-23-ios-fixes');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9817,6 +9817,20 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-910: the registry description and two Book Now labels follow the panel. */
   check('MP-910 fixed copy follows the Colours panel once chosen',
     /function applyPanelToFixedCopy\(d\)/.test(rt) && /applyPanelToFixedCopy\(d\);/.test(rt), true);
+}
+
+
+// ── MP-937 size boxes fit on iPhone; MP-961 Whimsical Romance's corners ───
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* 16px on a phone (iPhone zooms into smaller fields, MP-052) in a box sized
+     to its longest option - a fixed 88px cut "Very large" to "Very lar". */
+  check('MP-937 the size box is sized to its text, 16px on a phone',
+    /width: "auto", minWidth: isMobile \? "122px" : "104px", flexShrink: 0,/.test(ws) &&
+    /fontSize: isMobile \? "16px" : "12px", color: "#121212",/.test(ws), true);
+  /* Safari did not clip the photo to the rounded frame until a repaint. */
+  check('MP-961 Whimsical Romance\'s hero frame clips from the first paint',
+    /-webkit-mask-image:-webkit-radial-gradient\(white, black\);\s*\n\s*isolation:isolate;/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

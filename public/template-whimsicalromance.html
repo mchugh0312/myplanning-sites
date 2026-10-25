@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Whimsical Romance</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -229,6 +233,13 @@ body.hydrating{visibility:hidden;}
   /* Deep rounding, per the design. */
   border-radius:clamp(38px,5.4vw,82px);
   overflow:hidden;
+  /* MP-961. Safari (iPhone, iPad) left the photo's corners square on first
+     paint until a scroll or the menu forced a repaint: a rounded box with
+     overflow:hidden does not clip a child on its own compositing layer there.
+     A mask makes WebKit clip it from the first paint; isolation gives the
+     frame its own stacking context. No visible change anywhere else. */
+  -webkit-mask-image:-webkit-radial-gradient(white, black);
+  isolation:isolate;
   background:#3a3a36;
 }
 /* Thin outline sitting just outside the photo, inside the rosy border. */
@@ -952,7 +963,8 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .gallery-title{
-  font-family:var(--display);
+  /* Section Headings reaches it (MP-952); Corben until one is chosen. */
+  font-family:var(--heading-font, var(--display));
   font-size:clamp(1.8rem, 4vw, 2.4rem);
   color:var(--ink);
   margin-bottom:2rem;
@@ -1174,7 +1186,7 @@ body.thumbnail-mode .home-block{min-height:0;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'whimsicalromance:10ae820c';
+    window.__mpTemplate = 'whimsicalromance:cdcdc174';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

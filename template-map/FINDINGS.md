@@ -501,6 +501,16 @@ every change against the original files.
   follow the panel once a colour is chosen (Text on light bands, Text 2 on
   dark ones, keeping the design's transparency).
 
+- MP-937, from the screenshot: the font size box was a fixed 88px on phones,
+  sized for 11px text; with iPhone fields at 16px (to stop Safari zooming in -
+  the MP-052 approach) "Very large" was cut to "Very lar". The box now sizes to
+  its longest option, and is 16px on phones by design.
+- MP-961, from the screenshot: Whimsical Romance's hero photo kept square
+  corners inside its rounded frame until a repaint - the WebKit case where a
+  rounded overflow:hidden box does not clip a child on its own layer. The
+  frame now carries the standard mask that makes Safari clip from the first
+  paint. No visible change in Chromium; needs an iPhone/iPad check.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

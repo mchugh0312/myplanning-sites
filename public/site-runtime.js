@@ -7960,7 +7960,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-editor-registry-batch';
+  var MP_RUNTIME_BUILD = '2026-10-23-ios-fixes';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
