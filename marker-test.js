@@ -7427,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-wr-names');
+  check('the stamp names the change it shipped with', version, '2026-10-23-photo-cycle');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '70dc235f');
+    ('0000000' + bh.toString(16)).slice(-8), 'ad08af31');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9856,6 +9856,15 @@ check('two blocks -> two cards', blocks(mark(
   const rule = wr.slice(wr.indexOf('.hero-couple-name{'), wr.indexOf('}', wr.indexOf('.hero-couple-name{')));
   check('MP-952 Whimsical Romance\'s names follow Section Headings',
     /font-family:var\(--heading-font, var\(--display\)\);/.test(rule), true);
+}
+
+
+// ── MP-942: the sample clean-up repeats the other photos before the hero ──
+{
+  /* Cycling from the first put the couple's hero back beside itself (A, B, A
+     on Vintage Love Story's story frames) when B was there to repeat. */
+  check('MP-942 the sample clean-up cycles the other photographs first',
+    /img\.src = own\.length > 1 \? own\[1 \+ \(n % \(own\.length - 1\)\)\] : own\[0\];/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

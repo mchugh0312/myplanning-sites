@@ -523,6 +523,15 @@ every change against the original files.
   the couple's INITIALS as a monogram, which do not follow (its footer names
   do) - awaiting a decision.
 
+- MP-942, Golden Hour with "10 photos": the editor sends every homepage photo
+  (no cap), and with 4+ homepage photos Travel already takes the 4th and 5th.
+  Travel reusing the 2nd and 3rd means only three HOMEPAGE photos - the rest
+  are likely in the Gallery. Using Gallery photos in sections was built and
+  then REVERTED: MP-504 decided Gallery photos appear only in the Gallery (the
+  suite enforces it). Awaiting a decision on relaxing MP-504 as a fallback.
+  Kept: the sample clean-up repeats the couple's other photos before their
+  hero (Vintage Love Story: A, B, B rather than A, B, A).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

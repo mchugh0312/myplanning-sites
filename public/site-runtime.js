@@ -5532,7 +5532,10 @@
           if (!img || img.tagName !== 'IMG') return;
           var src = img.getAttribute('src') || '';
           if (src && theirs[src]) return;          // already their own
-          img.src = own[n % own.length];
+          /* MP-942: the couple's OTHER photographs first, the first (their
+             hero) only when it is the only one - cycling from the first put it
+             back beside itself (A, B, A) when B was there to repeat. */
+          img.src = own.length > 1 ? own[1 + (n % (own.length - 1))] : own[0];
           img.removeAttribute('srcset');
           img.style.visibility = '';
           n++;
@@ -7960,7 +7963,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-wr-names';
+  var MP_RUNTIME_BUILD = '2026-10-23-photo-cycle';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
