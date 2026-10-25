@@ -4694,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '1d0915a4');
+    ('0000000' + h.toString(16)).slice(-8), '2dd7f4f7');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-ff-selection');
+  check('the stamp names the change it shipped with', version, '2026-10-23-legacy-strong');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -10055,6 +10055,19 @@ check('two blocks -> two cards', blocks(mark(
   check('and "select the word at the caret" never collapses a real selection',
     /try \{ const real = _rangeInBox\(\); if \(real && !real\.collapsed\) return; \} catch \(e\) \{\}/.test(ws), true);
   check('B, I and U say in the console how they read the selection', /console\.log\("\[MP-337\] " \+ cmd \+ ": selection via "/.test(ws), true);
+}
+
+
+// ── MP-337: a title saved inside <strong> bolds on the first press ───────
+{
+  /* Older sample text marked titles with <strong>, shown at the title's own
+     weight. B took that <strong> off - invisible - so the first press did
+     nothing (the tester's Firefox console log showed it). Decided by what is
+     seen now: plain-looking -> bold, turning the <strong> into a <b>. */
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  check('B on a plain-looking title inside <strong> makes it bold',
+    /const looksBold = parseInt\(w\.getComputedStyle\(start\)\.fontWeight, 10\) >= 600;/.test(ws) &&
+    /if \(tag\) \{\s*\/\/ an old <strong> shown plain\s*\r?\n\s*const b = doc\.createElement\("b"\);/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

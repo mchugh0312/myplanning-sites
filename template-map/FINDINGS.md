@@ -649,6 +649,16 @@ every change against the original files.
   / U now log "[MP-337] <cmd>: selection via ... | <words>" to the console so a
   Firefox test settles it.
 
+- MP-337, Firefox, settled by the tester's console log: the selection was read
+  correctly ("selection via page | Hotel"); the Hotel title was saved as
+  <strong>Hotel</strong> - older sample text marked titles that way, and both
+  the box and the site show such a title at the title's own weight, not bold.
+  B (lit from what is seen) was rightly unlit, but the first press took the
+  invisible <strong> off, so nothing appeared to happen; the second wrapped
+  <b>. B now decides by what is seen: a plain-looking title becomes bold on
+  the first press (an old <strong> turned into <b>), a bold-looking one loses
+  its bold. The selection-reading fixes and the [MP-337] console line stay.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
