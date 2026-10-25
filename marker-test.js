@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-centred-strip');
+  check('the stamp names the change it shipped with', version, '2026-10-23-registry-filters');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9993,6 +9993,22 @@ check('two blocks -> two cards', blocks(mark(
      the top: align-items does nothing on a plain block. */
   check('an evened gift button is a flex box, text centred',
     /if \(_disp\.indexOf\('flex'\) === -1\) b\.style\.setProperty\('display', _disp === 'inline-block' \|\| _disp === 'inline' \? 'inline-flex' : 'flex', 'important'\);/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
+}
+
+
+// ── Registry page: filters on the gift grid, favourites, back to top ─────
+{
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('the filters use the gift grid\'s columns and gap, no line under them',
+    /\.qf\{border-bottom:none!important;\}/.test(reg) &&
+    /\.qf-line\{display:grid!important;grid-template-columns:repeat\(2,minmax\(0,1fr\)\);gap:18px!important;/.test(reg) &&
+    /@media\(min-width:980px\)\{\.qf-line\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\);\}\}/.test(reg), true);
+  check('the fourth cell filters to the couple\'s favourites',
+    /if\(state\.filters\.fav && !t\.mostWanted\)  return false;/.test(reg) && /onclick="toggleFav\(\)"/.test(reg) &&
+    /state\.filters\.fav=false;/.test(reg), true);
+  check('and Status no longer offers it twice', /\["preferred","Couple Preferred"\]/.test(reg), false);
+  check('a back-to-top button appears down the page',
+    /b\.className = 'to-top';/.test(reg) && /window\.scrollY > window\.innerHeight \* 1\.5/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

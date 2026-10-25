@@ -556,6 +556,45 @@
    dark text, as the photo frames do. */
 .qf{background:var(--cream);border-bottom:1px solid var(--border);}
 .qf .qf-count{color:var(--muted);}
+
+/* The filters line up with the gift cards: the gift grid's own columns and
+   gap at every width (2, then 3, then 4), the fourth cell holding the couple's
+   favourites, the count and the sort. No line between them and the gifts. */
+.qf{border-bottom:none!important;}
+.qf .wrap{display:block!important;padding:12px 20px!important;}
+.qf-line{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px!important;align-items:center;}
+@media(min-width:640px){.qf-line{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(min-width:980px){.qf-line{grid-template-columns:repeat(4,minmax(0,1fr));}}
+.qf-line .fsel{width:100%;min-width:0;flex:none;box-sizing:border-box;}
+.qf-line .qf-line2{display:flex;align-items:center;gap:8px;margin:0!important;min-width:0;}
+.qf-fav{display:inline-flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;height:32px;
+  padding:0 12px;border-radius:999px;background:#fff;border:1px solid var(--border);cursor:pointer;
+  font:600 12px "Open Sans",sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;}
+.qf-fav span{overflow:hidden;text-overflow:ellipsis;}
+.qf-fav.on{border-color:var(--ink);}
+.qf-fav svg{flex:0 0 auto;color:#C46A6A;}
+.qf-line2 .chip.clear{flex:0 0 auto;}
+.qf-line2 .qf-count{margin-left:0!important;flex:0 0 auto;}
+.qf-fav{--ink:var(--surface-ink,var(--ink));--border:var(--s-border,var(--border));}
+
+/* Back to the top: appears once the guest has scrolled well down the list. */
+.to-top{position:fixed;right:18px;bottom:18px;z-index:60;width:42px;height:42px;border-radius:50%;
+  background:#fff;border:1px solid var(--s-border,#ddd);box-shadow:0 6px 18px rgba(0,0,0,.16);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease;
+  color:var(--surface-ink,#333);}
+.to-top.show{opacity:1;pointer-events:auto;transform:none;}
+@media(max-width:640px){.to-top{right:14px;bottom:14px;width:40px;height:40px;}}
+
+/* A phone's cell is half the width: the shorter label, and the count goes
+   (the gifts are right below it), so "Favorites" is never cut short. */
+.fav-short{display:none;}
+@media(max-width:640px){
+  .fav-long{display:none;}
+  .fav-short{display:inline;}
+  .qf-line2 .qf-count{display:none;}
+}
+@media(max-width:360px){ .qf-fav{padding:0 8px;gap:4px;font-size:11px;} .qf-line .qf-line2{gap:6px;} }
 </style>
 </head>
 <body>
@@ -619,7 +658,7 @@ const SORT_OPTIONS = [
 const state = {
   registryId:null, slug:null, preview:false, password:null, reorder:false, howItem:null, pendingAsk:null,
   data:null, things:[],
-  filters:{ search:"", cats:new Set(), price:new Set(), status:"all", sort:"custom" },
+  filters:{ search:"", cats:new Set(), price:new Set(), status:"all", fav:false, sort:"custom" },
   open:new Set(),            // collapsed by default — nothing open
   sortOpen:false,
   activeItem:null, activeExp:null,
@@ -1144,10 +1183,10 @@ function quickFiltersHtml(count){
 
   const catOpts   = [["", "All categories"]].concat(cats.map(c=>[c, c]));
   const priceOpts = [["", "Any price"]].concat(PRICE_BUCKETS.map(b=>[b.id, b.label]));
-  const statOpts  = [["all","All gifts"],["pending","Still needed"],["purchased","Purchased"],["preferred","Couple Preferred"]];
+  const statOpts  = [["all","All gifts"],["pending","Still needed"],["purchased","Purchased"]];
   const sortOpts  = SORT_OPTIONS.map(o=>[o.value, o.label]);
 
-  const active = f.cats.size + f.price.size + (f.status!=="all"?1:0);
+  const active = f.cats.size + f.price.size + (f.status!=="all"?1:0) + (f.fav?1:0);
 
   /* Two lines. The three filters share the first one equally; the count and the
      sort pill sit on the second, sort hard right.
@@ -1169,8 +1208,11 @@ function quickFiltersHtml(count){
     +   sel("f-cat",   "Category", [...f.cats][0]  || "", catOpts,   "pickCat(this.value)")
     +   sel("f-price", "Price",    [...f.price][0] || "", priceOpts, "pickPrice(this.value)")
     +   sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
-    + '</div>'
     + '<div class="qf-line2">'
+    +   '<button type="button" class="qf-fav'+(f.fav?' on':'')+'" aria-pressed="'+(f.fav?'true':'false')+'" onclick="toggleFav()" title="Show only the gifts we love most">'
+    +     '<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 5.4 3.2 1.9-2.1 3.4-3.2 5.4-3.2 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21z" fill="'+(f.fav?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"/></svg>'
+    +     '<span class="fav-long">Our favorites</span><span class="fav-short">Favorites</span>'
+    +   '</button>'
     +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
     +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
     +   '<span class="qf-sortwrap">'
@@ -1184,8 +1226,9 @@ function quickFiltersHtml(count){
     +     '</button>'
     +     sortMenu
     +   '</span>'
-    + '</div>'
-    + '</div></div>';
+    + '</div>'          /* .qf-line2 - the fourth cell */
+    + '</div>'          /* .qf-line - the row, in the gift grid's columns */
+    + '</div></div>';   /* .wrap, .qf */
 }
 
 /* toggleSort, setSort and the close-on-outside-click listener already exist
@@ -1200,8 +1243,11 @@ function pickPrice(v){ state.filters.price.clear(); if(v) state.filters.price.ad
 function setStatus(s){ state.filters.status=s; render(); }
 function clearAllFilters(){
   state.filters.cats.clear(); state.filters.price.clear();
-  state.filters.status="all"; state.filters.search=""; render();
+  state.filters.status="all"; state.filters.fav=false; state.filters.search=""; render();
 }
+/* The couple's favourites - the gifts they hearted ("Couple Preferred"). Its own
+   toggle in the fourth column; it used to be buried as a Status option. */
+function toggleFav(){ state.filters.fav = !state.filters.fav; render(); }
 /* MP-392: a link saved without a scheme resolves relative to this page, which
    is why "Purchase" and "See More Details" both 404ed. Add the scheme back at
    render time so existing rows work without a data migration. Anything that is
@@ -1253,6 +1299,7 @@ function passesFilters(t){
   if(st==="purchased" && !isPurchased(t)) return false;
   if(st==="pending"   &&  isPurchased(t)) return false;
   if(st==="preferred" && !t.mostWanted)   return false;
+  if(state.filters.fav && !t.mostWanted)  return false;
   return true;
 }
 
@@ -2386,6 +2433,21 @@ function renderGate(title, invalid){
 }
 function submitGate(){ const g=el("gate-pw"); const v=g?g.value.trim():""; if(!v) return; state.password=v; el("app").innerHTML='<div class="center-load"><span class="spinner"></span></div>'; load(); }
 function renderNotice(title,sub){ el("app").innerHTML='<div class="gate"><div class="gate-card"><h2 class="serif">'+esc(title)+'</h2><p style="margin-bottom:0">'+esc(sub)+'</p></div></div>'; }
+
+/* Back to the top. Shown once the guest is more than a screen and a half down. */
+(function(){
+  try {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'to-top'; b.setAttribute('aria-label', 'Back to top'); b.title = 'Back to top';
+    b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    b.addEventListener('click', function(){ try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } });
+    var on = false;
+    var check = function(){ var want = window.scrollY > window.innerHeight * 1.5; if (want !== on) { on = want; b.classList.toggle('show', on); } };
+    var add = function(){ if (!b.parentNode) document.body.appendChild(b); check(); };
+    if (document.body) add(); else document.addEventListener('DOMContentLoaded', add);
+    window.addEventListener('scroll', check, { passive: true });
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>

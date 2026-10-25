@@ -604,6 +604,15 @@ every change against the original files.
   its pills stay white with dark text, the count in the page's guarded muted
   ink (4.5-5.5:1; Heirloom Bloom 3.8:1, the same as its gift text on the site).
 
+- Registry page filters: no line between them and the gifts; they use the
+  gift grid's own columns and gap (4 / 3 / 2 across), each filter exactly a
+  card wide; the fourth cell is a new "Our favorites" toggle (the gifts the
+  couple hearted - "Couple Preferred" - removed from Status so it is not
+  offered twice), with Clear, the count and sort beside it. On phones the
+  label shortens to "Favorites" and the count gives way, so it fits down to
+  320px. A back-to-top button appears bottom-right once a guest is a screen
+  and a half down. Help updated with one sentence about the filters.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
