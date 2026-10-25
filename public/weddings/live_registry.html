@@ -408,15 +408,15 @@
 @media(min-width:768px){ .rhero.no-photo .rhero-panel{min-height:270px;} }
 .rhero-img{position:relative;background:#E5E0D9;aspect-ratio:4/3;overflow:hidden;}
 .rhero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.rhero-panel{position:relative;background:var(--olive);color:#fff;display:flex;flex-direction:column;
+.rhero-panel{position:relative;background:var(--rh-bg,var(--olive));color:var(--rh-text,#fff);display:flex;flex-direction:column;
   align-items:center;justify-content:center;text-align:center;padding:26px 30px 32px;min-width:0;}
-.rh-title{font-size:clamp(22px,2.8vw,30px);font-weight:400;margin:0;line-height:1.15;color:#fff;}
+.rh-title{font-size:clamp(22px,2.8vw,30px);font-weight:400;margin:0;line-height:1.15;color:var(--rh-head,#fff);}
 .rh-title em,.rh-title i{font-style:italic;}
-.rh-note{font-size:12px;line-height:1.65;margin:9px 0 0;max-width:320px;color:rgba(255,255,255,.94);}
+.rh-note{font-size:12px;line-height:1.65;margin:9px 0 0;max-width:320px;color:var(--rh-text,rgba(255,255,255,.94));font-family:var(--skin-body,inherit);}
 .rh-note em,.rh-note i{font-family:"Instrument Serif",serif;font-style:italic;font-size:1.08em;}
 .rh-note p{margin:0 0 .55em;} .rh-note p:last-child{margin-bottom:0;}
-.rh-sig{margin-top:9px;font-size:13.5px;font-style:italic;color:#fff;}
-.rh-date{margin-top:4px;font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.85);}
+.rh-sig{margin-top:9px;font-size:13.5px;font-style:italic;color:var(--rh-head,#fff);}
+.rh-date{margin-top:4px;font-size:11px;letter-spacing:.06em;color:var(--rh-text,rgba(255,255,255,.85));opacity:.9;font-family:var(--skin-body,inherit);}
 .rh-note.ed:empty:before{content:attr(data-ph);opacity:.6;}
 .rhero .ed{cursor:text;border-radius:3px;}
 .rhero .ed:focus{outline:1px solid rgba(255,255,255,.7);outline-offset:4px;}
@@ -693,7 +693,7 @@ function skinFor(data){
   if (!data) return null;
   const label = String(data.template || "").toLowerCase().replace(/[^a-z]/g, "");
   const byId = TEMPLATE_SKIN[label];
-  if (byId) return { skin: byId, customization: data.customization || {}, fonts: data.font_settings || {} };
+  if (byId) return { alias: label, skin: byId, customization: data.customization || {}, fonts: data.font_settings || {} };
   const alias = {
     sagestill:"sageandstill", sageandstill:"sageandstill",
     pressedpetals:"pressedpetals", heirloombloom:"heirloombloom",
@@ -702,8 +702,22 @@ function skinFor(data){
     coastalchic:"coastalchic", vintagelovestory:"vintagelovestory",
     regalboho:"regalboho",
   }[label];
-  return alias ? { skin: TEMPLATE_SKIN[alias], customization: data.customization || {}, fonts: data.font_settings || {} } : null;
+  return alias ? { alias: alias, skin: TEMPLATE_SKIN[alias], customization: data.customization || {}, fonts: data.font_settings || {} } : null;
 }
+
+/* MP-357, as tested. The header panel takes the look of the site's OWN registry
+   section - its background, heading colour and text colour, through the same
+   colour settings the site uses there - so what the couple sets on the site
+   carries over. It was painted with Accent and lettered in fixed white, so on
+   Heirloom Bloom (whose registry band is Accent 2) changing Accent recoloured
+   the header but not the site's band, and changing the text colours did
+   nothing to it. Measured per design: which setting paints each part, and the
+   design's own colour when the couple has not changed it. A null slot keeps
+   the design's colour (Sage & Still's registry is white on a photograph). */
+const REGISTRY_LOOK = {"blacktietimeless":{"bg":"bg","head":"ink","text":"ink","dBg":"#f9f7f5","dHead":"#1c2120","dText":"#1c2120"},"coastalchic":{"bg":"bg","head":"ink","text":"ink","dBg":"#fefaf1","dHead":"#1b2a41","dText":"#1b2a41"},"goldenhour":{"bg":"bg","head":"ink","text":"ink","dBg":"#ffffff","dHead":"#32344b","dText":"#32344b"},"heirloombloom":{"bg":"accent2","head":"ink","text":"ink","dBg":"#afab57","dHead":"#673d45","dText":"#3a2010"},"modernminimal":{"bg":"bg","head":"ink","text":"ink","dBg":"#fffdf5","dHead":"#000000","dText":"#000000"},"pressedpetals":{"bg":"accent","head":"ink2","text":"ink","dBg":"#8d8863","dHead":"#ffffff","dText":"#040505"},"regalboho":{"bg":"bg","head":"ink","text":"ink","dBg":"#fefaf1","dHead":"#53141e","dText":"#53141e"},"sageandstill":{"bg":"accent","head":null,"text":null,"dBg":null,"dHead":"#ffffff","dText":"#ffffff"},"vintagelovestory":{"bg":"accent","head":"bg","text":"bg","dBg":"#513229","dHead":"#fffdf5","dText":"#fffdf5"},"whimsicalromance":{"bg":"accent","head":"ink3","text":"ink2","dBg":"#53141e","dHead":"#e4c567","dText":"#fffdf5"}};
+const LOOK_FIELD = { bg: "primary_color", accent: "accent_color", ink: "text_color", ink2: "text2_color",
+                     ink3: "text3_color", accent2: "accent2_color", accent3: "accent3_color" };
+function lookColour(cz, slot, fallback){ return (slot && cz[LOOK_FIELD[slot]]) || fallback || ""; }
 
 function applySkin(found){
   if (!found || !found.skin) return;
@@ -749,6 +763,13 @@ function applySkin(found){
   r.setProperty("--ink", ink);
   r.setProperty("--skin-display", headFont ? "'" + headFont + "', " + s.display : s.display);
   r.setProperty("--skin-body", bodyFont ? "'" + bodyFont + "', " + s.body : s.body);
+  const lk = REGISTRY_LOOK[found.alias] || null;
+  if (lk) {
+    const pBg = lookColour(cz, lk.bg, lk.dBg) || accent;
+    r.setProperty("--rh-bg",   pBg);
+    r.setProperty("--rh-head", lookColour(cz, lk.head, lk.dHead) || "#ffffff");
+    r.setProperty("--rh-text", lookColour(cz, lk.text, lk.dText) || "#ffffff");
+  }
 
   // The page ground alone wasn't enough to make this read as part of the
   // wedding site: the chrome around the cards — chips, borders, rules, the

@@ -7427,7 +7427,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-photo-cycle');
+  check('the stamp names the change it shipped with', version, '2026-10-23-registry-header');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9865,6 +9865,23 @@ check('two blocks -> two cards', blocks(mark(
      on Vintage Love Story's story frames) when B was there to repeat. */
   check('MP-942 the sample clean-up cycles the other photographs first',
     /img\.src = own\.length > 1 \? own\[1 \+ \(n % \(own\.length - 1\)\)\] : own\[0\];/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
+}
+
+
+// ── MP-357: the registry page's header looks like the site's registry ────
+{
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  /* Background, heading and text colour through the same settings the site's
+     registry section uses (measured per design); Accent and fixed white before. */
+  check('MP-357 every design has a registry look',
+    ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
+      .filter(n => !new RegExp('"' + n + '":\\{"bg":').test(reg)), []);
+  check('Heirloom Bloom\'s header follows Accent 2, as its registry band does',
+    /"heirloombloom":\{"bg":"accent2","head":"ink","text":"ink"/.test(reg), true);
+  check('the header panel, title and text use the look',
+    /\.rhero-panel\{position:relative;background:var\(--rh-bg,var\(--olive\)\);color:var\(--rh-text,#fff\);/.test(reg) &&
+    /color:var\(--rh-head,#fff\);\}/.test(reg), true);
+  check('and the template is known to the skin', /if \(byId\) return \{ alias: label, skin: byId,/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

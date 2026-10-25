@@ -532,6 +532,15 @@ every change against the original files.
   Kept: the sample clean-up repeats the couple's other photos before their
   hero (Vintage Love Story: A, B, B rather than A, B, A).
 
+- MP-357, as tested: the registry page's header panel was painted with Accent
+  and lettered in fixed white, so on Heirloom Bloom (registry band = Accent 2)
+  changing Accent recoloured the header but not the site's band, and the text
+  colours never reached it. Decided: the header takes the look of the site's
+  own registry section. Measured per design which setting paints its
+  background, heading and text; the header follows the same settings, with
+  Section Headings for the title and Body Text for the rest. Sage & Still's
+  registry is white on a photograph, so its header text stays white.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
