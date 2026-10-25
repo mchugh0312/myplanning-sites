@@ -549,6 +549,17 @@ every change against the original files.
   follow Text too (Vintage Love Story: its cream on the dark band) - they took
   the gift band's fixed near-black, which no colour setting reached (MP-910).
 
+- MP-933, as tested (Heirloom Bloom on a phone, two photos showing once the
+  carousel settles): slides were min-width:100% with no fixed width, which
+  Safari sizes from the photograph's natural width - wider than the frame,
+  while the carousel moves one frame-width per step. Slides are exactly the
+  frame's width now (Chromium never showed it; needs an iPhone/iPad check).
+  And Coastal Chic's thumbnail hero was 700px wide in a 276/390px card (fixed
+  thumbnail height beside the phone rules' shape) - now the card's width.
+- MP-337 in Firefox: still not fixed per the tester; Firefox cannot be
+  installed in this sandbox (download blocked). Needs a step-by-step from the
+  tester to fix blind.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

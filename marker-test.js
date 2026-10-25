@@ -7431,7 +7431,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-registry-buttons');
+  check('the stamp names the change it shipped with', version, '2026-10-23-slides-thumbs');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9900,6 +9900,18 @@ check('two blocks -> two cards', blocks(mark(
   check('the main buttons use the look',
     /\.cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);color:var\(--cta-text,var\(--cream\)\);border:var\(--cta-bw,0\) solid var\(--cta-border,transparent\)\}/.test(reg) &&
     /\.m-cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);/.test(reg), true);
+}
+
+
+// ── MP-933: Heirloom Bloom's slides and Coastal Chic's thumbnail hero ─────
+{
+  /* Safari sized a min-width-only slide from its photo's natural width, so
+     slides outgrew the frame and two photos showed at once. */
+  check('MP-933 Heirloom Bloom\'s slides are exactly the frame\'s width',
+    /\.hero-slide\{min-width:100%;height:100%;flex-shrink:0;[\s\S]{0,700}flex:0 0 100%;width:100%;max-width:100%;overflow:hidden;\}/.test(fs.readFileSync('template-heirloombloom.html', 'utf8')), true);
+  /* A fixed height beside the phone rules' shape widened the thumbnail hero to 700px. */
+  check('MP-933 Coastal Chic\'s thumbnail hero is the card\'s width',
+    /body\.thumbnail-mode \.hero\{\s*\n\s*height:560px!important;\s*\n\s*min-height:0!important;[\s\S]{0,500}aspect-ratio:auto!important;\s*\n\s*width:100%!important;/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Coastal Chic</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -857,7 +861,8 @@ body.hydrating{visibility:hidden;}
 }
 
 .gallery-section .section-title-mini{
-  font-family:var(--body);font-weight:600;
+  /* Section Headings reaches it (MP-947); the body face until one is chosen. */
+  font-family:var(--heading-font, var(--body));font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);margin-bottom:1.5rem;
 }
@@ -1047,6 +1052,12 @@ body.hydrating{visibility:hidden;}
 body.thumbnail-mode .hero{
   height:560px!important;
   min-height:0!important;
+  /* MP-933. The phone rules give the hero a fixed shape; beside this fixed
+     height the browser widened it to keep that shape - 700px in a 276px or
+     390px card, so a phone saw only the left of the photograph in the template
+     picker. The shape steps aside here; the hero is the card's width. */
+  aspect-ratio:auto!important;
+  width:100%!important;
 }
 
 
@@ -1096,7 +1107,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:9309b010';
+    window.__mpTemplate = 'coastalchic:26d7fbba';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

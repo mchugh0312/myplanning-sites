@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Heirloom Bloom</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -148,8 +152,14 @@ img{max-width:100%;display:block;}
   display:flex;height:100%;
   transition:transform 0.7s cubic-bezier(0.4,0,0.2,1);
 }
-.hero-slide{min-width:100%;height:100%;flex-shrink:0;}
-.hero-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.hero-slide{min-width:100%;height:100%;flex-shrink:0;
+  /* MP-933. Exactly the frame's width, in every browser. min-width alone let
+     Safari size a slide from its photograph's natural width (often thousands of
+     pixels), so a slide came out wider than the frame while the carousel moves
+     one frame-width per step: part of one photo and part of the next showed
+     once it settled, drifting further with each slide (phones and tablets). */
+  flex:0 0 100%;width:100%;max-width:100%;overflow:hidden;}
+.hero-slide img{width:100%;height:100%;object-fit:cover;display:block;min-width:0;max-width:100%;}
 /* Carousel dots bottom-centre */
 .carousel-dots{
   /* Wraps, so a couple who uploads eight photographs doesn't push the dots off
@@ -902,7 +912,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:0310ca07';
+    window.__mpTemplate = 'heirloombloom:414aa58f';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
