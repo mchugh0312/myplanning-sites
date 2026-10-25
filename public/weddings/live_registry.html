@@ -79,7 +79,7 @@
   .ck span{font-size:13.5px}
   .drawer-actions{display:flex;flex-direction:column;gap:10px;margin-top:24px}
   .btn{border:none;border-radius:999px;padding:12px 0;font-size:14px;font-weight:600;width:100%}
-  .btn-primary{background:var(--olive);color:#fff}
+  .btn-primary{background:var(--cta-bg,var(--olive));color:var(--cta-text,#fff);border:var(--cta-bw,0) solid var(--cta-border,transparent)}
   .btn-primary:hover{opacity:.92}
   .btn-out{background:var(--white);border:1px solid var(--sage);color:var(--olive)}
   .x{border:none;background:transparent;color:var(--ink);line-height:0;padding:6px;font-size:16px}
@@ -132,9 +132,9 @@
      the background, so on a light template the primary button came out close to
      the page colour and read as disabled. The accent is full strength by
      definition and is what the modal buttons already use. */
-  .cta.solid{background:var(--olive);color:var(--cream)}
+  .cta.solid{background:var(--cta-bg,var(--olive));color:var(--cta-text,var(--cream));border:var(--cta-bw,0) solid var(--cta-border,transparent)}
   .cta.solid:hover{opacity:.92}
-  .cta.out{background:transparent;border:1px solid var(--olive);color:var(--olive)}
+  .cta.out{background:transparent;border:1px solid var(--cta-line,var(--olive));color:var(--cta-line,var(--olive))}
   .cta.out:hover{background:rgba(75,82,68,.06)}
 
   .empty{text-align:center;color:#fff;padding:70px 20px}
@@ -316,7 +316,7 @@
 /* Skinned for the same reason as .ship above: these sit inside a modal whose
    type is already the couple's, so the buttons were the last unskinned thing
    in it. */
-.m-cta.solid{background:var(--olive);color:var(--cream);}
+.m-cta.solid{background:var(--cta-bg,var(--olive));color:var(--cta-text,var(--cream));border:var(--cta-bw,0) solid var(--cta-border,transparent);}
 .m-cta.ghost{background:var(--white);color:var(--olive);border:1px solid var(--line);}
 .m-cta.dark{background:#4B5244;color:#fff;width:100%;margin-top:6px;}
 .m-cta:hover{opacity:.92;}
@@ -717,6 +717,16 @@ function skinFor(data){
 const REGISTRY_LOOK = {"blacktietimeless":{"bg":"bg","head":"ink","text":"ink","dBg":"#f9f7f5","dHead":"#1c2120","dText":"#1c2120"},"coastalchic":{"bg":"bg","head":"ink","text":"ink","dBg":"#fefaf1","dHead":"#1b2a41","dText":"#1b2a41"},"goldenhour":{"bg":"bg","head":"ink","text":"ink","dBg":"#ffffff","dHead":"#32344b","dText":"#32344b"},"heirloombloom":{"bg":"accent2","head":"ink","text":"ink","dBg":"#afab57","dHead":"#673d45","dText":"#3a2010"},"modernminimal":{"bg":"bg","head":"ink","text":"ink","dBg":"#fffdf5","dHead":"#000000","dText":"#000000"},"pressedpetals":{"bg":"accent","head":"ink2","text":"ink","dBg":"#8d8863","dHead":"#ffffff","dText":"#040505"},"regalboho":{"bg":"bg","head":"ink","text":"ink","dBg":"#fefaf1","dHead":"#53141e","dText":"#53141e"},"sageandstill":{"bg":"accent","head":null,"text":null,"dBg":null,"dHead":"#ffffff","dText":"#ffffff"},"vintagelovestory":{"bg":"accent","head":"bg","text":"bg","dBg":"#513229","dHead":"#fffdf5","dText":"#fffdf5"},"whimsicalromance":{"bg":"accent","head":"ink3","text":"ink2","dBg":"#53141e","dHead":"#e4c567","dText":"#fffdf5"}};
 const LOOK_FIELD = { bg: "primary_color", accent: "accent_color", ink: "text_color", ink2: "text2_color",
                      ink3: "text3_color", accent2: "accent2_color", accent3: "accent3_color" };
+/* MP-357, the buttons. The registry page's calls to action take the look of
+   the site's own gift buttons: filled designs keep their fill, lettering and
+   outline through the same colour settings (Heirloom Bloom: Accent 3 with
+   Text 2); outlined designs stay outlined, in the page's Text colour - the
+   site draws theirs in the registry band's own text colour, which on a dark
+   band (Vintage Love Story) is white and would vanish on this light page.
+   Measured per design, as REGISTRY_LOOK is. They were Accent with cream or
+   white lettering on every design. */
+const REGISTRY_CTA = {"blacktietimeless":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"coastalchic":{"fill":"accent","text":"ink2","border":null,"dFill":"#1b2a41","dText":"#fefaf1","dBorder":null,"bw":"0px"},"goldenhour":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"heirloombloom":{"fill":"accent3","text":"ink2","border":"accent3","dFill":"#696c62","dText":"#ffffff","dBorder":"#696c62","bw":"1px"},"modernminimal":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"3px"},"pressedpetals":{"fill":"accent2","text":"ink","border":"ink","dFill":"#ffffff","dText":"#040505","dBorder":"#040505","bw":"2px"},"regalboho":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"sageandstill":{"fill":"accent3","text":"ink2","border":null,"dFill":"#4b5244","dText":"#ffffff","dBorder":null,"bw":"0px"},"vintagelovestory":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"whimsicalromance":{"fill":"accent2","text":"ink","border":"accent","dFill":"#fffdf5","dText":"#53141e","dBorder":"#53141e","bw":"2px"}};
+
 function lookColour(cz, slot, fallback){ return (slot && cz[LOOK_FIELD[slot]]) || fallback || ""; }
 
 function applySkin(found){
@@ -763,6 +773,18 @@ function applySkin(found){
   r.setProperty("--ink", ink);
   r.setProperty("--skin-display", headFont ? "'" + headFont + "', " + s.display : s.display);
   r.setProperty("--skin-body", bodyFont ? "'" + bodyFont + "', " + s.body : s.body);
+  const ck = REGISTRY_CTA[found.alias] || null;
+  if (ck) {
+    const cFill = ck.fill || ck.dFill ? lookColour(cz, ck.fill, ck.dFill) : "transparent";
+    const cText = lookColour(cz, ck.text, ck.dText) || ink;
+    const cBorder = (ck.border || ck.dBorder) ? (lookColour(cz, ck.border, ck.dBorder) || cText) : cFill;
+    r.setProperty("--cta-bg", cFill || "transparent");
+    r.setProperty("--cta-text", cText);
+    r.setProperty("--cta-border", cBorder || "transparent");
+    r.setProperty("--cta-bw", ck.bw || "0px");
+    // The secondary (outlined) buttons: the primary's colour as their line.
+    r.setProperty("--cta-line", (cFill && cFill !== "transparent") ? cFill : cText);
+  }
   const lk = REGISTRY_LOOK[found.alias] || null;
   if (lk) {
     const pBg = lookColour(cz, lk.bg, lk.dBg) || accent;

@@ -541,6 +541,14 @@ every change against the original files.
   Section Headings for the title and Body Text for the rest. Sage & Still's
   registry is white on a photograph, so its header text stays white.
 
+- MP-357, the buttons: the registry page's calls to action were Accent with
+  cream/white lettering on every design. They take the site's gift-button look
+  now, measured per design: filled designs keep fill, lettering and outline
+  through the same settings (match exact, design and custom colours); outlined
+  designs stay outlined in Text. And on the site, outlined gift buttons now
+  follow Text too (Vintage Love Story: its cream on the dark band) - they took
+  the gift band's fixed near-black, which no colour setting reached (MP-910).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

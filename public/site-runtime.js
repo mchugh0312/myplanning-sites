@@ -6959,7 +6959,15 @@
          design while the label took the band's own colour, so with a couple's
          colours the label read black inside a white ring. An outlined button is
          one colour, label and ring together. */
-      var readable = _solid ? '' : 'color:inherit;background-color:transparent;border-color:currentColor;';
+      /* MP-357 / MP-910. An outlined gift button is lettered in the colour the
+         site's registry text uses - Text on a light registry band, and on
+         Vintage Love Story's dark band its cream page colour - so it follows the
+         Colours panel, as the registry page's buttons now do. "inherit" took the
+         gift band's fixed near-black, which no colour setting reached. */
+      var _vars = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+      var _inkVar = TID === 'vintagelovestory' ? _vars.bg : _vars.ink;
+      var readable = _solid ? '' : 'color:' + (_inkVar ? 'var(' + _inkVar + ')' : 'inherit') +
+        ';background-color:transparent;border-color:currentColor;';
       /* The layout, restated in THIS sheet rather than only in the fallback.
 
          The fallback is deliberately injected first so the copied colours win -
@@ -7963,7 +7971,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-registry-header';
+  var MP_RUNTIME_BUILD = '2026-10-23-registry-buttons';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

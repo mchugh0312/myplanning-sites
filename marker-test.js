@@ -4373,7 +4373,11 @@ check('two blocks -> two cards', blocks(mark(
      tone is dark ink on a dark ground. `inherit` takes the band's own text
      colour - the colour that design already uses ON that background. */
   check('an unfilled button falls back to the band\'s own ink',
-    /var readable = _solid \? '' : 'color:inherit;background-color:transparent;border-color:currentColor;';/.test(fn), true);
+    /* Now the registry text's own colour (Text; Vintage Love Story's cream on
+       its dark band) rather than inherit, which took the gift band's fixed
+       near-black - still the colour that band's copy reads in. */
+    /var _inkVar = TID === 'vintagelovestory' \? _vars\.bg : _vars\.ink;/.test(fn) &&
+    /var readable = _solid \? '' : 'color:' \+ \(_inkVar \? 'var\(' \+ _inkVar \+ '\)' : 'inherit'\) \+\s*\n\s*';background-color:transparent;border-color:currentColor;';/.test(fn), true);
   /* And the outline with it: label and ring one colour, not a label in the
      band's ink inside a ring copied from the design. */
   check('an unfilled button\'s outline follows its label', /border-color:currentColor;';/.test(fn), true);
@@ -7427,7 +7431,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-registry-header');
+  check('the stamp names the change it shipped with', version, '2026-10-23-registry-buttons');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7435,7 +7439,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'ad08af31');
+    ('0000000' + bh.toString(16)).slice(-8), '98d224b1');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9882,6 +9886,20 @@ check('two blocks -> two cards', blocks(mark(
     /\.rhero-panel\{position:relative;background:var\(--rh-bg,var\(--olive\)\);color:var\(--rh-text,#fff\);/.test(reg) &&
     /color:var\(--rh-head,#fff\);\}/.test(reg), true);
   check('and the template is known to the skin', /if \(byId\) return \{ alias: label, skin: byId,/.test(reg), true);
+}
+
+
+// ── MP-357: registry page buttons match the site's gift buttons ──────────
+{
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('MP-357 every design has a registry button look',
+    ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
+      .filter(n => !new RegExp('const REGISTRY_CTA = [^\\n]*"' + n + '":\\{"fill":').test(reg)), []);
+  check('Heirloom Bloom\'s buttons are Accent 3 lettered in Text 2, as on the site',
+    /"heirloombloom":\{"fill":"accent3","text":"ink2"/.test(reg), true);
+  check('the main buttons use the look',
+    /\.cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);color:var\(--cta-text,var\(--cream\)\);border:var\(--cta-bw,0\) solid var\(--cta-border,transparent\)\}/.test(reg) &&
+    /\.m-cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
