@@ -6492,11 +6492,25 @@
          currentColor came out near-black on brown. Nothing here is hardcoded
          per template: the same luminance comparison the RSVP banner uses picks
          whichever of white or ink reads on the colour the band ended up with. */
+      /* MP-357 / MP-910. The colour the site's registry text uses FIRST - Text on
+         a light band, Vintage Love Story's cream on its dark one - so the gifts'
+         names, prices and counts follow the Colours panel (and match the
+         registry page, which does). White-or-ink by contrast stays as the
+         fallback, for a couple whose Text colour would not read on the band. */
       try {
         var _bandBg = effectiveBackground(band);
         var _white = { r: 255, g: 255, b: 255 }, _ink = { r: 26, g: 26, b: 26 };
-        band.style.color = (contrastRatio(_white, _bandBg) >= contrastRatio(_ink, _bandBg))
-          ? '#ffffff' : '#1a1a1a';
+        var _fallback = (contrastRatio(_white, _bandBg) >= contrastRatio(_ink, _bandBg)) ? '#ffffff' : '#1a1a1a';
+        var _bv = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+        var _bInk = TID === 'vintagelovestory' ? _bv.bg : _bv.ink;
+        if (Array.isArray(_bInk)) _bInk = _bInk[0];
+        var _chosen = _fallback;
+        if (_bInk) {
+          band.style.color = 'var(' + _bInk + ')';
+          var _m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(getComputedStyle(band).color || '');
+          if (_m && contrastRatio({ r: +_m[1], g: +_m[2], b: +_m[3] }, _bandBg) >= 3) _chosen = 'var(' + _bInk + ')';
+        }
+        band.style.color = _chosen;
       } catch (e) {}
       /* Says what the band actually resolved to, in the preview only.
 
@@ -8017,7 +8031,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-even-gift-buttons';
+  var MP_RUNTIME_BUILD = '2026-10-23-registry-page';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

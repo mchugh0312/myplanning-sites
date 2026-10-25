@@ -4140,8 +4140,12 @@ check('two blocks -> two cards', blocks(mark(
   /* A bare div appended after the section inherits the PAGE's text colour, not
      the section's, so gift names and anything in currentColor came out
      near-black on a dark registry. Chosen by luminance, not per template. */
+  /* Still chosen against the band's own background - as the FALLBACK now: the
+     registry's text colour (Text; Vintage Love Story's cream) comes first and
+     stands whenever it reads at 3:1, so the band follows the Colours panel. */
   check('the band picks its ink against its own background',
-    /band\.style\.color = \(contrastRatio\(/.test(rt), true);
+    /var _fallback = \(contrastRatio\(_white, _bandBg\) >= contrastRatio\(_ink, _bandBg\)\) \? '#ffffff' : '#1a1a1a';/.test(rt) &&
+    /contrastRatio\(\{ r: \+_m\[1\], g: \+_m\[2\], b: \+_m\[3\] \}, _bandBg\) >= 3\) _chosen = 'var\(' \+ _bInk \+ '\)';/.test(rt), true);
   // Belt and braces: the margins are also zeroed inside the band, so they
   // cannot reopen the strip from the other side.
   check('and the grid drops its margins inside it',
@@ -4690,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '90e16f67');
+    ('0000000' + h.toString(16)).slice(-8), 'c67ac2c9');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7431,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-even-gift-buttons');
+  check('the stamp names the change it shipped with', version, '2026-10-23-registry-page');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7439,7 +7443,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '39161fab');
+    ('0000000' + bh.toString(16)).slice(-8), '9edb6d2b');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9790,7 +9794,7 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-357: the registry page reads Site Background and Accent the right way. */
   const reg = fs.readFileSync('live_registry.html', 'utf8');
   check('MP-357 the registry reads primary_color as the background',
-    /const bg\s+= cz\.primary_color \|\| s\.bg;/.test(reg) && /const accent = cz\.accent_color\s+\|\| s\.accent;/.test(reg), true);
+    /const bg0\s+= cz\.primary_color \|\| s\.bg;/.test(reg) && /const accent = cz\.accent_color\s+\|\| s\.accent;/.test(reg), true);
   /* MP-942: Golden Hour's Travel photos skip the three hero columns first. */
   check('MP-942 Golden Hour\'s Travel photos are not the hero\'s first',
     /var _sectionPool=_uniq\.slice\(3\)\.concat\(_uniq\.slice\(1,3\)\)/.test(fs.readFileSync('template-goldenhour.html', 'utf8')), true);
@@ -9923,6 +9927,51 @@ check('two blocks -> two cards', blocks(mark(
   check('every gift button takes the tallest and widest size',
     /function _evenGiftButtons\(\)/.test(rt) && /b\.style\.minHeight = h \+ 'px';/.test(rt) &&
     /renderPreviewCard\(cards\[i\], items\[i\], registryUrl\);\s*\n\s*\}\s*\n\s*_evenGiftButtons\(\);/.test(rt), true);
+}
+
+
+// ── Sage & Still's blank-start hero; MP-934 Preview; help kept current ───
+{
+  const sage = fs.readFileSync('template-sageandstill.html', 'utf8');
+  /* No stock photograph in the page: Firefox painted it while the couple's
+     downloaded, flashing the stock couple in the template picker. */
+  check('Sage & Still\'s hero starts blank, the sample kept aside',
+    /<img id="heroImg"\s*\n\s*src="data:image\/gif;base64,[^"]+"\s*\n\s*data-sample-src="https:/.test(sage) &&
+    /var _heroSrc = d\.hero_image \|\| heroImg\.getAttribute\('data-sample-src'\) \|\| '';/.test(sage), true);
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* A labelled Preview, top left, on the phone/tablet template card. */
+  check('MP-934 the phone/tablet card has a Preview button',
+    /onClick=\{e => \{ e\.stopPropagation\(\); setPreviewTemplate\(VISIBLE_TEMPLATES\[mobileCarouselIdx\]\); \}\}/.test(ws) &&
+    /position: "absolute", left: "8px", top: "50%",/.test(ws), true);
+  if (fs.existsSync('WebsiteHelp.txt') && fs.statSync('WebsiteHelp.txt').size > 1000) {
+    const help = fs.readFileSync('WebsiteHelp.txt', 'utf8');
+    check('the help tells phone and tablet users how to preview',
+      /tap Preview at the top left of your template/.test(help), true);
+    check('the help describes the Divider button', /Divider button that starts a new card/.test(help), true);
+    check('no em or en dashes in the help', /[\u2013\u2014]/.test(help), false);
+  }
+}
+
+
+// ── MP-357: the registry page takes the site's gift band, readable throughout ──
+{
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('every design has its gift band',
+    ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
+      .filter(n => !new RegExp('const GIFT_BAND = [^\\n]*"' + n + '":\\{"bg":').test(reg)), []);
+  check('the page ground and ink come from the band, ink kept readable',
+    /const bg  = gb \? \(lookColour\(cz, gb\.bg, gb\.dBg\) \|\| bg0\) : bg0;/.test(reg) &&
+    /const ink = gb \? _readableOn\(lookColour\(cz, gb\.text, gb\.dText\) \|\| ink0, bg, 3\) : ink0;/.test(reg), true);
+  check('gifts sit on the band, as on the site (no white box)',
+    /\.card\{display:flex;flex-direction:column;background:transparent;border-radius:4px;overflow:hidden;box-shadow:none\}/.test(reg), true);
+  check('white controls and the filter strip keep dark text',
+    /\.ext-card,\.pay-opt,\.m-cta\.ghost,\.badge,\.imgwrap,\.fsel,\.qf-sort,\.qf-sortmenu,[\s\S]{0,120}\.qf\{\s*\n\s*--ink:var\(--surface-ink,var\(--ink\)\)/.test(reg), true);
+  check('pop-ups sit on paper, buttons switching to the dark ink there',
+    /\.drawer,\.modal,\.gate-card,\.modal-card\{\s*\n\s*--cream:var\(--paper,var\(--cream\)\);/.test(reg) && /--cta-text:var\(--cta-text-paper,var\(--cta-text\)\)/.test(reg), true);
+  check('muted text never falls below 4.5:1', /r\.setProperty\("--muted",  _quiet\(ink, bg\)\);/.test(reg), true);
+  check('the header title defaults to the site\'s registry heading face',
+    /r\.setProperty\("--skin-display", headFont \? "'" \+ headFont \+ "', " \+ s\.display : \(siteHead \|\| s\.display\)\);/.test(reg), true);
+  check('an outlined button keeps its outline', /: \(\(cFill && cFill !== "transparent"\) \? cFill : cText\);/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -571,6 +571,24 @@ every change against the original files.
   white controls and the pop-ups on light paper so forms stay readable, and
   the header title in the site's registry heading face.
 
+- MP-357, finished: the registry PAGE takes the look of the site's gift band -
+  page background and text colour through the same settings the site uses
+  there (measured per design), gift cards without the white box, the site's
+  own buttons (outline in the lettering colour). White controls and the
+  filter strip keep dark text; the pop-ups, drawer and confirmation cards sit
+  on light paper, where outlined buttons switch to the dark ink. Muted text
+  never falls below 4.5:1; accent-coloured text falls back to a readable
+  colour. The header title defaults to the site's registry heading face.
+  Measured on all ten, design and custom colours: page text 3.8-20.6:1 (the
+  lowest equals the site's own gift text on Heirloom Bloom's olive band),
+  buttons 4.9-20.4:1, pop-ups 9.1-20.6:1, filter strip 5.0-5.9:1.
+- On the site, the gift band's text follows Text (Vintage Love Story: its
+  cream), with the old white-or-ink choice as the fallback below 3:1 - the map
+  records Text reaching one more piece of copy on nine designs.
+- Sage & Still's hero starts blank (no stock photograph in the page for
+  Firefox to paint while the couple's downloads); MP-934 Preview button on the
+  phone/tablet template card; the help brought up to date (no dashes).
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

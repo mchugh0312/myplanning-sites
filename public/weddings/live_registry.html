@@ -100,7 +100,9 @@
   @media(min-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
 
   /* ── Cards ──────────────────────────────────────────── */
-  .card{display:flex;flex-direction:column;background:var(--white);border-radius:4px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+  /* MP-357: the gift sits on the page's band colour, as it does on the site -
+     no white box. The photograph keeps its own white frame (.imgwrap). */
+  .card{display:flex;flex-direction:column;background:transparent;border-radius:4px;overflow:hidden;box-shadow:none}
   .card-click{cursor:pointer;display:flex;flex-direction:column;flex:1 1 auto}
   .imgwrap{position:relative;height:230px;background:var(--white);border:none;overflow:hidden;display:flex;align-items:center;justify-content:center}
   .imgwrap img{width:100%;height:100%;object-fit:cover}
@@ -531,6 +533,25 @@
   border:1px solid #EDE8E3;border-radius:10px;cursor:pointer;background:#fff;font-size:13px}
 .rail-opt input{margin-top:2px}
 .rail-opt .rail-sub{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+
+/* MP-357. Surfaces that stay WHITE keep dark, readable text whatever colour the
+   page has taken: their own copies of the ink and its tints. A custom property
+   set on an element is the one that element's own rules read. */
+.allbtn,.search input,.sortbtn,.sortmenu,.chip,.btn-out,.m-note,.field input,.field textarea,
+.ext-card,.pay-opt,.m-cta.ghost,.badge,.imgwrap,.fsel,.qf-sort,.qf-sortmenu,
+/* the filter strip is its own light band (#F9F7F5), whatever the page colour */
+.qf{
+  --ink:var(--surface-ink,var(--ink));--muted:var(--s-muted,var(--muted));
+  --border:var(--s-border,var(--border));--line:var(--s-line,var(--line));--sage:var(--s-sage,var(--sage));}
+/* The pop-ups, the filter drawer and the password card sit on light PAPER with
+   that same dark ink, so forms read on any band - and an outlined button,
+   lettered in the band's own colour, switches to the ink there. */
+.drawer,.modal,.gate-card,.modal-card{
+  --cream:var(--paper,var(--cream));--ink:var(--surface-ink,var(--ink));--muted:var(--s-muted,var(--muted));
+  --border:var(--s-border,var(--border));--line:var(--s-line,var(--line));--sage:var(--s-sage,var(--sage));
+  --cta-text:var(--cta-text-paper,var(--cta-text));--cta-border:var(--cta-border-paper,var(--cta-border));
+  --cta-line:var(--cta-line-paper,var(--cta-line));
+  background:var(--cream);color:var(--ink);}
 </style>
 </head>
 <body>
@@ -725,7 +746,23 @@ const LOOK_FIELD = { bg: "primary_color", accent: "accent_color", ink: "text_col
    band (Vintage Love Story) is white and would vanish on this light page.
    Measured per design, as REGISTRY_LOOK is. They were Accent with cream or
    white lettering on every design. */
-const REGISTRY_CTA = {"blacktietimeless":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"coastalchic":{"fill":"accent","text":"ink2","border":null,"dFill":"#1b2a41","dText":"#fefaf1","dBorder":null,"bw":"0px"},"goldenhour":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"heirloombloom":{"fill":"accent3","text":"ink2","border":"accent3","dFill":"#696c62","dText":"#ffffff","dBorder":"#696c62","bw":"1px"},"modernminimal":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"3px"},"pressedpetals":{"fill":"accent2","text":"ink","border":"ink","dFill":"#ffffff","dText":"#040505","dBorder":"#040505","bw":"2px"},"regalboho":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"sageandstill":{"fill":"accent3","text":"ink2","border":null,"dFill":"#4b5244","dText":"#ffffff","dBorder":null,"bw":"0px"},"vintagelovestory":{"fill":null,"text":"ink","border":"ink","dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"whimsicalromance":{"fill":"accent2","text":"ink","border":"accent","dFill":"#fffdf5","dText":"#53141e","dBorder":"#53141e","bw":"2px"}};
+const REGISTRY_CTA = {"blacktietimeless":{"fill":null,"text":null,"border":null,"dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"coastalchic":{"fill":"accent","text":"ink2","border":null,"dFill":"#1b2a41","dText":"#fefaf1","dBorder":null,"bw":"0px"},"goldenhour":{"fill":null,"text":null,"border":null,"dFill":null,"dText":null,"dBorder":null,"bw":"1px"},"heirloombloom":{"fill":"accent3","text":"ink2","border":"accent3","dFill":"#696c62","dText":"#ffffff","dBorder":"#696c62","bw":"1px"},"modernminimal":{"fill":null,"text":null,"border":null,"dFill":null,"dText":null,"dBorder":null,"bw":"3px"},"pressedpetals":{"fill":"accent2","text":"ink","border":"ink","dFill":"#ffffff","dText":"#040505","dBorder":"#040505","bw":"2px"},"regalboho":{"fill":null,"text":null,"border":null,"dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"sageandstill":{"fill":"accent3","text":"ink2","border":null,"dFill":"#4b5244","dText":"#ffffff","dBorder":null,"bw":"0px"},"vintagelovestory":{"fill":null,"text":null,"border":null,"dFill":null,"dText":null,"dBorder":null,"bw":"2px"},"whimsicalromance":{"fill":"accent2","text":"ink","border":"accent","dFill":"#fffdf5","dText":"#53141e","dBorder":"#53141e","bw":"2px"}};
+
+/* MP-357, the page. The registry page takes the look of the site's GIFT BAND -
+   the strip the gifts sit on under the registry section: its background and
+   its text colour, through the same colour settings (measured per design), so
+   the site's own buttons sit on the colour they were drawn for. White controls
+   keep dark text and the pop-ups sit on light paper, so forms read on any band.
+   REGISTRY_HEAD_FONT: the face the site's registry heading uses when the couple
+   has not chosen a Section Headings font. */
+const GIFT_BAND = {"blacktietimeless":{"bg":"bg","dBg":"#f9f7f5","text":"ink","dText":"#1c2120"},"heirloombloom":{"bg":"accent2","dBg":"#afab57","text":"ink","dText":"#673d45"},"pressedpetals":{"bg":"accent","dBg":"#8d8863","text":"ink","dText":"#040505"},"regalboho":{"bg":"bg","dBg":"#fefaf1","text":"ink","dText":"#53141e"},"vintagelovestory":{"bg":"accent","dBg":"#513229","text":"bg","dText":"#fffdf5"},"whimsicalromance":{"bg":"bg","dBg":"#e5989b","text":"ink","dText":"#53141e"},"coastalchic":{"bg":"bg","dBg":"#fefaf1","text":"ink","dText":"#1b2a41"},"goldenhour":{"bg":"bg","dBg":"#ffffff","text":"ink","dText":"#32344b"},"modernminimal":{"bg":"bg","dBg":"#fffdf5","text":"ink","dText":"#000000"},"sageandstill":{"bg":null,"dBg":"#e7e3da","text":"ink","dText":"#000000"}};
+const REGISTRY_HEAD_FONT = {"blacktietimeless":"Ballet, cursive","coastalchic":"\"Lexend Deca\", \"Lexend Deca Local\", sans-serif","goldenhour":"\"La Belle Aurore\", cursive","heirloombloom":"\"Luxurious Script\", cursive","modernminimal":"\"DIN Next Condensed\", Oswald, Poppins, sans-serif","pressedpetals":"\"Pinyon Script\", cursive","regalboho":"\"Libre Baskerville\", \"Sorts Mill Goudy\", Georgia, serif","sageandstill":"Aboreto, \"Cormorant Garamond\", serif","whimsicalromance":"\"Pinyon Script\", \"Dancing Script\", cursive"};
+function _lum(h){ const v = String(h || "").replace("#", ""); if (v.length < 6) return 1;
+  const c = [0, 2, 4].map(i => { const x = parseInt(v.substr(i, 2), 16) / 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+function _contrast(a, b){ const x = _lum(a), y = _lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function _readableOn(col, ground, min){ if (_contrast(col, ground) >= (min || 4.5)) return col;
+  return _contrast("#ffffff", ground) >= _contrast("#1a1a1a", ground) ? "#ffffff" : "#1a1a1a"; }
 
 function lookColour(cz, slot, fallback){ return (slot && cz[LOOK_FIELD[slot]]) || fallback || ""; }
 
@@ -736,9 +773,14 @@ function applySkin(found){
      control writes it, and the site paints the page with it - and accent_color
      is Accent. Read the other way round here, so changing Accent recoloured the
      cream behind the gifts and Site Background coloured the accents. */
-  const bg     = cz.primary_color || s.bg;
+  const bg0    = cz.primary_color || s.bg;
   const accent = cz.accent_color  || s.accent;
-  const ink    = cz.text_color    || s.ink;
+  const ink0   = cz.text_color    || s.ink;
+  /* The page ground and its ink: the site's gift band where the design is known. */
+  const gb = GIFT_BAND[found.alias] || null;
+  const bg  = gb ? (lookColour(cz, gb.bg, gb.dBg) || bg0) : bg0;
+  // 3:1, the site's own threshold for the band's text, so the two pages always agree.
+  const ink = gb ? _readableOn(lookColour(cz, gb.text, gb.dText) || ink0, bg, 3) : ink0;
 
   if (s.gfont && !document.getElementById("skin-font")) {
     const l = document.createElement("link");
@@ -755,10 +797,11 @@ function applySkin(found){
      ship one weight only, and asking for one they lack fails the whole
      request (the site runtime loads them the same way). */
   const fset = found.fonts || {};
+  const _siteHeadName = ((REGISTRY_HEAD_FONT[found.alias] || "").match(/^"?([^",]+)"?/) || [])[1] || "";
   const clean = n => String(n || "").replace(/["'<>;]/g, "").trim();
   const headFont = clean(fset.heading && fset.heading.font);
   const bodyFont = clean(fset.body && fset.body.font);
-  [headFont, bodyFont].filter(Boolean).forEach(n => {
+  [headFont || _siteHeadName, bodyFont].filter(Boolean).forEach(n => {
     const id = "skin-font-" + n.replace(/[^A-Za-z0-9]+/g, "-");
     if (document.getElementById(id)) return;
     const l = document.createElement("link");
@@ -769,21 +812,45 @@ function applySkin(found){
 
   const r = document.documentElement.style;
   r.setProperty("--cream", bg);
-  r.setProperty("--olive", accent);
   r.setProperty("--ink", ink);
-  r.setProperty("--skin-display", headFont ? "'" + headFont + "', " + s.display : s.display);
+  const siteHead = REGISTRY_HEAD_FONT[found.alias] || "";
+  r.setProperty("--skin-display", headFont ? "'" + headFont + "', " + s.display : (siteHead || s.display));
+  /* Light paper for the pop-ups and drawer; dark ink for every white surface. */
+  const paper = _lum(s.bg) > 0.6 ? s.bg : "#fffdf9";
+  const surfaceInk = _readableOn(_contrast(ink0, "#ffffff") >= 4.5 ? ink0 : s.ink, "#ffffff");
+  r.setProperty("--paper", paper);
+  r.setProperty("--surface-ink", surfaceInk);
+  /* Muted text, as quiet as the design makes it but never below 4.5:1: the
+     42% blend nearly vanished on a dark band (Vintage Love Story's gift count
+     was 2.2:1). Blended less until it reads. */
+  const _quiet = (col, ground) => { for (const k of [0.42, 0.32, 0.22, 0.12, 0]) { const m = mix(col, ground, k); if (_contrast(m, ground) >= 4.5) return m; } return col; };
+  // Checked against the filter strip (#F9F7F5), the darker of the light grounds it sits on.
+  r.setProperty("--s-muted",  _quiet(surfaceInk, "#F9F7F5"));
+  r.setProperty("--s-border", mix(surfaceInk, "#ffffff", 0.78));
+  r.setProperty("--s-line",   mix(surfaceInk, "#ffffff", 0.88));
+  r.setProperty("--s-sage",   mix(accent, "#ffffff", 0.55));
+  /* Accent as TEXT must read on the band and on white; otherwise the page's ink. */
+  const accentText = (_contrast(accent, bg) >= 3 && _contrast(accent, "#ffffff") >= 3) ? accent
+                   : (_contrast(ink, "#ffffff") >= 3 ? ink : surfaceInk);
+  r.setProperty("--olive", accentText);
   r.setProperty("--skin-body", bodyFont ? "'" + bodyFont + "', " + s.body : s.body);
   const ck = REGISTRY_CTA[found.alias] || null;
   if (ck) {
     const cFill = ck.fill || ck.dFill ? lookColour(cz, ck.fill, ck.dFill) : "transparent";
     const cText = lookColour(cz, ck.text, ck.dText) || ink;
-    const cBorder = (ck.border || ck.dBorder) ? (lookColour(cz, ck.border, ck.dBorder) || cText) : cFill;
+    // An outlined design's border is its lettering colour (a transparent fill has none to lend).
+    const cBorder = (ck.border || ck.dBorder) ? (lookColour(cz, ck.border, ck.dBorder) || cText)
+                  : ((cFill && cFill !== "transparent") ? cFill : cText);
     r.setProperty("--cta-bg", cFill || "transparent");
     r.setProperty("--cta-text", cText);
     r.setProperty("--cta-border", cBorder || "transparent");
     r.setProperty("--cta-bw", ck.bw || "0px");
     // The secondary (outlined) buttons: the primary's colour as their line.
     r.setProperty("--cta-line", (cFill && cFill !== "transparent") ? cFill : cText);
+    const outlined = !(cFill && cFill !== "transparent");
+    r.setProperty("--cta-text-paper",   outlined ? surfaceInk : cText);
+    r.setProperty("--cta-border-paper", outlined ? surfaceInk : (cBorder || "transparent"));
+    r.setProperty("--cta-line-paper",   outlined ? surfaceInk : cFill);
   }
   const lk = REGISTRY_LOOK[found.alias] || null;
   if (lk) {
@@ -804,7 +871,7 @@ function applySkin(found){
   r.setProperty("--sage",   mix(accent, bg, 0.55));   // secondary accent
   r.setProperty("--border", mix(ink,    bg, 0.78));   // input and chip edges
   r.setProperty("--line",   mix(ink,    bg, 0.88));   // hairlines
-  r.setProperty("--muted",  mix(ink,    bg, 0.42));   // secondary text
+  r.setProperty("--muted",  _quiet(ink, bg));        // secondary text, never below 4.5:1
   r.setProperty("--gold",   accent);                  // note accent bar
 
   document.body.classList.add("skinned");

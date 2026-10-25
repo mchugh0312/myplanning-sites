@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Sage & Still</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1108,7 +1112,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:b577cf47';
+    window.__mpTemplate = 'sageandstill:907fdb66';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1233,8 +1237,14 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
       <span class="line">&amp; Jason</span>
     </h1>
     <div class="hero-photo-wrap">
+      <!-- No stock photograph in the page: it starts blank and is set by hydrate,
+           to the couple's photo, or to this sample when there is none. Firefox
+           kept painting the stock picture already in the page while the
+           couple's downloaded, so the template picker flashed the stock couple
+           on this design. With nothing painted first there is nothing to flash. -->
       <img id="heroImg"
-        src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8ab81a3c-e279-4e9d-8c54-1dbc50ca5345.png"
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        data-sample-src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8ab81a3c-e279-4e9d-8c54-1dbc50ca5345.png"
         alt="Couple photo">
     </div>
   </div>
@@ -1596,9 +1606,10 @@ function hydrateTemplate(d) {
   document.title = names;
 
   // ── Hero image ────────────────────────────────────────────────────────
-  if (d.hero_image) {
-    var heroImg = document.getElementById('heroImg');
-    if (heroImg) heroImg.src = d.hero_image;
+  var heroImg = document.getElementById('heroImg');
+  if (heroImg) {
+    var _heroSrc = d.hero_image || heroImg.getAttribute('data-sample-src') || '';
+    if (_heroSrc && heroImg.getAttribute('src') !== _heroSrc) heroImg.src = _heroSrc;
   }
 
   // ── Footer ────────────────────────────────────────────────────────────
