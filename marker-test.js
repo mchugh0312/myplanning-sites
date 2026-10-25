@@ -7431,7 +7431,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-slides-thumbs');
+  check('the stamp names the change it shipped with', version, '2026-10-23-even-gift-buttons');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7439,7 +7439,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '98d224b1');
+    ('0000000' + bh.toString(16)).slice(-8), '39161fab');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9912,6 +9912,17 @@ check('two blocks -> two cards', blocks(mark(
   /* A fixed height beside the phone rules' shape widened the thumbnail hero to 700px. */
   check('MP-933 Coastal Chic\'s thumbnail hero is the card\'s width',
     /body\.thumbnail-mode \.hero\{\s*\n\s*height:560px!important;\s*\n\s*min-height:0!important;[\s\S]{0,500}aspect-ratio:auto!important;\s*\n\s*width:100%!important;/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
+}
+
+
+// ── Gift buttons the same size (a cash fund's "Contribute") ──────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* "Contribute" fit on one line where "Purchase This Item" wrapped to two:
+     a shorter, narrower button, and the fund's "Group gift" sat lower. */
+  check('every gift button takes the tallest and widest size',
+    /function _evenGiftButtons\(\)/.test(rt) && /b\.style\.minHeight = h \+ 'px';/.test(rt) &&
+    /renderPreviewCard\(cards\[i\], items\[i\], registryUrl\);\s*\n\s*\}\s*\n\s*_evenGiftButtons\(\);/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

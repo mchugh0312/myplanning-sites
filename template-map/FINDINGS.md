@@ -560,6 +560,17 @@ every change against the original files.
   installed in this sandbox (download blocked). Needs a step-by-step from the
   tester to fix blind.
 
+- Cash fund alignment (as tested on Pressed Petals): a fund's "Contribute"
+  fits on one line where "Purchase This Item" wraps to two, so its button was
+  shorter and narrower (138x43 against 166x60) and, with the price, count and
+  button bottom-aligned together, the fund's "Group gift" sat 17px below the
+  others' "3 of 3 left". Every gift button now takes the tallest and widest
+  size in the grid - measured after drawing, after fonts load, and on resize.
+- In progress, not yet shipped: the registry PAGE restyled to the site's gift
+  band (page background, text, transparent cards, the site's buttons), with
+  white controls and the pop-ups on light paper so forms stay readable, and
+  the header title in the site's registry heading face.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

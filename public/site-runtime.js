@@ -6430,6 +6430,16 @@
          Deliberately NOT copying the image itself: repeating a full-bleed
          flower behind four cards is worse than the plain ground under it. */
       band.style.background = _paintUnder(sec) || '';
+      /* MP-357 / MP-910. The gift names and counts are lettered in the colour the
+         site's registry text uses - Text, or on Vintage Love Story's dark band
+         its cream - so they follow the Colours panel and match the registry
+         page. They took a fixed near-black from the page, which no setting
+         reached. */
+      try {
+        var _bv = TEMPLATE_COLOR_VARS[TID] || TEMPLATE_COLOR_VARS.pressedpetals;
+        var _bInk = TID === 'vintagelovestory' ? _bv.bg : _bv.ink;
+        if (_bInk && typeof _bInk === 'string') band.style.color = 'var(' + _bInk + ')';
+      } catch (e) {}
       band.style.paddingLeft = cs.paddingLeft || '';
       band.style.paddingRight = cs.paddingRight || '';
       /* A rule the design draws under the registry belongs under the BAND now.
@@ -6659,6 +6669,7 @@
           if (i >= items.length) { cards[i].style.display = 'none'; continue; }
           renderPreviewCard(cards[i], items[i], registryUrl);
         }
+        _evenGiftButtons();
 
         /* Beyond the cap, point at the registry itself rather than pretending
            this is all of it. */
@@ -7011,6 +7022,41 @@
             _scale(cs.paddingRight, 0.55, 8) + ';' +
           'line-height:1.25;letter-spacing:0.02em}}';
       if (st.textContent !== rule) st.textContent = rule;
+    } catch (e) {}
+  }
+
+  /* Every gift button the same size - the tallest and the widest of them. A
+     cash fund's "Contribute" fits on one line where "Purchase This Item" wraps
+     to two, so its button came out shorter and narrower; and with the price,
+     count and button pushed to the bottom together (MP-963), the shorter button
+     dropped the fund's "Group gift" below the others' "3 of 3 left". Measured
+     after the cards are drawn and again on resize, where the wrapping changes. */
+  var _evenBound = false;
+  function _evenGiftButtons() {
+    try {
+      var run = function () {
+        var btns = Array.prototype.filter.call(document.querySelectorAll('#registryGrid .registry-buy-btn'),
+          function (b) { return b.offsetParent !== null; });
+        btns.forEach(function (b) { b.style.minHeight = ''; b.style.removeProperty('width'); b.style.removeProperty('min-width'); });
+        if (btns.length < 2) return;
+        var h = 0, w = 0;
+        btns.forEach(function (b) { var r = b.getBoundingClientRect(); h = Math.max(h, r.height); w = Math.max(w, r.width); });
+        btns.forEach(function (b) {
+          var card = b.parentElement ? b.parentElement.getBoundingClientRect().width : w;
+          b.style.minHeight = h + 'px';
+          b.style.setProperty('min-width', Math.min(w, card) + 'px', 'important');
+          b.style.setProperty('justify-content', 'center', 'important');
+          b.style.setProperty('align-items', 'center', 'important');
+        });
+      };
+      run();
+      // Again once fonts have arrived: a different face wraps differently.
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(run, function () {});
+      if (!_evenBound) {
+        _evenBound = true;
+        var t = null;
+        window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(run, 150); });
+      }
     } catch (e) {}
   }
 
@@ -7971,7 +8017,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-slides-thumbs';
+  var MP_RUNTIME_BUILD = '2026-10-23-even-gift-buttons';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
