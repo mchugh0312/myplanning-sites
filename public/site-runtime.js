@@ -8037,7 +8037,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-23-upright-italic';
+  var MP_RUNTIME_BUILD = '2026-10-23-title-bold';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

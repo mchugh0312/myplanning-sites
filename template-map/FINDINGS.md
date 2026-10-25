@@ -622,6 +622,14 @@ every change against the original files.
   removes it; an upright box still uses the browser's command. Tested in the
   editor (whole box, two words, Ctrl+I, plain box) and on the site.
 
+- MP-337, Firefox, bold on card titles (Hotel, Flights): the site shows a
+  bolded title on every design (checked), so the loss was in the editor -
+  Firefox could put its bold on the box's title mark, which is removed on
+  saving. Bold inside a title is now done by hand in every browser: B wraps
+  the words in <b>, B again removes it; on a title the design already sets
+  bold (Coastal Chic), B makes it lighter (font-weight 400), which the site
+  also honours. Body-text bold still uses the browser's command.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
