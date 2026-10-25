@@ -4694,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '9756d3d3');
+    ('0000000' + h.toString(16)).slice(-8), '1d0915a4');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-bold-state');
+  check('the stamp names the change it shipped with', version, '2026-10-23-ff-selection');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -10041,6 +10041,20 @@ check('two blocks -> two cards', blocks(mark(
   check('B is lit from the weight the words are drawn at', /        bold:      parseInt\(cs\.fontWeight, 10\) >= 600,\r?\n/.test(ws) && !/bold:\s+!!q\.bold \|\|/.test(ws), true);
   check('a selection widened to a title\'s edges is still that title',
     /const hit = \[\]\.slice\.call\(host\.querySelectorAll\("mp-t:not\(\[data-attire\]\)"\)\)\.filter\(m => r\.intersectsNode\(m\)\);/.test(ws), true);
+}
+
+
+// ── MP-337 (Firefox): the selection inside the shadow root is read right ──
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Firefox has no ShadowRoot.getSelection; the page's range for words in the
+     editor's shadow root comes back moved OUT of it. Only a range inside the
+     box counts; otherwise the composed ranges decide. */
+  check('a page range outside the box is not taken for the selection',
+    /if \(!isShadow \|\| \(inBox\(r0\.startContainer\) && inBox\(r0\.endContainer\)\)\) \{ _rangeVia\.current = "page"; return r0; \}/.test(ws), true);
+  check('and "select the word at the caret" never collapses a real selection',
+    /try \{ const real = _rangeInBox\(\); if \(real && !real\.collapsed\) return; \} catch \(e\) \{\}/.test(ws), true);
+  check('B, I and U say in the console how they read the selection', /console\.log\("\[MP-337\] " \+ cmd \+ ": selection via "/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

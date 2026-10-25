@@ -638,6 +638,17 @@ every change against the original files.
   the title step recognises a selection Firefox widened to a title's edges, so
   B bolds that title by hand instead of handing it to Firefox.
 
+- MP-337, Firefox, first press of B does nothing (selection drops, caret after
+  the word; the second press works). Likely cause: Firefox has no
+  ShadowRoot.getSelection, so the editor read the PAGE's selection, whose range
+  for words in the editor's shadow root comes back moved out of it - a
+  collapsed point beside the editor - and that was accepted unchecked. Now only
+  a range inside the box counts; otherwise the composed ranges (made for shadow
+  roots) decide. And "select the word at the caret" no longer runs when the box
+  holds a real selection. Could not be reproduced faithfully in Chromium; B / I
+  / U now log "[MP-337] <cmd>: selection via ... | <words>" to the console so a
+  Firefox test settles it.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,
