@@ -589,6 +589,13 @@ every change against the original files.
   Firefox to paint while the couple's downloads); MP-934 Preview button on the
   phone/tablet template card; the help brought up to date (no dashes).
 
+- Decided, MP-942: Gallery photos appear only in the Gallery (MP-504 stands).
+  No fallback into sections; sections repeat the couple's other homepage
+  photos before their hero, as built.
+- Decided, MP-952: Heirloom Bloom's monogram initials follow Section Headings
+  (Lancelot until one is chosen). The "&" between them already did, so a
+  chosen heading font used to give a monogram in two faces.
+
 **READY TO VERIFY**: MP-354, MP-333, MP-337, MP-357, MP-910, MP-905, MP-904,
 MP-918, MP-915, MP-916, MP-920, MP-921, MP-935, MP-940, MP-944, MP-947,
 MP-948, MP-951, MP-952, MP-954, MP-919, MP-941, MP-946, MP-953, MP-943,

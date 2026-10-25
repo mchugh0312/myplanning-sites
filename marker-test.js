@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-registry-page');
+  check('the stamp names the change it shipped with', version, '2026-10-23-hb-initials');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9972,6 +9972,15 @@ check('two blocks -> two cards', blocks(mark(
   check('the header title defaults to the site\'s registry heading face',
     /r\.setProperty\("--skin-display", headFont \? "'" \+ headFont \+ "', " \+ s\.display : \(siteHead \|\| s\.display\)\);/.test(reg), true);
   check('an outlined button keeps its outline', /: \(\(cFill && cFill !== "transparent"\) \? cFill : cText\);/.test(reg), true);
+}
+
+
+// ── MP-952: Heirloom Bloom's monogram initials follow Section Headings ───
+{
+  /* The "&" between them already did (it is set in --script, which Section
+     Headings writes), so a chosen heading font gave a monogram in two faces. */
+  check('MP-952 Heirloom Bloom\'s initials follow Section Headings',
+    /\.hero-initial-left,\s*\n\.hero-initial-right\{\s*\n\s*position:relative;[\s\S]{0,300}font-family:var\(--heading-font, 'Lancelot',Georgia,serif\);/.test(fs.readFileSync('template-heirloombloom.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -195,7 +195,10 @@ img{max-width:100%;display:block;}
 .hero-initial-left,
 .hero-initial-right{
   position:relative;
-  font-family:'Lancelot',Georgia,serif;
+  /* MP-952: Section Headings reaches the couple's initials, as it reaches the
+     names on every other design; Lancelot until one is chosen. The script "&"
+     between them keeps its own face. */
+  font-family:var(--heading-font, 'Lancelot',Georgia,serif);
   font-size:clamp(8.75rem,28.75vw,21rem);
   color:var(--ink3);
   line-height:0.86;
@@ -912,7 +915,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:414aa58f';
+    window.__mpTemplate = 'heirloombloom:7ab32107';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
