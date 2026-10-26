@@ -27,13 +27,22 @@ MP-504); couple names and Heirloom Bloom's monogram follow Section Headings
 The diagnostic console lines added while fixing ([MP-337] for formatting,
 [MP-923] for event order) are removed in this build.
 
-**PENDING - two decisions owed by the product owner**
+**DECIDED 2026-10-25 - the RSVP form asks only about the primary plan's events.**
+The live form always did. Build `2026-10-25-plan-events` makes the preview's
+RSVP form and the editor's RSVP Settings keep to the same set: the
+event-order lookup (main.py) marks each event in_plan, and events outside the
+plan (e.g. a Welcome or Farewell only linked on the celebration) are left out
+of both. An event the lookup does not know yet is kept, never dropped.
+
+**PENDING - one item**
 1. Modern Minimal's loading screen: the Comic Sans flash on password-protected
-   sites. Needs the loading-image SVG (ac1909d1-...svg) to confirm whether it
-   carries lettering, then fix.
-2. The live RSVP form's events: it asks about the couple's PLAN events, which
-   can be fewer than the editor lists (e.g. no Welcome / Farewell). Should it
-   ask about every event the editor lists?
+   sites. The loading-image SVG (ac1909d1-...svg) is ruled out - received
+   2026-10-25: pure vector paths in #004aad, no <text>, no fonts. The runtime's
+   own loading text on Modern Minimal is Poppins with no cursive fallback and
+   is held hidden until the face loads. Most likely source: the landing page
+   (index.html), which shows its own screen before handing over to the
+   template. Needs index.html (and api/site.js if present) and the browser
+   it was seen in (Comic Sans as the cursive fallback is a Windows behaviour).
 
 (The notes below are the history of how each item was found and fixed.)
 

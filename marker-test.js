@@ -4694,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '42a28074');
+    ('0000000' + h.toString(16)).slice(-8), 'a6b2dbca');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-23-release');
+  check('the stamp names the change it shipped with', version, '2026-10-25-plan-events');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -10070,6 +10070,19 @@ check('two blocks -> two cards', blocks(mark(
   check('B on a plain-looking title inside <strong> makes it bold',
     /const looksBold = parseInt\(w\.getComputedStyle\(start\)\.fontWeight, 10\) >= 600;/.test(ws) &&
     /if \(tag\) \{\s*\/\/ an old <strong> shown plain\s*\r?\n\s*const b = doc\.createElement\("b"\);/.test(ws), true);
+}
+
+
+// ── Decided: the RSVP form asks only about the primary plan's events ─────
+{
+  /* The live form always did; the preview's form and the RSVP settings now
+     keep to the same set, marked by the event-order lookup. */
+  const py = fs.readFileSync('main.py', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  check('the event-order lookup marks the plan\'s events',
+    /plan_ids = set\(wanted\)/.test(py) && /"in_plan": str\(eid\) in plan_ids,/.test(py), true);
+  check('the preview\'s RSVP form keeps to them', /\.filter\(e => _inPlan\(\{ id: e\.id, label: e\.name \}\)\)/.test(ws), true);
+  check('and so do the RSVP settings', /\.filter\(e => e\.id && e\.label\)\r?\n\s*\.filter\(e => _inPlan\(e\)\)/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
