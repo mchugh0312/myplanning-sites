@@ -135,7 +135,30 @@ body{background:var(--load-bg,#f9f7f5);font-family:'Instrument Serif',serif}
   50% {left:0%}
   100%{left:100%}
 }
+
+/* The loading words appear once Instrument Serif has arrived - or after 1.2s,
+   in the fallback - never in a stand-in face first. The font loads with
+   display=swap, which paints the words at once in whatever stand-in the
+   browser picks and then swaps them: a large italic in one face and then
+   another, the brief "weird font" flash on a password-protected site. */
+.loading-title,.loading-sub{visibility:hidden;}
+.fonts-ready .loading-title,.fonts-ready .loading-sub{visibility:visible;}
 </style>
+<script>
+(function(){
+  var done = false, root = document.documentElement;
+  function show(){ if (done) return; done = true; root.classList.add('fonts-ready'); }
+  setTimeout(show, 1200);
+  try {
+    if (document.fonts && document.fonts.load) {
+      Promise.all([
+        document.fonts.load('italic 1.5rem "Instrument Serif"'),
+        document.fonts.load('0.82rem "Instrument Serif"')
+      ]).then(function (lists) { if (lists[0] && lists[0].length) show(); }, function () {});
+    } else { show(); }
+  } catch (e) { show(); }
+})();
+</script>
 </head>
 <body>
 <div class="loading-screen" id="loadingScreen">

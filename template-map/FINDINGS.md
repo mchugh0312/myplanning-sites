@@ -34,15 +34,19 @@ event-order lookup (main.py) marks each event in_plan, and events outside the
 plan (e.g. a Welcome or Farewell only linked on the celebration) are left out
 of both. An event the lookup does not know yet is kept, never dropped.
 
-**PENDING - one item**
-1. Modern Minimal's loading screen: the Comic Sans flash on password-protected
-   sites. The loading-image SVG (ac1909d1-...svg) is ruled out - received
-   2026-10-25: pure vector paths in #004aad, no <text>, no fonts. The runtime's
-   own loading text on Modern Minimal is Poppins with no cursive fallback and
-   is held hidden until the face loads. Most likely source: the landing page
-   (index.html), which shows its own screen before handing over to the
-   template. Needs index.html (and api/site.js if present) and the browser
-   it was seen in (Comic Sans as the cursive fallback is a Windows behaviour).
+**RESOLVED 2026-10-25, to verify on deploy - the loading-text flash on
+password-protected sites (Modern Minimal, Chrome).** Traced through the whole
+flow (landing page, password, hand-over, template) with Modern Minimal's own
+data: no text is ever drawn in a cursive fallback. The loading-image SVG is
+pure vector paths (no lettering), and the runtime's loading text is Poppins,
+held hidden until loaded. The one "Your celebration awaits" a visitor sees is
+the LANDING PAGE's (index.html), in Instrument Serif italic loaded with
+display=swap - painted first in a stand-in face and then swapped, the brief
+odd-looking flash. index.html now keeps the loading words hidden until
+Instrument Serif has arrived (at most 1.2s), so they appear once, in the right
+face. Change: deploy/index.html (diff in deploy/index-changes.diff).
+
+**PENDING** - nothing open.
 
 (The notes below are the history of how each item was found and fixed.)
 
