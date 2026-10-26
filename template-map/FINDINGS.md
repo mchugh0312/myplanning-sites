@@ -8,6 +8,36 @@ the gate reads `template-map.json`. No code was changed.
 
 ## Status
 
+**RELEASE - build `2026-10-23-release` (2026-10-25)**
+
+**RESOLVED**, every change verified by the tester on the deployed build:
+MP-333, MP-337, MP-354, MP-357, MP-901, MP-904, MP-905, MP-907, MP-910,
+MP-911, MP-914, MP-915, MP-916, MP-917, MP-918, MP-919, MP-920, MP-921,
+MP-922, MP-923, MP-924, MP-925, MP-931, MP-932, MP-933, MP-934, MP-935,
+MP-936, MP-937, MP-939, MP-940, MP-941, MP-942, MP-943, MP-944, MP-945,
+MP-946, MP-947, MP-948, MP-949, MP-950, MP-951, MP-952, MP-953, MP-954,
+MP-958, MP-959, MP-960, MP-961, MP-962, MP-963, MP-964 - and the registry
+page restyle (filters on the gift grid, Our favorites, back to top), the
+Travel empty-box rule, the open-at-top / dead-anchor fixes, and the help text.
+
+Decisions recorded: Gallery photos appear only in the Gallery (MP-942 /
+MP-504); couple names and Heirloom Bloom's monogram follow Section Headings
+(MP-952); the registry page takes the site's registry look (MP-357).
+
+The diagnostic console lines added while fixing ([MP-337] for formatting,
+[MP-923] for event order) are removed in this build.
+
+**PENDING - two decisions owed by the product owner**
+1. Modern Minimal's loading screen: the Comic Sans flash on password-protected
+   sites. Needs the loading-image SVG (ac1909d1-...svg) to confirm whether it
+   carries lettering, then fix.
+2. The live RSVP form's events: it asks about the couple's PLAN events, which
+   can be fewer than the editor lists (e.g. no Welcome / Farewell). Should it
+   ask about every event the editor lists?
+
+(The notes below are the history of how each item was found and fixed.)
+
+
 Everything marked DONE is in `deploy/`, verified in the browser before and
 after, and covered by the regenerated map. `deploy/all-changes.diff` holds
 every change against the original files.
