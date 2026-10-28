@@ -595,6 +595,33 @@
   .qf-line2 .qf-count{display:none;}
 }
 @media(max-width:360px){ .qf-fav{padding:0 8px;gap:4px;font-size:11px;} .qf-line .qf-line2{gap:6px;} }
+
+/* ── MP-052 ──────────────────────────────────────────────────────────────
+   Mobile Safari and Firefox zoom the viewport when a focused control computes
+   under 16px, and do not zoom back out on blur. 16px is the threshold the
+   browsers check - 15.9px still zooms.
+
+   The reported field is the gift-purchased form (.m-form), whose inputs,
+   textareas and select were 12.5px. The rest are swept with it: the search
+   box (13px), the .field inputs (14px) and the .fsel filter selects
+   (11.5-12.5px) all had the same problem and would have been reported next.
+
+   Unlike the app's vibe blocks, this page is ordinary HTML with its own
+   stylesheet, so one scoped rule at the end of the sheet is enough - there is
+   no shadow boundary for it to cross and nothing later to outrank it.
+
+   Checkboxes, radios and date inputs are excluded: the first two carry no
+   text, and a date input opens a picker rather than a keyboard, so none of
+   them can trigger the zoom.
+   -------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="date"]):not([type="range"]),
+  textarea,
+  select,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+}
 </style>
 </head>
 <body>

@@ -4694,7 +4694,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'a6b2dbca');
+    ('0000000' + h.toString(16)).slice(-8), '374fc86c');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7435,7 +7435,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-25-plan-events');
+  check('the stamp names the change it shipped with', version, '2026-10-27-gh-photos-fontnames');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7443,7 +7443,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '9311ad5e');
+    ('0000000' + bh.toString(16)).slice(-8), '19c640e4');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9871,8 +9871,8 @@ check('two blocks -> two cards', blocks(mark(
 {
   /* Cycling from the first put the couple's hero back beside itself (A, B, A
      on Vintage Love Story's story frames) when B was there to repeat. */
-  check('MP-942 the sample clean-up cycles the other photographs first',
-    /img\.src = own\.length > 1 \? own\[1 \+ \(n % \(own\.length - 1\)\)\] : own\[0\];/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
+  check('MP-942 the sample clean-up cycles the other photographs first - after every one the hero shows',
+    /img\.src = own\.length > 1 \? own\[_start \+ \(n % \(own\.length - _start\)\)\] : own\[0\];/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
 }
 
 
@@ -10083,6 +10083,56 @@ check('two blocks -> two cards', blocks(mark(
     /plan_ids = set\(wanted\)/.test(py) && /"in_plan": str\(eid\) in plan_ids,/.test(py), true);
   check('the preview\'s RSVP form keeps to them', /\.filter\(e => _inPlan\(\{ id: e\.id, label: e\.name \}\)\)/.test(ws), true);
   check('and so do the RSVP settings', /\.filter\(e => e\.id && e\.label\)\r?\n\s*\.filter\(e => _inPlan\(e\)\)/.test(ws), true);
+}
+
+
+// ── 10/27 round: MP-967, 966, 960, 937, 950, 961, 964, 918, 965 ─────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  check('MP-967 the event-order lookup passes the celebration id',
+    /for item in _celebration_event_links\(celebration, correlation_id, celebration_id=celebration_id\):/.test(py), true);
+  check('MP-966 a caret placed on the box is counted, and no redraw without one',
+    /if \(r\.endContainer === host\) \{/.test(ws) && /if \(at === null\) return;\r?\n\s*host\.innerHTML = _markTitles\(_gapBreaks\(clean\)\);/.test(ws), true);
+  check('MP-960 the Design tab font menu closes on scroll, in the shadow root too',
+    /if \(root && root !== document\) root\.addEventListener\("scroll", onScroll, true\);/.test(ws) && /ref=\{fontMenuRef\}/.test(ws), true);
+  check('MP-960 the Content-box menus listen in the shadow root as well',
+    /if \(root && root !== d && root\.addEventListener\) root\.addEventListener\("scroll", onScroll, true\);/.test(ws), true);
+  /* Name and sample are both shown whole in both font menus: a long name
+     wraps onto a second line (the owner wants the name readable AND the
+     look visible). */
+  check('MP-937 font names wrap; samples are never cut',
+    (ws.match(/whiteSpace: "normal", lineHeight: 1\.25, flex: "1 1 auto", minWidth: 0, textAlign: "left" \}\}>/g) || []).length === 2 &&
+    (ws.match(/fontSize: "15px", color: "#4B5244", whiteSpace: "nowrap", flex: "0 0 auto", textAlign: "right", marginLeft: "auto" \}\}>MyPlanning/g) || []).length === 2 &&
+    !/textOverflow: "(ellipsis|clip)", textAlign: "(left|right)"/.test(ws), true);
+  check('MP-950 Regal Boho centres five or more events',
+    /\.event-details-grid:not\(\[data-event-count="1"\]\):not\(\[data-event-count="2"\]\):not\(\[data-event-count="3"\]\):not\(\[data-event-count="4"\]\)\{\s*\n\s*display:flex;flex-wrap:wrap;justify-content:center;/.test(fs.readFileSync('template-regalboho.html', 'utf8')), true);
+  check('MP-961 Whimsical Romance clips its hero frame in every browser',
+    /clip-path:inset\(0 round clamp\(38px,5\.4vw,82px\)\);/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+  check('MP-964 a link keeps its underline', /\[contenteditable\] a\[href\]\{text-decoration-line:underline!important\}/.test(ws) &&
+    /!\/\^\\s\*text-decoration\(-line\)\?\\s\*:\/i\.test\(d\)/.test(ws), true);
+  check('MP-918 Divider shows its line at once, and leaves nothing behind',
+    /mark\.setAttribute\("data-pending", "1"\);/.test(ws) && /\.replace\(\/\\u200B\/g, ""\)\s+\/\/ the caret-holder/.test(ws), true);
+  check('MP-965 renames reach curved titles, and they fit their arc',
+    /function _syncArchedTitles\(\)/.test(rt) && /var room = path\.getTotalLength\(\) \* 0\.94;/.test(rt), true);
+  check('MP-965 a Travel rename reaches a design\'s accommodations heading',
+    /return _writeHeading\('accommodations', id, String\(_tr\)\.trim\(\)\);/.test(rt), true);
+  check('MP-947 not changed this round (Coastal Chic awaiting verification)',
+    /var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
+}
+
+
+// ── MP-942: an empty photo entry cannot stop a template's photos ─────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* One null gallery entry threw in every design's g.url map; on Golden Hour
+     its whole update stopped, and the clean-up filled Hotels / Flights with
+     photos 2 and 3 - the hero's own. */
+  check('MP-942 empty entries leave the photo lists before any template reads them',
+    /d\.gallery_images = d\.gallery_images\.filter\(function \(g\) \{/.test(rt) && /_cleanPhotoLists\(d\);/.test(rt), true);
+  check('and the clean-up starts after every photo the hero shows',
+    /var _start = Math\.min\(Math\.max\(1, _hs\), own\.length - 1\);/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

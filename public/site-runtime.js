@@ -3700,6 +3700,66 @@
         if (_writeHeading(key, ids[i], text)) break;
       }
     });
+    /* MP-965. Travel and Accommodations are one section to the couple - one
+       switch, one box - and the Travel box's rename is stored under "travel".
+       A design that shows its Travel heading in the accommodations section
+       (Whimsical Romance) kept its own wording. Where no travel section shows a
+       heading, the rename goes to the accommodations one; a design showing both
+       headings keeps them apart, so the words are not doubled. */
+    try {
+      var _tr = map.travel;
+      if (_tr && String(_tr).trim() && !Object.prototype.hasOwnProperty.call(map, 'accommodations')) {
+        var _tShown = (SECTION_ANCHORS.travel || []).some(function (id) {
+          var sec = document.getElementById(id);
+          return !!sec && sec.getClientRects().length > 0 && !!_headingNode(sec);
+        });
+        if (!_tShown) {
+          (SECTION_ANCHORS.accommodations || []).some(function (id) {
+            return _writeHeading('accommodations', id, String(_tr).trim());
+          });
+        }
+      }
+    } catch (e) {}
+    try { _syncArchedTitles(); } catch (e) {}
+  }
+
+  /* MP-965. A heading drawn as curved text (SVG textPath - Whimsical Romance's
+     "Weekend Itinerary") sits beside a visually hidden <h2> that carries the
+     words for screen readers; renames were written to the <h2> and the curve
+     kept the design's wording. The curve takes the <h2>'s words, and is made
+     smaller until it fits its arc: a longer title, or a wider font on a phone,
+     ran off both ends of it. */
+  var _archBound = false;
+  function _syncArchedTitles() {
+    if (!_archBound) {
+      _archBound = true;
+      try {
+        var _t = null;
+        window.addEventListener('resize', function () { clearTimeout(_t); _t = setTimeout(function () { try { _syncArchedTitles(); } catch (e) {} }, 150); });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { try { _syncArchedTitles(); } catch (e) {} });
+      } catch (e) {}
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('svg text textPath'), function (tp) {
+      var svg = tp.ownerSVGElement, text = tp.parentNode;
+      var host = svg && svg.parentNode;
+      var h = host && host.querySelector('h1.visually-hidden, h2.visually-hidden, h3.visually-hidden');
+      if (!h) return;
+      var words = (h.textContent || '').trim();
+      svg.style.display = words ? '' : 'none';
+      if (!words) return;
+      if (tp.textContent !== words) tp.textContent = words;
+      var path = null;
+      try { path = document.querySelector(tp.getAttribute('href') || tp.getAttribute('xlink:href')); } catch (e) {}
+      if (!path || !path.getTotalLength || !text.getComputedTextLength) return;
+      text.style.fontSize = '';
+      var room = path.getTotalLength() * 0.94;
+      for (var k = 0; k < 12; k++) {
+        var len = text.getComputedTextLength();
+        if (!len || len <= room) break;
+        var fs = parseFloat(getComputedStyle(text).fontSize) || 16;
+        text.style.fontSize = (fs * Math.max(0.6, room / len)) + 'px';
+      }
+    });
   }
 
   /* ── GALLERY CAROUSEL ──────────────────────────────────────────────────────
@@ -5535,7 +5595,13 @@
           /* MP-942: the couple's OTHER photographs first, the first (their
              hero) only when it is the only one - cycling from the first put it
              back beside itself (A, B, A) when B was there to repeat. */
-          img.src = own.length > 1 ? own[1 + (n % (own.length - 1))] : own[0];
+          /* ...and after ALL the photos the hero shows, not just the first: a
+             hero of three side by side (Golden Hour) has photos 2 and 3 on
+             screen too, and starting at the second put them straight back in
+             Hotels and Flights (MP-942) whenever this step filled those spots. */
+          var _hs = (typeof CFG !== 'undefined' && CFG && CFG.heroSlots) || 1;
+          var _start = Math.min(Math.max(1, _hs), own.length - 1);
+          img.src = own.length > 1 ? own[_start + (n % (own.length - _start))] : own[0];
           img.removeAttribute('srcset');
           img.style.visibility = '';
           n++;
@@ -8037,7 +8103,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-25-plan-events';
+  var MP_RUNTIME_BUILD = '2026-10-27-gh-photos-fontnames';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8134,10 +8200,30 @@
     });
   }
 
+  /* MP-942. Empty entries out of the photo lists before any template reads
+     them. Every design maps the gallery as g.url, and one null entry threw
+     there - on Golden Hour that is the first line of its update, so its hero
+     columns and its own Hotels / Flights photos were never set, and the
+     sample clean-up filled those with photos 2 and 3. */
+  function _cleanPhotoLists(d) {
+    try {
+      if (Array.isArray(d.gallery_images)) {
+        d.gallery_images = d.gallery_images.filter(function (g) {
+          return g && (typeof g === 'string' ? g.trim() : (g.url || g.image_url));
+        });
+      }
+      if (Array.isArray(d.hero_images)) {
+        d.hero_images = d.hero_images.filter(function (u) { return typeof u === 'string' ? u.trim() : (u && u.url); })
+          .map(function (u) { return typeof u === 'string' ? u : u.url; });
+      }
+    } catch (e) {}
+  }
+
   function hydrate(d) {
     if (!d) return;
     try { _travelEmptyUndo(); } catch (e) {}
     GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
+    _cleanPhotoLists(d);   // MP-942: empty entries out before any template reads them
     /* ONE Travel switch. Accommodations and Travel are one section fed by one
        box, and the editor has a single Travel switch that sends both keys - but
        the live site reads them from two record fields, and "Show Accomodations"

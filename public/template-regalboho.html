@@ -355,6 +355,17 @@ body.hydrating{visibility:hidden;}
 .event-details-grid[data-event-count="2"]{grid-template-columns:1fr 1fr;}
 .event-details-grid[data-event-count="3"]{grid-template-columns:repeat(3, 1fr);}
 .event-details-grid[data-event-count="4"]{grid-template-columns:repeat(4, 1fr);}
+/* MP-950. Five or more: a centred wrapping row, three across, so a short last
+   row (two of five) sits in the middle rather than against the left - as on
+   Whimsical Romance and Coastal Chic. Below 769px every count is one column. */
+@media(min-width:769px){
+  .event-details-grid:not([data-event-count="1"]):not([data-event-count="2"]):not([data-event-count="3"]):not([data-event-count="4"]){
+    display:flex;flex-wrap:wrap;justify-content:center;
+  }
+  .event-details-grid:not([data-event-count="1"]):not([data-event-count="2"]):not([data-event-count="3"]):not([data-event-count="4"]) > .event-col{
+    flex:0 0 calc((100% - 2 * 2.8rem) / 3);max-width:calc((100% - 2 * 2.8rem) / 3);
+  }
+}
 .event-col{
   text-align:center;
   position:relative;
@@ -1121,7 +1132,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:9b6a012f';
+    window.__mpTemplate = 'regalboho:cf9037d9';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

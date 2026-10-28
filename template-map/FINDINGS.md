@@ -48,6 +48,45 @@ face. Change: deploy/index.html (diff in deploy/index-changes.diff).
 
 **PENDING** - nothing open.
 
+**10/27 FEEDBACK - build `2026-10-27-feedback`** (Website.txt built on the
+owner's latest block, with its MP-052 16px inputs; main.py on the owner's latest)
+- MP-967: RSVP Settings showed one of five events. The event-order lookup read
+  the celebration by id without an "_id", so the plan lookup fell back to the
+  celebration's stale "Looking to plan"; the id is passed explicitly now.
+- MP-966: a caret placed ON the box (Firefox, after Enter/Backspace on the last
+  line) was not counted, and the box redrew anyway, dropping the caret to the
+  top. Counted now, and no redraw without a known place. Firefox re-check.
+- MP-960: the Design tab's font menu had no scroll handling, and the Content-box
+  menus listened only on the window - a scroll inside Softr's shadow root never
+  reaches it. Both close on any scroll now, and contain their own.
+- MP-937: font names are shown whole in both menus; the sample gives way on a
+  narrow menu; the Design menu is at least 280px wide.
+- MP-950: Regal Boho centres five or more events (a short last row in the middle).
+- MP-961: Whimsical Romance's hero frame is clipped to its rounded shape
+  (clip-path), which holds in Firefox - the mask covered WebKit only.
+- MP-964: a link keeps its underline in the box; an underline override written
+  onto a link is dropped on saving.
+- MP-918: Divider places an empty title at once, so the dashed line shows
+  immediately; an untouched new card leaves nothing behind.
+- MP-965: renames reach Whimsical Romance's curved "Weekend Itinerary" and its
+  Travel heading (stored under "travel", shown in accommodations); a curved
+  title shrinks to fit its arc on any screen and font.
+- MP-942 and MP-947: no change - being re-verified by the owner.
+
+**Build `2026-10-27-gh-photos-fontnames`:**
+- MP-942, confirmed by the owner (11 Website Photos; Golden Hour's Hotels and
+  Flights showed photos 2 and 3). Reproduced: one EMPTY entry in the gallery
+  list threw in Golden Hour's first line (every design maps the gallery as
+  g.url), so its update stopped before the hero columns and its own Hotels /
+  Flights photos; the runtime's sample clean-up then filled those spots from
+  photo 2 on. Now: empty entries leave the photo lists before any template
+  reads them (_cleanPhotoLists, in hydrate), and the clean-up starts after
+  every photo the hero shows (CFG.heroSlots). Result: hero 1-3, Hotels 4,
+  Flights 5. Owner to confirm the cause on the real site (console).
+- MP-937, per the owner: font names wrap instead of being shortened, and the
+  sample is always shown whole, in both font menus.
+- MP-947 (Coastal Chic): still unchanged, awaiting the owner's verification.
+
 (The notes below are the history of how each item was found and fixed.)
 
 
