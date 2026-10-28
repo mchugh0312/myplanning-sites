@@ -286,6 +286,9 @@
       ],
       "italic-line": [
        "other_events"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -1246,20 +1249,6 @@
       "menu": [
        "nav"
       ],
-      "section-heading": [
-       "faqs",
-       "registry",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs",
-       "travel",
-       "wedding"
-      ],
       "body": [
        "faqs",
        "registry",
@@ -1315,20 +1304,6 @@
       "menu": [
        "nav"
       ],
-      "section-heading": [
-       "faqs",
-       "registry",
-       "rsvp",
-       "story",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "block-title": [
-       "faqs",
-       "travel",
-       "wedding"
-      ],
       "body": [
        "faqs",
        "registry",
@@ -1362,11 +1337,9 @@
      "--menu-font"
     ],
     "shares_with": [
-     "block-title",
      "body",
      "italic-line",
-     "other",
-     "section-heading"
+     "other"
     ],
     "desktop_vars": [
      "--body",
@@ -1412,7 +1385,98 @@
      "Lexend Deca"
     ]
    ],
-   "content_text_no_font_var": []
+   "content_text_no_font_var": [
+    [
+     "faqs",
+     "block-title",
+     "Lexend Deca",
+     "What should I wear to the wedding?"
+    ],
+    [
+     "faqs",
+     "block-title",
+     "Lexend Deca",
+     "Will the ceremony be indoors or outdoors"
+    ],
+    [
+     "faqs",
+     "block-title",
+     "Lexend Deca",
+     "Will there be transportation?"
+    ],
+    [
+     "faqs",
+     "section-heading",
+     "Lexend Deca",
+     "FAQs"
+    ],
+    [
+     "registry",
+     "section-heading",
+     "Lexend Deca",
+     "Registry"
+    ],
+    [
+     "rsvp",
+     "section-heading",
+     "Lexend Deca",
+     "RSVP"
+    ],
+    [
+     "story",
+     "section-heading",
+     "Lexend Deca",
+     "Our Story"
+    ],
+    [
+     "things_to_do",
+     "section-heading",
+     "Lexend Deca",
+     "Things to Do"
+    ],
+    [
+     "travel",
+     "block-title",
+     "Lexend Deca",
+     "AIRPORT"
+    ],
+    [
+     "travel",
+     "block-title",
+     "Lexend Deca",
+     "HOTEL"
+    ],
+    [
+     "travel",
+     "section-heading",
+     "Lexend Deca",
+     "Travel"
+    ],
+    [
+     "wedding",
+     "block-title",
+     "Lexend Deca",
+     "Beach Day"
+    ],
+    [
+     "wedding",
+     "block-title",
+     "Lexend Deca",
+     "Wedding"
+    ],
+    [
+     "wedding",
+     "block-title",
+     "Lexend Deca",
+     "Welcome Drinks"
+    ],
+    [
+     "wedding",
+     "section-heading",
+     "Lexend Deca",
+     "Event Schedule"
+    ]
+   ]
   },
   "colours": {
    "slots": {
@@ -1488,6 +1552,9 @@
       "body": [
        "registry",
        "travel"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -2761,7 +2828,6 @@
        "rsvp",
        "story",
        "things_to_do",
-       "travel",
        "wedding"
       ],
       "block-title": [
@@ -2847,7 +2913,6 @@
        "rsvp",
        "story",
        "things_to_do",
-       "travel",
        "wedding"
       ],
       "block-title": [
@@ -2985,6 +3050,9 @@
       ],
       "section-heading": [
        "registry"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -3063,7 +3131,6 @@
        "rsvp",
        "story",
        "things_to_do",
-       "travel",
        "wedding"
       ],
       "block-title": [
@@ -3148,8 +3215,7 @@
      "text": {},
      "ground": [
       "accommodations",
-      "footer",
-      "travel"
+      "footer"
      ],
      "other_paint": {
       "backgroundColor": [
@@ -3177,17 +3243,6 @@
    "text_on_dark_grounds": [
     {
      "section": "accommodations",
-     "role": "body",
-     "text": "Book Now",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
-     "section": "travel",
      "role": "body",
      "text": "Book Now",
      "slots": [
@@ -4034,6 +4089,9 @@
       ],
       "italic-line": [
        "wedding"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -4862,10 +4920,12 @@
        "registry",
        "rsvp",
        "things_to_do",
+       "travel",
        "wedding"
       ],
       "block-title": [
        "other_events",
+       "travel",
        "wedding"
       ]
      }
@@ -4892,6 +4952,9 @@
        "faqs",
        "other_events",
        "wedding"
+      ],
+      "italic-line": [
+       "travel"
       ]
      }
     }
@@ -4944,6 +5007,9 @@
        "faqs",
        "other_events",
        "wedding"
+      ],
+      "italic-line": [
+       "travel"
       ]
      }
     },
@@ -4969,6 +5035,9 @@
        "faqs",
        "other_events",
        "wedding"
+      ],
+      "italic-line": [
+       "travel"
       ]
      }
     },
@@ -4993,6 +5062,7 @@
      "block-title",
      "body",
      "home",
+     "italic-line",
      "other"
     ],
     "desktop_vars": [
@@ -5031,6 +5101,10 @@
      "DIN Next Condensed"
     ],
     [
+     "travel",
+     "DIN Next Condensed"
+    ],
+    [
      "wedding",
      "DIN Next Condensed"
     ]
@@ -5040,7 +5114,7 @@
      "nav",
      "menu",
      "Poppins",
-     "Purchase this Item"
+     "Purchase This Item"
     ]
    ]
   },
@@ -5063,6 +5137,7 @@
       "other_events",
       "registry",
       "things_to_do",
+      "travel",
       "wedding"
      ],
      "other_paint": {
@@ -5129,11 +5204,13 @@
        "other_events",
        "registry",
        "things_to_do",
+       "travel",
        "wedding"
       ],
       "block-title": [
        "faqs",
        "other_events",
+       "travel",
        "wedding"
       ],
       "body": [
@@ -5141,6 +5218,9 @@
        "other_events",
        "things_to_do",
        "wedding"
+      ],
+      "italic-line": [
+       "travel"
       ]
      },
      "ground": [],
@@ -5546,7 +5626,13 @@
      "field": "travel_info",
      "variant": "sample",
      "line": "The Penny Hotel Williamsburg",
-     "onsite": null,
+     "onsite": {
+      "el": "strong",
+      "font": "DIN Next Condensed",
+      "style": "normal",
+      "weight": "600",
+      "caps": "none"
+     },
      "box": {
       "font": "DIN Next Condensed",
       "style": "normal",
@@ -5557,7 +5643,13 @@
      "field": "travel_info",
      "variant": "editor",
      "line": "The Penny Hotel Williamsburg",
-     "onsite": null,
+     "onsite": {
+      "el": "strong",
+      "font": "DIN Next Condensed",
+      "style": "normal",
+      "weight": "600",
+      "caps": "none"
+     },
      "box": {
       "font": "DIN Next Condensed",
       "style": "normal",
@@ -5581,6 +5673,16 @@
      "font": "Poppins",
      "style": "italic",
      "rules": []
+    },
+    {
+     "field": "travel_info",
+     "line": "Request the Kira & Jay room block",
+     "el": "em",
+     "font": "Poppins",
+     "style": "italic",
+     "rules": [
+      ".travel-content em"
+     ]
     }
    ]
   },
@@ -5602,6 +5704,17 @@
     ],
     "example": "56 Cooper StreetBrooklyn, NY 11229",
     "selectors": []
+   },
+   {
+    "section": "travel",
+    "el": "em",
+    "flags": [
+     "italic"
+    ],
+    "example": "Request the Kira & Jay room block",
+    "selectors": [
+     ".travel-content em"
+    ]
    },
    {
     "section": "faqs",
@@ -6298,6 +6411,9 @@
       "block-title": [
        "faqs",
        "other_events"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -7242,8 +7358,7 @@
        "wedding"
       ],
       "body": [
-       "story",
-       "travel"
+       "story"
       ],
       "block-title": [
        "faqs",
@@ -7323,8 +7438,7 @@
        "wedding"
       ],
       "body": [
-       "story",
-       "travel"
+       "story"
       ],
       "block-title": [
        "faqs",
@@ -7489,6 +7603,9 @@
       "italic-line": [
        "travel",
        "wedding"
+      ],
+      "other": [
+       "other"
       ],
       "footer": [
        "footer"
@@ -8077,17 +8194,6 @@
     ],
     "example": "Semi-Formal",
     "selectors": []
-   },
-   {
-    "section": "travel",
-    "el": "h3.travel-col-title",
-    "flags": [
-     "italic"
-    ],
-    "example": "Hotel",
-    "selectors": [
-     ".travel-col-title"
-    ]
    },
    {
     "section": "travel",
@@ -8743,6 +8849,9 @@
       "block-title": [
        "accommodations",
        "faqs"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],
@@ -9661,8 +9770,7 @@
        "wedding"
       ],
       "body": [
-       "story",
-       "travel"
+       "story"
       ],
       "block-title": [
        "faqs",
@@ -9749,8 +9857,7 @@
        "wedding"
       ],
       "body": [
-       "story",
-       "travel"
+       "story"
       ],
       "block-title": [
        "faqs",
@@ -9849,7 +9956,11 @@
      "value": [
       "#fffdf5"
      ],
-     "text": {},
+     "text": {
+      "other": [
+       "other"
+      ]
+     },
      "ground": [
       "faqs",
       "home",
@@ -10271,28 +10382,28 @@
     {
      "section": "nav",
      "role": "menu",
-     "text": "Purchase this Item",
+     "text": "Purchase This Item",
      "slots": [],
      "vars": []
     },
     {
      "section": "nav",
      "role": "menu",
-     "text": "Purchase this Item",
+     "text": "Purchase This Item",
      "slots": [],
      "vars": []
     },
     {
      "section": "nav",
      "role": "menu",
-     "text": "Purchase this Item",
+     "text": "Purchase This Item",
      "slots": [],
      "vars": []
     },
     {
      "section": "nav",
      "role": "menu",
-     "text": "Purchase this Item",
+     "text": "Purchase This Item",
      "slots": [],
      "vars": []
     }
@@ -11273,6 +11384,9 @@
       ],
       "italic-line": [
        "accommodations"
+      ],
+      "other": [
+       "other"
       ]
      },
      "ground": [],

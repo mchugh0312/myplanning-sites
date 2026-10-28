@@ -87,6 +87,16 @@ owner's latest block, with its MP-052 16px inputs; main.py on the owner's latest
   sample is always shown whole, in both font menus.
 - MP-947 (Coastal Chic): still unchanged, awaiting the owner's verification.
 
+**Build `2026-10-28-cc-headings` - MP-947 fixed (owner's steps reproduced).**
+Coastal Chic's ten section-heading rules read var(--heading-font, var(--body)):
+the Section Headings font, else the BODY font - so until a Section Headings
+font was chosen, changing Body Text moved the section headings (owner's step
+2); once one was chosen it no longer did (step 4). The fallback is now the
+design's own face, 'Lexend Deca'. Same look by default; Section Headings
+changes names and section headings; Body Text changes body text only. Map
+re-baselined (only change: --body no longer reaches Coastal Chic's section
+headings / block titles); three older checks updated to accept the named face.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

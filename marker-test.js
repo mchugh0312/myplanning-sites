@@ -3227,10 +3227,14 @@ check('two blocks -> two cards', blocks(mark(
       /* The design's face, through the Section Headings wrapper where there is
          one: var(--heading-font, var(--x)) is --x until a heading font is set. */
       const g = m && m[1].match(/font-family:\s*var\((?:--heading-font,\s*var\()?(--[a-z]+)\)/);
-      return g ? g[1] : null;
+      if (g) return g[1];
+      /* ...or the design's face named outright as the fallback (Coastal Chic
+         since MP-947: Lexend Deca, its body face, without following Body Text). */
+      const lit = m && m[1].match(/font-family:\s*var\(--heading-font,\s*'([^']+)'/);
+      return lit ? lit[1] : null;
     };
     check('coastal chic sets event names in the body face',
-      face(cc, 'schedule-event-name'), '--body');
+      ['--body', 'Lexend Deca'].indexOf(face(cc, 'schedule-event-name')) > -1, true);
     check('pressed petals sets them in the script face',
       face(pp, 'event-card-name'), '--script');
   }
@@ -3244,7 +3248,8 @@ check('two blocks -> two cards', blocks(mark(
   const ppLab = (pp.match(/\n\.accom-col-title\{([^}]*)\}/) || ['', ''])[1];
   /* Still the body face by default; Section Headings now reaches it through
      var(--heading-font, ...) - titles follow Section Headings everywhere. */
-  check('coastal chic labels use the body face', /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab), true);
+  check('coastal chic labels use the body face',
+    /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab) || /font-family:var\(--heading-font, 'Lexend Deca', sans-serif\)/.test(ccLab), true);
   check('pressed petals labels use the script face', /font-family:var\(--script\)/.test(ppLab), true);
 }
 
@@ -7435,7 +7440,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-27-gh-photos-fontnames');
+  check('the stamp names the change it shipped with', version, '2026-10-28-cc-headings');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9785,7 +9790,7 @@ check('two blocks -> two cards', blocks(mark(
     /if \(!\(settings\.menu && settings\.menu\.font\) && _designMenuFont\) root\.setProperty\('--menu-font', _designMenuFont\);/.test(rt), true);
   /* MP-947 / MP-952: Gallery headings follow Section Headings. */
   check('Gallery headings follow Section Headings (Coastal Chic, Whimsical Romance)',
-    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, (var\(--body\)|'Lexend Deca', sans-serif)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
     /\.gallery-title\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--display\)\)/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
   /* MP-936: no iPhone auto-links on any design. */
   check('MP-936 every template turns off iPhone auto-linking',
@@ -10118,8 +10123,11 @@ check('two blocks -> two cards', blocks(mark(
     /function _syncArchedTitles\(\)/.test(rt) && /var room = path\.getTotalLength\(\) \* 0\.94;/.test(rt), true);
   check('MP-965 a Travel rename reaches a design\'s accommodations heading',
     /return _writeHeading\('accommodations', id, String\(_tr\)\.trim\(\)\);/.test(rt), true);
-  check('MP-947 not changed this round (Coastal Chic awaiting verification)',
-    /var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
+  /* MP-947: Body Text moved Coastal Chic's section headings until a Section
+     Headings font was chosen - their fallback was the body font. */
+  check('MP-947 Coastal Chic\'s section headings fall back to Lexend Deca, not to Body Text',
+    !/var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    (fs.readFileSync('template-coastalchic.html', 'utf8').match(/var\(--heading-font, 'Lexend Deca', sans-serif\)/g) || []).length === 10, true);
 }
 
 
