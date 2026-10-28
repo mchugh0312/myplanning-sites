@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MP-936. iPhone Safari turns dates, addresses and phone numbers into blue
+     links on its own - FAQ answers and event details are full of them, so they
+     came out blue. The couple's own links are unaffected. -->
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <title>Golden Hour</title>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
@@ -548,7 +552,7 @@ a.registry-title:hover{border-bottom-color:var(--dark);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'goldenhour:4e610f54';
+    window.__mpTemplate = 'goldenhour:d21bd7d8';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -922,7 +926,14 @@ function hydrateTemplate(d){
   // so these slots take the ones after it. Gallery photos are NOT used here —
   // uploading to the gallery was pulling pictures onto the rest of the site,
   // which is exactly the mixing the two sets were split up to stop.
-  var _sectionPool=_heroUrls.slice(1).concat(_heroUrls).filter(Boolean);
+  /* MP-942. Photographs NOT in the hero first: this hero shows three side by
+     side, so "the ones after the first" were hero columns two and three again,
+     right above. Then those two; the main photo only when there is nothing
+     else. Repeats removed (the runtime pads the hero list for its columns). */
+  var _seen={};
+  var _uniq=_heroUrls.filter(function(u){ if(!u||_seen[u]) return false; _seen[u]=1; return true; });
+  // ...and the other photos again before the main one: with two, B repeats.
+  var _sectionPool=_uniq.slice(3).concat(_uniq.slice(1,3)).concat(_uniq.slice(1)).concat(_uniq.slice(0,1)).filter(Boolean);
   [['accomPhoto',0],['travelPhoto',1]].forEach(function(pair){
     var _el=el(pair[0]);
     var _src=_sectionPool[pair[1]]||_sectionPool[0];
