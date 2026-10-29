@@ -681,6 +681,7 @@
     "label": null,
     "title": {
      "font": "Ballet",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -688,7 +689,8 @@
      "color": "rgb(255, 255, 255)"
     },
     "question": {
-     "font": "Goudy",
+     "font": "Sorts Mill Goudy",
+     "fontSrc": "",
      "weight": "700",
      "caps": "none",
      "italic": "normal",
@@ -811,7 +813,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700"
      }
@@ -828,7 +830,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700"
      }
@@ -845,7 +847,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700"
      }
@@ -862,7 +864,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700"
      }
@@ -1240,6 +1242,20 @@
      "roles": {
       "home": [
        "home"
+      ],
+      "section-heading": [
+       "faqs",
+       "registry",
+       "rsvp",
+       "story",
+       "things_to_do",
+       "travel",
+       "wedding"
+      ],
+      "block-title": [
+       "faqs",
+       "travel",
+       "wedding"
       ]
      }
     },
@@ -1295,6 +1311,20 @@
      "moves": {
       "home": [
        "home"
+      ],
+      "section-heading": [
+       "faqs",
+       "registry",
+       "rsvp",
+       "story",
+       "things_to_do",
+       "travel",
+       "wedding"
+      ],
+      "block-title": [
+       "faqs",
+       "travel",
+       "wedding"
       ]
      }
     },
@@ -1355,128 +1385,8 @@
      "mobile": true
     }
    },
-   "section_headings_not_moved_by_heading_control": [
-    [
-     "faqs",
-     "Lexend Deca"
-    ],
-    [
-     "registry",
-     "Lexend Deca"
-    ],
-    [
-     "rsvp",
-     "Lexend Deca"
-    ],
-    [
-     "story",
-     "Lexend Deca"
-    ],
-    [
-     "things_to_do",
-     "Lexend Deca"
-    ],
-    [
-     "travel",
-     "Lexend Deca"
-    ],
-    [
-     "wedding",
-     "Lexend Deca"
-    ]
-   ],
-   "content_text_no_font_var": [
-    [
-     "faqs",
-     "block-title",
-     "Lexend Deca",
-     "What should I wear to the wedding?"
-    ],
-    [
-     "faqs",
-     "block-title",
-     "Lexend Deca",
-     "Will the ceremony be indoors or outdoors"
-    ],
-    [
-     "faqs",
-     "block-title",
-     "Lexend Deca",
-     "Will there be transportation?"
-    ],
-    [
-     "faqs",
-     "section-heading",
-     "Lexend Deca",
-     "FAQs"
-    ],
-    [
-     "registry",
-     "section-heading",
-     "Lexend Deca",
-     "Registry"
-    ],
-    [
-     "rsvp",
-     "section-heading",
-     "Lexend Deca",
-     "RSVP"
-    ],
-    [
-     "story",
-     "section-heading",
-     "Lexend Deca",
-     "Our Story"
-    ],
-    [
-     "things_to_do",
-     "section-heading",
-     "Lexend Deca",
-     "Things to Do"
-    ],
-    [
-     "travel",
-     "block-title",
-     "Lexend Deca",
-     "AIRPORT"
-    ],
-    [
-     "travel",
-     "block-title",
-     "Lexend Deca",
-     "HOTEL"
-    ],
-    [
-     "travel",
-     "section-heading",
-     "Lexend Deca",
-     "Travel"
-    ],
-    [
-     "wedding",
-     "block-title",
-     "Lexend Deca",
-     "Beach Day"
-    ],
-    [
-     "wedding",
-     "block-title",
-     "Lexend Deca",
-     "Wedding"
-    ],
-    [
-     "wedding",
-     "block-title",
-     "Lexend Deca",
-     "Welcome Drinks"
-    ],
-    [
-     "wedding",
-     "section-heading",
-     "Lexend Deca",
-     "Event Schedule"
-    ]
-   ]
+   "section_headings_not_moved_by_heading_control": [],
+   "content_text_no_font_var": []
   },
   "colours": {
    "slots": {
@@ -1550,7 +1460,6 @@
        "travel"
       ],
       "body": [
-       "registry",
        "travel"
       ],
       "other": [
@@ -2054,6 +1963,7 @@
    "reported_to_editor": {
     "label": {
      "font": "Lexend Deca",
+     "fontSrc": "",
      "weight": "600",
      "caps": "none",
      "italic": "normal",
@@ -2061,7 +1971,8 @@
      "color": "rgb(27, 42, 65)"
     },
     "title": {
-     "font": "Lexend Deca",
+     "font": "La Belle Aurore",
+     "fontSrc": "",
      "weight": "700",
      "caps": "uppercase",
      "italic": "normal",
@@ -2069,7 +1980,8 @@
      "color": "rgb(254, 250, 241)"
     },
     "question": {
-     "font": "Lexend Deca",
+     "font": "La Belle Aurore",
+     "fontSrc": "",
      "weight": "500",
      "caps": "none",
      "italic": "normal",
@@ -2084,13 +1996,13 @@
      "line": "Wedding",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2101,13 +2013,13 @@
      "line": "Wedding",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2118,13 +2030,13 @@
      "line": "Welcome Drinks",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2135,13 +2047,13 @@
      "line": "Beach Day",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2152,13 +2064,13 @@
      "line": "Welcome Drinks",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2169,13 +2081,13 @@
      "line": "Beach Day",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700"
      }
@@ -2186,13 +2098,13 @@
      "line": "What should I wear to the wedding?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500"
      }
@@ -2203,13 +2115,13 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500"
      }
@@ -2220,13 +2132,13 @@
      "line": "What should I wear to the wedding?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500"
      }
@@ -2237,13 +2149,13 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "500"
      }
@@ -2254,7 +2166,7 @@
      "line": "AIRPORT",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2271,7 +2183,7 @@
      "line": "HOTEL",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2288,7 +2200,7 @@
      "line": "AIRPORT",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2305,7 +2217,7 @@
      "line": "HOTEL",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "Lexend Deca",
+      "font": "La Belle Aurore",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2374,17 +2286,6 @@
     "example": "Probe things to do line.",
     "selectors": [
      ".faq-answer"
-    ]
-   },
-   {
-    "section": "registry",
-    "el": "div#registryInfo",
-    "flags": [
-     "weight 300"
-    ],
-    "example": "Your presence at our celebration is the ",
-    "selectors": [
-     ".registry-info"
     ]
    },
    {
@@ -2825,6 +2726,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -2910,6 +2812,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -3046,6 +2949,7 @@
       ],
       "body": [
        "accommodations",
+       "registry",
        "travel"
       ],
       "section-heading": [
@@ -3258,6 +3162,7 @@
    "reported_to_editor": {
     "label": {
      "font": "La Belle Aurore",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -3266,6 +3171,7 @@
     },
     "title": {
      "font": "La Belle Aurore",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -3274,6 +3180,7 @@
     },
     "question": {
      "font": "EB Garamond",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -3555,6 +3462,15 @@
     "selectors": [
      ".ntk-answer"
     ]
+   },
+   {
+    "section": "registry",
+    "el": "a.mp-registry-more",
+    "flags": [
+     "uppercase"
+    ],
+    "example": "View our registry",
+    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -3867,6 +3783,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -3949,6 +3866,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -4078,6 +3996,7 @@
       "body": [
        "accommodations",
        "faqs",
+       "registry",
        "story",
        "things_to_do",
        "wedding"
@@ -4362,6 +4281,7 @@
    "reported_to_editor": {
     "label": {
      "font": "Luxurious Script",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -4370,6 +4290,7 @@
     },
     "title": {
      "font": "Luxurious Script",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -4378,6 +4299,7 @@
     },
     "question": {
      "font": "Lancelot",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -4648,7 +4570,17 @@
     }
    ]
   },
-  "imposed_on_body_copy": [],
+  "imposed_on_body_copy": [
+   {
+    "section": "registry",
+    "el": "a.mp-registry-more",
+    "flags": [
+     "uppercase"
+    ],
+    "example": "View our registry",
+    "selectors": []
+   }
+  ],
   "css_restyling_inline_tags": [
    {
     "sel": ".nav-hamburger span",
@@ -5393,7 +5325,8 @@
   "titles": {
    "reported_to_editor": {
     "label": {
-     "font": "DIN Next Condensed",
+     "font": "Poppins",
+     "fontSrc": "",
      "weight": "600",
      "caps": "none",
      "italic": "normal",
@@ -5401,7 +5334,8 @@
      "color": "rgb(0, 0, 0)"
     },
     "title": {
-     "font": "DIN Next Condensed",
+     "font": "Poppins",
+     "fontSrc": "",
      "weight": "700",
      "caps": "none",
      "italic": "normal",
@@ -5410,6 +5344,7 @@
     },
     "question": {
      "font": "Poppins",
+     "fontSrc": "",
      "weight": "700",
      "caps": "none",
      "italic": "normal",
@@ -5430,7 +5365,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5447,7 +5382,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5464,7 +5399,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5481,7 +5416,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5498,7 +5433,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5515,7 +5450,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5532,7 +5467,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5549,7 +5484,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "700"
      }
@@ -5634,7 +5569,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "600"
      }
@@ -5651,7 +5586,7 @@
       "caps": "none"
      },
      "box": {
-      "font": "DIN Next Condensed",
+      "font": "Poppins",
       "style": "normal",
       "weight": "600"
      }
@@ -6192,6 +6127,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "story",
        "things_to_do",
        "travel",
@@ -6271,6 +6207,7 @@
        "accommodations",
        "faqs",
        "other_events",
+       "registry",
        "story",
        "things_to_do",
        "travel",
@@ -6405,6 +6342,7 @@
       "body": [
        "faqs",
        "other_events",
+       "registry",
        "story",
        "things_to_do"
       ],
@@ -6744,6 +6682,17 @@
      "vars": [
       "--on-dark"
      ]
+    },
+    {
+     "section": "registry",
+     "role": "body",
+     "text": "View our registry",
+     "slots": [
+      "ink"
+     ],
+     "vars": [
+      "--ink"
+     ]
     }
    ]
   },
@@ -6751,6 +6700,7 @@
    "reported_to_editor": {
     "label": {
      "font": "Pinyon Script",
+     "fontSrc": "",
      "weight": "500",
      "caps": "none",
      "italic": "normal",
@@ -6759,6 +6709,7 @@
     },
     "title": {
      "font": "Pinyon Script",
+     "fontSrc": "",
      "weight": "500",
      "caps": "none",
      "italic": "normal",
@@ -6767,6 +6718,7 @@
     },
     "question": {
      "font": "Instrument Serif",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -7091,6 +7043,15 @@
     "selectors": [
      ".faq-answer"
     ]
+   },
+   {
+    "section": "registry",
+    "el": "a.mp-registry-more",
+    "flags": [
+     "uppercase"
+    ],
+    "example": "View our registry",
+    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -7890,6 +7851,7 @@
     "label": null,
     "title": {
      "font": "Libre Baskerville",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "italic",
@@ -7898,6 +7860,7 @@
     },
     "question": {
      "font": "Libre Baskerville",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "italic",
@@ -8850,6 +8813,9 @@
        "accommodations",
        "faqs"
       ],
+      "menu": [
+       "nav"
+      ],
       "other": [
        "other"
       ]
@@ -9143,6 +9109,7 @@
    "reported_to_editor": {
     "label": {
      "font": "Aboreto",
+     "fontSrc": "",
      "weight": "400",
      "caps": "uppercase",
      "italic": "normal",
@@ -9151,6 +9118,7 @@
     },
     "title": {
      "font": "Ovo",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -9159,6 +9127,7 @@
     },
     "question": {
      "font": "DM Sans",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -10414,6 +10383,7 @@
     "label": null,
     "title": {
      "font": "Instrument Serif",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -10422,6 +10392,7 @@
     },
     "question": {
      "font": "Instrument Serif",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -11762,6 +11733,7 @@
    "reported_to_editor": {
     "label": {
      "font": "Corben",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -11770,6 +11742,7 @@
     },
     "title": {
      "font": "Pinyon Script",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",
@@ -11778,6 +11751,7 @@
     },
     "question": {
      "font": "Corben",
+     "fontSrc": "",
      "weight": "400",
      "caps": "none",
      "italic": "normal",

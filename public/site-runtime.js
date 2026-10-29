@@ -3257,6 +3257,100 @@
     return null;
   }
 
+  /* MP-970. The face a stack actually DRAWS, by the name the editor's font
+     catalog knows it by. The first family of a stack was reported, and it is
+     often not the one on screen: Modern Minimal's titles list DIN Next
+     Condensed (not loaded - Oswald is drawn), Whimsical Romance's body Avenir
+     Next (a Mac system face - DM Sans elsewhere), Vintage Love Story's body
+     Stack Sans Headline (not loaded), and Black Tie names Sorts Mill Goudy
+     "Goudy" in its own @font-face. The editor could not draw those names, so its
+     boxes fell back to their default face and the font menu had nothing to
+     mark as current. */
+  var FONT_CATALOG = ["Aboreto","Ballet","Comic Neue","Corben","Cormorant Garamond","Dancing Script","DM Sans","EB Garamond","Great Vibes","Instrument Serif","La Belle Aurore","Lancelot","Lexend Deca","Libre Baskerville","Lora","Luxurious Script","Montserrat","Noto Serif","Open Sans","Oswald","Ovo","Pacifico","Pinyon Script","Playfair Display","Poppins","Roboto","Sorts Mill Goudy"];
+  function _catKey(n) { return String(n || '').toLowerCase().replace(/[^a-z]/g, ''); }
+  var _faceUrlCache = null;
+  function _faceUrls() {
+    if (_faceUrlCache) return _faceUrlCache;
+    var map = {};
+    try {
+      Array.prototype.forEach.call(document.styleSheets, function (sh) {
+        var rules; try { rules = sh.cssRules; } catch (e) { return; }   /* cross-origin: unreadable */
+        Array.prototype.forEach.call(rules || [], function (r) {
+          if (r.type !== 5 || !r.style) return;                          /* CSSRule.FONT_FACE_RULE */
+          var fam = (r.style.getPropertyValue('font-family') || '').replace(/["']/g, '').trim();
+          var src = r.style.getPropertyValue('src') || '';
+          if (fam) (map[fam] = map[fam] || []).push(src);
+        });
+      });
+    } catch (e) {}
+    return (_faceUrlCache = map);
+  }
+  function _catalogName(fam) {
+    var k = _catKey(fam);
+    for (var i = 0; i < FONT_CATALOG.length; i++) if (_catKey(FONT_CATALOG[i]) === k) return FONT_CATALOG[i];
+    /* A template's own name for a catalog face: read off the file it loads
+       ("Goudy" -> /fonts/SORTSMILLGOUDYRegular.woff2 -> Sorts Mill Goudy). */
+    var srcs = _faceUrls()[fam] || [];
+    for (var j = 0; j < srcs.length; j++) {
+      var m = /url\(["']?([^"')]*)["']?\)/.exec(srcs[j]);
+      var file = m ? m[1].split('/').pop().replace(/\.\w+$/, '') : '';
+      var base = _catKey(file);
+      for (var c = 0; c < FONT_CATALOG.length && base; c++) {
+        if (base.indexOf(_catKey(FONT_CATALOG[c])) === 0) return FONT_CATALOG[c];
+      }
+    }
+    return fam;
+  }
+  var _sysCanvas = null;
+  function _systemHas(fam) {
+    try {
+      _sysCanvas = _sysCanvas || document.createElement('canvas');
+      var ctx = _sysCanvas.getContext('2d'), probe = 'mmmmmmmmmmlliWWQ@#';
+      var w = function (f) { ctx.font = '72px ' + f; return ctx.measureText(probe).width; };
+      return w('"' + fam + '", monospace') !== w('monospace') || w('"' + fam + '", serif') !== w('serif');
+    } catch (e) { return false; }
+  }
+  function _available(fam) {
+    var faces = [];
+    try { document.fonts.forEach(function (f) { if (String(f.family).replace(/["']/g, '') === fam) faces.push(f); }); } catch (e) {}
+    if (faces.length) return faces.some(function (f) { return f.status === 'loaded' || f.status === 'loading'; });
+    return _systemHas(fam);
+  }
+  /* MP-970. Where the drawn face is NOT one of the editor's catalog faces - a
+     template's own file (Vintage Love Story's Stack Sans Headline) - the file
+     itself, so the editor can load it and draw its box in the same face. */
+  function _fontSrcFor(stack) {
+    try {
+      var GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math|fangsong|inherit|initial)$/i;
+      var fams = String(stack || '').split(',').map(function (x) { return x.replace(/["']/g, '').trim(); })
+        .filter(function (x) { return x && !GENERIC.test(x); });
+      /* The same face _drawnFamily names: the first available, else the first
+         listed (one still loading when this runs is still the one wanted). */
+      var pick = null;
+      for (var k = 0; k < fams.length; k++) if (_available(fams[k])) { pick = fams[k]; break; }
+      if (pick === null && fams.length) pick = fams[0];
+      fams = pick === null ? [] : [pick];
+      for (var i = 0; i < fams.length; i++) {
+        if (FONT_CATALOG.indexOf(_catalogName(fams[i])) !== -1) return '';
+        var srcs = _faceUrls()[fams[i]] || [];
+        for (var j = 0; j < srcs.length; j++) {
+          var m = /url\(["']?([^"')]*)["']?\)/.exec(srcs[j]);
+          if (m && m[1]) return new URL(m[1], location.href).href;
+        }
+        return '';
+      }
+    } catch (e) {}
+    return '';
+  }
+
+  function _drawnFamily(stack) {
+    var GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math|fangsong|inherit|initial)$/i;
+    var fams = String(stack || '').split(',').map(function (x) { return x.replace(/["']/g, '').trim(); })
+      .filter(function (x) { return x && !GENERIC.test(x); });
+    for (var i = 0; i < fams.length; i++) if (_available(fams[i])) return _catalogName(fams[i]);
+    return fams.length ? _catalogName(fams[0]) : '';
+  }
+
   function _designStyle(node, wholeText) {
     var el = node.parentElement;
     while (el && _COUPLE_TAG.test(el.tagName) && !el.getAttribute('class')) {
@@ -3274,7 +3368,8 @@
       if (/underline/.test(getComputedStyle(a).textDecorationLine || '')) { underline = true; break; }
     }
     return {
-      font: (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim(),
+      font: _drawnFamily(cs.fontFamily || ''),   // MP-970: the face actually drawn, by its catalog name
+      fontSrc: _fontSrcFor(cs.fontFamily || ''),
       weight: cs.fontWeight || '', italic: cs.fontStyle || '',
       caps: cs.textTransform || '', underline: underline,
       size: cs.fontSize || '', color: cs.color || ''
@@ -3385,7 +3480,8 @@
           if (!el) return null;
           var cs = getComputedStyle(el);
           return {
-            font: (cs.fontFamily || '').split(',')[0].replace(/["']/g, '').trim(),
+            font: _drawnFamily(cs.fontFamily || ''),   // MP-970: the face actually drawn, by its catalog name
+      fontSrc: _fontSrcFor(cs.fontFamily || ''),
             weight: cs.fontWeight || '',
             caps: cs.textTransform || '',
             /* Face and weight alone were not enough to make the box match the
@@ -5286,7 +5382,13 @@
         /* MP-946. In the preview too, so it shows what the live site shows. It
            has no address there - the preview keeps every registry link inert -
            so it is a button that goes nowhere, like the preview's others. */
-        var _wantMore = (!!_registryUrl || _isPreview) && !_blanked && hasCopy && !_ownCta;
+        /* MP-907, reopened. Whenever there is a registry to open - whether or not
+           the note box has words, whether or not the heading was cleared. Both
+           were left out to avoid a button beside a lone title, and both are
+           exactly when the section shows least that it leads anywhere: with the
+           note box empty (as it starts, MP-969) the button went from the
+           preview, which the tester reported as a regression. */
+        var _wantMore = (!!_registryUrl || _isPreview) && !_ownCta;
         if (_wantMore && !_more && info.parentNode) {
           _more = document.createElement('a');
           _more.className = 'mp-registry-more';
@@ -5924,8 +6026,14 @@
       for (var i = 0; i < ids.length; i++) {
         var el = document.getElementById(ids[i]);
         if (!el) continue;
-        // Four characters at least: a shorter probe ("x") matches almost anything.
-        if (probe.length >= 4 && _squash(el.textContent).indexOf(probe) !== -1) continue;
+        /* Four characters at least: a shorter probe ("x") matches almost
+           anything - so with fewer there is no telling whether this element
+           holds the other half's words, and it is LEFT ALONE (MP-901). Hiding
+           it then took the whole Travel section away while the first three
+           letters of the card were typed, on the designs whose "empty half"
+           is the element showing them. */
+        if (probe.length < 4) continue;
+        if (_squash(el.textContent).indexOf(probe) !== -1) continue;
         el.style.display = 'none';
       }
     });
@@ -8103,7 +8211,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-28-cc-headings';
+  var MP_RUNTIME_BUILD = '2026-10-28-travel-stays';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

@@ -915,7 +915,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:7ab32107';
+    window.__mpTemplate = 'heirloombloom:c2682f47';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1625,7 +1625,20 @@ function hydrateTemplate(d) {
   if(_acSec){
     var _hasAc=!!(menu.accommodations&&d.accommodation_info);
     var _hasTr=!!(menu.travel&&d.travel_info);
-    _acSec.style.display=(_hasAc||_hasTr)?'':'none';
+    /* Every column and the divider put back first: the rules below only ever
+       HIDE, so a column hidden while the box was empty stayed hidden once the
+       couple typed into it again. */
+    ['accomContent','travelContent'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=''; });
+    var _dv=_acSec.querySelector('.accom-divider'); if(_dv) _dv.style.display='';
+    /* MP-901. Shown whenever Travel is switched on, as on every other design -
+       only the Design tab removes a section. It was hidden whenever both columns
+       were empty, so clearing the Travel box took the whole band away. With
+       both empty the columns are put away and the band keeps its heading. */
+    _acSec.style.display=(_hasAc||_hasTr||menu.accommodations||menu.travel)?'':'none';
+    if(!_hasAc&&!_hasTr){
+      var _a0=document.getElementById('accomContent'), _t0=document.getElementById('travelContent'), _d0=_acSec.querySelector('.accom-divider');
+      if(_a0)_a0.style.display='none'; if(_t0)_t0.style.display='none'; if(_d0)_d0.style.display='none';
+    }
     var _acCol=document.getElementById('accomContent');
     var _trCol=document.getElementById('travelContent');
     var _div=_acSec.querySelector('.accom-divider');

@@ -221,7 +221,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .schedule-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -239,7 +239,7 @@ body.hydrating{visibility:hidden;}
   color:var(--on-dark);
 }
 .schedule-event-name{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:700;
   font-size:0.92rem;
   letter-spacing:0.18em;
@@ -300,7 +300,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .travel-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -328,7 +328,7 @@ body.hydrating{visibility:hidden;}
   line-height:1.7;
 }
 .travel-block-label{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:700;
   font-size:0.85rem;
   letter-spacing:0.16em;
@@ -415,7 +415,7 @@ body.hydrating{visibility:hidden;}
 }
 .faq-inner{max-width:680px;margin:0 auto;}
 .faq-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -428,7 +428,7 @@ body.hydrating{visibility:hidden;}
 }
 .faq-item:last-child{margin-bottom:0;}
 .faq-q-text{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:500;
   font-size:1.02rem;
   color:var(--on-dark);
@@ -454,7 +454,7 @@ body.hydrating{visibility:hidden;}
 }
 .registry-inner{max-width:560px;margin:0 auto;}
 .registry-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -513,7 +513,7 @@ body.hydrating{visibility:hidden;}
   position:relative;z-index:2;
 }
 .rsvp-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -822,7 +822,7 @@ body.hydrating{visibility:hidden;}
 }
 .story-inner{max-width:600px;margin:0 auto;}
 .story-title{
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);
+  font-family:var(--heading-font, var(--script));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -862,7 +862,7 @@ body.hydrating{visibility:hidden;}
 
 .gallery-section .section-title-mini{
   /* Section Headings reaches it (MP-947); the body face until one is chosen. */
-  font-family:var(--heading-font, 'Lexend Deca', sans-serif);font-weight:600;
+  font-family:var(--heading-font, var(--script));font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);margin-bottom:1.5rem;
 }
@@ -1083,8 +1083,10 @@ body.thumbnail-mode{scroll-behavior:auto;}
   .schedule-grid > .schedule-event{box-sizing:border-box;min-width:0;flex:0 0 calc((100% - 2 * 3.4rem) / 3);max-width:calc((100% - 2 * 3.4rem) / 3);}
 }
 /* MP-947. Coastal Chic's section headings follow Section Headings, and until one
-   is chosen they are the design's Lexend Deca itself - not "whatever Body Text
-   is", which their fallback used to be, so changing Body Text moved them too. */
+   is chosen they wear its DEFAULT - La Belle Aurore, the face the Fonts panel
+   names and the couple's names already use (--script) - so the default looks
+   like what the panel says, and re-choosing it changes nothing. Never the body
+   face: Body Text used to move them while no heading font was set. */
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1110,7 +1112,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:bb1b582d';
+    window.__mpTemplate = 'coastalchic:f4311463';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1614,9 +1616,14 @@ function hydrateTemplate(d){
       // Only replace the template's placeholder events when the couple's data
       // has real content. Parsed blocks with a name but no date or venue used
       // to wipe the placeholder and leave a nearly empty grid.
+      /* MP-901. Anything the couple has typed replaces the placeholder events -
+         a title on its own included. Asking for a title AND a detail line kept
+         the sample schedule on screen while the first line was being typed
+         (the cleared box, then "The Ceremony"), and the couple's words only
+         appeared with the second line. */
       var hasRealEvents = allEvents.some(function(ev){
-        return (ev.name || '').trim() &&
-          ((ev.detail || '').trim() || (ev.date || '').trim() || (ev.venue || '').trim());
+        return (ev.name || '').trim() || (ev.detail || '').trim() ||
+          (ev.date || '').trim() || (ev.venue || '').trim();
       });
       if (hasRealEvents){
         // Placeholder retention: render into a detached node and only
@@ -1938,6 +1945,16 @@ function hydrateTemplate(d){
         // guests with a registry section they couldn't open.
         if (btnEl) btnEl.textContent = 'View Our Registry';
       }
+      infoEl.style.display = '';
+    } else if (infoEl) {
+      /* MP-969. An empty note is an empty note - here as on the other nine
+         designs. The sample sentence in this page's markup stayed whenever the
+         note was empty, so a couple who cleared the box (or never filled it -
+         it starts blank, MP-339) still had words on their site that they could
+         not see or edit. The section's button stays, so it still leads to the
+         registry. */
+      infoEl.innerHTML = '';
+      infoEl.style.display = 'none';
     }
   }
 

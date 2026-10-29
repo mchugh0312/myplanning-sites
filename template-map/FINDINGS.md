@@ -97,6 +97,44 @@ changes names and section headings; Body Text changes body text only. Map
 re-baselined (only change: --body no longer reaches Coastal Chic's section
 headings / block titles); three older checks updated to accept the named face.
 
+**10/28 FEEDBACK - build `2026-10-28-registry-events`**
+- MP-907 (reopened): the runtime's "View our registry" button needed copy in
+  the registry note AND the heading present; the note starts blank (MP-339),
+  so five designs showed no button. Now: whenever there is a registry to open,
+  unless the design has its own. All ten checked with an empty note.
+- MP-969: Coastal Chic kept the sample registry sentence from its markup when
+  the note was empty (preview and live); an empty note is empty now, button
+  kept. The other nine already behaved.
+- MP-947: Coastal Chic's section headings default to the names face
+  (La Belle Aurore, --script) - what the Fonts panel shows - and never to the
+  body face.
+- MP-901 (10/28 notes): (a) Coastal Chic kept its sample events until a typed
+  card had a detail line - any typed text replaces them now; (b) the "empty
+  half" Travel rule hid the section while fewer than four letters were typed
+  (Coastal Chic, Modern Minimal, Vintage Love Story, Black Tie) - it leaves
+  alone what it cannot check now.
+- MP-970, build `2026-10-28-editor-fonts`: the runtime told the editor the FIRST
+  family of each stack, often not the one drawn - Modern Minimal's titles list
+  DIN Next Condensed (not loaded; Oswald drawn), Whimsical Romance's body Avenir
+  Next (Mac system face; DM Sans elsewhere), Black Tie names Sorts Mill Goudy
+  "Goudy" in its own @font-face, Vintage Love Story's body is its own file
+  (Stack Sans Headline). Now: the first family actually available, by its
+  catalog name (template aliases read off the font file); a face outside the
+  catalog travels with its file and the editor loads it into the box's root.
+  Checked: Black Tie's menu marks "Sorts Mill Goudy - current"; Vintage's box
+  draws Stack Sans Headline. (Modern Minimal reads Poppins in the sandbox only
+  because Google Fonts are blocked here; Oswald is drawn - and reported - live.)
+  A face outside the catalog cannot be marked current in the menu: it is not
+  one a couple can choose.
+- DECIDED by the owner, build `2026-10-28-travel-stays`: a cleared Travel box
+  keeps the section on Black Tie and Heirloom Bloom too, as on every other
+  design. Black Tie showed #travel-section only with words in it; Heirloom
+  Bloom hid its band when both columns were empty. Both now show it whenever
+  Travel is on (a plain band, like Pressed Petals and Golden Hour, whose Travel
+  areas have no heading either). Heirloom Bloom also puts its columns back
+  before deciding which to hide: one hidden while empty stayed hidden after
+  the couple typed into it again.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

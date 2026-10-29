@@ -2391,13 +2391,17 @@ check('two blocks -> two cards', blocks(mark(
         const fn = new Function('document',
           anchors + '\n' + lift('function hideEmptyOptionalSections(') +
           '\nreturn hideEmptyOptionalSections;')(doc);
-        const at = (v) => { el.style.display = ''; fn({ accommodation_info: v, travel_info: 'x' });
+        /* The other half's words long enough to look for (four letters at
+           least) - with fewer the rule cannot tell and leaves things alone
+           (MP-901), which is checked separately below. */
+        const at = (v, other) => { el.style.display = ''; fn({ accommodation_info: v, travel_info: other || 'Fly into SAN' });
           return el.style.display === 'none' ? 'hidden' : 'shown'; };
         const n = f.replace('template-', '').replace('.html', '');
         if (at(undefined) !== 'shown') wrong.push(n + ': never-set was hidden');
         if (at('') !== 'hidden') wrong.push(n + ': emptied stayed on screen');
         if (at('<br>') !== 'hidden') wrong.push(n + ': a bare break counted as copy');
         if (at('<strong>Hotel</strong><br>Hyatt') !== 'shown') wrong.push(n + ': real copy was hidden');
+        if (at('', 'Fl') !== 'shown') wrong.push(n + ': hidden while the other half had only 2 letters (MP-901)');
       }
       check('every template behaves the same way', wrong, []);
     }
@@ -3234,7 +3238,7 @@ check('two blocks -> two cards', blocks(mark(
       return lit ? lit[1] : null;
     };
     check('coastal chic sets event names in the body face',
-      ['--body', 'Lexend Deca'].indexOf(face(cc, 'schedule-event-name')) > -1, true);
+      ['--body', 'Lexend Deca', '--script'].indexOf(face(cc, 'schedule-event-name')) > -1, true);
     check('pressed petals sets them in the script face',
       face(pp, 'event-card-name'), '--script');
   }
@@ -3249,7 +3253,7 @@ check('two blocks -> two cards', blocks(mark(
   /* Still the body face by default; Section Headings now reaches it through
      var(--heading-font, ...) - titles follow Section Headings everywhere. */
   check('coastal chic labels use the body face',
-    /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab) || /font-family:var\(--heading-font, 'Lexend Deca', sans-serif\)/.test(ccLab), true);
+    /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab) || /font-family:var\(--heading-font, ('Lexend Deca', sans-serif|var\(--script\))\)/.test(ccLab), true);
   check('pressed petals labels use the script face', /font-family:var\(--script\)/.test(ppLab), true);
 }
 
@@ -4699,7 +4703,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '374fc86c');
+    ('0000000' + h.toString(16)).slice(-8), 'b604c3b1');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -6046,14 +6050,18 @@ check('two blocks -> two cards', blocks(mark(
      button anyway, so preview and live show the same section (MP-946). And
      never beside a registry button the design already has (MP-941). */
   check('it needs a registry url',
-    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_blanked && hasCopy && !_ownCta;/.test(fn), true);
+    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_ownCta;/.test(fn), true);
   /* AND copy. With the box empty the section is just the heading in its frame,
      and a button beside it reads as a second title rather than a control -
      which is what the live site showed while the preview, with no url to hang
      it on, showed nothing. A heading alone is already the link on every
      design; the button is for when a paragraph has come between the heading
      and the gifts and the heading has stopped looking clickable. */
-  check('and copy to sit under', /&& hasCopy(?: && !_ownCta)?;/.test(fn), true);
+  /* MP-907, reopened (10/28): NOT any more. An empty note box - the way it
+     starts (MP-339) - and a cleared heading are exactly when the section shows
+     least that it leads anywhere; the button went missing there and the
+     tester reported it as a regression. */
+  check('and NOT only with copy under it', /&& hasCopy(?: && !_ownCta)?;/.test(fn), false);
   /* Block and centred, not inline: inline-block put it on the same line as
      whatever it followed, so inside a centred frame it sat beside the title. */
   check('it is laid out as its own block',
@@ -7440,7 +7448,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-28-cc-headings');
+  check('the stamp names the change it shipped with', version, '2026-10-28-travel-stays');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7448,7 +7456,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '19c640e4');
+    ('0000000' + bh.toString(16)).slice(-8), '1ec57119');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9790,7 +9798,7 @@ check('two blocks -> two cards', blocks(mark(
     /if \(!\(settings\.menu && settings\.menu\.font\) && _designMenuFont\) root\.setProperty\('--menu-font', _designMenuFont\);/.test(rt), true);
   /* MP-947 / MP-952: Gallery headings follow Section Headings. */
   check('Gallery headings follow Section Headings (Coastal Chic, Whimsical Romance)',
-    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, (var\(--body\)|'Lexend Deca', sans-serif)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, (var\(--body\)|'Lexend Deca', sans-serif|var\(--script\))\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
     /\.gallery-title\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--display\)\)/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
   /* MP-936: no iPhone auto-links on any design. */
   check('MP-936 every template turns off iPhone auto-linking',
@@ -10125,9 +10133,9 @@ check('two blocks -> two cards', blocks(mark(
     /return _writeHeading\('accommodations', id, String\(_tr\)\.trim\(\)\);/.test(rt), true);
   /* MP-947: Body Text moved Coastal Chic's section headings until a Section
      Headings font was chosen - their fallback was the body font. */
-  check('MP-947 Coastal Chic\'s section headings fall back to Lexend Deca, not to Body Text',
+  check('MP-947 Coastal Chic\'s section headings default to the names face (La Belle Aurore), never Body Text',
     !/var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
-    (fs.readFileSync('template-coastalchic.html', 'utf8').match(/var\(--heading-font, 'Lexend Deca', sans-serif\)/g) || []).length === 10, true);
+    (fs.readFileSync('template-coastalchic.html', 'utf8').match(/var\(--heading-font, var\(--script\)\)/g) || []).length === 10, true);
 }
 
 
@@ -10141,6 +10149,50 @@ check('two blocks -> two cards', blocks(mark(
     /d\.gallery_images = d\.gallery_images\.filter\(function \(g\) \{/.test(rt) && /_cleanPhotoLists\(d\);/.test(rt), true);
   check('and the clean-up starts after every photo the hero shows',
     /var _start = Math\.min\(Math\.max\(1, _hs\), own\.length - 1\);/.test(rt), true);
+}
+
+
+// ── 10/28 round: MP-907 (reopened), MP-969, MP-901 (new notes) ──────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const cc = fs.readFileSync('template-coastalchic.html', 'utf8');
+  check('MP-907 the registry button shows whenever there is a registry to open',
+    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_ownCta;/.test(rt), true);
+  check('MP-969 Coastal Chic\'s empty registry note is empty',
+    /infoEl\.innerHTML = '';\s*\n\s*infoEl\.style\.display = 'none';/.test(cc), true);
+  check('MP-901 typed events replace Coastal Chic\'s sample from the first line',
+    /return \(ev\.name \|\| ''\)\.trim\(\) \|\| \(ev\.detail \|\| ''\)\.trim\(\) \|\|/.test(cc), true);
+  check('MP-901 the empty-half rule leaves alone what it cannot check',
+    /if \(probe\.length < 4\) continue;/.test(rt), true);
+}
+
+
+// ── MP-970: the editor is told the face actually drawn ───────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* The first family of a stack was reported - often not loaded, a system face
+     the machine lacks, or a template's own name for a catalog face. */
+  check('MP-970 box styles report the drawn face by its catalog name',
+    (rt.match(/font: _drawnFamily\(cs\.fontFamily \|\| ''\),/g) || []).length === 2 && /function _drawnFamily\(stack\)/.test(rt), true);
+  check('MP-970 a template\'s name for a catalog face is read off its file',
+    /\("Goudy" -> \/fonts\/SORTSMILLGOUDYRegular\.woff2 -> Sorts Mill Goudy\)/.test(rt) && /base\.indexOf\(_catKey\(FONT_CATALOG\[c\]\)\) === 0/.test(rt), true);
+  check('MP-970 a face outside the catalog travels with its file, and the editor loads it',
+    (rt.match(/fontSrc: _fontSrcFor\(cs\.fontFamily \|\| ''\),/g) || []).length === 2 &&
+    /el\.textContent = "@font-face\{font-family:'" \+ String\(st\.font\)/.test(ws), true);
+}
+
+
+// ── Decided: a cleared Travel stays on Black Tie and Heirloom Bloom too ──
+{
+  const bt = fs.readFileSync('template-blacktietimeless.html', 'utf8');
+  const hb = fs.readFileSync('template-heirloombloom.html', 'utf8');
+  check('Black Tie keeps its Travel section whenever Travel is on',
+    /travelSection\.style\.display = \(_showTravelBlock \|\| _travelOn\) \? '' : 'none';/.test(bt), true);
+  check('Heirloom Bloom keeps its Travel band whenever Travel is on',
+    /_acSec\.style\.display=\(_hasAc\|\|_hasTr\|\|menu\.accommodations\|\|menu\.travel\)\?'':'none';/.test(hb), true);
+  check('and puts its columns back before deciding which to hide',
+    /\['accomContent','travelContent'\]\.forEach\(function\(id\)\{ var e=document\.getElementById\(id\); if\(e\) e\.style\.display=''; \}\);/.test(hb), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
