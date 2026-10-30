@@ -637,6 +637,21 @@
   }
 }
 </style>
+<script>
+/* MP-973. "Preview as guest" opens this page in a NEW tab, where the copy of the
+   site the wedding page leaves in its own tab is not available - so the page
+   painted in its default look until the couple's template arrived from the
+   server, then changed. Held invisible until the look is known (initSkin lifts
+   it), for 4 seconds at the most; never on the brand page with no couple. */
+(function () {
+  try {
+    document.documentElement.classList.add('mp-skin-wait');
+    window.__mpSkinLift = function () { document.documentElement.classList.remove('mp-skin-wait'); };
+    setTimeout(window.__mpSkinLift, 4000);
+  } catch (e) {}
+})();
+</script>
+<style>html.mp-skin-wait body{visibility:hidden;}</style>
 </head>
 <body>
   <div id="banner" class="banner"></div>
@@ -801,9 +816,26 @@ const TEMPLATE_SKIN = {
 function readStashedSite(slug){
   try {
     const raw = sessionStorage.getItem("weddingData_" + slug);
-    return raw ? JSON.parse(raw) : null;
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  /* MP-973: and the look remembered from an earlier visit, in ANY tab - the
+     sessionStorage copy above lives only in the tab the site was opened in, so
+     "Preview as guest" (a new tab) had nothing and painted the default look. */
+  try {
+    const kept = localStorage.getItem("mpRegistryLook_" + slug);
+    return kept ? JSON.parse(kept) : null;
   } catch (e) { return null; }
 }
+/* Only what the look needs - the template, colours and fonts - nothing else. */
+function rememberLook(slug, d){
+  try {
+    if (!d || !d.template) return;
+    localStorage.setItem("mpRegistryLook_" + slug, JSON.stringify({
+      template: d.template, customization: d.customization || {}, font_settings: d.font_settings || {}
+    }));
+  } catch (e) {}
+}
+function liftSkinWait(){ try { if (window.__mpSkinLift) window.__mpSkinLift(); } catch (e) {} }
 
 function skinFor(data){
   if (!data) return null;
@@ -998,7 +1030,9 @@ function initSkin(){
   // with the payload a moment later, and load() calls back in. Only commit to
   // the brand theme once there is nothing left to wait for.
   if (!state.slug) {
-    if (!state.preview) document.body.classList.add("brandskin");
+    // A preview's slug arrives with its payload a moment later and initSkin
+    // runs again: stay covered until then (the 4s ceiling still holds).
+    if (!state.preview) { document.body.classList.add("brandskin"); liftSkinWait(); }
     return;
   }
   document.body.classList.remove("brandskin");
@@ -1008,7 +1042,7 @@ function initSkin(){
      couple who changed their fonts (or colours) after visiting their site saw
      the old ones on the registry for the rest of the session (MP-932). */
   const stashed = readStashedSite(state.slug);
-  if (stashed) applySkin(skinFor(stashed));
+  if (stashed) { applySkin(skinFor(stashed)); liftSkinWait(); }
 
   fetch(RENDER_API + "/wedding-site/" + encodeURIComponent(state.slug))
     .then(r => r.ok ? r.json() : null)
@@ -1016,10 +1050,11 @@ function initSkin(){
       // A draft or password-protected site still tells us the template, and a
       // couple previewing their own registry should see their skin either way.
       const found = d ? skinFor(d) : null;
-      if (found) applySkin(found);
+      if (found) { applySkin(found); rememberLook(state.slug, d); }
       else if (!stashed) document.body.classList.add("brandskin");
+      liftSkinWait();
     })
-    .catch(() => { if (!stashed) document.body.classList.add("brandskin"); });
+    .catch(() => { if (!stashed) document.body.classList.add("brandskin"); liftSkinWait(); });
 }
 
 

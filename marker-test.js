@@ -7448,7 +7448,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-28-travel-stays');
+  check('the stamp names the change it shipped with', version, '2026-10-29-registry-look');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9768,7 +9768,8 @@ check('two blocks -> two cards', blocks(mark(
   /* MP-932: the registry fetches current data even when the tab holds an old copy. */
   const reg = fs.readFileSync('live_registry.html', 'utf8');
   check('MP-932 the registry refreshes over a stale copy of the site',
-    /if \(stashed\) applySkin\(skinFor\(stashed\)\);\s*\n\s*\n\s*fetch\(RENDER_API \+ "\/wedding-site\/"/.test(reg), true);
+    /* (since MP-973 the copy's line also lifts the page's cover: same order) */
+    /if \(stashed\) (?:\{ )?applySkin\(skinFor\(stashed\)\);(?: liftSkinWait\(\); \})?\s*\n\s*\n\s*fetch\(RENDER_API \+ "\/wedding-site\/"/.test(reg), true);
   /* MP-933: Pressed Petals' thumbnail hero keeps its full width. */
   check('MP-933 Pressed Petals\' thumbnail hero is full width',
     /body\.thumbnail-mode \.hero\{height:66\.67vw!important;min-height:0!important;aspect-ratio:auto!important;width:100%!important;\}/.test(fs.readFileSync('template-pressedpetals.html', 'utf8')), true);
@@ -10193,6 +10194,20 @@ check('two blocks -> two cards', blocks(mark(
     /_acSec\.style\.display=\(_hasAc\|\|_hasTr\|\|menu\.accommodations\|\|menu\.travel\)\?'':'none';/.test(hb), true);
   check('and puts its columns back before deciding which to hide',
     /\['accomContent','travelContent'\]\.forEach\(function\(id\)\{ var e=document\.getElementById\(id\); if\(e\) e\.style\.display=''; \}\);/.test(hb), true);
+}
+
+
+// ── MP-973: the registry page never paints in the default look first ─────
+{
+  /* "Preview as guest" opens a new tab, where the site's per-tab copy is not
+     available: the page painted its default look until the template arrived. */
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  check('MP-973 the page is held until its look is known (4s ceiling)',
+    /<style>html\.mp-skin-wait body\{visibility:hidden;\}<\/style>/.test(reg) && /setTimeout\(window\.__mpSkinLift, 4000\);/.test(reg), true);
+  check('MP-973 and remembers the look across tabs',
+    /localStorage\.getItem\("mpRegistryLook_" \+ slug\)/.test(reg) && /rememberLook\(state\.slug, d\);/.test(reg), true);
+  check('your own registry changes are kept (MP-979 pills, MP-052 16px)',
+    /color:var\(--surface-ink,#121212\);cursor:pointer;/.test(reg) && /── MP-052 ──/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

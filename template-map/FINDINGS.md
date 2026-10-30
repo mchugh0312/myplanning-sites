@@ -135,6 +135,19 @@ headings / block titles); three older checks updated to accept the named face.
   before deciding which to hide: one hidden while empty stayed hidden after
   the couple typed into it again.
 
+**MP-973 - build `2026-10-29-registry-look`** (live_registry.html built on the
+owner's latest file, with its MP-979 and MP-052 changes)
+"Preview as guest" opens the registry in a NEW tab, where the copy of the site
+the wedding page keeps in its own tab (sessionStorage) is not available, so the
+page painted its default look until the template arrived from the server.
+Now: the look (template, colours, fonts) is remembered in localStorage per
+couple, so every later visit in any tab paints in it at once; with nothing
+remembered the page stays hidden until the look is known (4s ceiling; the
+brand look if the server never answers). The current look is still fetched
+and applied every visit. Measured with a 2s server: before, the default
+colour showed for 2s; after, first visit hidden until styled, later visits
+styled immediately.
+
 (The notes below are the history of how each item was found and fixed.)
 
 
