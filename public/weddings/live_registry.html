@@ -889,6 +889,30 @@ function readStashedSite(slug){
   } catch (e) { return null; }
 }
 /* Only what the look needs - the template, colours and fonts - nothing else. */
+/* The slug, kept against the registry id.
+   
+   A preview URL carries an id and no slug, and the id is still there after a
+   refresh — so this is what lets the second load know whose template to ask
+   for without waiting for the payload. */
+function rememberSlug(registryId, slug){
+  try {
+    if (!registryId || !slug) return;
+    sessionStorage.setItem("mpRegistrySlug_" + registryId, slug);
+    localStorage.setItem("mpRegistrySlug_" + registryId, slug);
+  } catch (e) {}
+}
+
+function rememberedSlug(registryId){
+  if (!registryId) return "";
+  try {
+    const a = sessionStorage.getItem("mpRegistrySlug_" + registryId);
+    if (a) return a;
+    const b = localStorage.getItem("mpRegistrySlug_" + registryId);
+    if (b) return b;
+  } catch (e) {}
+  return "";
+}
+
 function rememberLook(slug, d){
   try {
     if (!d || !d.template) return;
@@ -1167,6 +1191,10 @@ function renderBrandFooter(){
   const m = location.pathname.match(/\/([^\/]+)\/registry\/?$/);
   if (m && m[1] && m[1]!=="preview") state.slug = decodeURIComponent(m[1]);
   state.registryId = params.get("id");
+  /* No slug in the path? A previous load may have learned it. This is what
+     makes a refreshed preview skin itself immediately rather than painting
+     the default theme first. */
+  if (!state.slug) state.slug = rememberedSlug(state.registryId) || state.slug;
   /* MP-445. preview=1 bypasses the published, visibility AND password gates on
      the server, and turns on the drag handles here. It was read from the URL and
      left there, which makes the URL a durable key: open Preview as Guest on a
@@ -1247,10 +1275,24 @@ async function load(){
     // Preview opens by id, so the slug is not in the path. The payload has it,
     // which is what lets the preview match the live page instead of always
     // falling back to the MyPlanning theme.
-    if(state.preview && !state.slug){
-      const slug = data.registry && data.registry.website_slug;
+    /* The slug is taken from the payload on ANY load, not only a preview.
+       
+       preview=1 is stripped from the URL as soon as it is read, so a refresh
+       of a preview window is no longer a preview — and this branch, gated on
+       state.preview, stopped running. With no slug in the path either, the
+       skin was never fetched and the couple's template fell back to the
+       MyPlanning one. Opening the link worked; reloading it did not.
+       
+       Nothing about resolving a slug is preview-specific, so the gate goes.
+       It is also remembered against the registry id, which survives the
+       refresh in the URL, so the skin can be applied on the NEXT load before
+       any request returns. */
+    if(!state.slug){
+      const slug = (data.registry && data.registry.website_slug)
+                || rememberedSlug(state.registryId);
       if(slug){
         state.slug = slug;      // now initSkin can find the template
+        rememberSlug(state.registryId, slug);
         initSkin();
       } else {
         // No website at all: the MyPlanning theme IS the answer here, and
