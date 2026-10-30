@@ -447,7 +447,7 @@
 .chip.clear{border-style:dashed;color:var(--muted);}
 .qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
 
-/* ── Drag handle: dead centre of the card ── */
+/* ── Drag handle: dead centre of the IMAGE ── */
 .drag-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
   width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.95);color:#4B5244;
   display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.25);
@@ -1669,9 +1669,19 @@ function renderCard(t){
   const variantLine = t.kind === "gift" ? variantHtml(t.raw) : "";
 
   return '<div class="card'+(canDrag?' draggable':'')+'"'+dragAttrs+'>'
-    + handle
     + '<div class="card-click" onclick="'+openFn+'(\''+t.id+'\')">'
     +   '<div class="imgwrap">'
+    /* The handle lives INSIDE the image.
+       
+       It was a direct child of .card, and .card is the positioned ancestor —
+       so "top:50%" centred it on the whole card, whose height changes with the
+       title's line count, a couple's note or a Viator line. That is why it
+       landed in a different place on every card, sometimes below the picture
+       entirely.
+       
+       .imgwrap is a fixed 230px and already position:relative, so the centre
+       of the image is the same spot on every card. */
+    +     handle
     +     heart
     +     '<div class="badges">'+badges+'</div>'
     +     img
