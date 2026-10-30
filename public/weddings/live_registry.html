@@ -1928,6 +1928,47 @@ function distinctNote(desc, note){
   return n === d ? "" : n;
 }
 
+/* A description that only restates the title earns no space.
+   
+   Most catalogue rows carry a description built from the product's own name —
+   "Apple AirPods Pro 3, Active Noise Cancellation, USB-C" under a title
+   reading the same thing — so the modal said it twice, once large and once
+   small. A guest learns nothing from the second telling.
+   
+   Compared loosely, because the two are rarely byte-identical: punctuation,
+   a trailing full stop, a possessive ("Apple's" for "Apple"). Reduced to
+   letters and digits, anything where one contains the other is the same
+   sentence wearing a hat.
+   
+   The real repair is in the catalogue — a description should say something a
+   title cannot. This stops the duplicate showing while that is sorted, and
+   stays useful afterwards for rows nobody gets round to. */
+function distinctDescription(title, desc){
+  const d = String(desc||"").trim();
+  if (!d) return "";
+
+  /* Compared by WORDS, not by prefix.
+     
+     A prefix test fails both ways here. "Apple's AirPods Pro 3" is not a
+     prefix of "Apple AirPods Pro 3" — one possessive and the whole comparison
+     collapses — while "Sonos Era 100, room-filling sound for the kitchen"
+     starts with its title and genuinely says something more.
+     
+     What matters is whether the description CONTRIBUTES anything. Count the
+     words it has that the title does not; two or fewer and it is the title
+     again, wearing a hat. */
+  const words = (x) => String(x||"").toLowerCase()
+    .replace(/[^a-z0-9\s]+/g, " ")
+    .split(/\s+/).filter(w => w.length > 2);
+
+  const titleWords = new Set(words(title));
+  const descWords = words(d);
+  if (!descWords.length || !titleWords.size) return d;
+
+  const fresh = descWords.filter(w => !titleWords.has(w) && !titleWords.has(w.replace(/s$/, "")));
+  return fresh.length <= 2 ? "" : d;
+}
+
 function openHow(id){
   const t = id ? state.things.find(x=>x.id===id) : null;
   state.howItem = t ? t.id : null;
@@ -2172,7 +2213,8 @@ function openDetail(id){
     +   '<h3 class="serif">'+esc(it.title)+'</h3>'
     +   variantHtml(it, "m-variant")
     +   priceHtml(it, "m-price", "gift")
-    +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
+    +   (distinctDescription(it.title, it.description)
+          ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
     +   (done
@@ -2423,7 +2465,8 @@ function openFund(id){
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'fund\')">✕</button></div>'
     + '<div class="m-pad"><div class="m-sub">Cash fund</div><h3 class="serif">'+esc(it.title)+'</h3>'
     +   '<div class="m-price">'+fmt(amount)+' <span style="font-size:13px;color:var(--muted);font-family:\'Open Sans\'">goal</span></div>'
-    +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
+    +   (distinctDescription(it.title, it.description)
+          ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
     +   body
