@@ -95,7 +95,9 @@
   .acc-body{display:grid;grid-template-rows:0fr;opacity:.3;transition:grid-template-rows .26s ease,opacity .2s ease}
   .acc.open .acc-body{grid-template-rows:1fr;opacity:1}
   .acc-inner{overflow:hidden;min-height:0}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding:4px 0 34px;align-items:stretch}
+  /* padding-top gives the first row of gifts some air under the filter bar;
+     4px read as the cards being stuck to it. */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;padding:18px 0 34px;align-items:stretch}
   @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
   @media(min-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
 
@@ -1326,7 +1328,7 @@ function quickFiltersHtml(count){
     +   sel("f-stat",  "Status",   f.status,             statOpts,  "setStatus(this.value)")
     + '<div class="qf-line2">'
     +   '<button type="button" class="qf-fav'+(f.fav?' on':'')+'" aria-pressed="'+(f.fav?'true':'false')+'" onclick="toggleFav()" title="Show only the gifts we love most">'
-    +     '<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 5.4 3.2 1.9-2.1 3.4-3.2 5.4-3.2 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21z" fill="'+(f.fav?'#A9BDC4':'none')+'" stroke="#A9BDC4" stroke-width="1.8"/></svg>'
+    +     '<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 5.4 3.2 1.9-2.1 3.4-3.2 5.4-3.2 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21z" fill="#A9BDC4" stroke="#A9BDC4" stroke-width="1.8"/></svg>'
     +     '<span class="fav-long">Our favorites</span><span class="fav-short">Favorites</span>'
     +   '</button>'
     +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
