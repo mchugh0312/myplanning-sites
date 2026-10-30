@@ -160,6 +160,8 @@
   /* #fff for the same reason as .m-cta.solid below. */
   .cta.solid{background:var(--cta-bg,var(--olive));color:var(--cta-text,#FFFFFF);border:var(--cta-bw,0) solid var(--cta-border,transparent)}
   .cta.solid:hover{opacity:.92}
+  /* Checkout buttons disable themselves while Stripe loads. */
+  .cta:disabled{opacity:.6;cursor:wait}
   .cta.out{background:transparent;border:1px solid var(--cta-line,var(--olive));color:var(--cta-line,var(--olive))}
   .cta.out:hover{background:rgba(75,82,68,.06)}
 
@@ -790,8 +792,31 @@ const PRODUCT_IMAGES_LIVE = false;
 /* Where real product photography plugs in. "" until it exists. */
 function pipelineImage(p){ return ""; }
 
+/* Category art is not a product photo, wherever it came from.
+   
+   Products kept showing category art after the panel shipped, because the
+   art was arriving IN the product's own image field: filled in upstream, so
+   every block took it for a real photograph and never reached the panel.
+   These are the eight category-art files; an image that is one of them is
+   treated as no image at all. Keep the list in step with CATEGORY_ART. */
+const CATEGORY_ART_IDS = [
+  "a43c0295-4bb0-4ab7-836e-a26918d328df",   // kitchen, appliances
+  "af4432bc-ab7f-4dfb-a6c8-4295afdf77a4",   // dining
+  "892b779d-e4aa-4ed3-89a5-cb94bb57c889",   // bedding, bath
+  "7b0224d7-3278-4554-b136-20013b0625ee",   // decor, furniture
+  "0828dfa8-cbbf-4752-822b-e6b79f50d13a",   // outdoor & entertaining
+  "b99491dd-ec91-4146-b2a4-8cabe5bed519",   // luggage & travel, experiences
+  "f3fbdcb8-01db-4723-b33f-2ccaea29b869",   // other
+  "a78c3286-fd66-4cb4-a29a-0c654c179eec",   // generic
+];
+function isCategoryArt(url){
+  const u = String(url || "");
+  return !!u && CATEGORY_ART_IDS.some(function(id){ return u.indexOf(id) !== -1; });
+}
+
 function productImage(own, p){
-  return own || (PRODUCT_IMAGES_LIVE ? pipelineImage(p) : "") || "";
+  const mine = own && !isCategoryArt(own) ? own : "";
+  return mine || (PRODUCT_IMAGES_LIVE ? pipelineImage(p) : "") || "";
 }
 
 const PANEL_TINTS = {
@@ -1771,11 +1796,11 @@ function renderCard(t){
               + '</label>')
         + '</div>';
   } else if(t.kind==="fund"){
-    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
+    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\', true)">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else if(expIsFunded(t.raw)){
     cta = '<div class="cta-row col"><button class="cta" disabled style="cursor:default;opacity:.75">Fully funded ✓</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else {
-    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openExp(\''+t.id+'\')">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
+    cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openExp(\''+t.id+'\', true)">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   }
 
   const openFn = t.kind==="experience" ? "openExp" : (t.kind==="fund" ? "openFund" : "openDetail");
@@ -2554,7 +2579,35 @@ function submitOffline(id){
 }
 
 /* ─── Cash fund / group gift contribute ─────────────── */
-function openFund(id){
+/* Funds and experiences open the way a gift does.
+
+   A gift's details carry its CTA ("Buy this gift") beside the description. A
+   fund's and an experience's did not: the only Contribute button was the
+   form's own submit, under every field of a long form, so on a phone the
+   details looked like they had no CTA at all and the card was the only place
+   to act.
+
+   So the details now show a Contribute CTA in the same place and style as the
+   gift's, with the form folded away behind it. The card's own Contribute
+   button still goes straight to the form: it already said what it was for,
+   and asking twice would be a step for nothing. */
+function contributeCtaHtml(kind, direct){
+  return '<div class="m-actions" id="'+kind+'-cta"'+(direct?' style="display:none"':'')+'>'
+    + '<button class="cta solid" onclick="revealContribute(\''+kind+'\')">Contribute &rarr;</button></div>';
+}
+function contributeBodyHtml(kind, inner, direct){
+  return '<div id="'+kind+'-pay"'+(direct?'':' style="display:none"')+'>'+inner+'</div>';
+}
+function revealContribute(kind){
+  const cta = el(kind+"-cta"), pay = el(kind+"-pay");
+  if(cta) cta.style.display = "none";
+  if(pay){
+    pay.style.display = "";
+    try { pay.scrollIntoView({ behavior:"smooth", block:"start" }); } catch(e){}
+  }
+}
+
+function openFund(id, direct){
   const it=(state.data.items||[]).find(x=>x.id===id); if(!it) return;
   state.activeItem=it;
   const r=state.data.registry||{};
@@ -2589,7 +2642,7 @@ function openFund(id){
       +       '<span><strong>Bank transfer</strong><span class="rail-sub">Lower fee, takes a few days</span></span></label>'
       +   '</div></div>'
       + '<div class="hint" id="g-fee-line"></div>'
-      + '<button class="mbtn primary" id="g-submit" onclick="submitContribution()">Contribute '+fmt(min)+'+ via Stripe →</button>'
+      + '<div class="m-actions"><button class="cta solid" id="g-submit" onclick="submitContribution()">Contribute '+fmt(min)+'+ via Stripe →</button></div>'
       + '<div class="hint">Secure checkout via Stripe. Your gift goes straight to the couple.</div>';
   } else if(anyHandle){
     body = '<p class="hint" style="margin-top:0">Send your gift directly to the couple:</p><div class="pay-grid">'
@@ -2609,7 +2662,9 @@ function openFund(id){
           ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
-    +   body
+    +   ((stripeOk || anyHandle)
+          ? contributeCtaHtml("fund", direct) + contributeBodyHtml("fund", body, direct)
+          : body)
     + '</div>';
   openModal("fund");
 }
@@ -2682,7 +2737,7 @@ async function submitContribution(){
 }
 
 /* ─── Experience contribute ─────────────────────────── */
-function openExp(id){
+function openExp(id, direct){
   const exp=(state.data.experiences||[]).find(x=>x.id===id); if(!exp) return;
   state.activeExp=exp;
   const r=state.data.registry||{};
@@ -2703,7 +2758,7 @@ function openExp(id){
       + '<div class="field"><label>Display name on their memory wall <span style="color:var(--muted);font-style:normal">(optional)</span></label><input type="text" id="e-display" placeholder="e.g. Aunt Mei & Family"></div>'
       + '<label class="check"><input type="checkbox" id="e-journal" checked> Add my note to the couple\'s travel journal</label>'
       + '<label class="check"><input type="checkbox" id="e-anon"> Keep my gift anonymous</label>'
-      + '<button class="mbtn primary" id="e-submit" onclick="submitExp()">Contribute via Stripe →</button>'
+      + '<div class="m-actions"><button class="cta solid" id="e-submit" onclick="submitExp()">Contribute via Stripe →</button></div>'
       + '<div class="hint">Secure checkout via Stripe. Your gift funds a real moment on their trip.</div>')
     : '<div class="hint">The couple hasn\'t finished setting up experience gifting yet. Please check back soon.</div>';
 
@@ -2713,7 +2768,9 @@ function openExp(id){
     +   '<div class="m-price">'+fmt(cost)+'</div>'
     +   (cost>0?'<div class="progress" style="margin:6px 0 4px"><i style="width:'+pct+'%"></i></div><div class="sub" style="color:var(--olive);font-size:12px;margin-bottom:4px">'+fmt(received)+' funded · '+fmt(remaining)+' to go</div>':"")
     +   (exp.description?'<p class="m-desc">'+esc(exp.description)+'</p>':"")
-    +   form
+    +   ((stripeOk && !expIsFunded(exp))
+          ? contributeCtaHtml("exp", direct) + contributeBodyHtml("exp", form, direct)
+          : form)
     +   (exp.booking_partner==="Viator"?VIATOR_DISCLOSURE_HTML:"")
     + '</div>';
   openModal("exp");
