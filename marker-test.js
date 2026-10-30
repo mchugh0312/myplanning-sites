@@ -10203,7 +10203,9 @@ check('two blocks -> two cards', blocks(mark(
      available: the page painted its default look until the template arrived. */
   const reg = fs.readFileSync('live_registry.html', 'utf8');
   check('MP-973 the page is held until its look is known (4s ceiling)',
-    /<style>html\.mp-skin-wait body\{visibility:hidden;\}<\/style>/.test(reg) && /setTimeout\(window\.__mpSkinLift, 4000\);/.test(reg), true);
+    /html\.mp-skin-wait body\{visibility:hidden;\}/.test(reg) && /setTimeout\(window\.__mpSkinLift, 4000\);/.test(reg), true);
+  check('MP-973 a plain "Loading the registry" message while it waits',
+    /html\.mp-skin-wait::before\{\s*\n\s*content:"Loading the registry\\2026";/.test(reg) && /animation:mpSkinWaitIn \.25s ease-out \.33s forwards;/.test(reg), true);
   check('MP-973 and remembers the look across tabs',
     /localStorage\.getItem\("mpRegistryLook_" \+ slug\)/.test(reg) && /rememberLook\(state\.slug, d\);/.test(reg), true);
   check('your own registry changes are kept (MP-979 pills, MP-052 16px)',

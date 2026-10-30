@@ -147,6 +147,11 @@ brand look if the server never answers). The current look is still fetched
 and applied every visit. Measured with a 2s server: before, the default
 colour showed for 2s; after, first visit hidden until styled, later visits
 styled immediately.
+Follow-up (owner's choice): while held, the page shows a plain "Loading the
+registry..." on white (fading in after 0.33s, so a remembered look shows no
+message). "Preview as guest" opens /preview/registry?id=...&preview=1 - two
+requests in a row (registry, then site); checked on that exact address. The My
+Registry block needs no change (it knows only the registry id).
 
 (The notes below are the history of how each item was found and fixed.)
 
