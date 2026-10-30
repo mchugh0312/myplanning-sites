@@ -488,8 +488,22 @@
 .qf-sortmenu button.on{color:var(--olive);font-weight:700;}
 .qf-sortmenu button:hover{background:#F9F7F5;}
 .fsel-lbl{font-size:11px;letter-spacing:.02em;color:var(--muted);white-space:nowrap;}
+/* MP-979: a hard dark fallback, not the band's ink.
+   
+   The filter pill paints itself white and then takes its text colour from
+   --ink, which resolves through `var(--surface-ink, var(--ink))`. When a
+   template does not define --surface-ink that falls back to the BAND's ink —
+   light, on a dark template — so the pills were white text on a white pill and
+   looked empty. Selecting a filter worked; you just could not read it.
+   
+   #121212 is the fallback rather than var(--ink), so the pill is legible even
+   on a template that defines no surface colours at all. */
 .fsel select{border:none;outline:none;background:transparent;font-family:"Open Sans";font-size:12.5px;
-  color:var(--ink);cursor:pointer;padding:2px 4px;flex:1 1 auto;width:100%;}
+  color:var(--surface-ink,#121212);cursor:pointer;padding:2px 4px;flex:1 1 auto;width:100%;}
+.fsel-lbl{color:var(--s-muted,#6B6B6B);}
+/* The options themselves are drawn by the OS using the select's colours, so
+   they need the same treatment or the open menu is unreadable too. */
+.fsel select option{color:#121212;background:#FFFFFF;}
 .qf-count{margin-left:auto;font-size:11.5px;color:var(--muted);white-space:nowrap;}
 /* MP-414. On a phone the four filter pills wrapped one per row, each stretched
    by flex:1 1 auto to the full width, with the select capped at 120px. The
@@ -708,14 +722,25 @@ const fmt = c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",ma
 const NO_PRICE = "See price on Amazon";
 const hasPrice = it => Number(it && it.price_cents) > 0;
 
-function priceHtml(it, cls){
-  /* `amount` is read as a fallback because the tile list passes a view object
-     (which carries .amount) when the raw item is missing. Without it a cash
-     fund arriving that way would show "See price on Amazon", which is both
-     wrong and nonsensical for a fund. */
-  const own = isFund(it) ? (Number(it.goal_amount_cents)||0) : (Number(it.price_cents)||0);
-  const amount = own > 0 ? own : (Number(it.amount)||0);
+function priceHtml(it, cls, kind){
+  /* MP-992 / MP-985: only a GIFT can say "See price on Amazon".
+     
+     Experiences and cash funds were showing it, which is nonsense — an
+     experience is not sold on Amazon and a fund has no price at all. The cause
+     was this helper reading only price_cents and goal_amount_cents; an
+     experience carries its target as cost_cents, so it looked priceless and
+     fell through to the Amazon line.
+     
+     Now the kind decides. An experience or fund shows its target, or nothing
+     at all if none is set — never a retailer link. */
+  const amount = (Number(it.cost_cents) || Number(it.goal_amount_cents)
+                  || Number(it.price_cents) || Number(it.amount) || 0);
+
+  const isGift = kind ? kind === "gift" : !(isFund(it) || Number(it.cost_cents) > 0);
+
   if(amount > 0) return '<div class="'+cls+'">'+fmt(amount)+'</div>';
+  // No amount, and not a gift: say nothing rather than something wrong.
+  if(!isGift) return "";
   const href = buyHref(it.id, it.source_url);
   if(!href) return '<div class="'+cls+' no-price">'+NO_PRICE+'</div>';
   return '<div class="'+cls+' no-price"><a href="'+esc(href)+'" target="_blank" '
@@ -1580,7 +1605,7 @@ function renderCard(t){
     +   '<div class="body">'+brandLine
     +     '<div class="ttl">'+esc(t.title)+'</div>'
     +     variantLine
-    +     (hidesAmount(t)?'':priceHtml(t.raw || t, "price"))
+    +     (hidesAmount(t)?'':priceHtml(t.raw || t, "price", t.kind))
     +     note
     +   '</div>'
     +   prog
@@ -1858,7 +1883,7 @@ function openDidPurchase(id){
     + img
     + '<div class="m-prod"><div class="m-brand">'+esc(brandOf(t.raw))+'</div>'
     +   '<div class="m-name">'+esc(t.title)+'</div>'
-    +   priceHtml(t.raw || t, "m-price")+'</div>'
+    +   priceHtml(t.raw || t, "m-price", t.kind)+'</div>'
     + '<div class="m-actions col">'
     +   '<button class="m-cta solid" onclick="openOffline(\''+t.id+'\')">Yes, Mark As Purchased</button>'
     +   '<button class="m-cta ghost" onclick="closeFlow()">No, Continue Shopping</button>'
@@ -2046,7 +2071,7 @@ function openDetail(id){
     +   ((brandOf(it))?'<div class="m-sub">'+esc(brandOf(it))+'</div>':"")
     +   '<h3 class="serif">'+esc(it.title)+'</h3>'
     +   variantHtml(it, "m-variant")
-    +   priceHtml(it, "m-price")
+    +   priceHtml(it, "m-price", "gift")
     +   (it.description?'<p class="m-desc">'+esc(it.description)+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
