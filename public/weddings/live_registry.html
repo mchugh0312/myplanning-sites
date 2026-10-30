@@ -155,7 +155,21 @@
   .m-scrim{position:fixed;inset:0;background:rgba(18,18,18,.55);display:none;align-items:flex-end;justify-content:center;z-index:80}
   .m-scrim.open{display:flex}
   @media(min-width:640px){.m-scrim{align-items:center;padding:20px}}
-  .modal{background:var(--cream);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  /* The modal is opaque even when the skin has not arrived.
+     
+     Its background came from var(--cream) alone. On a refresh the couple's
+     template is fetched again, and until it lands that variable can resolve to
+     nothing — so the modal rendered with NO background and the cards showed
+     straight through it. Opening a card from Preview as Guest worked because
+     the skin was already applied.
+     
+     The ::before lays a solid sheet behind the content at the modal's own
+     radius, so there is always something to paint on. var(--cream) still
+     colours it when the template is known; the hard value is what stops the
+     gap. */
+  .modal{background:var(--cream,#F9F7F5);position:relative;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .modal::before{content:"";position:absolute;inset:0;background:#F9F7F5;border-radius:inherit;z-index:0;}
+  .modal > *{position:relative;z-index:1;}
   @media(min-width:640px){.modal{border-radius:12px}}
   /* 16/10 of a 580px modal is 362px of image before a word of text, which is
      what pushes the detail card past its 92vh and produces the vertical scroll.
@@ -184,11 +198,28 @@
      So the rule is scoped to #detail-modal. In there the image fills the
      width and the buttons are a centred row, so left-aligned text between
      them looked forgotten; in the others, left is right. */
-  #detail-modal .m-pad{text-align:center}
-  #detail-modal .m-desc{max-width:46ch;margin-inline:auto}
+  /* All three modals read the same way.
+     
+     Only the product modal was centred, so a guest moving from a gift to an
+     experience met a different layout for the same kind of information. The
+     DISPLAY text is centred everywhere now — brand, title, amount,
+     description — while the forms below keep their left edge, because a
+     centred label above a left-aligned field reads as a mistake. */
+  #detail-modal .m-pad,
+  #exp-modal .m-pad,
+  #fund-modal .m-pad{text-align:center}
+  #detail-modal .m-desc,
+  #exp-modal .m-desc,
+  #fund-modal .m-desc{max-width:46ch;margin-inline:auto}
+  /* The contribution forms stay left. */
+  #exp-modal .m-form,  #fund-modal .m-form,
+  #exp-modal .m-form label, #fund-modal .m-form label,
+  #exp-modal .row2, #fund-modal .row2{text-align:left}
   /* The couple's quote keeps its left edge even there — centring a block
      quotation against a coloured rule looks like a mistake. */
-  #detail-modal .m-note{text-align:left}
+  #detail-modal .m-note,
+  #exp-modal .m-note,
+  #fund-modal .m-note{text-align:left}
   /* Belt to the brace above: the modal itself must never scroll sideways,
      whatever any child does. */
   .modal{overflow-x:hidden}
