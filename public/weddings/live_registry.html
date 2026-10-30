@@ -1554,6 +1554,20 @@ function renderSortMenu(){
 /* A cash fund hides its amount when the couple turned the goal off, or when
    it's an "any amount" fund (goal 0). */
 function hidesAmount(t){
+  /* A fully purchased gift shows no price line.
+     
+     "See price on Amazon" is an invitation to buy, and there is nothing left
+     to buy — the card already says so. It is also an affiliate link that can
+     never convert, offered to a guest whose only possible action is to close
+     it again.
+     
+     Only when the LAST one is spoken for. A gift at "3 of 5 needed" keeps its
+     link, because a guest can still buy one and that is exactly when they
+     need the price.
+     
+     Preview as Guest runs this same file, so the couple sees what a guest
+     sees. */
+  if (isPurchased(t)) return true;
   return t.kind==="fund" && !(t.raw && t.raw.show_goal && t.amount > 0);
 }
 
