@@ -153,6 +153,17 @@ message). "Preview as guest" opens /preview/registry?id=...&preview=1 - two
 requests in a row (registry, then site); checked on that exact address. The My
 Registry block needs no change (it knows only the registry id).
 
+**MP-313 (10/13 note) - build `2026-10-29-thumb-sections`**
+On desktop the template cards show each design's own sample (by design, see
+HYDRATE_THUMBNAILS), and the sample had every section on - so Vintage Love
+Story's card showed Our Story while the Live Preview beside it (the couple's
+own switches, Our Story off) did not. Picking a design resets the switches to
+its TEMPLATE_DEFAULTS. Now each sample card's address carries the sections it
+should show (?sections=story:0,...): the chosen design's card the couple's
+current switches, every other card the switches picking it would give; the
+runtime applies them to the sample only, never over a real payload. Phones
+are unchanged (their cards show the couple's own site).
+
 (The notes below are the history of how each item was found and fixed.)
 
 

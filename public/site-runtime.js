@@ -8211,7 +8211,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-29-registry-look';
+  var MP_RUNTIME_BUILD = '2026-10-29-thumb-sections';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8777,6 +8777,26 @@
       try { parent.postMessage({ type: 'MP_PREVIEW_READY' }, '*'); } catch (err) {}
 
       var settle = function (payload, isPlaceholder) {
+        /* MP-313. A template card showing the design's own SAMPLE (the editor
+           sends no payload to cards on a desktop) takes the section switches
+           the card asks for in its address (?sections=story:0,gallery:1,...):
+           the switches picking this design would give - or, for the design
+           already chosen, the couple's own - rather than every section the
+           sample happens to have. Never applied over a real payload. */
+        if (isPlaceholder && payload) {
+          try {
+            var _spec = new URLSearchParams(location.search).get('sections');
+            if (_spec) {
+              var _mc = Object.assign({}, payload.menu_config || {});
+              _spec.split(',').forEach(function (pair) {
+                var kv = pair.split(':'); if (kv.length !== 2 || !kv[0]) return;
+                _mc[kv[0]] = kv[1] === '1';
+                if (kv[0] === 'travel') _mc.accommodations = kv[1] === '1';
+              });
+              payload = Object.assign({}, payload, { menu_config: _mc });
+            }
+          } catch (e) {}
+        }
         _previewSampleOnly = !!isPlaceholder;
         mpMark(isPlaceholder ? 'fallback' : 'payload');
         mpMark('hydrated');

@@ -4703,7 +4703,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'b604c3b1');
+    ('0000000' + h.toString(16)).slice(-8), '5700f5ed');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7448,7 +7448,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-29-registry-look');
+  check('the stamp names the change it shipped with', version, '2026-10-29-thumb-sections');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7456,7 +7456,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '1ec57119');
+    ('0000000' + bh.toString(16)).slice(-8), 'cfc97395');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10210,6 +10210,23 @@ check('two blocks -> two cards', blocks(mark(
     /localStorage\.getItem\("mpRegistryLook_" \+ slug\)/.test(reg) && /rememberLook\(state\.slug, d\);/.test(reg), true);
   check('your own registry changes are kept (MP-979 pills, MP-052 16px)',
     /color:var\(--surface-ink,#121212\);cursor:pointer;/.test(reg) && /── MP-052 ──/.test(reg), true);
+}
+
+
+// ── MP-313: a sample template card shows the sections it would have ──────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* Desktop cards show each design's own sample, which had every section on,
+     while picking a design resets the switches to its defaults - and the
+     chosen design's card sat beside a preview with the couple's switches. */
+  check('MP-313 each sample card asks for its sections in its address',
+    /\(!_hydrateThumbs\(\) && _sectionsSpec\(template\.id\) \? '&sections=' \+ encodeURIComponent\(_sectionsSpec\(template\.id\)\) : ''\)/.test(ws), true);
+  check('MP-313 the chosen design\'s card takes the couple\'s switches, the rest their defaults',
+    /const src = \(_thumbActive && _thumbActive\.id === tid\) \? _thumbActive\.on : TEMPLATE_DEFAULTS\[tid\];/.test(ws) &&
+    /_on\[p\.key\] = currentData\[p\.key\] === true/.test(ws), true);
+  check('MP-313 the runtime applies them to the sample only, never over a payload',
+    /if \(isPlaceholder && payload\) \{\s*\n\s*try \{\s*\n\s*var _spec = new URLSearchParams\(location\.search\)\.get\('sections'\);/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
