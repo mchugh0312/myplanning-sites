@@ -10310,8 +10310,12 @@ check('two blocks -> two cards', blocks(mark(
     /var top = desktop \? Math\.max\(namesBottom \+ 20, textBottom - fh \* 0\.35\) : textBottom \+ 14;/.test(rb), true);
   /* The dark olive links disappeared on a darker photo; a wash behind the
      whole bar was too much (owner) - a very light glow on the words only. */
-  check('Regal Boho\'s menu links have a light glow, no wash behind the bar',
-    /text-shadow:0 0 6px rgba\(254,250,241,0\.5\);/.test(rb) && !/rgba\(254,250,241,0\.88\)/.test(rb), true);
+  /* Owner's choice: on a dark photo the menu takes Text2 (text on dark), on a
+     light one Text3 - measured from the band of the photo behind the menu; if
+     the photo cannot be read it stays Text3. No wash, no glow. */
+  check('Regal Boho\'s menu picks Text2 on a dark photo, Text3 otherwise',
+    /\.hero-nav\.on-dark a\{ color:var\(--on-dark\); \}/.test(rb) && /nav\.classList\.toggle\('on-dark', lum < 0\.28\);/.test(rb) &&
+    !/text-shadow:0 0 6px rgba\(254,250,241,0\.5\);/.test(rb), true);
   /* The template drew its own bloom as a background too: two on a desktop. */
   check('one bloom in Our Story - the background copy is off',
     /\.our-story::before\{[^}]*content:none;/.test(rb), true);

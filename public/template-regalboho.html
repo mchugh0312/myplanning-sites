@@ -188,9 +188,6 @@ body.hydrating{visibility:hidden;}
   padding:0 0.65rem;
   transition:opacity 0.2s;
   white-space:nowrap;
-  /* A very light ivory glow behind the words only - just enough to lift dark
-     olive off a darker couple's photo; on the design's pale sky it is unseen. */
-  text-shadow:0 0 6px rgba(254,250,241,0.5);
 }
 .hero-nav a:hover,
 .hero-nav a.active{opacity:0.7;}
@@ -1126,6 +1123,13 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
 @media(max-width:768px){
   .story-flower{ width:96px; left:10px; }
 }
+
+/* The menu over the photo takes the couple's Text3 colour (dark olive by
+   default) on a light photo, as the design has it, and their Text2 colour - the
+   one for text on dark backgrounds - when the top of the photo is dark.
+   heroNavTone() below decides; both stay the couple's own Design-tab colours. */
+.hero-nav.on-dark a{ color:var(--on-dark); }
+.hero-nav.on-dark .hero-nav-sep{ background:var(--on-dark); height:1px; }   /* a 1px dash, not a panel */
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1151,7 +1155,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:d6b74f40';
+    window.__mpTemplate = 'regalboho:793ef705';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1755,6 +1759,51 @@ function hydrateTravelInfo(d, menu) {
    beside the last lines (about a third of its height) - but never closer to the
    names than 20px. Phone: the text runs the full width, so the bloom sits just
    under the last line. The section grows underneath to hold it. */
+/* How light is the photo where the menu sits? A tiny copy of the photo is drawn
+   and the band behind the menu averaged. Dark -> Text2, light -> Text3. If the
+   photo's pixels cannot be read (an image host that does not allow it) the menu
+   keeps Text3, as before - nothing breaks. */
+function heroNavTone(){
+  var nav = document.getElementById('heroNav'), img = document.getElementById('heroImg');
+  if (!nav || !img) return;
+  var src = img.currentSrc || img.getAttribute('src');
+  if (!src) return;
+  var probe = new Image();
+  probe.crossOrigin = 'anonymous';
+  probe.onload = function(){
+    try {
+      var W = 64, H = Math.max(8, Math.round(64 * probe.naturalHeight / Math.max(1, probe.naturalWidth)));
+      var c = document.createElement('canvas'); c.width = W; c.height = H;
+      var ctx = c.getContext('2d'); ctx.drawImage(probe, 0, 0, W, H);
+      /* The band the menu covers: the hero shows the photo cropped to fill
+         (object-fit: cover), so work out which rows of the photo are on screen
+         at the top, then take the menu's share of them. */
+      var hr = img.getBoundingClientRect(), nr = nav.getBoundingClientRect();
+      var shownH = H, offY = 0;
+      if (hr.width && hr.height) {
+        var scale = Math.max(hr.width / W, hr.height / H);
+        shownH = hr.height / scale; offY = (H - shownH) / 2;
+      }
+      var navShare = hr.height ? Math.min(1, Math.max(0.12, (nr.bottom - hr.top) / hr.height)) : 0.2;
+      var y0 = Math.max(0, Math.floor(offY)), y1 = Math.min(H, Math.ceil(offY + shownH * navShare));
+      var d = ctx.getImageData(0, y0, W, Math.max(1, y1 - y0)).data, sum = 0, n = 0;
+      for (var i = 0; i < d.length; i += 4) {
+        var ch = [d[i], d[i + 1], d[i + 2]].map(function(v){ v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+        sum += 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]; n++;
+      }
+      var lum = n ? sum / n : 1;
+      nav.classList.toggle('on-dark', lum < 0.28);
+      nav.setAttribute('data-photo-light', lum.toFixed(2));
+    } catch (e) { nav.classList.remove('on-dark'); }   /* pixels not readable: Text3 */
+  };
+  probe.onerror = function(){ nav.classList.remove('on-dark'); };
+  probe.src = src;
+}
+(function(){
+  var img = document.getElementById('heroImg');
+  if (img) img.addEventListener('load', heroNavTone);
+})();
+
 function placeStoryFlower(){
   var sec = document.getElementById('our-story'), fl = document.querySelector('.story-flower');
   var names = document.getElementById('storyNames'), body = document.getElementById('storyBody');
@@ -2043,6 +2092,7 @@ function hydrateTemplate(d) {
   _hideNavLinks(menu, rsvpOn, d);
   _reveal();
   try { setTimeout(placeStoryFlower, 0); } catch (e) {}   // the bloom follows the story's new length
+  try { setTimeout(heroNavTone, 0); } catch (e) {}        // menu colour from the photo behind it
 }
 
 function _hideNavLinks(menu, rsvpOn, d) {
