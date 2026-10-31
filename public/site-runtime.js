@@ -6058,6 +6058,20 @@
         var href = a.getAttribute('href') || '';
         var label = (a.textContent || '').trim();
         if (!label || !href || href.charAt(0) !== '#') return;
+        /* Not a link the template has switched off, or one to a section that
+           is not on the page. The drawer copied every link, so on Vintage Love
+           Story "Other Events" stayed in the phone menu with the section turned
+           off, leading nowhere. Asked of the link's own inline style (and its
+           <li>'s) - never its computed display, because on a phone the whole
+           desktop menu is display:none - and of the section it points to. */
+        if (a.style && a.style.display === 'none') return;
+        var _li = a.closest && a.closest('li');
+        if (_li && _li.style && _li.style.display === 'none') return;
+        if (href.length > 1) {
+          var _tgt = null;
+          try { _tgt = document.getElementById(decodeURIComponent(href.slice(1))); } catch (e) {}
+          if (_tgt && getComputedStyle(_tgt).display === 'none') return;
+        }
         var key = href + '|' + label.toLowerCase();
         if (seen[key]) return;
         seen[key] = 1;
@@ -8211,7 +8225,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-29-thumb-sections';
+  var MP_RUNTIME_BUILD = '2026-10-29-vintage-menu';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

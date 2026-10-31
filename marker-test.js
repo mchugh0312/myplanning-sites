@@ -1739,7 +1739,8 @@ check('two blocks -> two cards', blocks(mark(
 {
   const rt = fs.readFileSync('site-runtime.js', 'utf8');
   const i = rt.indexOf('function buildMobileNav(');
-  const body = i === -1 ? '' : rt.slice(i, i + 2600);
+  // (widened from 2600: the link filter added for hidden sections lengthened it)
+  const body = i === -1 ? '' : rt.slice(i, i + 4200);
   check('an existing drawer is refreshed, not skipped',
     !/^\s*if \(document\.querySelector\('\.mp-mnav-btn'\)\) return;/m.test(body) &&
     /_panel\.innerHTML = links\.map/.test(body), true);
@@ -7448,7 +7449,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-29-thumb-sections');
+  check('the stamp names the change it shipped with', version, '2026-10-29-vintage-menu');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7456,7 +7457,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'cfc97395');
+    ('0000000' + bh.toString(16)).slice(-8), '63e918ca');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10227,6 +10228,20 @@ check('two blocks -> two cards', blocks(mark(
     /_on\[p\.key\] = currentData\[p\.key\] === true/.test(ws), true);
   check('MP-313 the runtime applies them to the sample only, never over a payload',
     /if \(isPlaceholder && payload\) \{\s*\n\s*try \{\s*\n\s*var _spec = new URLSearchParams\(location\.search\)\.get\('sections'\);/.test(rt), true);
+}
+
+
+// ── Vintage Love Story: phone menu, Wedding rule ─────────────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* The phone drawer copied every menu link, including ones the template had
+     switched off: "Other Events" (Vintage) and "Things to Do" (four designs)
+     stayed in the phone menu with their sections off, leading nowhere. */
+  check('the phone menu leaves out links to sections that are off',
+    /if \(a\.style && a\.style\.display === 'none'\) return;/.test(rt) &&
+    /if \(_tgt && getComputedStyle\(_tgt\)\.display === 'none'\) return;/.test(rt), true);
+  check('no rule under Vintage Love Story\'s Wedding section',
+    !/\.wedding-section\{\s*\n\s*background:var\(--ivory\);\s*\n\s*padding:3\.5rem 2rem 4rem;\s*\n\s*border-bottom:/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

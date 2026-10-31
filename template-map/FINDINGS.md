@@ -164,6 +164,20 @@ current switches, every other card the switches picking it would give; the
 runtime applies them to the sample only, never over a real payload. Phones
 are unchanged (their cards show the couple's own site).
 
+**Vintage Love Story (owner, 10/29) - build `2026-10-29-vintage-menu`**
+- Phone menu kept "Other Events" with the section off: the runtime's drawer
+  copied every menu link, including ones the template had hidden. It now skips
+  a link hidden by the template (inline, on it or its <li>) or pointing at a
+  section that is display:none. The same fix removed a dead "Things to Do"
+  phone link on Coastal Chic, Modern Minimal, Regal Boho and Vintage.
+- Thin line under The Wedding: .wedding-section had a border-bottom; removed.
+- OPEN: Other Events switched on shows its heading but no content in the
+  owner's preview. Not reproduced: the section renders with typed text, with
+  the editor's own starter text, and after off -> on redraws. The heading-only
+  state is the template hiding a section whose events_info is empty or
+  unparseable and the runtime restoring its heading - so the owner's payload
+  had no readable Other Events text. Needs the owner's exact steps / data.
+
 (The notes below are the history of how each item was found and fixed.)
 
 
