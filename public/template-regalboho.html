@@ -177,6 +177,12 @@ body.hydrating{visibility:hidden;}
   gap:0;
   flex-wrap:wrap;
   padding:1.6rem 1.5rem;
+  /* The links are dark olive, drawn for the design's photograph, whose sky is
+     pale at the top; on a darker couple's photo they disappeared into it. A
+     soft wash of the page's ivory behind them keeps them readable on ANY photo
+     and changes nothing on a pale one. */
+  background:linear-gradient(to bottom, rgba(254,250,241,0.88) 0%, rgba(254,250,241,0.62) 55%, rgba(254,250,241,0) 100%);
+  padding-bottom:2.4rem;
 }
 .hero-nav a{
   font-family:var(--menu-font);
@@ -1113,13 +1119,15 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
    it to the left; on a phone the text runs the full width, so the bloom is
    smaller and the section a little taller underneath, never over the words. */
 .story-flower{
-  position:absolute; left:clamp(12px,4vw,64px); bottom:0;
+  /* Its height on the page is set by placeStoryFlower() below, from where the
+     story ends - not from the section's foot, which put it into the names on a
+     short story (desktop) and far below the words on a phone. */
+  position:absolute; left:clamp(12px,4vw,64px); top:0;
   width:clamp(130px,15vw,215px); height:auto;
   pointer-events:none; z-index:1;
 }
 @media(max-width:768px){
   .story-flower{ width:96px; left:10px; }
-  .our-story{ padding-bottom:calc(3rem + 96px) !important; }
 }
 </style>
 <script>
@@ -1146,7 +1154,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:24cda351';
+    window.__mpTemplate = 'regalboho:3b667bc7';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1745,6 +1753,33 @@ function hydrateTravelInfo(d, menu) {
 }
 
 // ── Hydration ─────────────────────────────────────────────────
+/* The Our Story bloom's place, worked out from the words around it. Desktop: the
+   story is a narrow centred column and the bloom sits to its left, so it rises
+   beside the last lines (about a third of its height) - but never closer to the
+   names than 20px. Phone: the text runs the full width, so the bloom sits just
+   under the last line. The section grows underneath to hold it. */
+function placeStoryFlower(){
+  var sec = document.getElementById('our-story'), fl = document.querySelector('.story-flower');
+  var names = document.getElementById('storyNames'), body = document.getElementById('storyBody');
+  if (!sec || !fl || !names || !body || !sec.getClientRects().length) return;
+  var sr = sec.getBoundingClientRect();
+  var namesBottom = names.getBoundingClientRect().bottom - sr.top;
+  var textBottom = body.getBoundingClientRect().bottom - sr.top;
+  var fh = fl.getBoundingClientRect().height;
+  if (!fh) return;                                   /* not loaded yet: its onload calls again */
+  var desktop = window.innerWidth > 768;
+  var top = desktop ? Math.max(namesBottom + 20, textBottom - fh * 0.35) : textBottom + 14;
+  fl.style.top = Math.round(top) + 'px';
+  var base = desktop ? 88 : 48;                       /* the design's own room at the foot */
+  sec.style.paddingBottom = Math.max(base, Math.round(top + fh - textBottom + 16)) + 'px';
+}
+(function(){
+  var fl = document.querySelector('.story-flower');
+  if (fl) { if (fl.complete) placeStoryFlower(); fl.addEventListener('load', placeStoryFlower); }
+  var t = null; window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(placeStoryFlower, 120); });
+  try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeStoryFlower); } catch (e) {}
+})();
+
 function hydrateTemplate(d) {
   window._weddingSlug  = d.slug || '';
   const names   = d.couple_names || 'Nisha & Rohan';
@@ -2010,6 +2045,7 @@ function hydrateTemplate(d) {
   // ── Hero nav: hide sections that are not enabled ─────────────────────
   _hideNavLinks(menu, rsvpOn, d);
   _reveal();
+  try { setTimeout(placeStoryFlower, 0); } catch (e) {}   // the bloom follows the story's new length
 }
 
 function _hideNavLinks(menu, rsvpOn, d) {

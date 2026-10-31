@@ -10303,7 +10303,14 @@ check('two blocks -> two cards', blocks(mark(
      foot stayed; restored from the designer's image (owner, 10/31). */
   check('Regal Boho\'s Our Story has its bloom, bottom-left',
     /<img class="story-flower" src="https:\/\/assets\.softr-files\.com\/[^"]*08f44e24-2cb9-402b-b9b8-b19619774b01\.png"/.test(rb) &&
-    /\.story-flower\{\s*\n\s*position:absolute; left:clamp\(12px,4vw,64px\); bottom:0;/.test(rb), true);
+    /function placeStoryFlower\(\)\{/.test(rb), true);
+  /* Placed from where the story ends, not the section's foot (owner, 10/31:
+     into the names on desktop, far below the words on a phone). */
+  check('the bloom is placed from the story, never closer than 20px to the names',
+    /var top = desktop \? Math\.max\(namesBottom \+ 20, textBottom - fh \* 0\.35\) : textBottom \+ 14;/.test(rb), true);
+  /* The dark olive links disappeared on a darker photo. */
+  check('Regal Boho\'s menu has a soft ivory wash behind it',
+    /background:linear-gradient\(to bottom, rgba\(254,250,241,0\.88\) 0%/.test(rb), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
