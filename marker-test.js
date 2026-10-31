@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '5700f5ed');
+    ('0000000' + h.toString(16)).slice(-8), '26d29c41');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7449,7 +7449,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-29-vintage-menu');
+  check('the stamp names the change it shipped with', version, '2026-10-29-section-switches');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7457,7 +7457,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '63e918ca');
+    ('0000000' + bh.toString(16)).slice(-8), 'e5096525');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -8228,7 +8228,7 @@ check('two blocks -> two cards', blocks(mark(
   check('there is a default booking link', /travelUrl: 'https:\/\/hyatt\.com',/.test(wt), true);
   check('and the seeding loop reaches it', /for \(const key of \[sec\.contentKey, sec\.urlKey\]\)/.test(wt), true);
   check('one switch drives both menu keys',
-    /accommodations: d\.showTravel === true \|\| !!localChanges\.travelInfo/.test(wt), true);
+    /accommodations: d\.showTravel === true,/.test(wt) && /travel: d\.showTravel === true,/.test(wt), true);
 
   // ── The cut itself ──────────────────────────────────────────────────────
   const split = new Function(rt.match(/var _VOID = \/\^\([^)]*\)\$\/i;/)[0] + '\n' +
@@ -10239,9 +10239,48 @@ check('two blocks -> two cards', blocks(mark(
      stayed in the phone menu with their sections off, leading nowhere. */
   check('the phone menu leaves out links to sections that are off',
     /if \(a\.style && a\.style\.display === 'none'\) return;/.test(rt) &&
-    /if \(_tgt && getComputedStyle\(_tgt\)\.display === 'none'\) return;/.test(rt), true);
+    /if \(getComputedStyle\(_tgt\)\.display === 'none' \|\| !_tgt\.getClientRects\(\)\.length \|\| \(_tr\.width < 1 && _tr\.height < 1\)\) return;/.test(rt), true);
   check('no rule under Vintage Love Story\'s Wedding section',
     !/\.wedding-section\{\s*\n\s*background:var\(--ivory\);\s*\n\s*padding:3\.5rem 2rem 4rem;\s*\n\s*border-bottom:/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+}
+
+
+// ── Section switches: the preview follows Design, the same on all ten ────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* "Switch on OR unsaved typing in its box": a couple typed in Other Events,
+     switched it off, and the preview kept it (the live site did not). */
+  check('the preview reads the Design switches only',
+    /other_events: d\.showEvents === true,\r?\n/.test(ws) && !/=== true \|\| !!localChanges\.\w+/.test(ws), true);
+  check('the live site keeps Home on, as the preview does', /"home":\s+True,/.test(py), true);
+  check('a section the switch hid comes back when it is switched on',
+    /function _recordSwitchHides\(d\)/.test(rt) && /_switchesBeforeDraw\(d\);/.test(rt), true);
+  check('one-events-section designs: Other Events follows The Wedding',
+    /if \(MERGED_EVENT_DESIGNS\[TID\] && \('wedding' in m\)\) m\.other_events = !!m\.wedding;/.test(rt), true);
+  check('menu links to sections not on the page go, desktop and phone, after the draw settles',
+    /function _navFollowsSections\(\)/.test(rt) && /setTimeout\(again, 80\); setTimeout\(again, 450\);/.test(rt), true);
+}
+
+
+// ── Section switches: the preview follows them, on every design ──────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  /* "Switch on OR this box has unsaved typing": a couple typed into Other
+     Events, switched it off, and the preview kept it (the live site did not). */
+  check('the preview reads the Design switches only',
+    !/=== true \|\| !!localChanges\.\w+/.test(ws) && /other_events: d\.showEvents === true,/.test(ws), true);
+  check('Home is always on, live as in the preview', /"home":\s+True,/.test(py), true);
+  /* Several designs hide a section when off but never undo it when on. */
+  check('a section switched back on loses its stale display:none',
+    /function _switchesBeforeDraw\(d\)/.test(rt) && /_switchesBeforeDraw\(d\); \/\/ sections switched back on come back/.test(rt), true);
+  check('one events section: Other Events follows The Wedding',
+    /if \(MERGED_EVENT_DESIGNS\[TID\] && \('wedding' in m\)\) m\.other_events = !!m\.wedding;/.test(rt), true);
+  check('menu links to sections not on the page are hidden, desktop and phone',
+    /function _navFollowsSections\(\)/.test(rt) && /!_tgt\.getClientRects\(\)\.length \|\| \(_tr\.width < 1 && _tr\.height < 1\)\) return; \}/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

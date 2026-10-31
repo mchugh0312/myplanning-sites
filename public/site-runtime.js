@@ -6070,7 +6070,8 @@
         if (href.length > 1) {
           var _tgt = null;
           try { _tgt = document.getElementById(decodeURIComponent(href.slice(1))); } catch (e) {}
-          if (_tgt && getComputedStyle(_tgt).display === 'none') return;
+          if (_tgt) { var _tr = _tgt.getBoundingClientRect();
+            if (getComputedStyle(_tgt).display === 'none' || !_tgt.getClientRects().length || (_tr.width < 1 && _tr.height < 1)) return; }
         }
         var key = href + '|' + label.toLowerCase();
         if (seen[key]) return;
@@ -8225,7 +8226,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-29-vintage-menu';
+  var MP_RUNTIME_BUILD = '2026-10-29-section-switches';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8341,11 +8342,81 @@
     } catch (e) {}
   }
 
+  /* SECTION SWITCHES, the same on every design (checked on all ten: each switch
+     off, on, off, on). Two kinds of fault turned up, both invisible on the live
+     site, which draws once, and both in the editor, which redraws in place:
+
+     - A section switched back ON stayed hidden: several designs hide a section
+       when its switch is off but never undo it when it is on (Regal Boho's Our
+       Story; the Registry on Regal Boho, Vintage Love Story, Whimsical Romance).
+       Before each draw, a section whose switch is on loses that stale
+       display:none; the design hides it again if it has its own reason to.
+     - On the four designs with ONE events section, Other Events has no switch in
+       the editor, and the section showed while either key was on - so turning
+       The Wedding off left it there. Other Events follows The Wedding there. */
+  var MERGED_EVENT_DESIGNS = { coastalchic: 1, sageandstill: 1, whimsicalromance: 1, regalboho: 1 };
+  function _switchesBeforeDraw(d) {
+    try {
+      var m = d.menu_config || {};
+      if (MERGED_EVENT_DESIGNS[TID] && ('wedding' in m)) m.other_events = !!m.wedding;
+      /* Only what the SWITCH hid - recorded after the draw that hid it. A section
+         a design hides for its own reasons (not in the design, no content,
+         hidden in its markup from the start) is left exactly as it is: undoing
+         every hidden section brought Things to Do back on four designs. */
+      Object.keys(_hiddenBySwitch).forEach(function (id) {
+        var key = _hiddenBySwitch[id];
+        var on = key === 'travel' ? !!(m.travel || m.accommodations) : !!m[key];
+        if (!on) return;
+        var el = document.getElementById(id);
+        if (el && el.style && el.style.display === 'none') el.style.display = '';
+        delete _hiddenBySwitch[id];
+      });
+    } catch (e) {}
+  }
+  var _hiddenBySwitch = {};   // id -> switch key, for sections hidden while their switch was off
+  function _recordSwitchHides(d) {
+    try {
+      var m = (d && d.menu_config) || {};
+      Object.keys(SECTION_ANCHORS).forEach(function (key) {
+        var on = key === 'travel' ? !!(m.travel || m.accommodations) : !!m[key];
+        if (on || !(key in m || (key === 'travel' && 'accommodations' in m))) return;
+        (SECTION_ANCHORS[key] || []).forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && el.style && el.style.display === 'none') _hiddenBySwitch[id] = key;
+        });
+      });
+    } catch (e) {}
+  }
+
+  /* ...and the menu: a link to a section that is not on the page is hidden -
+     desktop and phone alike - and given back once the section is. Several
+     designs' own menu rules missed a section (Coastal Chic's The Wedding and
+     Need to Knows, Modern Minimal's Need to Knows, Regal Boho's The Wedding),
+     and a section can be hidden from outside (its wrapper), which a check on the
+     anchor alone did not see. Hidden = no box drawn at all (getClientRects). */
+  function _navFollowsSections() {
+    var links = document.querySelectorAll('.top-nav a, nav a, .menu-drawer a, .nav-links a, .menu a');
+    Array.prototype.forEach.call(links, function (a) {
+      if (a.closest && a.closest('.mp-mnav-panel')) return;
+      var href = a.getAttribute('href') || '';
+      if (href.length < 2 || href.charAt(0) !== '#') return;
+      var tgt = null;
+      try { tgt = document.getElementById(decodeURIComponent(href.slice(1))); } catch (e) {}
+      if (!tgt) return;
+      var _r = tgt.getBoundingClientRect();
+      // Not drawn at all, or drawn with no size (a design that empties a section rather than hiding it)
+      var gone = !tgt.getClientRects().length || (_r.width < 1 && _r.height < 1);
+      if (gone && a.style.display !== 'none') { a.style.display = 'none'; a.setAttribute('data-mp-navoff', '1'); }
+      else if (!gone && a.getAttribute('data-mp-navoff')) { a.style.display = ''; a.removeAttribute('data-mp-navoff'); }
+    });
+  }
+
   function hydrate(d) {
     if (!d) return;
     try { _travelEmptyUndo(); } catch (e) {}
     GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
     _cleanPhotoLists(d);   // MP-942: empty entries out before any template reads them
+    _switchesBeforeDraw(d); // sections switched back on come back; merged events follow The Wedding
     /* ONE Travel switch. Accommodations and Travel are one section fed by one
        box, and the editor has a single Travel switch that sends both keys - but
        the live site reads them from two record fields, and "Show Accomodations"
@@ -8622,7 +8693,20 @@
     watchHeroNames();
 
     syncMenuLinks(d);
+    _recordSwitchHides(d);                         // which sections this draw hid because their switch is off
+    try { _navFollowsSections(); } catch (e) {}   // menu links to sections that are not on the page go
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
+    /* ...and again once the draw has settled: some sections are put away by a
+       later step of the same draw (Black Tie's Need to Knows), after the menus
+       were made, which left a phone link to a section no longer there. */
+    (function (_d) {
+      var again = function () {
+        _recordSwitchHides(_d);      // sections put away by a later step of this draw
+        try { _navFollowsSections(); } catch (e) {}
+        try { if (!isSaveTheDate(_d) || _isPreview) buildMobileNav(); } catch (e) {}
+      };
+      setTimeout(again, 80); setTimeout(again, 450);
+    })(d);
 
     // 6. Save the Date trims the fully-rendered page down to its hero. It runs
     //    AFTER hydrateTemplate so the announcement uses the template's real

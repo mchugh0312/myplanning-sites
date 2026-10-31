@@ -171,12 +171,39 @@ are unchanged (their cards show the couple's own site).
   section that is display:none. The same fix removed a dead "Things to Do"
   phone link on Coastal Chic, Modern Minimal, Regal Boho and Vintage.
 - Thin line under The Wedding: .wedding-section had a border-bottom; removed.
-- OPEN: Other Events switched on shows its heading but no content in the
+- RESOLVED (cause found, build `2026-10-29-section-switches`): the owner typed
+  "123" into Other Events while it was on, then switched it OFF, and the
+  preview kept it. The editor's preview rule was "switch on OR unsaved typing
+  in its box" for seven sections; the live site reads the switches only. Now
+  the preview reads the switches only. Swept all ten designs, each switch
+  off/on/off/on: fixed sections not coming back once switched on again (designs
+  that hide a section for its switch but never undo it - Regal Boho's Our
+  Story; the Registry on Regal Boho, Vintage, Whimsical); Other Events now
+  follows The Wedding on the four one-events-section designs; menu links to
+  sections not on the page go on desktop and phone, checked again after the
+  draw settles (Coastal Chic, Modern Minimal, Regal Boho, Black Tie, Pressed
+  Petals and more). The live site keeps Home on, as the preview does (main.py).
+  All ten: every switch behaves. (Earlier note, kept for history:)
+- (was OPEN) Other Events switched on shows its heading but no content in the
   owner's preview. Not reproduced: the section renders with typed text, with
   the editor's own starter text, and after off -> on redraws. The heading-only
   state is the template hiding a section whose events_info is empty or
   unparseable and the runtime restoring its heading - so the owner's payload
   had no readable Other Events text. Needs the owner's exact steps / data.
+
+**Section switches - build `2026-10-29-section-switches`** (owner, 10/29: typed
+"123" into Other Events while on, switched it off, the preview kept it)
+- The preview counted a section on if its switch was on OR its box had unsaved
+  typing (seven sections, every design); the live site reads the switches only.
+  The preview now reads the switches only. Home is always on, live as in the
+  preview (main.py).
+- A full off/on test of every switch on all ten designs
+  (harness/test_section_switches.py) found more: sections switched back on
+  that stayed hidden (Regal Boho's Our Story; Registry on Regal Boho, Vintage,
+  Whimsical) - the runtime now undoes only what a switch hid; Other Events
+  following The Wedding on the four one-events-section designs; and menu links
+  (desktop and phone) to sections not on the page, now hidden and restored with
+  their section. All ten pass; template map unchanged.
 
 (The notes below are the history of how each item was found and fixed.)
 
