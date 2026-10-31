@@ -10,6 +10,18 @@
   :root{
     --sage:#A9BDC4; --olive:#4B5244; --cream:#F9F7F5; --ink:#121212;
     --muted:#8C7D6E; --border:#CBD5D8; --line:#EDE8E3; --gold:#C9A36A; --white:#FFFFFF;
+    /* MP-979 / MP-980. The page's own colours under second names, for the
+       surfaces below that swap in their own. Those rules used to read
+       `--ink: var(--surface-ink, var(--ink))`: a property defined in terms of
+       itself. Chrome let that through; Firefox, correctly, treats it as a
+       cycle and drops the property, so every white pill and every pop-up
+       took the PAGE's ink. On a dark-band template that is cream on white:
+       the blank favourites button, the unreadable category pills, the faded
+       modal title and price. Naming the page's colour separately breaks the
+       cycle and changes nothing where the cycle was tolerated. */
+    --ink-page:var(--ink); --muted-page:var(--muted); --border-page:var(--border);
+    --line-page:var(--line); --sage-page:var(--sage); --cream-page:var(--cream);
+    --cta-text-page:var(--cta-text); --cta-border-page:var(--cta-border); --cta-line-page:var(--cta-line);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--cream);color:var(--ink);font-family:"Open Sans",sans-serif;-webkit-font-smoothing:antialiased}
@@ -129,6 +141,7 @@
   .badge.want{background:rgba(255,255,255,.92);color:var(--olive)}
   .badge.group{background:rgba(255,255,255,.92);color:var(--muted)}
   .badge.exp{background:rgba(255,255,255,.92);color:var(--muted)}
+  .badge.hidden{background:#FBF1D9;color:#7A5A12}
   .card .body{text-align:center;margin-top:9px;padding:0 12px}
   .card .src{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
   .card .ttl{font-size:13px;color:var(--ink);line-height:1.3;margin-bottom:3px;min-height:34px}
@@ -619,16 +632,16 @@
    set on an element is the one that element's own rules read. */
 .allbtn,.search input,.sortbtn,.sortmenu,.chip,.btn-out,.m-note,.field input,.field textarea,
 .ext-card,.pay-opt,.m-cta.ghost,.badge,.imgwrap,.fsel,.qf-sort,.qf-sortmenu{
-  --ink:var(--surface-ink,var(--ink));--muted:var(--s-muted,var(--muted));
-  --border:var(--s-border,var(--border));--line:var(--s-line,var(--line));--sage:var(--s-sage,var(--sage));}
+  --ink:var(--surface-ink,var(--ink-page));--muted:var(--s-muted,var(--muted-page));
+  --border:var(--s-border,var(--border-page));--line:var(--s-line,var(--line-page));--sage:var(--s-sage,var(--sage-page));}
 /* The pop-ups, the filter drawer and the password card sit on light PAPER with
    that same dark ink, so forms read on any band - and an outlined button,
    lettered in the band's own colour, switches to the ink there. */
 .drawer,.modal,.gate-card,.modal-card{
-  --cream:var(--paper,var(--cream));--ink:var(--surface-ink,var(--ink));--muted:var(--s-muted,var(--muted));
-  --border:var(--s-border,var(--border));--line:var(--s-line,var(--line));--sage:var(--s-sage,var(--sage));
-  --cta-text:var(--cta-text-paper,var(--cta-text));--cta-border:var(--cta-border-paper,var(--cta-border));
-  --cta-line:var(--cta-line-paper,var(--cta-line));
+  --cream:var(--paper,var(--cream-page));--ink:var(--surface-ink,var(--ink-page));--muted:var(--s-muted,var(--muted-page));
+  --border:var(--s-border,var(--border-page));--line:var(--s-line,var(--line-page));--sage:var(--s-sage,var(--sage-page));
+  --cta-text:var(--cta-text-paper,var(--cta-text-page));--cta-border:var(--cta-border-paper,var(--cta-border-page));
+  --cta-line:var(--cta-line-paper,var(--cta-line-page));
   background:var(--cream);color:var(--ink);}
 
 /* The filter strip takes the page's colour, like the gifts below it; its count
@@ -661,7 +674,14 @@
 .qf-fav svg{flex:0 0 auto;color:#A9BDC4;}
 .qf-line2 .chip.clear{flex:0 0 auto;}
 .qf-line2 .qf-count{margin-left:0!important;flex:0 0 auto;}
-.qf-fav{--ink:var(--surface-ink,var(--ink));--border:var(--s-border,var(--border));}
+.qf-fav{--ink:var(--surface-ink,var(--ink-page));--border:var(--s-border,var(--border-page));}
+/* MP-979, tablet. Between 640px and 980px the favourites share a third of
+   the row with the gift count and the sort, and the count would not give
+   way, so the button shrank until its label was gone. The button keeps its
+   size; the count yields; and the short label is used below 980px. */
+.qf-line2 .qf-fav{flex:0 0 auto;}
+.qf-line2 .qf-count{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:979px){ .fav-long{display:none;} .fav-short{display:inline;} }
 
 /* Back to the top: appears once the guest has scrolled well down the list. */
 .to-top{position:fixed;right:18px;bottom:18px;z-index:60;width:42px;height:42px;border-radius:50%;
@@ -1436,6 +1456,7 @@ function buildThings(){
       amount: fund?(Number(it.goal_amount_cents)||0):(Number(it.price_cents)||0),
       fcat: fund?"":(it.category||""),
       mostWanted:!!it.is_most_wanted, group:!!it.is_group_gift,
+      hiddenFromGuests:!!it.hidden_from_guests,
       hasTracking:!!it.has_tracking,
       sort: it.sort_order==null?9999:it.sort_order,
     });
@@ -1755,6 +1776,9 @@ function renderCard(t){
   if(t.mostWanted) badges+='<span class="badge want">Couple Preferred</span>';
   if(t.kind==="experience")   badges+='<span class="badge exp">Experience</span>';
   else if(t.kind==="fund")    badges+='<span class="badge group">Cash Fund</span>';
+  /* MP-985. Only a preview receives these: the backend withholds cash funds
+     from guests until a payout method is connected, and says so here. */
+  if(t.hiddenFromGuests)      badges+='<span class="badge hidden">Hidden from guests</span>';
   else {
     const req=(t.raw&&t.raw.quantity_requested)||1;
     const ful=(t.raw&&(t.raw.quantity_purchased!=null?t.raw.quantity_purchased:t.raw.quantity_fulfilled))||0;
@@ -2677,9 +2701,12 @@ function openFund(id, direct){
           ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
-    +   ((stripeOk || anyHandle)
+    +   (((stripeOk || anyHandle) && !it.hidden_from_guests)
           ? contributeCtaHtml("fund", direct) + contributeBodyHtml("fund", body, direct)
-          : contributeOffHtml() + body)
+          : contributeOffHtml()
+            + (it.hidden_from_guests
+                ? '<div class="hint">Guests can\'t see this fund yet. Connect a payout method in Registry Settings, under Bank Accounts, and it appears for them.</div>'
+                : body))
     + '</div>';
   openModal("fund");
 }
