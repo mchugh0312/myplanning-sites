@@ -177,12 +177,6 @@ body.hydrating{visibility:hidden;}
   gap:0;
   flex-wrap:wrap;
   padding:1.6rem 1.5rem;
-  /* The links are dark olive, drawn for the design's photograph, whose sky is
-     pale at the top; on a darker couple's photo they disappeared into it. A
-     soft wash of the page's ivory behind them keeps them readable on ANY photo
-     and changes nothing on a pale one. */
-  background:linear-gradient(to bottom, rgba(254,250,241,0.88) 0%, rgba(254,250,241,0.62) 55%, rgba(254,250,241,0) 100%);
-  padding-bottom:2.4rem;
 }
 .hero-nav a{
   font-family:var(--menu-font);
@@ -194,6 +188,9 @@ body.hydrating{visibility:hidden;}
   padding:0 0.65rem;
   transition:opacity 0.2s;
   white-space:nowrap;
+  /* A very light ivory glow behind the words only - just enough to lift dark
+     olive off a darker couple's photo; on the design's pale sky it is unseen. */
+  text-shadow:0 0 6px rgba(254,250,241,0.5);
 }
 .hero-nav a:hover,
 .hero-nav a.active{opacity:0.7;}
@@ -260,7 +257,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .our-story::before{
-  content:'';
+  content:none; /* one bloom only - the .story-flower image below is it (owner, 10/31: two showed on a desktop) */;
   position:absolute;
   /* Out at the section's left edge and low, per the design — it used to hang
      off the centred text column, which put it right beside the copy. */
@@ -1154,7 +1151,7 @@ body.thumbnail-mode .our-story-names{font-size:clamp(1.8rem,11vw,3.2rem);}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'regalboho:3b667bc7';
+    window.__mpTemplate = 'regalboho:d6b74f40';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

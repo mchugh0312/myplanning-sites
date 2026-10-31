@@ -10308,9 +10308,13 @@ check('two blocks -> two cards', blocks(mark(
      into the names on desktop, far below the words on a phone). */
   check('the bloom is placed from the story, never closer than 20px to the names',
     /var top = desktop \? Math\.max\(namesBottom \+ 20, textBottom - fh \* 0\.35\) : textBottom \+ 14;/.test(rb), true);
-  /* The dark olive links disappeared on a darker photo. */
-  check('Regal Boho\'s menu has a soft ivory wash behind it',
-    /background:linear-gradient\(to bottom, rgba\(254,250,241,0\.88\) 0%/.test(rb), true);
+  /* The dark olive links disappeared on a darker photo; a wash behind the
+     whole bar was too much (owner) - a very light glow on the words only. */
+  check('Regal Boho\'s menu links have a light glow, no wash behind the bar',
+    /text-shadow:0 0 6px rgba\(254,250,241,0\.5\);/.test(rb) && !/rgba\(254,250,241,0\.88\)/.test(rb), true);
+  /* The template drew its own bloom as a background too: two on a desktop. */
+  check('one bloom in Our Story - the background copy is off',
+    /\.our-story::before\{[^}]*content:none;/.test(rb), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
