@@ -1468,6 +1468,7 @@ function buildThings(){
       amount: Number(e.cost_cents)||0, received:Number(e.amount_received_cents)||0,
       location:e.location||"", fcat:"",
       mostWanted:false, group:false, sort:e.sort_order==null?9999:e.sort_order,
+      hiddenFromGuests:!!e.hidden_from_guests,
     });
   });
   state.things=things;
@@ -1776,8 +1777,8 @@ function renderCard(t){
   if(t.mostWanted) badges+='<span class="badge want">Couple Preferred</span>';
   if(t.kind==="experience")   badges+='<span class="badge exp">Experience</span>';
   else if(t.kind==="fund")    badges+='<span class="badge group">Cash Fund</span>';
-  /* MP-985. Only a preview receives these: the backend withholds cash funds
-     from guests until a payout method is connected, and says so here. */
+  /* MP-985. Only a preview receives these: cash funds and experiences are
+     withheld from guests until a payout method is connected. */
   if(t.hiddenFromGuests)      badges+='<span class="badge hidden">Hidden from guests</span>';
   else {
     const req=(t.raw&&t.raw.quantity_requested)||1;
@@ -2634,6 +2635,10 @@ function contributeBodyHtml(kind, inner, direct){
    details modal reads the same way, but it is plainly unavailable, and the
    note beneath it says why. Leaving it out made the modal look broken next to
    a card that offers Contribute. */
+/* MP-985. What a hidden fund or experience says in the couple's preview. */
+function hiddenFromGuestsHtml(){
+  return '<div class="hint">Guests can\'t see this yet. Connect a bank account in Registry Settings, under Bank Accounts, and it appears for them.</div>';
+}
 function contributeOffHtml(){
   return '<div class="m-actions"><button class="cta solid is-off" disabled aria-disabled="true">Contribute</button></div>';
 }
@@ -2663,6 +2668,12 @@ function openFund(id, direct){
              cashapp: bareHandle(h.cashapp) };
   })();
   const anyHandle = handles.paypal||handles.venmo||handles.cashapp;
+  /* MP-529: payment handles are NOT a way to give; nothing collects through
+     Venmo or PayPal today. A fund reaches a guest only with a payout method
+     connected (MP-985), and one whose Stripe is not yet ACTIVE shows an
+     unavailable Contribute button rather than these links. Turn on if
+     handle-based giving is ever switched on, with the Settings copy. */
+  const HANDLE_GIVING = false;
   const img = it.image_url || CASHFUND_BG;
   const amount = isFund(it)?(it.goal_amount_cents||0):(it.price_cents||0);
   const min = it.min_contribution_cents || 2500;
@@ -2683,7 +2694,7 @@ function openFund(id, direct){
       + '<div class="hint" id="g-fee-line"></div>'
       + '<div class="m-actions"><button class="cta solid" id="g-submit" onclick="submitContribution()">Contribute '+fmt(min)+'+ via Stripe →</button></div>'
       + '<div class="hint">Secure checkout via Stripe. Your gift goes straight to the couple.</div>';
-  } else if(anyHandle){
+  } else if(HANDLE_GIVING && anyHandle){
     body = '<p class="hint" style="margin-top:0">Send your gift directly to the couple:</p><div class="pay-grid">'
       + (handles.venmo?'<a class="pay-opt" target="_blank" rel="noopener" href="https://venmo.com/u/'+encodeURIComponent(handles.venmo)+'">Venmo<span style="color:var(--muted)">@'+esc(handles.venmo)+'</span></a>':"")
       + (handles.paypal?'<a class="pay-opt" target="_blank" rel="noopener" href="https://paypal.me/'+encodeURIComponent(handles.paypal)+'">PayPal<span style="color:var(--muted)">'+esc(handles.paypal)+'</span></a>':"")
@@ -2701,12 +2712,11 @@ function openFund(id, direct){
           ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
-    +   (((stripeOk || anyHandle) && !it.hidden_from_guests)
+    +   (it.hidden_from_guests
+          ? contributeOffHtml() + hiddenFromGuestsHtml()
+          : (stripeOk || (HANDLE_GIVING && anyHandle))
           ? contributeCtaHtml("fund", direct) + contributeBodyHtml("fund", body, direct)
-          : contributeOffHtml()
-            + (it.hidden_from_guests
-                ? '<div class="hint">Guests can\'t see this fund yet. Connect a payout method in Registry Settings, under Bank Accounts, and it appears for them.</div>'
-                : body))
+          : contributeOffHtml() + body)
     + '</div>';
   openModal("fund");
 }
@@ -2810,7 +2820,9 @@ function openExp(id, direct){
     +   '<div class="m-price">'+fmt(cost)+'</div>'
     +   (cost>0?'<div class="progress" style="margin:6px 0 4px"><i style="width:'+pct+'%"></i></div><div class="sub" style="color:var(--olive);font-size:12px;margin-bottom:4px">'+fmt(received)+' funded · '+fmt(remaining)+' to go</div>':"")
     +   (exp.description?'<p class="m-desc">'+esc(exp.description)+'</p>':"")
-    +   ((stripeOk && !expIsFunded(exp))
+    +   (exp.hidden_from_guests
+          ? contributeOffHtml() + hiddenFromGuestsHtml()
+          : (stripeOk && !expIsFunded(exp))
           ? contributeCtaHtml("exp", direct) + contributeBodyHtml("exp", form, direct)
           : (expIsFunded(exp) ? form : contributeOffHtml() + form))
     +   (exp.booking_partner==="Viator"?VIATOR_DISCLOSURE_HTML:"")
