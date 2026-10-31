@@ -205,6 +205,21 @@ are unchanged (their cards show the couple's own site).
   (desktop and phone) to sections not on the page, now hidden and restored with
   their section. All ten pass; template map unchanged.
 
+**Regal Boho (owner, 10/31) - build `2026-10-31-menu-dashes`**
+- Menu links "missing": they are there on desktop (over the top of the photo,
+  as in the designer's mockup) and become the hamburger at 768px and below -
+  the owner's preview was in phone view, and template cards render phone-sized.
+  One real fault: no dash between FAQs and Things to Do in the markup, and the
+  template hid the dash AFTER a hidden link, so with Things to Do off (the
+  default) FAQs and Registry ran together. Dash added; the runtime now shows a
+  separator only between two visible links (any menu with -sep children).
+- Our Story flower: NOT in the template as received at the start of this work
+  (the section still kept the room for it - "so the lowered bloom isn't
+  clipped"). Restored from the designer's image (08f44e24-...png), build
+  `2026-10-31-rb-bloom`: bottom-left of Our Story, 130-215px wide on desktop,
+  clear of the centred text; 96px on phones with the section made taller
+  underneath, so it never sits over the words. Hidden with the section.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

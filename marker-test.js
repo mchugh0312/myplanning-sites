@@ -7449,7 +7449,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-29-section-switches');
+  check('the stamp names the change it shipped with', version, '2026-10-31-rb-bloom');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7457,7 +7457,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'e5096525');
+    ('0000000' + bh.toString(16)).slice(-8), '64cdf13a');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10281,6 +10281,29 @@ check('two blocks -> two cards', blocks(mark(
     /if \(MERGED_EVENT_DESIGNS\[TID\] && \('wedding' in m\)\) m\.other_events = !!m\.wedding;/.test(rt), true);
   check('menu links to sections not on the page are hidden, desktop and phone',
     /function _navFollowsSections\(\)/.test(rt) && /!_tgt\.getClientRects\(\)\.length \|\| \(_tr\.width < 1 && _tr\.height < 1\)\) return; \}/.test(rt), true);
+}
+
+
+// ── Menu separators: only between two visible links ──────────────────────
+{
+  /* Regal Boho had no dash between FAQs and Things to Do, and hid the dash
+     after a hidden link - so with Things to Do off, FAQs and Registry ran
+     together. The runtime now works the dashes out from what is visible. */
+  check('Regal Boho has a dash after FAQs',
+    /<a href="#need-to-know">FAQs<\/a>\s*\n\s*<span class="hero-nav-sep"><\/span>\s*\n\s*<a href="#things-to-do">/.test(fs.readFileSync('template-regalboho.html', 'utf8')), true);
+  check('separators show only between two visible links',
+    /if \(isLink\(k\)\) \{ if \(pending\) \{ pending\.style\.display = ''; pending = null; \} seenLink = true; \}/.test(fs.readFileSync('site-runtime.js', 'utf8')), true);
+}
+
+
+// ── Regal Boho: the Our Story bloom is back ──────────────────────────────
+{
+  const rb = fs.readFileSync('template-regalboho.html', 'utf8');
+  /* It had gone from the page while the room kept for it at the section's
+     foot stayed; restored from the designer's image (owner, 10/31). */
+  check('Regal Boho\'s Our Story has its bloom, bottom-left',
+    /<img class="story-flower" src="https:\/\/assets\.softr-files\.com\/[^"]*08f44e24-2cb9-402b-b9b8-b19619774b01\.png"/.test(rb) &&
+    /\.story-flower\{\s*\n\s*position:absolute; left:clamp\(12px,4vw,64px\); bottom:0;/.test(rb), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

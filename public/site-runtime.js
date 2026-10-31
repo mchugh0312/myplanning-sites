@@ -8226,7 +8226,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-29-section-switches';
+  var MP_RUNTIME_BUILD = '2026-10-31-rb-bloom';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8409,6 +8409,23 @@
       if (gone && a.style.display !== 'none') { a.style.display = 'none'; a.setAttribute('data-mp-navoff', '1'); }
       else if (!gone && a.getAttribute('data-mp-navoff')) { a.style.display = ''; a.removeAttribute('data-mp-navoff'); }
     });
+    /* The separators between menu links (Regal Boho's dashes): one only BETWEEN
+       two visible links - never at either end, never two together - worked out
+       from what is visible now. Hiding a link took the dash after it with it,
+       so with Things to Do off, FAQs and Registry ran together. */
+    try {
+      Array.prototype.forEach.call(document.querySelectorAll('.hero-nav, .top-nav, nav'), function (bar) {
+        var kids = Array.prototype.slice.call(bar.children);
+        if (!kids.some(function (k) { return /(^|\s)[\w-]*sep\b/.test(k.className || ''); })) return;
+        var isSep = function (k) { return /(^|\s)[\w-]*sep\b/.test(k.className || ''); };
+        var isLink = function (k) { return k.tagName === 'A' && k.style.display !== 'none'; };
+        var seenLink = false, pending = null;
+        kids.forEach(function (k) {
+          if (isSep(k)) { k.style.display = 'none'; if (seenLink && !pending) pending = k; return; }
+          if (isLink(k)) { if (pending) { pending.style.display = ''; pending = null; } seenLink = true; }
+        });
+      });
+    } catch (e) {}
   }
 
   function hydrate(d) {
