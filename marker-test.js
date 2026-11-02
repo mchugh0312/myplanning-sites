@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), 'ba2a708c');
+    ('0000000' + h.toString(16)).slice(-8), '78de3503');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -10386,6 +10386,17 @@ check('two blocks -> two cards', blocks(mark(
      "Reset to template default" (owner, 11/02). */
   check('Vintage Love Story\'s default body face is Stack Sans Headline',
     /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline" \}/.test(ws), true);
+}
+
+
+// ── Saving never switches a section off (owner, 11/02) ───────────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* A cleared box used to switch its section off at save ("...had no content,
+     so it was switched off"). Only the Design tab decides whether a section
+     shows: a cleared box keeps its section, with its heading. */
+  check('no section is switched off at save', /const autoOff = PAGE_SECTIONS\.filter/.test(ws), false);
+  check('and the save message never says one was', /_autoOffNote\.current = autoOff\.map/.test(ws), false);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
