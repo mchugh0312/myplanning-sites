@@ -2476,6 +2476,24 @@
    },
    {
     "section": "nav",
+    "text": "Things to Do",
+    "changes": {
+     "color": [
+      "rgb(254, 250, 241)",
+      "rgb(27, 42, 65)"
+     ],
+     "bg": [
+      "rgb(27, 42, 65)",
+      "rgb(254, 250, 241)"
+     ],
+     "weight": [
+      "500",
+      "400"
+     ]
+    }
+   },
+   {
+    "section": "nav",
     "text": "Registry",
     "changes": {
      "color": [
@@ -5868,6 +5886,24 @@
    },
    {
     "section": "nav",
+    "text": "Things to Do",
+    "changes": {
+     "color": [
+      "rgb(0, 0, 0)",
+      "rgb(255, 253, 245)"
+     ],
+     "bg": [
+      "rgb(255, 253, 245)",
+      "rgb(0, 74, 173)"
+     ],
+     "weight": [
+      "500",
+      "400"
+     ]
+    }
+   },
+   {
+    "section": "nav",
     "text": "Registry",
     "changes": {
      "color": [
@@ -8311,6 +8347,28 @@
    },
    {
     "section": "nav",
+    "text": "Things to Do",
+    "changes": {
+     "color": [
+      "rgb(81, 80, 0)",
+      "rgb(83, 20, 30)"
+     ],
+     "bg": [
+      "rgb(58, 58, 54)",
+      "rgb(241, 228, 201)"
+     ],
+     "font": [
+      "Libre Baskerville",
+      "Noto Serif"
+     ],
+     "style": [
+      "italic",
+      "normal"
+     ]
+    }
+   },
+   {
+    "section": "nav",
     "text": "Registry",
     "changes": {
      "color": [
@@ -9674,6 +9732,7 @@
       "section-heading": [
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -9761,6 +9820,7 @@
       "section-heading": [
        "faqs",
        "other_events",
+       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -9914,6 +9974,7 @@
      "ground": [
       "footer",
       "nav",
+      "registry",
       "story"
      ],
      "other_paint": {
@@ -10031,6 +10092,7 @@
        "nav"
       ],
       "section-heading": [
+       "registry",
        "story"
       ],
       "body": [
@@ -10272,6 +10334,17 @@
      "section": "story",
      "role": "body",
      "text": "Lorem ipsum dolor sit amet, consecte",
+     "slots": [
+      "ink2"
+     ],
+     "vars": [
+      "--on-dark"
+     ]
+    },
+    {
+     "section": "registry",
+     "role": "section-heading",
+     "text": "Registry",
      "slots": [
       "ink2"
      ],
@@ -10810,6 +10883,16 @@
    {
     "section": "nav",
     "text": "FAQs",
+    "changes": {
+     "font": [
+      "Stack Sans Headline",
+      "Instrument Serif"
+     ]
+    }
+   },
+   {
+    "section": "nav",
+    "text": "Things to Do",
     "changes": {
      "font": [
       "Stack Sans Headline",

@@ -2613,6 +2613,11 @@
           if (path.indexOf(c) !== -1) return;
           if (/^(SCRIPT|STYLE|TEMPLATE)$/.test(c.tagName)) return;
           if (c.style.display === 'none') return;     /* hidden already, not by us */
+          /* MP-1007. Never the couple's names: Regal Boho sets them inside Our
+             Story, which has no heading of its own, so clearing the story put
+             the names away with it - in the preview and on the live site. */
+          var _isNames = function (e) { return /names/i.test((e.id || '') + ' ' + (typeof e.className === 'string' ? e.className : '')); };
+          if (_isNames(c) || (c.querySelector && Array.prototype.some.call(c.querySelectorAll('[id],[class]'), _isNames))) return;
           saved.nodes.push({ el: c, prev: c.style.display });
           c.style.display = 'none';
         });
@@ -2812,6 +2817,17 @@
         if (t && t.length <= 60) { el = c; break; }
       }
     } catch (e) { return null; }
+    /* MP-1003. No heading inside: the title block just BEFORE it, if there is
+       one. Vintage Love Story's #registry-section is the button itself, and its
+       heading (the oval title) sits in the band just ahead of it - so a rename
+       renamed the menu link and stopped, never reaching the heading. Only a
+       sibling whose class names it a title counts; nothing else is taken. */
+    if (!el) {
+      var prev = section.previousElementSibling;
+      if (prev && /title/i.test(typeof prev.className === 'string' ? prev.className : '')) {
+        el = prev.querySelector('h1, h2, h3, h4, [class*="title"]:not([class*="line"])') || prev;
+      }
+    }
     if (!el) return null;
     /* Descend while a single child still carries the whole text, so decorative
        siblings survive. */
@@ -3266,7 +3282,7 @@
      "Goudy" in its own @font-face. The editor could not draw those names, so its
      boxes fell back to their default face and the font menu had nothing to
      mark as current. */
-  var FONT_CATALOG = ["Aboreto","Ballet","Comic Neue","Corben","Cormorant Garamond","Dancing Script","DM Sans","EB Garamond","Great Vibes","Instrument Serif","La Belle Aurore","Lancelot","Lexend Deca","Libre Baskerville","Lora","Luxurious Script","Montserrat","Noto Serif","Open Sans","Oswald","Ovo","Pacifico","Pinyon Script","Playfair Display","Poppins","Roboto","Sorts Mill Goudy"];
+  var FONT_CATALOG = ["Aboreto","Ballet","Comic Neue","Corben","Cormorant Garamond","Dancing Script","DM Sans","EB Garamond","Great Vibes","Instrument Serif","Inter","La Belle Aurore","Lancelot","Lexend Deca","Libre Baskerville","Lora","Luxurious Script","Montserrat","Noto Serif","Open Sans","Oswald","Ovo","Pacifico","Pinyon Script","Playfair Display","Poppins","Roboto","Sorts Mill Goudy"];
   function _catKey(n) { return String(n || '').toLowerCase().replace(/[^a-z]/g, ''); }
   var _faceUrlCache = null;
   function _faceUrls() {
@@ -3546,8 +3562,21 @@
         questionStyle: _questionStyle,
         boxStyles: (function () { try { return _boxStyles(d); } catch (e) { return {}; } })()
       }, '*');
+      /* MP-970. Once more when every font has settled. Sent while a design's
+         first-choice face was still LOADING, the report named it - Modern
+         Minimal's DIN Next Condensed, which never arrives - so the editor drew
+         its titles in a face it could not show and the font menu marked none,
+         although the page itself fell back to Oswald. After the fonts settle,
+         the face reported is the one actually drawn. */
+      try {
+        if (document.fonts && document.fonts.status !== 'loaded' && !_reportAfterFonts) {
+          _reportAfterFonts = true;
+          document.fonts.ready.then(function () { _reportAfterFonts = false; try { reportSectionHeadings(d); } catch (e) {} });
+        }
+      } catch (e) {}
     } catch (e) {}
   }
+  var _reportAfterFonts = false;
 
   /* The design's own wording for each section, captured the first time we are
      about to write over it. Without this there is NO WAY BACK: hydrate() runs
@@ -4498,7 +4527,7 @@
   var CONTENT_FONTS = [
     'Aboreto', 'Ballet', 'Comic Neue', 'Corben', 'Cormorant Garamond',
     'Dancing Script', 'DM Sans', 'EB Garamond', 'Great Vibes',
-    'Instrument Serif', 'La Belle Aurore', 'Lancelot', 'Lexend Deca',
+    'Instrument Serif', 'Inter', 'La Belle Aurore', 'Lancelot', 'Lexend Deca',
     'Libre Baskerville', 'Lora', 'Luxurious Script', 'Montserrat',
     'Noto Serif', 'Open Sans', 'Oswald', 'Ovo', 'Pacifico', 'Pinyon Script',
     'Playfair Display', 'Poppins', 'Roboto', 'Sorts Mill Goudy'
@@ -6863,7 +6892,13 @@
           grid0.parentNode.appendChild(clone);
         }
         cards = grid.querySelectorAll('.registry-card');
-        var items = all.slice(0, want);
+        /* MP-1000. Gifts still to give first - the couple's own order kept
+           within each group - so a registry whose first few are already bought
+           does not open on a row of "Fully gifted". Any left to fill a row come
+           after, faded (renderPreviewCard), as Modern Minimal already showed them. */
+        var _done = function (it) { return it && it.quantity_remaining === 0; };
+        var items = all.filter(function (it) { return !_done(it); })
+          .concat(all.filter(_done)).slice(0, want);
 
         var registryUrl = '/' + encodeURIComponent(slug) + '/registry';
         injectPreviewStyles();
@@ -7373,6 +7408,9 @@
       btn.setAttribute('target', '_blank');
       btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
+      /* MP-1000: a fully gifted item is faded, on every design. */
+      card.style.opacity = soldOut ? '0.55' : '';
+      if (soldOut) card.setAttribute('data-mp-gifted', '1'); else card.removeAttribute('data-mp-gifted');
       btn.textContent = soldOut ? 'Fully gifted' : (isFund ? 'Contribute' : 'Purchase This Item');
       /* MP-963. The price and "2 of 3 left" go to the bottom WITH the button, so
          they sit on one line across the row whatever the length of the gift's
@@ -8226,7 +8264,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-10-31-rb-bloom';
+  var MP_RUNTIME_BUILD = '2026-11-01-content-fixes';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8359,6 +8397,23 @@
     try {
       var m = d.menu_config || {};
       if (MERGED_EVENT_DESIGNS[TID] && ('wedding' in m)) m.other_events = !!m.wedding;
+      /* MP-1006. On the one-events-box designs the editor SHOWS any Other
+         Events text the record still holds joined into the box (MP-944), and
+         empties the old field when the box is edited. A record not yet emptied
+         sent that text straight to the live site, where it rendered as an extra
+         card the couple could not see in the box (Regal Boho's sample Welcome
+         Dinner beside their own). Joined here in the editor's own order -
+         Coastal Chic puts it after the wedding text, the other three before -
+         so the site shows what the box shows. */
+      if (MERGED_EVENT_DESIGNS[TID]) {
+        var _words = function (h) { return !!String(h || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim(); };
+        if (_words(d.events_info)) {
+          var _w = String(d.weddings_info || '').replace(/(<br\s*\/?>\s*)+$/i, '');
+          var _e = String(d.events_info).replace(/(<br\s*\/?>\s*)+$/i, '');
+          d.weddings_info = !_words(_w) ? _e : (TID === 'coastalchic' ? _w + '<br><br>' + _e : _e + '<br><br>' + _w);
+        }
+        d.events_info = '';
+      }
       /* Only what the SWITCH hid - recorded after the draw that hid it. A section
          a design hides for its own reasons (not in the design, no content,
          hidden in its markup from the start) is left exactly as it is: undoing

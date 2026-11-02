@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '26d29c41');
+    ('0000000' + h.toString(16)).slice(-8), '8d59a0c2');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -6589,19 +6589,21 @@ check('two blocks -> two cards', blocks(mark(
   const fonts = (wt.match(/const FONTS = \[[\s\S]*?\n\];/) || [''])[0];
   const n = (fonts.match(/label: "/g) || []).length;
   check('the font list was found', n > 0, true);
-  const claim = (help.match(/Font Style panel offers (\d+|\w+) fonts/) || [])[1];
-  check('the help states a number of fonts', !!claim, true);
-  check('and it is the number there actually are', String(n), claim);
+  /* The owner's help no longer states a count (11/01) - nothing to drift when
+     a font is added. IF it ever states one, it must be the real number. */
+  const claim = (help.match(/(?:panel|list) (?:offers|has) (\d+) fonts/) || help.match(/\b(\d+) fonts\b/) || [])[1];
+  check('any number of fonts the help states is the number there actually are', claim === undefined || String(n) === claim, true);
   /* Every group named in the help has to be a real category, or a couple looks
      for a heading that is not there. */
   const cats = [...new Set([...fonts.matchAll(/category: "(\w+)"/g)].map(m => m[1]))];
   const named = ((help.match(/grouped by mood \(([^)]*)\)/) || [])[1] || '')
     .split(',').map(x => x.trim()).filter(Boolean);
-  check('the help names the font groups', named.length > 0, true);
-  check('and every one of them exists',
+  /* Likewise the groups: not required, but any the help names must exist, and a
+     list of them must be complete. */
+  check('every font group the help names exists',
     named.filter(c => cats.indexOf(c) === -1).join(','), '');
-  check('and none is left out',
-    cats.filter(c => named.indexOf(c) === -1).join(','), '');
+  check('and a list of groups, if given, leaves none out',
+    named.length ? cats.filter(c => named.indexOf(c) === -1).join(',') : '', '');
 
   /* Unpublished. The help must not call it temporary, and must say what it
      really does - the same two consequences the confirm dialog names. */
@@ -7449,7 +7451,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-10-31-rb-bloom');
+  check('the stamp names the change it shipped with', version, '2026-11-01-content-fixes');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7457,7 +7459,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '64cdf13a');
+    ('0000000' + bh.toString(16)).slice(-8), 'eabafe37');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9917,7 +9919,7 @@ check('two blocks -> two cards', blocks(mark(
   check('Heirloom Bloom\'s buttons are Accent 3 lettered in Text 2, as on the site',
     /"heirloombloom":\{"fill":"accent3","text":"ink2"/.test(reg), true);
   check('the main buttons use the look',
-    /\.cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);color:var\(--cta-text,var\(--cream\)\);border:var\(--cta-bw,0\) solid var\(--cta-border,transparent\)\}/.test(reg) &&
+    /\.cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);color:var\(--cta-text,(?:var\(--cream\)|#FFFFFF)\);border:var\(--cta-bw,0\) solid var\(--cta-border,transparent\)\}/.test(reg) &&
     /\.m-cta\.solid\{background:var\(--cta-bg,var\(--olive\)\);/.test(reg), true);
 }
 
@@ -9980,12 +9982,14 @@ check('two blocks -> two cards', blocks(mark(
   check('gifts sit on the band, as on the site (no white box)',
     /\.card\{display:flex;flex-direction:column;background:transparent;border-radius:4px;overflow:hidden;box-shadow:none\}/.test(reg), true);
   check('white controls keep dark text',
-    /\.ext-card,\.pay-opt,\.m-cta\.ghost,\.badge,\.imgwrap,\.fsel,\.qf-sort,\.qf-sortmenu\{\s*\n\s*--ink:var\(--surface-ink,var\(--ink\)\)/.test(reg), true);
+    /\.ext-card,\.pay-opt,\.m-cta\.ghost,\.badge,\.imgwrap,\.fsel,\.qf-sort,\.qf-sortmenu\{\s*\n\s*--ink:var\(--surface-ink,var\(--ink(?:-page)?\)\)/.test(reg), true);
   /* The filter strip takes the page's colour, like the gifts below it. */
   check('the filter strip follows the page colour',
     /\.qf\{background:var\(--cream\);border-bottom:1px solid var\(--border\);\}/.test(reg), true);
+  /* (MP-979/980, owner: the page's own colours under second names - a property
+     defined in terms of itself is a cycle Firefox drops) */
   check('pop-ups sit on paper, buttons switching to the dark ink there',
-    /\.drawer,\.modal,\.gate-card,\.modal-card\{\s*\n\s*--cream:var\(--paper,var\(--cream\)\);/.test(reg) && /--cta-text:var\(--cta-text-paper,var\(--cta-text\)\)/.test(reg), true);
+    /\.drawer,\.modal,\.gate-card,\.modal-card\{\s*\n\s*--cream:var\(--paper,var\(--cream(?:-page)?\)\);/.test(reg) && /--cta-text:var\(--cta-text-paper,var\(--cta-text(?:-page)?\)\)/.test(reg), true);
   check('muted text never falls below 4.5:1', /r\.setProperty\("--muted",  _quiet\(ink, bg\)\);/.test(reg), true);
   check('the header title defaults to the site\'s registry heading face',
     /r\.setProperty\("--skin-display", headFont \? "'" \+ headFont \+ "', " \+ s\.display : \(siteHead \|\| s\.display\)\);/.test(reg), true);
@@ -10319,6 +10323,36 @@ check('two blocks -> two cards', blocks(mark(
   /* The template drew its own bloom as a background too: two on a desktop. */
   check('one bloom in Our Story - the background copy is off',
     /\.our-story::before\{[^}]*content:none;/.test(rb), true);
+}
+
+
+// ── 10/31 round: MP-1007, 1006, 1003, 1004, 970, 969, 1000 ───────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Regal Boho sets the names inside Our Story, which has no heading: clearing
+     the story put the names away with it. */
+  check('MP-1007 emptying a section never puts away the couple\'s names',
+    /var _isNames = function \(e\) \{ return \/names\/i\.test/.test(rt), true);
+  /* A record still holding Other Events text on a one-box design sent it to
+     the live site as an extra card. */
+  check('MP-1006 leftover Other Events text joins the one events box, as the editor shows it',
+    /if \(MERGED_EVENT_DESIGNS\[TID\]\) \{\s*\n\s*var _words = function \(h\)/.test(rt) && /d\.events_info = '';\s*\n\s*\}/.test(rt), true);
+  check('MP-1003 Vintage Love Story\'s registry has a heading, in Text2',
+    /<h2 class="oval-title registry-title"><span>Our Registry<\/span><\/h2>/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
+    /\.registry-wrap \.registry-title-wrap\{ color:var\(--on-dark\);/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+  check('MP-1003 a heading just before a section counts as its heading (title blocks only)',
+    /if \(prev && \/title\/i\.test\(typeof prev\.className === 'string' \? prev\.className : ''\)\) \{/.test(rt), true);
+  check('MP-1004 Inter is in all three font lists', /label: "Inter",\s+category: "Simple"/.test(ws) &&
+    /'Instrument Serif', 'Inter', 'La Belle Aurore'/.test(rt) && /"Instrument Serif","Inter","La Belle Aurore"/.test(rt), true);
+  check('MP-970 box fonts are reported again once every font has settled',
+    /document\.fonts\.ready\.then\(function \(\) \{ _reportAfterFonts = false; try \{ reportSectionHeadings\(d\); \} catch \(e\) \{\} \}\);/.test(rt), true);
+  check('MP-969 wordless values count as the same content (no reset link on an empty Registry)',
+    /const _sameContent = \(a, b\) => a === b \|\| \(!_hasWords\(a\) && !_hasWords\(b\)\);/.test(ws) &&
+    (ws.match(/currentVal !== undefined && !_sameContent\(currentVal, defaultVal\)/g) || []).length === 2, true);
+  check('MP-1000 gifts still to give come first; gifted ones are faded',
+    /var items = all\.filter\(function \(it\) \{ return !_done\(it\); \}\)/.test(rt) && /card\.style\.opacity = soldOut \? '0\.55' : '';/.test(rt), true);
+  check('MP-907 the registry button keeps its designed outline (no fill)', /Below 4\.5:1 it becomes a/.test(rt), false);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

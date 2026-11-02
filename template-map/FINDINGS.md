@@ -219,6 +219,33 @@ are unchanged (their cards show the couple's own site).
   `2026-10-31-rb-bloom`: bottom-left of Our Story, 130-215px wide on desktop,
   clear of the centred text; 96px on phones with the section made taller
   underneath, so it never sits over the words. Hidden with the section.
+  Follow-up (owner, 10/31): placed from where the STORY ends, not the section's
+  foot - on desktop beside the last lines (a third of its height), never closer
+  than 20px to the names; on a phone 14px under the last line. And the menu,
+  dark olive over the photo, got a soft ivory wash behind it so it reads on a
+  darker couple's photo. Template only; runtime and block unchanged.
+
+**10/31 feedback - build `2026-11-01-content-fixes`** (live_registry.html is the
+owner's own, with MP-979/980; main.py the owner's own)
+- MP-1007 (Regal Boho names cleared with Our Story): emptying a section never
+  puts away the couple's names (the story section has no heading of its own).
+- MP-1006 (Regal Boho "Welcome Dinner" live only): on one-events-box designs,
+  leftover Other Events text joins Event Details in the editor's own order, so
+  the live site shows what the box shows. Fully cleared shows no sample.
+- MP-1003: Vintage Love Story's registry gets a heading (oval title, Text2 on
+  the band, Section Headings, renameable - a title block just before a section
+  now counts as its heading).
+- MP-1004 / MP-970: Inter added to the font lists (28 fonts; help updated); box
+  fonts reported again once all fonts settle (a still-loading first choice -
+  Modern Minimal's DIN Next Condensed - was named over the face drawn).
+- MP-969: wordless values count as the same, so no reset link on an empty
+  Registry box.
+- MP-1000: registry preview shows gifts still to give first; fully gifted ones
+  fill remaining spots, faded, on every design.
+- MP-907: NOT fixed - the issue is placement (frame with heading -> note below
+  the frame -> button below the note), to be checked and fixed on all ten as
+  the first rule of the planned clean-up. A "filled button" attempt was undone.
+- MP-1008: not started.
 
 (The notes below are the history of how each item was found and fixed.)
 

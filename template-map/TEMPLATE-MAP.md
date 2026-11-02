@@ -610,10 +610,10 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Stack Sans Headline | menu |
-| `--display` | Instrument Serif | section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu |
+| `--display` | Instrument Serif | section heading: faqs, other_events, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu |
 | `--sans` | Stack Sans Headline | block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
 
-Headings control writes `--display`, which reaches: section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu.  
+Headings control writes `--display`, which reaches: section heading: faqs, other_events, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu.  
 Body control writes `--sans`, which reaches: block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --sans` on desktop and `--display, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
@@ -624,9 +624,9 @@ Font variables the runtime config does not know: `--menu-font`.
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
 | Site Background | `--ivory` | - | faqs, home, other_events, rsvp, things_to_do, travel, wedding | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor |
-| Accent Color | `--brown` | - | footer, nav, story | backgroundColor |
+| Accent Color | `--brown` | - | footer, nav, registry, story | backgroundColor |
 | Text1 | `--ink` | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: faqs, other_events, travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, fill, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: registry, story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 **(nothing visible at rest)** | `--ink3` | - | - | - |
 | Highlight Color | `--blue` | - | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Additional Color **(nothing visible at rest)** | `--black` | - | - | - |
