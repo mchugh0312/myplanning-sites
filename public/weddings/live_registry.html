@@ -938,11 +938,20 @@ function priceHtml(it, cls, kind){
   if(amount > 0) return '<div class="'+cls+'">'+fmt(amount)+'</div>';
   // No amount, and not a gift: say nothing rather than something wrong.
   if(!isGift) return "";
+  /* MP-978. Every gift with no price said "See price on Amazon", custom ones
+     from other shops included. Now the same rule as the couple's dashboard:
+     Amazon only for an Amazon item, the shop's name when one is known, plain
+     "See price" for a pasted link, and nothing when there is nowhere to go. */
+  const src = String(it.source || "").trim();
+  const isAmazon = /amazon/i.test(src)
+    || /^https?:\/\/([^/]*\.)?amazon\.com\//i.test(String(it.source_url || ""));
+  const generic = /^(universal url|universal|custom|other|link)?$/i.test(src);
+  const label = isAmazon ? NO_PRICE : (generic ? "See price" : "See price at " + src);
   const href = buyHref(it.id, it.source_url);
-  if(!href) return '<div class="'+cls+' no-price">'+NO_PRICE+'</div>';
+  if(!href) return isAmazon ? '<div class="'+cls+' no-price">'+NO_PRICE+'</div>' : "";
   return '<div class="'+cls+' no-price"><a href="'+esc(href)+'" target="_blank" '
        + 'rel="sponsored nofollow noopener" onclick="event.stopPropagation()">'
-       + NO_PRICE+'</a></div>';
+       + esc(label)+'</a></div>';
 }
 const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 // Safe inline markdown: escape first (no HTML/scripts can inject), then turn
