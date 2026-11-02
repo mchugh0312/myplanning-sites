@@ -276,6 +276,16 @@ its hint. Checked on all ten (own heading, renamed, cleared; live links to
 Map differences adopted: the hidden buttons, and the heading's words measured
 inside the link.
 
+**Sage & Still hero, per the owner's original design - build `2026-11-02-sage-hero`**
+Stock hero photo is now the design's (8cfad9f7-...png). The photo sits IN FRONT
+of the couple's names (was behind: names z-index 3 -> 1), its edge cutting into
+the longer line. fitSageNames() sizes the names against the photo: the first
+line ends before it; the longer line may tuck behind by up to a fifth of its
+width; long names come down in size until both hold, never past the design's
+size. Both runtime name-fitters (fitHeroNames, fitOneName) skip names marked
+data-mp-own-fit. Measured: Maya & Jason 147px desktop; Alexandra &
+Christopher 76px desktop, 22px phone. Template map unchanged.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

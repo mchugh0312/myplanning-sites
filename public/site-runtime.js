@@ -5959,6 +5959,9 @@
         if (el && seen.indexOf(el) === -1) seen.push(el);
       }
       seen.forEach(function (el) {
+        /* A design that sizes its own names against its layout (Sage & Still:
+           against the photo's edge) is left to it. */
+        if (el.getAttribute('data-mp-own-fit')) return;
         /* Cleared first, so a window growing back gets the design's own size
            again rather than staying at whatever the narrowest pass chose. */
         el.style.fontSize = '';
@@ -6360,6 +6363,9 @@
   }
 
   function fitOneName(el) {
+    /* A design that sizes its own names against its layout is left to it
+       (Sage & Still: against the photo's edge - data-mp-own-fit). */
+    if (el && el.closest && el.closest('[data-mp-own-fit]')) return;
     if (!el) return;
     var host = _fitHost(el);
     if (!host) return;
@@ -8318,7 +8324,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-registry-heading-link';
+  var MP_RUNTIME_BUILD = '2026-11-02-sage-hero';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

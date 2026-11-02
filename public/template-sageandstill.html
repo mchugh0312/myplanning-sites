@@ -235,7 +235,7 @@ body.hydrating{visibility:hidden;}
   width:100%;
   /* Above the photo. In the design the tail of the second line reads over the
      picture — with the photo on top the names were simply cut off. */
-  z-index:3;
+  z-index:1; /* behind the photo, as in the owner's design (11/02): its edge cuts into the longer line - was 3, in front */;
   white-space:nowrap;
   pointer-events:none;
 }
@@ -244,6 +244,7 @@ body.hydrating{visibility:hidden;}
    so the right portion of the second line ("& JAS|ON") is hidden behind it.
    The photo aspect/width is sized so it covers ~half the width. */
 .hero-photo-wrap{
+  z-index:2;   /* in front of the names - its edge cuts into the longer line */
   position:absolute;
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
@@ -1087,6 +1088,12 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
 #things-to-do.mp-ttd-alt{background:var(--sage);}
 #things-to-do.mp-ttd-alt .ntk-title,
 #things-to-do.mp-ttd-alt .faq-answer{color:var(--on-dark);}
+
+/* The design's hero (owner, 11/02): the couple's names in large capitals on the
+   left, the photo on the right IN FRONT of them, its edge cutting into the end
+   of the longer line. Sized by fitSageNames() below: the first line ends before
+   the photo; the longer line may tuck behind it by up to a fifth of its width;
+   long names come down in size until both hold - never past the design's size. */
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1112,7 +1119,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:907fdb66';
+    window.__mpTemplate = 'sageandstill:0194a5a7';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1232,7 +1239,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
 <!-- HERO: names on left flow under photo on the right -->
 <section class="hero" id="hero">
   <div class="hero-inner">
-    <h1 class="hero-couple-name" id="heroCoupleNames">
+    <h1 class="hero-couple-name" id="heroCoupleNames" data-mp-own-fit="1">
       <span class="line">Maya</span>
       <span class="line">&amp; Jason</span>
     </h1>
@@ -1244,7 +1251,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
            on this design. With nothing painted first there is nothing to flash. -->
       <img id="heroImg"
         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-        data-sample-src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8ab81a3c-e279-4e9d-8c54-1dbc50ca5345.png"
+        data-sample-src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/8cfad9f7-03ba-4e2c-9e9c-ff25da31a239.png"
         alt="Couple photo">
     </div>
   </div>
@@ -1551,6 +1558,30 @@ function renderAccomCard(title, html, fieldUrl) {
 }
 
 // ── Hydration ─────────────────────────────────────────────────
+function fitSageNames(){
+  var el = document.getElementById('heroCoupleNames'), wrap = document.querySelector('.hero-photo-wrap');
+  if (!el || !wrap || !el.getClientRects().length) return;
+  el.style.fontSize = '';
+  var base = parseFloat(getComputedStyle(el).fontSize) || 0;
+  if (!base) return;
+  var lines = el.querySelectorAll('.line');
+  if (!lines.length) return;
+  var widthOf = function(n){ var r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width; };
+  var nr = el.getBoundingClientRect(), pr = wrap.getBoundingClientRect();
+  var left = nr.left;
+  var gap = Math.max(6, pr.width * 0.03);
+  var room1 = pr.left - gap - left;                 /* the first line: clear of the photo */
+  var roomAll = pr.left + pr.width * 0.2 - left;    /* the longer line: may tuck behind a fifth of it */
+  var w1 = widthOf(lines[0]), wMax = 0;
+  for (var i = 0; i < lines.length; i++) wMax = Math.max(wMax, widthOf(lines[i]));
+  var f = Math.min(1, w1 ? room1 / w1 : 1, wMax ? roomAll / wMax : 1);
+  if (f < 1) el.style.fontSize = Math.max(14, Math.floor(base * f * 10) / 10) + 'px';
+}
+(function(){
+  var t = null; window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(fitSageNames, 120); });
+  try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSageNames); } catch (e) {}
+})();
+
 function hydrateTemplate(d) {
   window._weddingSlug  = d.slug || '';
   const names   = d.couple_names || 'Maya & Jason';
@@ -1949,6 +1980,7 @@ function hydrateTemplate(d) {
   // ── Menu ─────────────────────────────────────────────────────────────
   _buildMenu(menu, rsvpOn, d);
   _reveal();
+  try { setTimeout(fitSageNames, 0); } catch (e) {}   // names sized against the photo, as in the design
 }
 
 function _buildMenu(menu, rsvpOn, d) {

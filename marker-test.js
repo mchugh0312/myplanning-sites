@@ -7450,7 +7450,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-registry-heading-link');
+  check('the stamp names the change it shipped with', version, '2026-11-02-sage-hero');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7458,7 +7458,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '2d3fcbc5');
+    ('0000000' + bh.toString(16)).slice(-8), '4f252b67');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10394,6 +10394,22 @@ check('two blocks -> two cards', blocks(mark(
     (ws.match(/placeholder=\{s\.section === "registry" \? "View our registry" : undefined\}/g) || []).length === 4, true);
   check('Vintage Love Story\'s lace frames the heading, not the whole band',
     /<div class="oval-title-wrap registry-title-wrap">\s*\n\s*<!--[\s\S]*?-->\s*\n\s*<span class="registry-lace tl"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+}
+
+
+// ── Sage & Still's hero, as in the owner's design (11/02) ───────────────
+{
+  const sg = fs.readFileSync('template-sageandstill.html', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('Sage & Still\'s stock hero photo is the design\'s',
+    /data-sample-src="https:\/\/assets\.softr-files\.com\/[^"]*8cfad9f7-03ba-4e2c-9e9c-ff25da31a239\.png"/.test(sg), true);
+  /* The names behind the photo; the first line clear of it, the longer line
+     tucking behind by at most a fifth; long names smaller, never larger. */
+  check('the photo sits in front of the names', /\.hero-couple-name\{[^}]*z-index:1; \/\* behind the photo/.test(sg) && /\.hero-photo-wrap\{\s*\n\s*z-index:2;/.test(sg), true);
+  check('the names are sized against the photo\'s edge',
+    /var room1 = pr\.left - gap - left;/.test(sg) && /var roomAll = pr\.left \+ pr\.width \* 0\.2 - left;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
+  check('and both runtime name-fitters leave them to it',
+    /if \(el\.getAttribute\('data-mp-own-fit'\)\) return;/.test(rt) && /if \(el && el\.closest && el\.closest\('\[data-mp-own-fit\]'\)\) return;/.test(rt) && /id="heroCoupleNames" data-mp-own-fit="1"/.test(sg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
