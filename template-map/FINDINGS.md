@@ -373,6 +373,48 @@ known; plain "See price" for a pasted link; nothing when there is nowhere to go)
 It is the base from here; the two Modern Minimal font lines (Barlow Condensed)
 were re-applied to it. Suite 1966.
 
+**Vintage Love Story fonts, second look (11/02)** - its body copy is drawn in
+--display (Instrument Serif), not --body; Stack Sans Headline is its MENU face.
+The panel now says body/content Instrument Serif, menu Stack Sans Headline.
+Re-checked all ten (body rule and menu-link rule followed to the face drawn):
+every other template's body and menu defaults match. (Earlier round read the
+variable name --body instead of the face the body text uses.)
+Regal Boho (owner: "did we change anything?"): the save switch-off removal
+(Website.txt) and the card alignment (site-runtime.js) are in build
+2026-11-02-free-fonts; behaviour reported matches the OLD build - deployment
+to be confirmed via the console build line. Hotel's size in Firefox still
+unverified (no Firefox in the sandbox).
+
+**Own fonts not re-fetched; list order - build `2026-11-02-own-fonts`** (owner, 11/02)
+Re-picking Vintage Love Story's Stack Sans Headline for Menu Links looked
+different from the default (until Reset): a chosen font was fetched from Google
+too, so the same name had two sets of files and Google's edition could draw.
+loadGoogleFonts now skips any face the page already declares in its own
+@font-face rules (same-origin sheets only). The three fonts added on 11/02 sat
+in a block after Oswald; the dropdown shows FONTS in list order - list sorted,
+and a check keeps it alphabetical.
+Regal Boho: the deployed Website.txt (Vintage body fix live) contains nothing
+that can switch a section off at save; owner asked for the exact message and
+the runtime build line.
+
+**Fonts re-picked + MP-1008 - build `2026-11-02-fonts-mp1008`** (owner, 11/02)
+- Vintage menu (Stack Sans Headline) still differed when re-picked. Cause shown
+  by the new [mp-fonts] diagnostics: where the design's own files do not load,
+  the default fell back to the design's backup (Inter) but a choice wrote
+  "'Face',serif" and fell to a serif. Now a choice keeps the design's own backups
+  (_designBackups), and a design face whose files all fail is fetched from
+  Google when it is one (_rescueOwnFonts) - default and choice alike.
+- Diagnostics: [mp-fonts] (faces per role: drawn-in, own files, load status,
+  weight/size/spacing, Google requests) and [mp-cards] (each side-by-side row:
+  title markup, size/weight, where text starts, space added) - plain JSON.
+- MP-1008 Firefox: Firefox writes sizes as <font size> even with styleWithCSS;
+  the editor now turns them into <span style="font-size: KEYWORD"> right after a
+  style command, and the runtime converts any saved <font> the same way.
+- MP-1008 Reset: the Travel starter copy used <strong> card titles; the boxes use
+  <mp-t>. The starter copy itself (and Pressed Petals' sample, which must match)
+  now uses <mp-t>, so Reset restores the card titles. Map: Pressed Petals' Hotel/
+  Flights now measured as mp-t - same font, weight, caps.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

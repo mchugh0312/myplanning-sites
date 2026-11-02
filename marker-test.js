@@ -1418,8 +1418,8 @@ check('two blocks -> two cards', blocks(mark(
   // The sample copy has to carry its own title line or the standalone template
   // shows two untitled columns.
   check('the sample copy opens with its title line',
-    /accommodation_info:'<strong>Hotel<\/strong><br>/.test(tpl) &&
-    /travel_info:'<strong>Flights<\/strong><br>/.test(tpl), true);
+    /accommodation_info:'<(?:strong|mp-t)>Hotel<\/(?:strong|mp-t)><br>/.test(tpl) &&
+    /travel_info:'<(?:strong|mp-t)>Flights<\/(?:strong|mp-t)><br>/.test(tpl), true);
 }
 
 // ── The Design tab toggle names the SECTION, not the template's wording ───
@@ -1467,9 +1467,9 @@ check('two blocks -> two cards', blocks(mark(
      delete them - but they live in one field, hotel first, separated by the
      blank line the runtime cuts them apart on. */
   check('the one travel box opens with the hotel card',
-    /^<strong>Hotel<\/strong><br>/.test(ctx.C.travelInfo), true);
+    /^<mp-t>Hotel<\/mp-t><br>/.test(ctx.C.travelInfo), true);
   check('and carries the flights card after a blank line',
-    /(?:<br\s*\/?>\s*){2,}<strong>Flights<\/strong><br>/.test(ctx.C.travelInfo), true);
+    /(?:<br\s*\/?>\s*){2,}<mp-t>Flights<\/mp-t><br>/.test(ctx.C.travelInfo), true);
   check('the retired accommodations box seeds nothing', ctx.C.accomodationInfo, '');
   check('every template resolves to the same starter copy',
     ctx.f(PP, 'travelInfo') === ctx.C.travelInfo &&
@@ -1519,8 +1519,8 @@ check('two blocks -> two cards', blocks(mark(
   // shows something different again.
   const tpl = fs.readFileSync('template-pressedpetals.html', 'utf8');
   check('the template sample matches its starter copy',
-    /accommodation_info:'<strong>Hotel<\/strong><br>Hyatt Regency/.test(tpl) &&
-    /travel_info:'<strong>Flights<\/strong><br>/.test(tpl), true);
+    /accommodation_info:'<(?:strong|mp-t)>Hotel<\/(?:strong|mp-t)><br>Hyatt Regency/.test(tpl) &&
+    /travel_info:'<(?:strong|mp-t)>Flights<\/(?:strong|mp-t)><br>/.test(tpl), true);
 }
 
 // ── These two sections are named the same everywhere ──────────────────────
@@ -3502,9 +3502,9 @@ check('two blocks -> two cards', blocks(mark(
 {
   const wt = fs.readFileSync('Website.txt', 'utf8');
   check('the seeded hotel card opens with its label',
-    /travelInfo: '<strong>Hotel<\/strong><br>/.test(wt), true);
+    /travelInfo: '<(?:strong|mp-t)>Hotel<\/(?:strong|mp-t)><br>/.test(wt), true);
   check('and the flights card with its own',
-    /(?:<br\s*\/?>){2,}<strong>Flights<\/strong><br>/.test(wt), true);
+    /(?:<br\s*\/?>){2,}<(?:strong|mp-t)>Flights<\/(?:strong|mp-t)><br>/.test(wt), true);
   // Every seeded event block ends with its dress line, so the attire styling
   // has something to show on a site nobody has edited yet.
   check('both wedding events carry an attire line',
@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '4a0acfee');
+    ('0000000' + h.toString(16)).slice(-8), '5b846ec7');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-own-fonts');
+  check('the stamp names the change it shipped with', version, '2026-11-02-fonts-mp1008');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '5e9a34e3');
+    ('0000000' + bh.toString(16)).slice(-8), 'e6b3c2c4');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -8249,7 +8249,7 @@ check('two blocks -> two cards', blocks(mark(
   // It has to run before the templates read the payload, and before markTitles
   // reshapes anything.
   const hyd = rt.slice(rt.indexOf('function hydrate(d)'),
-                       rt.indexOf('function hydrate(d)') + 3000);
+                       rt.indexOf('function hydrate(d)') + 7000);
   check('the cut happens inside hydrate', /_splitTravelBlob\(d\);/.test(hyd), true);
   check('and before the template is handed the payload',
     hyd.indexOf('_splitTravelBlob(d);') < hyd.indexOf('hydrateTemplate') ||
@@ -10451,6 +10451,24 @@ check('two blocks -> two cards', blocks(mark(
      edition too, and the menu looked different from the default until Reset. */
   check('a face the design ships itself is not fetched from Google',
     /names = \(names \|\| \[\]\)\.filter\(function \(n\) \{ return !_own\[/.test(rt), true);
+}
+
+
+// ── Fonts that look the same when re-picked; MP-1008 (11/02) ──────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* A chosen face keeps the design's own backups (not a bare serif), and a
+     design face whose files fail is fetched from Google - so re-picking a
+     design's own face is drawn exactly as its default. */
+  check('a chosen font keeps the design\'s own backups', /root\.setProperty\(v, "'" \+ cfg\.font \+ "'," \+ _designBackups\(v\)\);/.test(rt), true);
+  check('a design font whose files fail is fetched from Google', /function _rescueOwnFonts\(\)/.test(rt) && /loadGoogleFonts\(rescue, true\)/.test(rt), true);
+  check('diagnostics: [mp-fonts] and [mp-cards] reports', /console\.info\('\[mp-fonts\] '/.test(rt) && /console\.info\('\[mp-cards\] '/.test(rt), true);
+  /* MP-1008: Firefox writes <font size>; one format for every browser. */
+  check('the editor writes a size as a span in every browser', /querySelectorAll\("font\[size\]"\)\)\.forEach\(fe => \{/.test(ws), true);
+  check('and the runtime converts any saved <font> the same way', /d\[f\] = d\[f\]\.replace\(\/<font\\b\(\[\^>\]\*\)>\/gi/.test(rt), true);
+  /* MP-1008: Reset to default restored "Hotel" as bold words, not a card title. */
+  check('the Travel starter copy opens each card with a title mark', /travelInfo:\s*'<mp-t>Hotel<\/mp-t><br>/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

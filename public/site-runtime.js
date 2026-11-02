@@ -4445,7 +4445,11 @@
       if (!cfg.font) return;
       families.push(cfg.font);
       var v = roleVar[role];
-      if (v) root.setProperty(v, "'" + cfg.font + "',serif");
+      /* With the design's own backups after it, not a bare serif: if the chosen
+         face cannot be drawn, the page falls back exactly as the design does -
+         choosing Vintage Love Story's Stack Sans Headline for its menu fell to a
+         serif where the default fell to Inter (owner, 11/02). */
+      if (v) root.setProperty(v, "'" + cfg.font + "'," + _designBackups(v));
       /* Headings that a design sets in a face other than v read
          var(--heading-font, <their face>), so the choice reaches them too
          (Coastal Chic, Whimsical Romance). Unused everywhere else. */
@@ -4477,7 +4481,38 @@
     return true;
   }
 
-  function loadGoogleFonts(names) {
+  /* The design's own font list for a variable, minus its first face, read once
+     before any choice is written - its backups. */
+  var _designStacks = {};
+  function _designBackups(v) {
+    try {
+      if (!(v in _designStacks)) _designStacks[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+      var rest = _designStacks[v].split(',').slice(1).map(function (x) { return x.trim(); }).filter(Boolean);
+      return rest.length ? rest.join(',') : 'serif';
+    } catch (e) { return 'serif'; }
+  }
+  try { ['--display', '--body', '--menu-font', '--heading', '--serif', '--sans', '--script'].forEach(function (v) { _designBackups(v); }); } catch (e) {}
+
+  /* 2. A design's own face whose files did not load (an error on every face of
+     it) is fetched from Google Fonts when it is one - for the default and for a
+     choice alike - so the page shows the face the design names. */
+  function _rescueOwnFonts() {
+    try {
+      if (!document.fonts || !document.fonts.forEach) return;
+      var st = {};
+      document.fonts.forEach(function (ff) {
+        var fam = String(ff.family).replace(/["']/g, '').trim();
+        st[fam] = st[fam] || { err: 0, ok: 0 };
+        if (ff.status === 'error') st[fam].err++; else if (ff.status === 'loaded') st[fam].ok++;
+      });
+      var known = {}; CONTENT_FONTS.forEach(function (n) { known[n.toLowerCase()] = n; });
+      var rescue = Object.keys(st).filter(function (f) { return st[f].err && !st[f].ok && known[f.toLowerCase()]; }).map(function (f) { return known[f.toLowerCase()]; });
+      if (rescue.length) { window.__mpFontRescued = rescue; loadGoogleFonts(rescue, true); }
+    } catch (e) {}
+  }
+  try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(_rescueOwnFonts, 50); }); } catch (e) {}
+
+  function loadGoogleFonts(names, force) {
     /* Not a face the design already ships (its own @font-face files): fetched
        from Google as well, the same name had two sets of files and the browser
        could draw Google's edition - so re-picking Vintage Love Story's own
@@ -4492,7 +4527,9 @@
           if (r.type === 5 && r.style) _own[String(r.style.getPropertyValue('font-family')).replace(/["']/g, '').trim().toLowerCase()] = 1;
         });
       });
-      names = (names || []).filter(function (n) { return !_own[String(n).replace(/["']/g, '').trim().toLowerCase()]; });
+      var _before = (names || []).slice();
+      if (!force) names = (names || []).filter(function (n) { return !_own[String(n).replace(/["']/g, '').trim().toLowerCase()]; });
+      window.__mpFontLog = { asked: _before, fetched: names.slice(), skippedAsOwn: _before.filter(function (n) { return names.indexOf(n) === -1; }) };
       if (!names.length) return;
     } catch (e) {}
     /* One family per request, and no :wght@ list.
@@ -8341,7 +8378,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-own-fonts';
+  var MP_RUNTIME_BUILD = '2026-11-02-fonts-mp1008';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8686,6 +8723,7 @@
         }
         return null;
       };
+      if (!groups.length) { try { console.info('[mp-cards] ' + TID + ' ' + MP_RUNTIME_BUILD + ' no side-by-side card titles found; titles on page: ' + JSON.stringify(Array.prototype.map.call(document.querySelectorAll('mp-t'), function (t) { return t.outerHTML.slice(0, 120); }))); } catch (e) {} }
       groups.forEach(function (g) {
         var rows = [];
         g.items.forEach(function (x) {
@@ -8698,6 +8736,15 @@
           if (row.length < 2) return;
           var max = 0;
           row.forEach(function (x) { var b = textBelow(x.title, x.card); x.off = b === null ? null : b - x.top; if (x.off !== null && x.off > max) max = x.off; });
+          try {
+            console.info('[mp-cards] ' + TID + ' ' + MP_RUNTIME_BUILD + ' row of ' + row.length + ' ' + JSON.stringify(row.map(function (x) {
+              var c = getComputedStyle(x.title);
+              var inner = x.title.querySelector('[style]'); var ic = inner ? getComputedStyle(inner) : null;
+              return { title: (x.title.textContent || '').trim(), markup: x.title.outerHTML.slice(0, 220),
+                       size: c.fontSize, weight: c.fontWeight, innerSize: ic ? ic.fontSize : '-', innerWeight: ic ? ic.fontWeight : '-',
+                       textStartsAt: x.off === null ? '?' : Math.round(x.off), addedBelowTitle: x.off === null ? 0 : Math.round(Math.max(0, max - x.off)) };
+            }), null, 1));
+          } catch (e) {}
           row.forEach(function (x) {
             if (x.off === null) return;
             var diff = max - x.off;
@@ -8717,10 +8764,77 @@
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { _alignCardTitles(); }); } catch (e) {}
   })();
 
+  /* DIAGNOSTICS (owner, 11/02): one console report per draw of what each font
+     role is drawn in - so a choice that "looks different from the default" can
+     be told apart: a different face, a fallback because a file did not load, or
+     a different weight/size/spacing. Filter the console for [mp-fonts]. */
+  function _fontDiagnostics() {
+    try {
+      var root = document.documentElement, cs = getComputedStyle(root);
+      var sample = {
+        heading: document.querySelector('h2, .section-title, .oval-title, h1'),
+        body: document.querySelector('#storyText, .story-text, .our-story p, main p, p'),
+        menu: document.querySelector('.top-nav a, nav a, .mp-mnav-panel a')
+      };
+      var own = {};
+      Array.prototype.forEach.call(document.styleSheets, function (sh) {
+        var rules; try { rules = sh.cssRules; } catch (e) { return; }
+        Array.prototype.forEach.call(rules || [], function (r) {
+          if (r.type === 5 && r.style) {
+            var fam = String(r.style.getPropertyValue('font-family')).replace(/["']/g, '').trim();
+            (own[fam] = own[fam] || []).push((r.style.getPropertyValue('font-weight') || '400').trim() + (/italic/.test(r.style.getPropertyValue('font-style')) ? 'i' : ''));
+          }
+        });
+      });
+      var faces = {};
+      if (document.fonts && document.fonts.forEach) document.fonts.forEach(function (ff) {
+        var fam = String(ff.family).replace(/["']/g, '').trim();
+        (faces[fam] = faces[fam] || []).push(ff.weight + (ff.style === 'italic' ? 'i' : '') + ':' + ff.status);
+      });
+      var out = {};
+      ['heading', 'body', 'menu'].forEach(function (role) {
+        var el = sample[role]; if (!el) { out[role] = '(no sample element)'; return; }
+        var c = getComputedStyle(el);
+        var stack = c.fontFamily.split(',').map(function (x) { return x.replace(/["']/g, '').trim(); });
+        var drawn = '(fallback: ' + stack[stack.length - 1] + ')';
+        for (var i = 0; i < stack.length; i++) {
+          var ok = false;
+          try { ok = document.fonts && document.fonts.check(c.fontWeight + ' 16px "' + stack[i] + '"'); } catch (e) {}
+          var hasFace = (faces[stack[i]] || []).some(function (x) { return /:loaded$/.test(x); });
+          if (ok && (hasFace || !faces[stack[i]])) { drawn = stack[i]; break; }
+        }
+        out[role] = {
+          element: el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : ''),
+          fontFamily: c.fontFamily, drawnIn: drawn, weight: c.fontWeight, size: c.fontSize,
+          letterSpacing: c.letterSpacing, transform: c.textTransform,
+          faces: stack.slice(0, 2).map(function (f) { return f + ' -> ' + (own[f] ? 'ships own [' + own[f].join(',') + ']' : 'no own file') + ' | loaded faces [' + (faces[f] || []).join(',') + ']'; })
+        };
+      });
+      out.vars = { '--menu-font': cs.getPropertyValue('--menu-font').trim(), '--body-font': cs.getPropertyValue('--body-font').trim(), '--heading-font': cs.getPropertyValue('--heading-font').trim() };
+      out.google = window.__mpFontLog || '(no font choice this draw)';
+      out.ownFilesFailedFetchedFromGoogle = window.__mpFontRescued || [];
+      console.info('[mp-fonts] ' + TID + ' ' + MP_RUNTIME_BUILD + ' ' + JSON.stringify(out, null, 1));
+    } catch (e) { console.info('[mp-fonts] report failed', e && e.message); }
+  }
+
   function hydrate(d) {
     if (!d) return;
     try { _travelEmptyUndo(); } catch (e) {}
     GAP_FIELDS.forEach(function (f) { if (typeof d[f] === 'string') d[f] = _gapBreaks(d[f]); });
+    /* MP-1008 (Firefox). Text saved from Firefox carries sizes as <font size="5">;
+       written as the span Chrome would have saved, so a size shows the same
+       whichever browser the couple edited in. */
+    GAP_FIELDS.forEach(function (f) {
+      if (typeof d[f] !== 'string' || d[f].indexOf('<font') === -1) return;
+      var KW = { 1: 'x-small', 2: 'small', 3: 'medium', 4: 'large', 5: 'x-large', 6: 'xx-large', 7: 'xxx-large' };
+      d[f] = d[f].replace(/<font\b([^>]*)>/gi, function (m, attrs) {
+        var st = [], sz = /\bsize\s*=\s*["']?(\d)/i.exec(attrs), co = /\bcolor\s*=\s*["']?([^"'\s>]+)/i.exec(attrs), fa = /\bface\s*=\s*["']([^"']+)["']/i.exec(attrs);
+        if (sz && KW[sz[1]]) st.push('font-size:' + KW[sz[1]]);
+        if (co) st.push('color:' + co[1]);
+        if (fa) st.push('font-family:' + fa[1]);
+        return '<span' + (st.length ? ' style="' + st.join(';') + '"' : '') + '>';
+      }).replace(/<\/font>/gi, '</span>');
+    });
     _cleanPhotoLists(d);   // MP-942: empty entries out before any template reads them
     _switchesBeforeDraw(d); // sections switched back on come back; merged events follow The Wedding
     /* ONE Travel switch. Accommodations and Travel are one section fed by one
@@ -9002,6 +9116,7 @@
     _recordSwitchHides(d);                         // which sections this draw hid because their switch is off
     try { _navFollowsSections(); } catch (e) {}   // menu links to sections that are not on the page go
     try { setTimeout(_alignCardTitles, 0); } catch (e) {}   // cards in a row start their text on one line
+    try { setTimeout(function () { window.__mpFontLog = null; }, 1200); setTimeout(_fontDiagnostics, 1000); } catch (e) {}   // [mp-fonts] report
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
     /* ...and again once the draw has settled: some sections are put away by a
        later step of the same draw (Black Tie's Need to Knows), after the menus

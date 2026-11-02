@@ -416,8 +416,8 @@ Font variables the runtime config does not know: `--menu-font`.
 | events_info | Welcome Cocktails | Pinyon Script 500 (`div.event-card-name`) | Pinyon Script 500 |
 | faqs | What should I wear? | Instrument Serif 400 (`span.faq-q-text`) | Instrument Serif 400 |
 | faqs | Will there be transportation | Instrument Serif 400 (`span.faq-q-text`) | Instrument Serif 400 |
-| travel_info | Hotel | Pinyon Script 500 (`div.accom-col-title`) | Pinyon Script 500 |
-| travel_info | Flights | Pinyon Script 500 (`div.accom-col-title`) | Pinyon Script 500 |
+| travel_info | Hotel | Pinyon Script 500 (`mp-t`) | Pinyon Script 500 |
+| travel_info | Flights | Pinyon Script 500 (`mp-t`) | Pinyon Script 500 |
 
 Wholly italic lines (dress codes, notes):
 

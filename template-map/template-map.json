@@ -6870,7 +6870,7 @@
      "variant": "sample",
      "line": "Hotel",
      "onsite": {
-      "el": "div.accom-col-title",
+      "el": "mp-t",
       "font": "Pinyon Script",
       "style": "normal",
       "weight": "500",
@@ -6887,7 +6887,7 @@
      "variant": "sample",
      "line": "Flights",
      "onsite": {
-      "el": "div.accom-col-title",
+      "el": "mp-t",
       "font": "Pinyon Script",
       "style": "normal",
       "weight": "500",
@@ -6904,7 +6904,7 @@
      "variant": "editor",
      "line": "Hotel",
      "onsite": {
-      "el": "div.accom-col-title",
+      "el": "mp-t",
       "font": "Pinyon Script",
       "style": "normal",
       "weight": "500",
@@ -6921,7 +6921,7 @@
      "variant": "editor",
      "line": "Flights",
      "onsite": {
-      "el": "div.accom-col-title",
+      "el": "mp-t",
       "font": "Pinyon Script",
       "style": "normal",
       "weight": "500",
