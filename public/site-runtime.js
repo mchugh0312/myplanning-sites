@@ -4478,6 +4478,23 @@
   }
 
   function loadGoogleFonts(names) {
+    /* Not a face the design already ships (its own @font-face files): fetched
+       from Google as well, the same name had two sets of files and the browser
+       could draw Google's edition - so re-picking Vintage Love Story's own
+       Stack Sans Headline for its menu looked different from the default,
+       until Reset (owner, 11/02). The design's files are what it was drawn
+       with; they are what a choice of the same face uses. */
+    try {
+      var _own = {};
+      Array.prototype.forEach.call(document.styleSheets, function (sh) {
+        var rules; try { rules = sh.cssRules; } catch (e) { return; }
+        Array.prototype.forEach.call(rules || [], function (r) {
+          if (r.type === 5 && r.style) _own[String(r.style.getPropertyValue('font-family')).replace(/["']/g, '').trim().toLowerCase()] = 1;
+        });
+      });
+      names = (names || []).filter(function (n) { return !_own[String(n).replace(/["']/g, '').trim().toLowerCase()]; });
+      if (!names.length) return;
+    } catch (e) {}
     /* One family per request, and no :wght@ list.
 
        This asked for 300;400;500;600;700 for every family in a single
@@ -8324,7 +8341,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-free-fonts';
+  var MP_RUNTIME_BUILD = '2026-11-02-own-fonts';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

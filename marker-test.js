@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '09c9a20d');
+    ('0000000' + h.toString(16)).slice(-8), '4a0acfee');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-free-fonts');
+  check('the stamp names the change it shipped with', version, '2026-11-02-own-fonts');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'badfe719');
+    ('0000000' + bh.toString(16)).slice(-8), '5e9a34e3');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10383,8 +10383,10 @@ check('two blocks -> two cards', blocks(mark(
   /* Vintage Love Story's body is Stack Sans Headline (its own files); the
      panel said Inter, its fallback - so picking Inter changed the text and lit
      "Reset to template default" (owner, 11/02). */
-  check('Vintage Love Story\'s default body face is Stack Sans Headline',
-    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline" \}/.test(ws), true);
+  /* Second look (11/02): its body copy is drawn in --display (Instrument
+     Serif); Stack Sans Headline is its menu face. */
+  check('Vintage Love Story\'s defaults: body Instrument Serif, menu Stack Sans Headline',
+    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Instrument Serif", content: "Instrument Serif", menu: "Stack Sans Headline" \}/.test(ws), true);
 }
 
 
@@ -10434,6 +10436,21 @@ check('two blocks -> two cards', blocks(mark(
     /"c2be12ee-8127-4a7d-b975-492bbc8bb812": \{ heading: "Corben",\s+body: "Nunito Sans",\s+content: "Nunito Sans"/.test(ws), true);
   check('the registry page agrees for Modern Minimal',
     /"modernminimal":"\\"Barlow Condensed\\", Oswald/.test(reg) && /gfont:"Barlow\+Condensed:wght@500;600;700&family=Poppins/.test(reg), true);
+}
+
+
+// ── Font list order; a design's own faces are not fetched again (11/02) ──
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const fontsBlock = ws.slice(ws.indexOf('const FONTS = ['), ws.indexOf('];', ws.indexOf('const FONTS = [')));
+  const labels = [...fontsBlock.matchAll(/label: "([^"]+)",\s+category:/g)].map(m => m[1]);
+  check('the font list is alphabetical (the dropdown shows it in this order)',
+    labels.join('|'), labels.slice().sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1).join('|'));
+  /* Re-picking Vintage Love Story's own Stack Sans Headline fetched Google's
+     edition too, and the menu looked different from the default until Reset. */
+  check('a face the design ships itself is not fetched from Google',
+    /names = \(names \|\| \[\]\)\.filter\(function \(n\) \{ return !_own\[/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
