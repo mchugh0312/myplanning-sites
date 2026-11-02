@@ -222,7 +222,7 @@ body.hydrating{visibility:hidden;}
   /* Sized against the hero box rather than the viewport, and capped so the
      second line clears the photo's left edge — the names have to stay
      readable, which is what the design shows. */
-  font-size:clamp(2.4rem, 17.5vw, 10.5rem);
+  font-size:clamp(2.4rem, 21vw, 13.5rem); /* larger, as in the design (owner, 11/02); fitSageNames brings long names down */
   color:var(--sage);
   font-weight:400;
   line-height:0.92;
@@ -258,10 +258,10 @@ body.hydrating{visibility:hidden;}
 
      Both dimensions scale by exactly 1.2, so the photograph's own proportions
      are unchanged and object-fit:cover crops it the same way it did. */
-  top:0;
+  top:50%; transform:translateY(-50%);
   right:0;
   width:55.2%;
-  height:100%;
+  height:auto; aspect-ratio:var(--sage-photo-ratio, 1.25); /* the photo's own shape, never cropped into the box (owner, 11/02) */
   overflow:hidden;
   z-index:2;
   background:#d8d4cb;
@@ -971,10 +971,10 @@ footer{
   .hero-photo-wrap{
     position:absolute;
     right:0;
-    top:0;
+    top:50%; transform:translateY(-50%);
     width:60%;
-    height:100%;
-    aspect-ratio:auto;
+    height:auto;
+    aspect-ratio:var(--sage-photo-ratio, 1.25);
   }
   .hero-photo-wrap img{width:100%;height:100%;object-fit:cover;}
   /* The photo's size is set once, in the block above. This restated it in
@@ -1073,7 +1073,7 @@ footer{
 }
 
 @media(max-width:420px){
-  .hero-couple-name{font-size:clamp(2rem, 16vw, 3.4rem);}
+  .hero-couple-name{font-size:clamp(2rem, 19vw, 4.4rem);}
 }
 
 /* ── THUMBNAIL MODE (iframe preview in editor) ──────────── */
@@ -1119,7 +1119,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:0194a5a7';
+    window.__mpTemplate = 'sageandstill:2bf9be57';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1558,6 +1558,21 @@ function renderAccomCard(title, html, fieldUrl) {
 }
 
 // ── Hydration ─────────────────────────────────────────────────
+/* The photo frame takes the stock photograph's own shape (owner, 11/02: it was
+   cropped into a near-square box on a desktop and a portrait one on a phone).
+   Read off the image as it loads - no permission needed for its size - and set
+   for the hero; a couple's own photo then fills the same shape. */
+(function(){
+  try {
+    var img = document.getElementById('heroImg'), hero = document.getElementById('hero');
+    var src = img && img.getAttribute('data-sample-src');
+    if (!src || !hero) return;
+    var probe = new Image();
+    probe.onload = function(){ if (probe.naturalWidth && probe.naturalHeight) { hero.style.setProperty('--sage-photo-ratio', String(probe.naturalWidth / probe.naturalHeight)); try { fitSageNames(); } catch (e) {} } };
+    probe.src = src;
+  } catch (e) {}
+})();
+
 function fitSageNames(){
   var el = document.getElementById('heroCoupleNames'), wrap = document.querySelector('.hero-photo-wrap');
   if (!el || !wrap || !el.getClientRects().length) return;
@@ -1571,7 +1586,7 @@ function fitSageNames(){
   var left = nr.left;
   var gap = Math.max(6, pr.width * 0.03);
   var room1 = pr.left - gap - left;                 /* the first line: clear of the photo */
-  var roomAll = pr.left + pr.width * 0.2 - left;    /* the longer line: may tuck behind a fifth of it */
+  var roomAll = pr.left + pr.width * 0.33 - left;   /* the longer line: may tuck behind a third of it, as in the design */
   var w1 = widthOf(lines[0]), wMax = 0;
   for (var i = 0; i < lines.length; i++) wMax = Math.max(wMax, widthOf(lines[i]));
   var f = Math.min(1, w1 ? room1 / w1 : 1, wMax ? roomAll / wMax : 1);

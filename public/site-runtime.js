@@ -8324,7 +8324,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-sage-hero';
+  var MP_RUNTIME_BUILD = '2026-11-02-registry-cleared';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8548,10 +8548,12 @@
      its design's style and gains a chevron (›), and opens the registry. There
      is no separate button - the designs' own "View our registry" buttons and
      the one the runtime used to add are hidden. A frame, border or motif a
-     design draws stays around the heading. Cleared, the heading reads "View our
-     registry" (the Content box shows the same as its hint). Order: heading,
-     then the couple's note, then the gifts. Runs after every draw. */
-  var REGISTRY_FALLBACK_LABEL = 'View our registry';
+     design draws stays around the heading. CLEARED, there is no heading at all
+     (owner, 11/02): the heading and the decoration that belongs to it go, and
+     the section shows the couple's note and the gifts - as empty on the site as
+     it is in the Content box, which shows no hint. Order: heading, then the
+     couple's note, then the gifts. Runs after every draw. */
+  var REGISTRY_FALLBACK_LABEL = 'View our registry';   // only for a heading with no words of its own
   function _registryHeadingLink(d) {
     try {
       var ids = SECTION_ANCHORS.registry || [], head = null, root = null;
@@ -8563,17 +8565,36 @@
       var area = (root.tagName === 'SECTION' ? root : root.closest('section')) || root;
       var map = (d && d.section_headings) || {};
       var cleared = Object.prototype.hasOwnProperty.call(map, 'registry') && !String(map.registry || '').trim();
+      /* Put back whatever an earlier draw hid for a cleared heading. */
+      Array.prototype.forEach.call(area.querySelectorAll('[data-mp-headoff]'), function (e) { e.style.display = ''; e.removeAttribute('data-mp-headoff'); });
+      if (cleared) {
+        /* The heading goes, and with it every wrapper around it that holds
+           nothing else the couple wrote - a frame, an oval, lace corners - but
+           never the note or the gifts. */
+        var note = area.querySelector('#registryInfo, #registryBody, #registryText, .registry-info, .registry-body');
+        var grid = document.getElementById('registryGrid');
+        var off = head;
+        for (var a = head.parentElement; a && a !== area; a = a.parentElement) {
+          if ((note && a.contains(note)) || (grid && a.contains(grid))) break;
+          off = a;
+        }
+        off.style.display = 'none'; off.setAttribute('data-mp-headoff', '1');
+      }
       /* The words, without a chevron from an earlier draw. */
       var old = head.querySelector('.mp-reg-chev'); if (old) old.parentNode.removeChild(old);
-      var words = cleared ? REGISTRY_FALLBACK_LABEL : (head.textContent || '').trim() || REGISTRY_FALLBACK_LABEL;
+      var words = (head.textContent || '').trim() || REGISTRY_FALLBACK_LABEL;
       /* The link: the heading's own <a> if it is inside one (Regal Boho,
          Whimsical Romance, Heirloom Bloom), else one made inside the heading. */
       var link = head.closest('a');
       if (!link || !area.contains(link)) {
-        link = head.querySelector('a.mp-reg-headlink');
+        link = head.querySelector('a.mp-registry-headlink');
         if (!link) {
           link = document.createElement('a');
-          link.className = 'mp-reg-headlink';
+          /* "registry" in the class: hideDeadCtas leaves registry links alone, and
+             in the editor's preview this one has no address - registry links are
+             inert there - so as "mp-reg-headlink" it was swept up as a dead
+             button, taking the heading with it (Regal Boho, Vintage Love Story). */
+          link.className = 'mp-registry-headlink';
           link.style.cssText = 'color:inherit;text-decoration:none;font:inherit;cursor:pointer;';
           head.textContent = '';
           head.appendChild(link);
@@ -8583,7 +8604,7 @@
         head.textContent = words;
       }
       if (_registryUrl) { link.setAttribute('href', _registryUrl); link.setAttribute('target', '_blank'); link.setAttribute('rel', 'noopener noreferrer'); }
-      else if (link.classList.contains('mp-reg-headlink')) link.removeAttribute('href');
+      else if (link.classList.contains('mp-registry-headlink')) link.removeAttribute('href');
       var chev = document.createElement('span');
       chev.className = 'mp-reg-chev';
       chev.setAttribute('aria-hidden', 'true');

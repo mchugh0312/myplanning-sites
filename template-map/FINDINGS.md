@@ -285,6 +285,36 @@ width; long names come down in size until both hold, never past the design's
 size. Both runtime name-fitters (fitHeroNames, fitOneName) skip names marked
 data-mp-own-fit. Measured: Maya & Jason 147px desktop; Alexandra &
 Christopher 76px desktop, 22px phone. Template map unchanged.
+Follow-up (owner, 11/02): the photo frame takes the photograph's OWN shape - read
+off the stock photo as it loads (--sage-photo-ratio, 5:4 until then) - instead of
+a fixed box that cropped it (near-square desktop, portrait phone); width kept
+(55.2% / 60%), centred. Names start larger (desktop clamp max 13.5rem, phone
+5rem / 4.4rem) and the longer line may tuck behind up to a third of the photo.
+Measured with a 1500x1150 stand-in: frame 1.30 = photo 1.30; Maya & Jason 165px.
+The suite's old box checks (20% taller; 1.3 tall on a phone) replaced by checks
+for the new rule; its other Sage checks kept. Template only.
+
+**Registry heading cleared (owner, 11/02) - build `2026-11-02-registry-cleared`**
+Cleared now means NO heading: the heading and every wrapper around it that holds
+nothing else of the couple's (Heirloom Bloom's frame, Vintage's oval title and
+lace) are hidden; the note and the gifts stay. The Content box's "View our
+registry" hint is gone - empty in the box, empty on the site. A heading with
+words is the link with its chevron, as before. Also fixed: in the editor's
+preview the heading's link has no address (registry links are inert there), and
+hideDeadCtas swept it up as a dead button - with its heading - on Regal Boho and
+Vintage Love Story; the link is now classed mp-registry-headlink, which that
+sweep leaves alone (the map gained those two headings, now measured).
+
+**Fonts panel defaults vs the faces drawn (owner, 11/02)** - Vintage Love Story's
+body is Stack Sans Headline (own files); TEMPLATE_FONTS said Inter (its fallback),
+so picking Inter changed the text and lit Reset. Row corrected. A check of all
+ten rows against each design's CSS: Modern Minimal (DIN Next -> Oswald) and
+Black Tie (Goudy -> Sorts Mill Goudy file) are deliberate and right. OPEN:
+Whimsical Romance's row says DM Sans, but its body list is 'Avenir Next'
+(Mac system), 'Avenir' (own file /fonts/AVENIRRegular.woff2), then DM Sans - so
+unless that file is missing on the server, DM Sans is never drawn. Owner to
+confirm by picking DM Sans on Whimsical Romance and seeing whether the text
+changes.
 
 (The notes below are the history of how each item was found and fixed.)
 

@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '95f19842');
+    ('0000000' + h.toString(16)).slice(-8), 'ba2a708c');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7258,40 +7258,17 @@ check('two blocks -> two cards', blocks(mark(
     /onLoad=\{\(\) => setLoaded\(true\)\}/.test(comp), true);
 }
 
-// ── Sage & Still's desktop hero photo, sized by arithmetic ────────────────
-// The panel is a percentage of a box that is itself a ratio of its own width,
-// so "20% bigger" is two numbers that have to move together: at 92% of the old
-// box, 1.2x is 110% and does not fit. The box grows by the 10.4% that turns
-// 110% into 100%. Checked as the panel's own PROPORTIONS and its size relative
-// to the hero's width - both survive a retune, a pair of literals would not.
+// ── Sage & Still's desktop hero photo takes the photograph's own shape ───
+// (owner, 11/02, superseding the sized-by-arithmetic box, which cropped the
+// photo into a near-square.) The panel keeps its width; its height follows from
+// the photograph's proportions, and it is centred in the hero.
 {
   const ss = fs.readFileSync('template-sageandstill.html', 'utf8');
   const desktop = ss.slice(0, ss.indexOf('@media(max-width:768px)'));
-  const inner = (desktop.match(/^\.hero-inner\{[\s\S]*?\n\}/m) || [''])[0];
   const photo = (desktop.match(/^\.hero-photo-wrap\{[\s\S]*?\n\}/m) || [''])[0];
-  const boxRatio = parseFloat((inner.match(/aspect-ratio:\s*([\d.]+) \/ 1/) || [])[1]);
-  const w = parseFloat((photo.match(/width:\s*([\d.]+)%/) || [])[1]);
-  const h = parseFloat((photo.match(/height:\s*([\d.]+)%/) || [])[1]);
-  /* `%?` - a flush panel is written `top:0`, with no unit, and requiring one
-     read NaN. NaN fails every comparison, so this looked like a failing gate
-     rather than an unreadable value; the same slip in the other direction is a
-     silent pass. */
-  const top = parseFloat((photo.match(/top:\s*([\d.]+)%?/) || [])[1]);
-  check('the desktop hero numbers were all found',
-    [boxRatio, w, h, top].every(v => isFinite(v)), true);
-
-  // Everything in units of the hero's own width.
-  const photoW = w / 100;
-  const photoH = (h / 100) / boxRatio;
-  const wasW = 0.46, wasH = 0.92 / 2.15;    // the sizes this replaced
-  check('the panel is 20% wider than it was', Math.abs(photoW / wasW - 1.2) < 0.005, true);
-  check('and 20% taller', Math.abs(photoH / wasH - 1.2) < 0.005, true);
-  /* Both by the same factor, so object-fit:cover crops the photograph exactly
-     as it did - growing one alone changes what is visible in it. */
-  check('its own proportions are unchanged',
-    Math.abs((photoH / photoW) - (wasH / wasW)) < 0.005, true);
-  // It has to stay inside the box it is positioned in.
-  check('and it still fits the hero', top + h <= 100, true);
+  check('the desktop panel keeps its width', /width:55\.2%;/.test(photo), true);
+  check('and takes the photograph\'s shape, centred',
+    /height:auto; aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /top:50%; transform:translateY\(-50%\);/.test(photo), true);
 }
 
 // ── Sage & Still's phone hero is built around the photograph ──────────────
@@ -7316,12 +7293,10 @@ check('two blocks -> two cards', blocks(mark(
   const boxRatio = (inner.match(/aspect-ratio:\s*1 \/ ([\d.]+)/) || [])[1];
   const w = (photo.match(/width:\s*([\d.]+)%/) || [])[1];
   const h = (photo.match(/height:\s*([\d.]+)%/) || [])[1];
-  check('the box has a ratio, the photo a width and a height',
-    [boxRatio, w, h].every(v => v !== undefined), true);
-  // photo height / photo width, both as a share of the box's own width.
-  const ratio = (parseFloat(boxRatio) * (parseFloat(h) / 100)) / (parseFloat(w) / 100);
-  check('the photo is 60% of the hero\'s width', parseFloat(w), 60);
-  check('and 1.3 times as tall as it is wide', Math.abs(ratio - 1.3) < 0.01, true);
+  /* (owner, 11/02) the photo takes its photograph's own shape - no box ratio */
+  check('the phone photo takes the photograph\'s shape, centred',
+    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(ss.slice(ss.indexOf('@media(max-width:768px)'))) &&
+    /top:50%; transform:translateY\(-50%\);/.test(ss.slice(ss.indexOf('@media(max-width:768px)'))), true);
 
   /* The names lie ACROSS it, which needs the overlap composition - a grid
      column cannot overlap its neighbour. */
@@ -7450,7 +7425,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-sage-hero');
+  check('the stamp names the change it shipped with', version, '2026-11-02-registry-cleared');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7458,7 +7433,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '4f252b67');
+    ('0000000' + bh.toString(16)).slice(-8), 'ace092f8');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -7597,40 +7572,17 @@ check('two blocks -> two cards', blocks(mark(
     /onLoad=\{\(\) => setLoaded\(true\)\}/.test(comp), true);
 }
 
-// ── Sage & Still's desktop hero photo, sized by arithmetic ────────────────
-// The panel is a percentage of a box that is itself a ratio of its own width,
-// so "20% bigger" is two numbers that have to move together: at 92% of the old
-// box, 1.2x is 110% and does not fit. The box grows by the 10.4% that turns
-// 110% into 100%. Checked as the panel's own PROPORTIONS and its size relative
-// to the hero's width - both survive a retune, a pair of literals would not.
+// ── Sage & Still's desktop hero photo takes the photograph's own shape ───
+// (owner, 11/02, superseding the sized-by-arithmetic box, which cropped the
+// photo into a near-square.) The panel keeps its width; its height follows from
+// the photograph's proportions, and it is centred in the hero.
 {
   const ss = fs.readFileSync('template-sageandstill.html', 'utf8');
   const desktop = ss.slice(0, ss.indexOf('@media(max-width:768px)'));
-  const inner = (desktop.match(/^\.hero-inner\{[\s\S]*?\n\}/m) || [''])[0];
   const photo = (desktop.match(/^\.hero-photo-wrap\{[\s\S]*?\n\}/m) || [''])[0];
-  const boxRatio = parseFloat((inner.match(/aspect-ratio:\s*([\d.]+) \/ 1/) || [])[1]);
-  const w = parseFloat((photo.match(/width:\s*([\d.]+)%/) || [])[1]);
-  const h = parseFloat((photo.match(/height:\s*([\d.]+)%/) || [])[1]);
-  /* `%?` - a flush panel is written `top:0`, with no unit, and requiring one
-     read NaN. NaN fails every comparison, so this looked like a failing gate
-     rather than an unreadable value; the same slip in the other direction is a
-     silent pass. */
-  const top = parseFloat((photo.match(/top:\s*([\d.]+)%?/) || [])[1]);
-  check('the desktop hero numbers were all found',
-    [boxRatio, w, h, top].every(v => isFinite(v)), true);
-
-  // Everything in units of the hero's own width.
-  const photoW = w / 100;
-  const photoH = (h / 100) / boxRatio;
-  const wasW = 0.46, wasH = 0.92 / 2.15;    // the sizes this replaced
-  check('the panel is 20% wider than it was', Math.abs(photoW / wasW - 1.2) < 0.005, true);
-  check('and 20% taller', Math.abs(photoH / wasH - 1.2) < 0.005, true);
-  /* Both by the same factor, so object-fit:cover crops the photograph exactly
-     as it did - growing one alone changes what is visible in it. */
-  check('its own proportions are unchanged',
-    Math.abs((photoH / photoW) - (wasH / wasW)) < 0.005, true);
-  // It has to stay inside the box it is positioned in.
-  check('and it still fits the hero', top + h <= 100, true);
+  check('the desktop panel keeps its width', /width:55\.2%;/.test(photo), true);
+  check('and takes the photograph\'s shape, centred',
+    /height:auto; aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /top:50%; transform:translateY\(-50%\);/.test(photo), true);
 }
 
 // ── Sage & Still's phone hero is built around the photograph ──────────────
@@ -7655,12 +7607,9 @@ check('two blocks -> two cards', blocks(mark(
   const boxRatio = (inner.match(/aspect-ratio:\s*1 \/ ([\d.]+)/) || [])[1];
   const w = (photo.match(/width:\s*([\d.]+)%/) || [])[1];
   const h = (photo.match(/height:\s*([\d.]+)%/) || [])[1];
-  check('the box has a ratio, the photo a width and a height',
-    [boxRatio, w, h].every(v => v !== undefined), true);
-  // photo height / photo width, both as a share of the box's own width.
-  const ratio = (parseFloat(boxRatio) * (parseFloat(h) / 100)) / (parseFloat(w) / 100);
-  check('the photo is 60% of the hero\'s width', parseFloat(w), 60);
-  check('and 1.3 times as tall as it is wide', Math.abs(ratio - 1.3) < 0.01, true);
+  /* (owner, 11/02) the photo takes its photograph's own shape - no box ratio */
+  check('the phone photo takes the photograph\'s shape, centred',
+    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(fs.readFileSync('template-sageandstill.html', 'utf8')), true);
 
   /* The names lie ACROSS it, which needs the overlap composition - a grid
      column cannot overlap its neighbour. */
@@ -10389,9 +10338,15 @@ check('two blocks -> two cards', blocks(mark(
     /function _registryHeadingLink\(d\)/.test(rt) && /_registryHeadingLink\(d\);   \/\/ the heading is the link/.test(rt) && /chev\.textContent = '\\u203A';/.test(rt), true);
   check('no separate registry button: the runtime adds none, the designs\' own are hidden',
     /var _wantMore = false;/.test(rt) && /el\.style\.display = 'none'; el\.setAttribute\('data-mp-ctaoff', '1'\);/.test(rt), true);
-  check('cleared, the heading reads "View our registry"', /var REGISTRY_FALLBACK_LABEL = 'View our registry';/.test(rt), true);
-  check('the Content box shows the same as its hint',
-    (ws.match(/placeholder=\{s\.section === "registry" \? "View our registry" : undefined\}/g) || []).length === 4, true);
+  /* Owner, 11/02: cleared means NO heading - the heading and its frame go, the
+     note and gifts stay - and the Content box shows no hint, so empty is empty. */
+  check('a cleared registry heading is hidden, with its frame, never the note or gifts',
+    /off\.style\.display = 'none'; off\.setAttribute\('data-mp-headoff', '1'\);/.test(rt) &&
+    /if \(\(note && a\.contains\(note\)\) \|\| \(grid && a\.contains\(grid\)\)\) break;/.test(rt), true);
+  check('and the Content box shows no "View our registry" hint', /placeholder=\{s\.section === "registry"/.test(ws), false);
+  /* hideDeadCtas leaves registry-classed links alone; an address-less link in
+     the editor's preview named otherwise was swept up with its heading. */
+  check('the heading\'s link is named as a registry link', /link\.className = 'mp-registry-headlink';/.test(rt) && !/(className = |querySelector\()'[^']*mp-reg-headlink/.test(rt), true);
   check('Vintage Love Story\'s lace frames the heading, not the whole band',
     /<div class="oval-title-wrap registry-title-wrap">\s*\n\s*<!--[\s\S]*?-->\s*\n\s*<span class="registry-lace tl"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
 }
@@ -10407,9 +10362,30 @@ check('two blocks -> two cards', blocks(mark(
      tucking behind by at most a fifth; long names smaller, never larger. */
   check('the photo sits in front of the names', /\.hero-couple-name\{[^}]*z-index:1; \/\* behind the photo/.test(sg) && /\.hero-photo-wrap\{\s*\n\s*z-index:2;/.test(sg), true);
   check('the names are sized against the photo\'s edge',
-    /var room1 = pr\.left - gap - left;/.test(sg) && /var roomAll = pr\.left \+ pr\.width \* 0\.2 - left;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
+    /var room1 = pr\.left - gap - left;/.test(sg) && /var roomAll = pr\.left \+ pr\.width \* 0\.33 - left;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
   check('and both runtime name-fitters leave them to it',
     /if \(el\.getAttribute\('data-mp-own-fit'\)\) return;/.test(rt) && /if \(el && el\.closest && el\.closest\('\[data-mp-own-fit\]'\)\) return;/.test(rt) && /id="heroCoupleNames" data-mp-own-fit="1"/.test(sg), true);
+}
+
+
+// ── Sage & Still: the photo in its own shape, larger names (owner, 11/02) ──
+{
+  const sg = fs.readFileSync('template-sageandstill.html', 'utf8');
+  check('the frame\'s shape is read off the stock photograph',
+    (sg.match(/aspect-ratio:var\(--sage-photo-ratio, 1\.25\)/g) || []).length === 2 &&
+    /hero\.style\.setProperty\('--sage-photo-ratio', String\(probe\.naturalWidth \/ probe\.naturalHeight\)\)/.test(sg), true);
+  check('the names start larger, as in the design', /font-size:clamp\(2\.4rem, 21vw, 13\.5rem\);/.test(sg), true);
+}
+
+
+// ── The Fonts panel's defaults name the faces the page draws ─────────────
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  /* Vintage Love Story's body is Stack Sans Headline (its own files); the
+     panel said Inter, its fallback - so picking Inter changed the text and lit
+     "Reset to template default" (owner, 11/02). */
+  check('Vintage Love Story\'s default body face is Stack Sans Headline',
+    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline" \}/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

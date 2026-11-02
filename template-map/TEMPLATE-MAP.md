@@ -458,10 +458,10 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Libre Baskerville | menu |
-| `--display` | Libre Baskerville | section heading: faqs, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu |
+| `--display` | Libre Baskerville | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: registry, story; menu |
 | `--body` | Noto Serif | block title: travel; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding |
 
-Headings control writes `--display`, which reaches: section heading: faqs, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu.  
+Headings control writes `--display`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: registry, story; menu.  
 Body control writes `--body`, which reaches: block title: travel; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding.  
 Menu Links writes `--menu-font`. The menu is set in `--display, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
@@ -471,9 +471,9 @@ Font variables the runtime config does not know: `--menu-font`.
 
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
-| Site Background | `--ivory` | - | faqs, footer, story, things_to_do, travel, wedding | backgroundColor |
+| Site Background | `--ivory` | - | faqs, footer, registry, story, things_to_do, travel, wedding | backgroundColor |
 | Accent Color | `--beige` | - | rsvp, wedding | backgroundColor |
-| Text1 | `--ink` | section heading: faqs, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 **(nothing visible at rest)** | `--on-dark` | - | - | - |
 | Text3 | `--ink3` | section heading: story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--burgundy` | - | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor |
@@ -502,6 +502,7 @@ Wholly italic lines (dress codes, notes):
 - story `span.ampersand`: italic (`.our-story-names .ampersand`)
 - wedding `em.mp-attire`: italic
 - travel `div.travel-note`: italic (`.travel-note`)
+- registry `span.mp-reg-chev`: italic
 
 ### Formatting survival
 
