@@ -242,10 +242,25 @@ owner's own, with MP-979/980; main.py the owner's own)
   Registry box.
 - MP-1000: registry preview shows gifts still to give first; fully gifted ones
   fill remaining spots, faded, on every design.
-- MP-907: NOT fixed - the issue is placement (frame with heading -> note below
-  the frame -> button below the note), to be checked and fixed on all ten as
-  the first rule of the planned clean-up. A "filled button" attempt was undone.
+- MP-907, build `2026-11-01-registry-order`: the owner's rule - heading (in its
+  frame) -> note below -> button below - checked on all ten, empty note and
+  with note, desktop and phone. Heirloom Bloom laid the section out as a ROW, so
+  an empty note left the button beside the frame: now a column. Regal Boho,
+  Whimsical Romance and Vintage Love Story had the button before the note:
+  note moved before it (Regal Boho's heading moved out of the button's link).
+  Golden Hour and Sage & Still were already right; the other four passed. The
+  heading is now found looking back past the note (renames still reach it);
+  template map unchanged.
 - MP-1008: not started.
+
+**Gift images - build `2026-11-01-gift-images`** (owner: preview images differed
+from the registry for gifts moved off category art). The registry page treats
+category art as no photo (its "shared snippet": CATEGORY_ART_IDS, productImage)
+and shows a tinted "Photo coming soon" panel; the site preview showed the art -
+or nothing, for a gift with no image. The preview now applies the same rule with
+the same list and tints (panel drawn as an image, so each design's box keeps
+its shape); funds keep their own image, as on the registry. A check keeps the
+two lists of category-art files identical.
 
 (The notes below are the history of how each item was found and fixed.)
 

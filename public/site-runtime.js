@@ -2823,9 +2823,15 @@
        renamed the menu link and stopped, never reaching the heading. Only a
        sibling whose class names it a title counts; nothing else is taken. */
     if (!el) {
+      /* ...looking back past the couple's note: the registry's order is heading,
+         note, button (MP-907), so the title block is two siblings before the
+         button, not one. Up to three back, title blocks only. */
       var prev = section.previousElementSibling;
-      if (prev && /title/i.test(typeof prev.className === 'string' ? prev.className : '')) {
-        el = prev.querySelector('h1, h2, h3, h4, [class*="title"]:not([class*="line"])') || prev;
+      for (var _k = 0; prev && _k < 3 && !el; _k++, prev = prev.previousElementSibling) {
+        if (/title/i.test(typeof prev.className === 'string' ? prev.className : '')) {
+          el = /^H[1-4]$/.test(prev.tagName) ? prev
+             : (prev.querySelector('h1, h2, h3, h4, [class*="title"]:not([class*="line"])') || prev);
+        }
       }
     }
     if (!el) return null;
@@ -7304,8 +7310,51 @@
     } catch (e) {}
   }
 
+  /* The gift-image rule, the same as the registry page's (live_registry.html,
+     "shared snippet"): category art is not a product photo, wherever it came
+     from - it arrives IN the product's own image field - so it counts as no
+     image, and the gift shows a tinted "Photo coming soon" panel. The preview
+     showed the art itself, so gifts the couple had moved off category art
+     looked different here and on their registry. Keep both lists in step. */
+  var REG_PRODUCT_IMAGES_LIVE = false;              // as the registry page
+  var REG_CATEGORY_ART_IDS = [
+    'a43c0295-4bb0-4ab7-836e-a26918d328df', 'af4432bc-ab7f-4dfb-a6c8-4295afdf77a4',
+    '892b779d-e4aa-4ed3-89a5-cb94bb57c889', '7b0224d7-3278-4554-b136-20013b0625ee',
+    '0828dfa8-cbbf-4752-822b-e6b79f50d13a', 'b99491dd-ec91-4146-b2a4-8cabe5bed519',
+    'f3fbdcb8-01db-4723-b33f-2ccaea29b869', 'a78c3286-fd66-4cb4-a29a-0c654c179eec',
+    '99a6f5c8-9b49-4576-829f-65a4de5fb796'
+  ];
+  var REG_PANEL_TINTS = {
+    'kitchen': '#F3E9DD', 'dining': '#EFE6DA', 'appliances': '#E8E9EC',
+    'bedding': '#EDE8EF', 'bath': '#E4EDEE', 'decor': '#F1EAE4', 'home decor': '#F1EAE4',
+    'furniture': '#E9E6DF', 'outdoor & entertaining': '#E6EDE4',
+    'luggage & travel': '#E5E8EE', 'tech': '#E8EAEE', 'experiences': '#EAEDE6', 'other': '#ECEAE6'
+  };
+  function _regIsCategoryArt(url) {
+    var u = String(url || '');
+    return !!u && REG_CATEGORY_ART_IDS.some(function (id) { return u.indexOf(id) !== -1; });
+  }
+  function _regPanelTint(category) {
+    var one = Array.isArray(category) ? category[0] : category;
+    var label = !one ? '' : typeof one === 'object' ? String(one.label || one.value || one.name || one.title || '') : String(one);
+    return REG_PANEL_TINTS[label.trim().toLowerCase()] || '#ECEAE6';
+  }
+  /* The panel as an image, so each design's own image box keeps its size and shape. */
+  function _regPanelSrc(category) {
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">' +
+      '<rect width="600" height="600" fill="' + _regPanelTint(category) + '"/>' +
+      '<text x="300" y="306" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" ' +
+      'letter-spacing="1" fill="#8A8580">Photo coming soon</text></svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
   function renderPreviewCard(card, it, registryUrl) {
     var img = card.querySelector('img');
+    var _isFundCard = Number(it.price_cents) === 0 && Number(it.goal_amount_cents) > 0;
+    /* A product's own photo - never category art; funds keep theirs, as on the
+       registry page. With none, the registry's "Photo coming soon" panel. */
+    var _own = _isFundCard ? (it.image_url || '') : (it.image_url && !_regIsCategoryArt(it.image_url) ? it.image_url : '');
+    var _shown = _own || (!_isFundCard ? _regPanelSrc(it.category) : '');
     /* The nine designs without their own registry markup get a grid this code
        builds, and its placeholder card carries a .mp-reg-thumb DIV rather than
        an <img> - so this lookup found nothing and the picture was the one field
@@ -7313,7 +7362,7 @@
        which is why everything EXCEPT the image looked correct. Promote the
        thumb to a real image the first time a gift with a picture lands on it;
        idempotent, because the next pass finds the <img> and skips this. */
-    if (!img && it.image_url) {
+    if (!img && _shown) {
       var thumb = card.querySelector('.mp-reg-thumb');
       if (thumb && thumb.parentNode) {
         img = document.createElement('img');
@@ -7337,7 +7386,10 @@
     }
 
     if (img) {
-      if (it.image_url) { img.src = it.image_url; img.alt = it.title || ''; img.style.display = ''; }
+      if (_shown) {
+        img.src = _shown; img.alt = _own ? (it.title || '') : 'Photo coming soon';
+        img.style.display = ''; img.style.visibility = '';
+      }
       else { img.style.visibility = 'hidden'; }   // keeps the card's shape
     }
     if (name) name.textContent = it.title || '';
@@ -8264,7 +8316,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-01-content-fixes';
+  var MP_RUNTIME_BUILD = '2026-11-01-gift-images';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

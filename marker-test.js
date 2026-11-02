@@ -7451,7 +7451,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-01-content-fixes');
+  check('the stamp names the change it shipped with', version, '2026-11-01-gift-images');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7459,7 +7459,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'eabafe37');
+    ('0000000' + bh.toString(16)).slice(-8), '0a2d6b62');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10341,8 +10341,7 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-1003 Vintage Love Story\'s registry has a heading, in Text2',
     /<h2 class="oval-title registry-title"><span>Our Registry<\/span><\/h2>/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
     /\.registry-wrap \.registry-title-wrap\{ color:var\(--on-dark\);/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
-  check('MP-1003 a heading just before a section counts as its heading (title blocks only)',
-    /if \(prev && \/title\/i\.test\(typeof prev\.className === 'string' \? prev\.className : ''\)\) \{/.test(rt), true);
+  /* (MP-1003's one-step-back rule widened in MP-907 - see 'found past the note') */
   check('MP-1004 Inter is in all three font lists', /label: "Inter",\s+category: "Simple"/.test(ws) &&
     /'Instrument Serif', 'Inter', 'La Belle Aurore'/.test(rt) && /"Instrument Serif","Inter","La Belle Aurore"/.test(rt), true);
   check('MP-970 box fonts are reported again once every font has settled',
@@ -10353,6 +10352,35 @@ check('two blocks -> two cards', blocks(mark(
   check('MP-1000 gifts still to give come first; gifted ones are faded',
     /var items = all\.filter\(function \(it\) \{ return !_done\(it\); \}\)/.test(rt) && /card\.style\.opacity = soldOut \? '0\.55' : '';/.test(rt), true);
   check('MP-907 the registry button keeps its designed outline (no fill)', /Below 4\.5:1 it becomes a/.test(rt), false);
+  /* The owner's rule: the heading (in its frame), then the note below it, then
+     the button below that - with or without a note. */
+  check('MP-907 Heirloom Bloom stacks its registry as a column',
+    /MP-907\. A COLUMN/.test(fs.readFileSync('template-heirloombloom.html', 'utf8')), true);
+  check('MP-907 Regal Boho: heading, note, button',
+    /<h2 class="registry-title">Wedding Registry<\/h2>\s*\n\s*<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<a class="registry-section"/.test(fs.readFileSync('template-regalboho.html', 'utf8')), true);
+  check('MP-907 Whimsical Romance: note before button',
+    /<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<span class="registry-cta" id="registryCta">/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+  check('MP-907 Vintage Love Story: note before button',
+    /<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<a class="registry-section" id="registry-section"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+  check('the heading is found past the note (up to three back, title blocks only)',
+    /for \(var _k = 0; prev && _k < 3 && !el; _k\+\+, prev = prev\.previousElementSibling\)/.test(rt), true);
+}
+
+
+// ── Gift images: the site preview follows the registry page's rule ───────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  /* Category art is not a product photo: the registry shows "Photo coming
+     soon" for it; the preview showed the art, so the two disagreed. */
+  check('the preview treats category art as no photo, and shows the registry\'s panel',
+    /var _own = _isFundCard \? \(it\.image_url \|\| ''\) : \(it\.image_url && !_regIsCategoryArt\(it\.image_url\) \? it\.image_url : ''\);/.test(rt) &&
+    /Photo coming soon<\/text><\/svg>/.test(rt), true);
+  /* The two lists of category-art files must stay the same. */
+  const ids = src => [...(src.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g) || [])];
+  const regList = ids((reg.match(/const CATEGORY_ART_IDS = \[[\s\S]*?\];/) || [''])[0]).sort().join(',');
+  const rtList = ids((rt.match(/var REG_CATEGORY_ART_IDS = \[[\s\S]*?\];/) || [''])[0]).sort().join(',');
+  check('the preview and the registry page know the same category-art files', rtList.length > 0 && rtList === regList, true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

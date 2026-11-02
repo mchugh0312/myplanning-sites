@@ -466,7 +466,12 @@ img{max-width:100%;display:block;}
   background:var(--gold);
   padding:2.4rem 2rem;
   min-height:0;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;
+  /* MP-907. A COLUMN: the frame, then the couple's note below it, then the
+     button below that - always. As a row, a note with words was wide enough to
+     push the button onto its own line, but an EMPTY note left room, and the
+     button sat beside the frame. */
+  flex-direction:column;align-items:center;justify-content:center;
 }
 .registry-frame{
   position:relative;
@@ -915,7 +920,7 @@ body.thumbnail-mode .hero{height:80vw!important;min-height:0!important;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'heirloombloom:c2682f47';
+    window.__mpTemplate = 'heirloombloom:5f06df38';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
