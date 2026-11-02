@@ -3288,7 +3288,7 @@
      "Goudy" in its own @font-face. The editor could not draw those names, so its
      boxes fell back to their default face and the font menu had nothing to
      mark as current. */
-  var FONT_CATALOG = ["Aboreto","Ballet","Comic Neue","Corben","Cormorant Garamond","Dancing Script","DM Sans","EB Garamond","Great Vibes","Instrument Serif","Inter","La Belle Aurore","Lancelot","Lexend Deca","Libre Baskerville","Lora","Luxurious Script","Montserrat","Noto Serif","Open Sans","Oswald","Ovo","Pacifico","Pinyon Script","Playfair Display","Poppins","Roboto","Sorts Mill Goudy"];
+  var FONT_CATALOG = ["Aboreto","Ballet","Barlow Condensed","Comic Neue","Corben","Cormorant Garamond","Dancing Script","DM Sans","EB Garamond","Great Vibes","Instrument Serif","Inter","La Belle Aurore","Lancelot","Lexend Deca","Libre Baskerville","Lora","Luxurious Script","Montserrat","Noto Serif","Nunito Sans","Open Sans","Oswald","Ovo","Pacifico","Pinyon Script","Playfair Display","Poppins","Roboto","Sorts Mill Goudy","Stack Sans Headline"];
   function _catKey(n) { return String(n || '').toLowerCase().replace(/[^a-z]/g, ''); }
   var _faceUrlCache = null;
   function _faceUrls() {
@@ -4531,12 +4531,12 @@
      FONTS in the Softr block (Website.txt); nothing breaks if it drifts, a font
      added there and not here simply will not download. */
   var CONTENT_FONTS = [
-    'Aboreto', 'Ballet', 'Comic Neue', 'Corben', 'Cormorant Garamond',
+    'Aboreto', 'Ballet', 'Barlow Condensed', 'Comic Neue', 'Corben', 'Cormorant Garamond',
     'Dancing Script', 'DM Sans', 'EB Garamond', 'Great Vibes',
     'Instrument Serif', 'Inter', 'La Belle Aurore', 'Lancelot', 'Lexend Deca',
     'Libre Baskerville', 'Lora', 'Luxurious Script', 'Montserrat',
-    'Noto Serif', 'Open Sans', 'Oswald', 'Ovo', 'Pacifico', 'Pinyon Script',
-    'Playfair Display', 'Poppins', 'Roboto', 'Sorts Mill Goudy'
+    'Noto Serif', 'Nunito Sans', 'Open Sans', 'Oswald', 'Ovo', 'Pacifico', 'Pinyon Script',
+    'Playfair Display', 'Poppins', 'Roboto', 'Sorts Mill Goudy', 'Stack Sans Headline'
   ];
   var _contentFontIndex = null;
 
@@ -8324,7 +8324,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-registry-cleared';
+  var MP_RUNTIME_BUILD = '2026-11-02-free-fonts';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8630,6 +8630,76 @@
     } catch (e) {}
   }
 
+  /* CARDS SIDE BY SIDE START THEIR TEXT ON ONE LINE (owner, 11/02). A couple
+     may make a card's title as large or bold as they like (Regal Boho's "Hotel"
+     at x-large) and the page shows it so - but its taller line pushed that
+     card's text below the card beside it (Flights). After each draw, cards in
+     the same row are measured: where the text under the title starts, from the
+     card's top; the shorter titles get room beneath them to match the tallest.
+     Any page, any design; a card alone in its row is left as it is. */
+  function _alignCardTitles() {
+    try {
+      Array.prototype.forEach.call(document.querySelectorAll('mp-t[data-mp-align]'), function (t) {
+        t.style.paddingBottom = ''; t.style.display = ''; t.removeAttribute('data-mp-align');
+      });
+      var groups = [];
+      Array.prototype.forEach.call(document.querySelectorAll('mp-t'), function (t) {
+        if (!t.getClientRects().length || !(t.textContent || '').trim()) return;
+        var card = t;
+        while (card.parentElement && card.parentElement !== document.body) {
+          var p = card.parentElement, n = 0;
+          for (var k = 0; k < p.children.length; k++) if (p.children[k].querySelector && p.children[k].querySelector('mp-t')) n++;
+          if (n >= 2) break;
+          card = p;
+        }
+        if (!card.parentElement || card.parentElement === document.body || card === t) return;
+        if (card.querySelector('mp-t') !== t) return;          // the card's own (first) title only
+        var g = null;
+        for (var i = 0; i < groups.length; i++) if (groups[i].parent === card.parentElement) { g = groups[i]; break; }
+        if (!g) { g = { parent: card.parentElement, items: [] }; groups.push(g); }
+        g.items.push({ card: card, title: t });
+      });
+      var textBelow = function (title, card) {
+        var tw = document.createTreeWalker(card, NodeFilter.SHOW_TEXT), n, after = false;
+        while ((n = tw.nextNode())) {
+          if (title.contains(n)) { after = true; continue; }
+          if (after && n.textContent.trim() && n.parentElement && n.parentElement.getClientRects().length) {
+            var r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().top;
+          }
+        }
+        return null;
+      };
+      groups.forEach(function (g) {
+        var rows = [];
+        g.items.forEach(function (x) {
+          x.top = x.card.getBoundingClientRect().top;
+          var row = null;
+          for (var i = 0; i < rows.length; i++) if (Math.abs(rows[i][0].top - x.top) < 6) { row = rows[i]; break; }
+          if (row) row.push(x); else rows.push([x]);
+        });
+        rows.forEach(function (row) {
+          if (row.length < 2) return;
+          var max = 0;
+          row.forEach(function (x) { var b = textBelow(x.title, x.card); x.off = b === null ? null : b - x.top; if (x.off !== null && x.off > max) max = x.off; });
+          row.forEach(function (x) {
+            if (x.off === null) return;
+            var diff = max - x.off;
+            if (diff > 0.5) {
+              x.title.style.display = 'inline-block';
+              x.title.style.paddingBottom = diff.toFixed(1) + 'px';
+              x.title.setAttribute('data-mp-align', '1');
+            }
+          });
+        });
+      });
+    } catch (e) {}
+  }
+  (function () {
+    var t = null;
+    window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(_alignCardTitles, 150); });
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { _alignCardTitles(); }); } catch (e) {}
+  })();
+
   function hydrate(d) {
     if (!d) return;
     try { _travelEmptyUndo(); } catch (e) {}
@@ -8914,6 +8984,7 @@
     syncMenuLinks(d);
     _recordSwitchHides(d);                         // which sections this draw hid because their switch is off
     try { _navFollowsSections(); } catch (e) {}   // menu links to sections that are not on the page go
+    try { setTimeout(_alignCardTitles, 0); } catch (e) {}   // cards in a row start their text on one line
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
     /* ...and again once the draw has settled: some sections are put away by a
        later step of the same draw (Black Tie's Need to Knows), after the menus

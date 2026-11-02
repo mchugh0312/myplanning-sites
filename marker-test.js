@@ -4355,8 +4355,8 @@ check('two blocks -> two cards', blocks(mark(
      the last block that sizes it - which is true however many blocks there are. */
   const late = ss.slice(ss.indexOf('@media(max-width:768px){'));
   const lastPhotoRule = (late.match(/\.hero-photo-wrap\{[\s\S]*?\n  \}/g) || []).slice(-1)[0] || '';
-  check('the phone panel is still an absolute panel',
-    /position:absolute/.test(lastPhotoRule), true);
+  check('the phone photo sits in the flow, so the hero is as tall as the photo (owner, 11/02)',
+    /position:relative/.test(lastPhotoRule), true);
   check('and nothing later sets it static',
     /\.hero-photo-wrap\{[^}]*position:static/.test(late), false);
   // Every stylesheet still balances - the fix sits between blocks, not inside.
@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '78de3503');
+    ('0000000' + h.toString(16)).slice(-8), '09c9a20d');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7266,9 +7266,9 @@ check('two blocks -> two cards', blocks(mark(
   const ss = fs.readFileSync('template-sageandstill.html', 'utf8');
   const desktop = ss.slice(0, ss.indexOf('@media(max-width:768px)'));
   const photo = (desktop.match(/^\.hero-photo-wrap\{[\s\S]*?\n\}/m) || [''])[0];
-  check('the desktop panel keeps its width', /width:55\.2%;/.test(photo), true);
-  check('and takes the photograph\'s shape, centred',
-    /height:auto; aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /top:50%; transform:translateY\(-50%\);/.test(photo), true);
+  check('the desktop photo is 60% of the hero\'s width (owner, 11/02)', /width:60%;/.test(photo), true);
+  check('and takes the photograph\'s shape, in the flow',
+    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /position:relative;/.test(photo), true);
 }
 
 // ── Sage & Still's phone hero is built around the photograph ──────────────
@@ -7294,9 +7294,8 @@ check('two blocks -> two cards', blocks(mark(
   const w = (photo.match(/width:\s*([\d.]+)%/) || [])[1];
   const h = (photo.match(/height:\s*([\d.]+)%/) || [])[1];
   /* (owner, 11/02) the photo takes its photograph's own shape - no box ratio */
-  check('the phone photo takes the photograph\'s shape, centred',
-    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(ss.slice(ss.indexOf('@media(max-width:768px)'))) &&
-    /top:50%; transform:translateY\(-50%\);/.test(ss.slice(ss.indexOf('@media(max-width:768px)'))), true);
+  check('the phone photo takes the photograph\'s shape',
+    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(ss.slice(ss.indexOf('@media(max-width:768px)'))), true);
 
   /* The names lie ACROSS it, which needs the overlap composition - a grid
      column cannot overlap its neighbour. */
@@ -7425,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-registry-cleared');
+  check('the stamp names the change it shipped with', version, '2026-11-02-free-fonts');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7433,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'ace092f8');
+    ('0000000' + bh.toString(16)).slice(-8), 'badfe719');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -7580,9 +7579,9 @@ check('two blocks -> two cards', blocks(mark(
   const ss = fs.readFileSync('template-sageandstill.html', 'utf8');
   const desktop = ss.slice(0, ss.indexOf('@media(max-width:768px)'));
   const photo = (desktop.match(/^\.hero-photo-wrap\{[\s\S]*?\n\}/m) || [''])[0];
-  check('the desktop panel keeps its width', /width:55\.2%;/.test(photo), true);
-  check('and takes the photograph\'s shape, centred',
-    /height:auto; aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /top:50%; transform:translateY\(-50%\);/.test(photo), true);
+  check('the desktop photo is 60% of the hero\'s width (owner, 11/02)', /width:60%;/.test(photo), true);
+  check('and takes the photograph\'s shape, in the flow',
+    /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(photo) && /position:relative;/.test(photo), true);
 }
 
 // ── Sage & Still's phone hero is built around the photograph ──────────────
@@ -7608,7 +7607,7 @@ check('two blocks -> two cards', blocks(mark(
   const w = (photo.match(/width:\s*([\d.]+)%/) || [])[1];
   const h = (photo.match(/height:\s*([\d.]+)%/) || [])[1];
   /* (owner, 11/02) the photo takes its photograph's own shape - no box ratio */
-  check('the phone photo takes the photograph\'s shape, centred',
+  check('the phone photo takes the photograph\'s shape',
     /aspect-ratio:var\(--sage-photo-ratio, 1\.25\);/.test(fs.readFileSync('template-sageandstill.html', 'utf8')), true);
 
   /* The names lie ACROSS it, which needs the overlap composition - a grid
@@ -10361,8 +10360,8 @@ check('two blocks -> two cards', blocks(mark(
   /* The names behind the photo; the first line clear of it, the longer line
      tucking behind by at most a fifth; long names smaller, never larger. */
   check('the photo sits in front of the names', /\.hero-couple-name\{[^}]*z-index:1; \/\* behind the photo/.test(sg) && /\.hero-photo-wrap\{\s*\n\s*z-index:2;/.test(sg), true);
-  check('the names are sized against the photo\'s edge',
-    /var room1 = pr\.left - gap - left;/.test(sg) && /var roomAll = pr\.left \+ pr\.width \* 0\.33 - left;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
+  check('the names fill the free space beside the photo (and a quarter over it), never wrapping (owner, 11/02)',
+    /var roomW = \(pr\.left - ir\.left\) - left \+ pr\.width \* 0\.25;/.test(sg) && /var roomH = pr\.height \* 0\.95;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
   check('and both runtime name-fitters leave them to it',
     /if \(el\.getAttribute\('data-mp-own-fit'\)\) return;/.test(rt) && /if \(el && el\.closest && el\.closest\('\[data-mp-own-fit\]'\)\) return;/.test(rt) && /id="heroCoupleNames" data-mp-own-fit="1"/.test(sg), true);
 }
@@ -10397,6 +10396,44 @@ check('two blocks -> two cards', blocks(mark(
      shows: a cleared box keeps its section, with its heading. */
   check('no section is switched off at save', /const autoOff = PAGE_SECTIONS\.filter/.test(ws), false);
   check('and the save message never says one was', /_autoOffNote\.current = autoOff\.map/.test(ws), false);
+}
+
+
+// ── Card titles as formatted; cards in a row start their text together ───
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  /* Owner, 11/02: a couple may resize and embolden a card title and the page
+     shows it so; the cards beside it start their text on the same line. */
+  check('cards in the same row start their text on one line, after every draw',
+    /function _alignCardTitles\(\)/.test(rt) && /setTimeout\(_alignCardTitles, 0\)/.test(rt) &&
+    /x\.title\.style\.paddingBottom = diff\.toFixed\(1\) \+ 'px';/.test(rt), true);
+  check('and a card alone in its row is left as it is', /if \(row\.length < 2\) return;/.test(rt), true);
+}
+
+
+// ── Every design's own faces are free, named and selectable (owner, 11/02) ─
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const wr = fs.readFileSync('template-whimsicalromance.html', 'utf8');
+  const mm = fs.readFileSync('template-modernminimal.html', 'utf8');
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  /* Avenir and DIN Next Condensed were Mac-only / commercial copies, not
+     licensed for the web; replaced by free, open-licensed Google fonts. Stack
+     Sans Headline is open-licensed (OFL) and on Google Fonts. */
+  check('no Avenir or DIN Next file is served by any design',
+    !/font-family:\s*'(Avenir|DIN Next Condensed)'/.test(wr + mm), true);
+  check('Whimsical Romance\'s body is Nunito Sans, Modern Minimal\'s headings Barlow Condensed',
+    /--body:'Nunito Sans','DM Sans'/.test(wr) && /family=Nunito\+Sans/.test(wr) &&
+    /--heading:'Barlow Condensed','Oswald'/.test(mm) && /family=Barlow\+Condensed/.test(mm), true);
+  check('all three are in the editor\'s list and the runtime\'s two lists',
+    ['Barlow Condensed', 'Nunito Sans', 'Stack Sans Headline'].every(f =>
+      new RegExp('label: "' + f + '",').test(ws) && rt.indexOf("'" + f + "'") > -1 && rt.indexOf('"' + f + '"') > -1), true);
+  check('and the Fonts panel names them as each design\'s default',
+    /"86596984-1045-4adb-838d-2b59b75f0003": \{ heading: "Barlow Condensed"/.test(ws) &&
+    /"c2be12ee-8127-4a7d-b975-492bbc8bb812": \{ heading: "Corben",\s+body: "Nunito Sans",\s+content: "Nunito Sans"/.test(ws), true);
+  check('the registry page agrees for Modern Minimal',
+    /"modernminimal":"\\"Barlow Condensed\\", Oswald/.test(reg) && /gfont:"Barlow\+Condensed:wght@500;600;700&family=Poppins/.test(reg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -4811,7 +4811,7 @@
      }
     },
     "--heading": {
-     "value": "'DIN Next Condensed','Oswald','Poppins',sans-serif",
+     "value": "'Barlow Condensed','Oswald','Poppins',sans-serif",
      "roles": {
       "home": [
        "home"
@@ -4988,27 +4988,27 @@
    "section_headings_not_moved_by_heading_control": [
     [
      "faqs",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ],
     [
      "other_events",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ],
     [
      "rsvp",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ],
     [
      "things_to_do",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ],
     [
      "travel",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ],
     [
      "wedding",
-     "DIN Next Condensed"
+     "Barlow Condensed"
     ]
    ],
    "content_text_no_font_var": [
@@ -5327,7 +5327,7 @@
      "line": "Ceremony",
      "onsite": {
       "el": "div.event-name",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5344,7 +5344,7 @@
      "line": "Reception",
      "onsite": {
       "el": "div.event-name",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5361,7 +5361,7 @@
      "line": "Ceremony",
      "onsite": {
       "el": "div.event-name",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5378,7 +5378,7 @@
      "line": "Reception",
      "onsite": {
       "el": "div.event-name",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5395,7 +5395,7 @@
      "line": "Welcome Party",
      "onsite": {
       "el": "mp-title",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5412,7 +5412,7 @@
      "line": "Vault 27",
      "onsite": {
       "el": "mp-title",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5429,7 +5429,7 @@
      "line": "Welcome Party",
      "onsite": {
       "el": "mp-title",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5446,7 +5446,7 @@
      "line": "Vault 27",
      "onsite": {
       "el": "mp-title",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -5531,7 +5531,7 @@
      "line": "The Penny Hotel Williamsburg",
      "onsite": {
       "el": "strong",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "600",
       "caps": "none"
@@ -5548,7 +5548,7 @@
      "line": "The Penny Hotel Williamsburg",
      "onsite": {
       "el": "strong",
-      "font": "DIN Next Condensed",
+      "font": "Barlow Condensed",
       "style": "normal",
       "weight": "600",
       "caps": "none"
@@ -5768,7 +5768,7 @@
     "changes": {
      "font": [
       "Poppins",
-      "DIN Next Condensed"
+      "Barlow Condensed"
      ],
      "weight": [
       "500",
@@ -10961,7 +10961,7 @@
   "fonts": {
    "vars": {
     "--menu-font": {
-     "value": "'Avenir Next','Avenir','DM Sans',system-ui,-apple-system,sans-serif",
+     "value": "'Nunito Sans','DM Sans',system-ui,-apple-system,sans-serif",
      "roles": {
       "menu": [
        "nav"
@@ -11007,7 +11007,7 @@
      }
     },
     "--body": {
-     "value": "'Avenir Next','Avenir','DM Sans',system-ui,-apple-system,sans-serif",
+     "value": "'Nunito Sans','DM Sans',system-ui,-apple-system,sans-serif",
      "roles": {
       "menu": [
        "nav"
@@ -11046,7 +11046,7 @@
     "bodyVar": {
      "var": "--body",
      "exists": true,
-     "face": "Avenir Next"
+     "face": "Nunito Sans"
     },
     "unlisted_font_vars": [
      "--menu-font"
@@ -11892,7 +11892,7 @@
      "field": "travel_info",
      "line": "Request the Sherrie & Robert room block",
      "el": "div.accom-meta",
-     "font": "Avenir Next",
+     "font": "Nunito Sans",
      "style": "italic",
      "rules": [
       ".accom-meta"

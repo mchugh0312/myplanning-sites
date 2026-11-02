@@ -194,7 +194,7 @@ body.hydrating{visibility:hidden;}
 .hero{
   position:relative;
   background:var(--offwhite);
-  padding:3rem 2rem 2rem;
+  padding:3rem 2rem 1rem;
   overflow:hidden;
 }
 .hero-inner{
@@ -212,8 +212,8 @@ body.hydrating{visibility:hidden;}
 
      Change this and the photo's two numbers together, or the panel's own
      proportions drift - the gate checks its aspect ratio, not its size. */
-  aspect-ratio:1.947 / 1;
-  min-height:250px;
+  display:flex; justify-content:flex-end; align-items:flex-start; /* as tall as the photo (owner, 11/02) */
+  
 }
 /* Names sit in normal flow, taking the full width, big and bold.
    They will be partially covered on the right by the photo. */
@@ -245,7 +245,7 @@ body.hydrating{visibility:hidden;}
    The photo aspect/width is sized so it covers ~half the width. */
 .hero-photo-wrap{
   z-index:2;   /* in front of the names - its edge cuts into the longer line */
-  position:absolute;
+  position:relative;
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
      second name line. */
@@ -258,9 +258,7 @@ body.hydrating{visibility:hidden;}
 
      Both dimensions scale by exactly 1.2, so the photograph's own proportions
      are unchanged and object-fit:cover crops it the same way it did. */
-  top:50%; transform:translateY(-50%);
-  right:0;
-  width:55.2%;
+  width:60%; /* 60% of the hero, in the photo's own proportions (owner, 11/02) */
   height:auto; aspect-ratio:var(--sage-photo-ratio, 1.25); /* the photo's own shape, never cropped into the box (owner, 11/02) */
   overflow:hidden;
   z-index:2;
@@ -357,7 +355,7 @@ body.hydrating{visibility:hidden;}
 /* ── OUR STORY (cream) ────────────────────────────────────── */
 .our-story{
   background:var(--offwhite);
-  padding:5rem 2rem;
+  padding:3rem 2rem 5rem; /* less above: the gap under the hero photo was too wide (owner, 11/02) */
   text-align:center;
 }
 .story-inner{max-width:660px;margin:0 auto;}
@@ -930,7 +928,7 @@ footer{
 /* ── MOBILE ────────────────────────────────────────────────── */
 @media(max-width:768px){
   .hero{padding:2.5rem 1.2rem 1.5rem;}
-  .hero-inner{min-height:clamp(220px, 60vw, 360px);}
+  .hero-inner{min-height:0;}
   /* THE PHOTOGRAPH DEFINES THE HERO, and the names lie across it.
 
      This was a two-column grid - names beside a 42% column - which was written
@@ -949,7 +947,7 @@ footer{
     display:block;
     position:relative;
     min-height:0;
-    aspect-ratio:1 / 0.78;
+    display:flex; justify-content:flex-end; align-items:flex-start;
   }
   .hero-couple-name{
     position:absolute;
@@ -969,9 +967,7 @@ footer{
     font-size:clamp(1.5rem, 13vw, 4rem);
   }
   .hero-photo-wrap{
-    position:absolute;
-    right:0;
-    top:50%; transform:translateY(-50%);
+    position:relative;
     width:60%;
     height:auto;
     aspect-ratio:var(--sage-photo-ratio, 1.25);
@@ -981,7 +977,7 @@ footer{
      px clamps further down the same media query and therefore won: 44% capped
      at 220px, which is the small picture. */
   .weekend{padding:3.5rem 1.2rem;}
-  .our-story{padding:3.5rem 1.2rem;}
+  .our-story{padding:2.2rem 1.2rem 3.5rem;}
   .accommodations{padding:3rem 1.2rem 4rem;}
   .accom-inner{grid-template-columns:1fr 1fr;gap:0.8rem;}
   .accom-card{padding:1.6rem 0.9rem;min-height:230px;}
@@ -1119,7 +1115,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:2bf9be57';
+    window.__mpTemplate = 'sageandstill:d9d106b1';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1563,6 +1559,19 @@ function renderAccomCard(title, html, fieldUrl) {
    Read off the image as it loads - no permission needed for its size - and set
    for the hero; a couple's own photo then fills the same shape. */
 (function(){
+  /* ...and then the photo actually showing - the couple's own as much as the
+     stock one - so it is never cropped: the frame takes ITS shape. */
+  try {
+    var _im = document.getElementById('heroImg'), _hero = document.getElementById('hero');
+    if (_im && _hero) _im.addEventListener('load', function(){
+      if (_im.naturalWidth > 2 && _im.naturalHeight > 2) {
+        _hero.style.setProperty('--sage-photo-ratio', String(_im.naturalWidth / _im.naturalHeight));
+        try { fitSageNames(); } catch (e) {}
+      }
+    });
+  } catch (e) {}
+})();
+(function(){
   try {
     var img = document.getElementById('heroImg'), hero = document.getElementById('hero');
     var src = img && img.getAttribute('data-sample-src');
@@ -1574,23 +1583,26 @@ function renderAccomCard(title, html, fieldUrl) {
 })();
 
 function fitSageNames(){
+  /* As large as the free space allows (owner, 11/02): the hero's width beside
+     the photo, plus up to a quarter of the photo - the names may run over it -
+     and no taller than the photo. Measured at a test size and scaled; the lines
+     never wrap (white-space:nowrap). */
   var el = document.getElementById('heroCoupleNames'), wrap = document.querySelector('.hero-photo-wrap');
   if (!el || !wrap || !el.getClientRects().length) return;
-  el.style.fontSize = '';
-  var base = parseFloat(getComputedStyle(el).fontSize) || 0;
-  if (!base) return;
-  var lines = el.querySelectorAll('.line');
-  if (!lines.length) return;
+  var inner = el.parentElement, lines = el.querySelectorAll('.line');
+  if (!inner || !lines.length) return;
   var widthOf = function(n){ var r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width; };
-  var nr = el.getBoundingClientRect(), pr = wrap.getBoundingClientRect();
-  var left = nr.left;
-  var gap = Math.max(6, pr.width * 0.03);
-  var room1 = pr.left - gap - left;                 /* the first line: clear of the photo */
-  var roomAll = pr.left + pr.width * 0.33 - left;   /* the longer line: may tuck behind a third of it, as in the design */
-  var w1 = widthOf(lines[0]), wMax = 0;
+  el.style.fontSize = '100px';
+  var wMax = 0;
   for (var i = 0; i < lines.length; i++) wMax = Math.max(wMax, widthOf(lines[i]));
-  var f = Math.min(1, w1 ? room1 / w1 : 1, wMax ? roomAll / wMax : 1);
-  if (f < 1) el.style.fontSize = Math.max(14, Math.floor(base * f * 10) / 10) + 'px';
+  var hNames = el.getBoundingClientRect().height;
+  var ir = inner.getBoundingClientRect(), pr = wrap.getBoundingClientRect();
+  var left = el.getBoundingClientRect().left - ir.left;
+  var roomW = (pr.left - ir.left) - left + pr.width * 0.25;
+  var roomH = pr.height * 0.95;
+  if (!wMax || !hNames || roomW <= 0 || roomH <= 0) { el.style.fontSize = ''; return; }
+  var px = Math.max(14, Math.floor(100 * Math.min(roomW / wMax, roomH / hNames) * 10) / 10);
+  el.style.fontSize = px + 'px';
 }
 (function(){
   var t = null; window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(fitSageNames, 120); });

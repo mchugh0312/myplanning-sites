@@ -301,14 +301,14 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Poppins | menu |
-| `--heading` | DIN Next Condensed | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: other_events, travel, wedding; menu |
+| `--heading` | Barlow Condensed | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: other_events, travel, wedding; menu |
 | `--body` | Poppins | block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu |
 
 Headings control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu.  
 Body control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
-Section headings the Headings control does not reach: faqs (DIN Next Condensed), other_events (DIN Next Condensed), rsvp (DIN Next Condensed), things_to_do (DIN Next Condensed), travel (DIN Next Condensed), wedding (DIN Next Condensed).
+Section headings the Headings control does not reach: faqs (Barlow Condensed), other_events (Barlow Condensed), rsvp (Barlow Condensed), things_to_do (Barlow Condensed), travel (Barlow Condensed), wedding (Barlow Condensed).
 
 Font variables the runtime config does not know: `--menu-font`, `--heading`.
 
@@ -328,13 +328,13 @@ Font variables the runtime config does not know: `--menu-font`, `--heading`.
 
 | Field | First line | Page | Box shows |
 |---|---|---|---|
-| weddings_info | Ceremony | DIN Next Condensed 700 (`div.event-name`) | Poppins 700 |
-| weddings_info | Reception | DIN Next Condensed 700 (`div.event-name`) | Poppins 700 |
-| events_info | Welcome Party | DIN Next Condensed 700 (`mp-title`) | Poppins 700 |
-| events_info | Vault 27 | DIN Next Condensed 700 (`mp-title`) | Poppins 700 |
+| weddings_info | Ceremony | Barlow Condensed 700 (`div.event-name`) | Poppins 700 |
+| weddings_info | Reception | Barlow Condensed 700 (`div.event-name`) | Poppins 700 |
+| events_info | Welcome Party | Barlow Condensed 700 (`mp-title`) | Poppins 700 |
+| events_info | Vault 27 | Barlow Condensed 700 (`mp-title`) | Poppins 700 |
 | faqs | What should I wear to the we | Poppins 700 (`span.faq-q-text`) | Poppins 700 |
 | faqs | Will there be transportation | Poppins 700 (`span.faq-q-text`) | Poppins 700 |
-| travel_info | The Penny Hotel Williamsburg | DIN Next Condensed 600 (`strong`) | Poppins 600 |
+| travel_info | The Penny Hotel Williamsburg | Barlow Condensed 600 (`strong`) | Poppins 600 |
 
 Wholly italic lines (dress codes, notes):
 
@@ -375,7 +375,7 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 ### Mobile only
 
-- nav: font Poppins → DIN Next Condensed
+- nav: font Poppins → Barlow Condensed
 - nav: weight 500 → 700
 - nav: color rgb(0, 0, 0) → rgb(255, 253, 245)
 - nav: bg rgb(255, 253, 245) → rgb(0, 74, 173)
@@ -679,10 +679,10 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 | Variable | Face | Paints |
 |---|---|---|
-| `--menu-font` | Avenir Next | menu |
+| `--menu-font` | Nunito Sans | menu |
 | `--display` | Corben | section heading: accommodations, faqs, rsvp, things_to_do; block title: faqs |
 | `--script` | Pinyon Script | section heading: wedding; block title: accommodations, wedding; menu |
-| `--body` | Avenir Next | body: accommodations, faqs, rsvp, story, things_to_do, wedding; italic line: accommodations; menu |
+| `--body` | Nunito Sans | body: accommodations, faqs, rsvp, story, things_to_do, wedding; italic line: accommodations; menu |
 
 Headings control writes `--script`, which reaches: section heading: wedding; block title: accommodations, wedding; menu.  
 Body control writes `--body`, which reaches: body: accommodations, faqs, rsvp, story, things_to_do, wedding; italic line: accommodations; menu.  
@@ -717,7 +717,7 @@ Font variables the runtime config does not know: `--menu-font`.
 
 Wholly italic lines (dress codes, notes):
 
-- travel_info "Request the Sherrie & Ro": page shows Avenir Next italic via `.accom-meta`
+- travel_info "Request the Sherrie & Ro": page shows Nunito Sans italic via `.accom-meta`
 
 ### CSS that restyles the couple's own tags
 

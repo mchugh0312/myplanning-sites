@@ -316,6 +316,63 @@ unless that file is missing on the server, DM Sans is never drawn. Owner to
 confirm by picking DM Sans on Whimsical Romance and seeing whether the text
 changes.
 
+**Saving never switches a section off (owner, 11/02)** - the editor switched off,
+at save, any section whose box the couple had cleared ("...had no content, so it
+was switched off"), on every design. Removed: only the Design tab decides; a
+cleared box keeps its section and heading, as the preview and runtime already did.
+OPEN (Regal Boho Travel, with MP-1008): a size change on a card title ("Hotel",
+<font size=5>) makes its line ~38px, so that column's text starts ~16px below
+the next column's (reproduced). Also: the editor draws card titles larger/bolder
+than the preview - not yet traced (the box-style report capture failed).
+Proposed rule: card titles always in the design's title style; size applies to
+the lines under them.
+
+**Card titles as formatted; cards in a row aligned - build `2026-11-02-card-titles`**
+Owner's rule: a couple may resize/embolden card titles and the page shows them
+so. With the editor's real markup (styleWithCSS: <span style="font-size:
+x-large; font-weight: bold">) Chrome draws "Hotel" at 24px bold, as in the box.
+New _alignCardTitles(): cards side by side in one row start their text on one
+line (the shorter titles get room beneath them); a card alone in its row is
+untouched. Regal Boho Travel: Hotel/Flights text now both at the same line on
+desktop. Firefox not available in the sandbox - MP-1008's Firefox-only size
+report not yet verified there. Template map unchanged.
+FONTS (owner): wants each template's exact faces in the dropdown, as default and
+selectable. Non-Google faces in use: Stack Sans Headline (Vintage), Avenir /
+Avenir Next (Whimsical), DIN Next Condensed (Modern Minimal; its file never
+loads). Needs: the files on the weddings server (all weights used), web
+licences for Avenir/DIN Next, and CORS on /fonts for the editor's samples.
+
+**Sage & Still hero, owner's spec (11/02)** - the photo is 60% of the hero's width
+in its OWN proportions (whichever photo is showing - stock or the couple's; the
+frame's shape is read off it as it loads), never cropped; it sits in the page's
+flow, so the hero is exactly as tall as the photo (the fixed-shape box - 1.947
+desktop, 1/0.78 phone - and its minimum heights are gone) and the gap to the next
+section is small (hero bottom padding 1rem; Our Story top 3rem / 2.2rem phone).
+fitSageNames: measured at 100px and scaled so the longest line fits the free
+space beside the photo plus a quarter of it, and the two lines fit the photo's
+height; never wrapping. Tested landscape 1.30 and portrait 0.75 photos, desktop
+and phone. Note: a tall portrait photo makes a tall desktop hero (60% wide).
+The suite's previous-layout Sage checks updated to this rule. Template only.
+
+**Free fonts only (owner, 11/02) - build `2026-11-02-free-fonts`**
+The designer's Avenir.ttc and DIN_Condensed_Bold.ttf are macOS system copies
+(Linotype; embedding flag "preview & print only") - not licensed for the web.
+Replaced with free, open-licensed Google fonts: Whimsical Romance body/menu
+Avenir -> Nunito Sans (its two Avenir @font-face rules removed; a Google link
+added); Modern Minimal headings DIN Next Condensed (never loaded; Oswald showed)
+-> Barlow Condensed (its DIN @font-face removed). Stack Sans Headline (Vintage)
+is OFL and on Google Fonts - kept. All three added to the editor's font list
+and the runtime's two lists (31 fonts), and named as each design's default in
+the Fonts panel. Registry page (owner's file, two lines): Modern Minimal's
+registry heading now Barlow Condensed, loaded; it already used Nunito Sans for
+Whimsical Romance. Map: only those two designs' font lists changed.
+
+**Registry page, owner's MP-978 (11/02)** - the owner's live_registry.html adds the
+no-price label rule (Amazon wording only for Amazon items; the shop's name when
+known; plain "See price" for a pasted link; nothing when there is nowhere to go).
+It is the base from here; the two Modern Minimal font lines (Barlow Condensed)
+were re-applied to it. Suite 1966.
+
 (The notes below are the history of how each item was found and fixed.)
 
 
