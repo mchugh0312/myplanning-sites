@@ -5336,7 +5336,7 @@
          A real anchor, not a click handler, so it is reachable by keyboard,
          opens in a new tab like the heading did, and shows its destination on
          hover. The marker class keeps a re-hydrate from nesting a second one. */
-      if (_blanked && hasCopy && _registryUrl && !info.querySelector('.mp-registry-body-cta')) {
+      if (false && _blanked && hasCopy && _registryUrl && !info.querySelector('.mp-registry-body-cta')) {   // retired: the heading stays the link
         try {
           var wrap = document.createElement('a');
           wrap.className = 'mp-registry-body-cta';
@@ -5423,7 +5423,9 @@
            exactly when the section shows least that it leads anywhere: with the
            note box empty (as it starts, MP-969) the button went from the
            preview, which the tester reported as a regression. */
-        var _wantMore = (!!_registryUrl || _isPreview) && !_ownCta;
+        /* Retired (owner, 11/01): the registry HEADING is the link now, with a
+           chevron - no separate button. See _registryHeadingLink(). */
+        var _wantMore = false;
         if (_wantMore && !_more && info.parentNode) {
           _more = document.createElement('a');
           _more.className = 'mp-registry-more';
@@ -8316,7 +8318,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-01-gift-images';
+  var MP_RUNTIME_BUILD = '2026-11-02-registry-heading-link';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8531,6 +8533,72 @@
           if (isSep(k)) { k.style.display = 'none'; if (seenLink && !pending) pending = k; return; }
           if (isLink(k)) { if (pending) { pending.style.display = ''; pending = null; } seenLink = true; }
         });
+      });
+    } catch (e) {}
+  }
+
+  /* THE REGISTRY HEADING IS THE LINK (owner, 11/01). The words the couple gives
+     the registry heading in the Content box are the control: the heading keeps
+     its design's style and gains a chevron (›), and opens the registry. There
+     is no separate button - the designs' own "View our registry" buttons and
+     the one the runtime used to add are hidden. A frame, border or motif a
+     design draws stays around the heading. Cleared, the heading reads "View our
+     registry" (the Content box shows the same as its hint). Order: heading,
+     then the couple's note, then the gifts. Runs after every draw. */
+  var REGISTRY_FALLBACK_LABEL = 'View our registry';
+  function _registryHeadingLink(d) {
+    try {
+      var ids = SECTION_ANCHORS.registry || [], head = null, root = null;
+      for (var i = 0; i < ids.length && !head; i++) {
+        var sec = document.getElementById(ids[i]);
+        if (sec) { var h = _headingNode(sec); if (h) { head = h; root = sec; } }
+      }
+      if (!head) return;
+      var area = (root.tagName === 'SECTION' ? root : root.closest('section')) || root;
+      var map = (d && d.section_headings) || {};
+      var cleared = Object.prototype.hasOwnProperty.call(map, 'registry') && !String(map.registry || '').trim();
+      /* The words, without a chevron from an earlier draw. */
+      var old = head.querySelector('.mp-reg-chev'); if (old) old.parentNode.removeChild(old);
+      var words = cleared ? REGISTRY_FALLBACK_LABEL : (head.textContent || '').trim() || REGISTRY_FALLBACK_LABEL;
+      /* The link: the heading's own <a> if it is inside one (Regal Boho,
+         Whimsical Romance, Heirloom Bloom), else one made inside the heading. */
+      var link = head.closest('a');
+      if (!link || !area.contains(link)) {
+        link = head.querySelector('a.mp-reg-headlink');
+        if (!link) {
+          link = document.createElement('a');
+          link.className = 'mp-reg-headlink';
+          link.style.cssText = 'color:inherit;text-decoration:none;font:inherit;cursor:pointer;';
+          head.textContent = '';
+          head.appendChild(link);
+        }
+        link.textContent = words;
+      } else {
+        head.textContent = words;
+      }
+      if (_registryUrl) { link.setAttribute('href', _registryUrl); link.setAttribute('target', '_blank'); link.setAttribute('rel', 'noopener noreferrer'); }
+      else if (link.classList.contains('mp-reg-headlink')) link.removeAttribute('href');
+      var chev = document.createElement('span');
+      chev.className = 'mp-reg-chev';
+      chev.setAttribute('aria-hidden', 'true');
+      chev.textContent = '\u203A';
+      chev.style.cssText = 'display:inline-block;margin-left:0.3em;font-size:0.85em;line-height:1;text-decoration:none;';
+      (link.contains(head) ? head : link).appendChild(chev);
+      /* No other "view / see ... registry" control in the section. */
+      Array.prototype.forEach.call(area.querySelectorAll('a, button, .registry-cta, .registry-btn, #registryCta, .mp-registry-more'), function (el) {
+        if (el === link || el.contains(head) || head.contains(el)) return;
+        if (/\b(view|see)\b[^.]{0,24}\bregistry\b/i.test(el.textContent || '') || el.classList.contains('mp-registry-more') ||
+            el.id === 'registryCta' || el.classList.contains('registry-cta') || el.classList.contains('registry-btn')) {
+          el.style.display = 'none'; el.setAttribute('data-mp-ctaoff', '1');
+          /* ...and the wrapper it sat in, if it held nothing else - an empty
+             button row still kept its margins (Coastal Chic, Modern Minimal). */
+          var par = el.parentElement;
+          if (par && par !== area && !par.contains(head) && par.children.length &&
+              Array.prototype.every.call(par.children, function (c) { return c.style.display === 'none' || !c.getClientRects().length; }) &&
+              !(par.textContent || '').replace(el.textContent || '', '').trim()) {
+            par.style.display = 'none'; par.setAttribute('data-mp-ctaoff', '1');
+          }
+        }
       });
     } catch (e) {}
   }
@@ -8865,6 +8933,7 @@
     // sweep first hid the couple's registry link on every template, leaving a
     // menu entry pointing at an empty section.
     layOutRegistry();
+    _registryHeadingLink(d);   // the heading is the link, with a chevron
     hideDeadCtas();
 
     /* After the template has built itself, so a section it populated from its

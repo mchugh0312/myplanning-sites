@@ -86,11 +86,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Lexend Deca | menu |
-| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding |
-| `--body` | Lexend Deca | body: faqs, registry, things_to_do, travel, wedding; italic line: travel; menu |
+| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: registry |
+| `--body` | Lexend Deca | body: faqs, things_to_do, travel, wedding; italic line: travel; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding.  
-Body control writes `--body`, which reaches: body: faqs, registry, things_to_do, travel, wedding; italic line: travel; menu.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: registry.  
+Body control writes `--body`, which reaches: body: faqs, things_to_do, travel, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Font variables the runtime config does not know: `--menu-font`.
@@ -100,9 +100,9 @@ Font variables the runtime config does not know: `--menu-font`.
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
 | Site Background | `--ivory` | - | registry, story, travel | backgroundColor |
-| Accent Color | `--navy` | - | faqs, nav, registry, rsvp, things_to_do, wedding | backgroundColor |
-| Text1 | `--ink` | section heading: registry, story, travel; block title: travel; body: travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, registry, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Accent Color | `--navy` | - | faqs, nav, rsvp, things_to_do, wedding | backgroundColor |
+| Text1 | `--ink` | section heading: registry, story, travel; block title: travel; body: registry, travel | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: faqs, rsvp, things_to_do, wedding; block title: faqs, wedding; body: faqs, things_to_do, wedding; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color **(nothing visible at rest)** | `--white` | - | - | - |
 
@@ -132,7 +132,7 @@ Wholly italic lines (dress codes, notes):
 - travel `div.travel-note`: italic, weight 300 (`.travel-note`)
 - faqs `div.faq-answer`: weight 300 (`.faq-answer`)
 - things_to_do `div#thingsToDoText`: weight 300 (`.faq-answer`)
-- registry `a#registryBtn`: weight 600, uppercase (`.registry-btn`)
+- registry `span.mp-reg-chev`: weight 600
 
 ### Formatting survival
 
@@ -163,11 +163,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | EB Garamond | menu |
-| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: travel; italic line: other_events, wedding |
-| `--serif` | EB Garamond | block title: faqs; body: accommodations, faqs, other_events, registry, rsvp, story, things_to_do, wedding; menu |
+| `--script` | La Belle Aurore | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: registry, travel; italic line: other_events, wedding |
+| `--serif` | EB Garamond | block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: travel; italic line: other_events, wedding.  
-Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, registry, rsvp, story, things_to_do, wedding; menu.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: registry, travel; italic line: other_events, wedding.  
+Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Font variables the runtime config does not know: `--menu-font`.
@@ -211,7 +211,6 @@ Wholly italic lines (dress codes, notes):
 - accommodations `div.split-name`: weight 600 (`.split-name`)
 - faqs `div.ntk-answer`: italic (`.ntk-answer`)
 - things_to_do `div#thingsToDoText`: italic (`.ntk-answer`)
-- registry `a.mp-registry-more`: uppercase
 
 ### Formatting survival
 
@@ -236,11 +235,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Lancelot | menu |
-| `--script` | Luxurious Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations; italic line: other_events, wedding |
-| `--serif` | Lancelot | block title: faqs; body: accommodations, faqs, other_events, registry, rsvp, story, things_to_do, wedding; menu |
+| `--script` | Luxurious Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations, registry; italic line: other_events, wedding |
+| `--serif` | Lancelot | block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations; italic line: other_events, wedding.  
-Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, registry, rsvp, story, things_to_do, wedding; menu.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, wedding; body: accommodations, registry; italic line: other_events, wedding.  
+Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, rsvp, story, things_to_do, wedding; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Font variables the runtime config does not know: `--menu-font`.
@@ -279,10 +278,6 @@ Wholly italic lines (dress codes, notes):
 - `i).mp-attire` → font-family: var(--script); font-style: normal
 - `i).mp-attire` → font-family: var(--script); font-style: normal
 
-### Defaults imposed on body copy (must stay overridable)
-
-- registry `a.mp-registry-more`: uppercase
-
 ### Formatting survival
 
 | Field | Title b i u font | Body b i u font | Whole box italic | Whole box underline | Whole box font |
@@ -306,14 +301,14 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Poppins | menu |
-| `--heading` | DIN Next Condensed | section heading: faqs, other_events, registry, rsvp, things_to_do, travel, wedding; block title: other_events, travel, wedding |
+| `--heading` | DIN Next Condensed | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: other_events, travel, wedding; menu |
 | `--body` | Poppins | block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu |
 
 Headings control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu.  
 Body control writes `--body`, which reaches: block title: faqs, other_events, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--body, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
-Section headings the Headings control does not reach: faqs (DIN Next Condensed), other_events (DIN Next Condensed), registry (DIN Next Condensed), rsvp (DIN Next Condensed), things_to_do (DIN Next Condensed), travel (DIN Next Condensed), wedding (DIN Next Condensed).
+Section headings the Headings control does not reach: faqs (DIN Next Condensed), other_events (DIN Next Condensed), rsvp (DIN Next Condensed), things_to_do (DIN Next Condensed), travel (DIN Next Condensed), wedding (DIN Next Condensed).
 
 Font variables the runtime config does not know: `--menu-font`, `--heading`.
 
@@ -321,9 +316,9 @@ Font variables the runtime config does not know: `--menu-font`, `--heading`.
 
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
-| Site Background | `--ivory` | - | faqs, home, nav, other_events, registry, things_to_do, travel, wedding | backgroundColor |
+| Site Background | `--ivory` | - | faqs, home, nav, other_events, things_to_do, travel, wedding | backgroundColor |
 | Accent Color | `--black` | - | - | borderBottomColor, borderLeftColor, borderTopColor |
-| Text1 | `--ink` | section heading: faqs, other_events, registry, things_to_do, travel, wedding; block title: faqs, other_events, travel, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: faqs, other_events, things_to_do, travel, wedding; block title: faqs, other_events, travel, wedding; body: faqs, other_events, things_to_do, wedding; italic line: travel; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 | `--on-dark` | section heading: rsvp | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 **(nothing visible at rest)** | `--ink3` | - | - | - |
 | Highlight Color | `--blue` | - | rsvp | backgroundColor |
@@ -380,9 +375,10 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 
 ### Mobile only
 
+- nav: font Poppins → DIN Next Condensed
+- nav: weight 500 → 700
 - nav: color rgb(0, 0, 0) → rgb(255, 253, 245)
 - nav: bg rgb(255, 253, 245) → rgb(0, 74, 173)
-- nav: weight 500 → 400
 
 ## Pressed Petals (`pressedpetals`)
 
@@ -391,11 +387,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Instrument Serif | menu |
-| `--script` | Pinyon Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; italic line: wedding |
-| `--serif` | Instrument Serif | block title: faqs; body: accommodations, faqs, other_events, registry, story, things_to_do, travel, wedding; menu |
+| `--script` | Pinyon Script | section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; body: registry; italic line: wedding |
+| `--serif` | Instrument Serif | block title: faqs; body: accommodations, faqs, other_events, story, things_to_do, travel, wedding; menu |
 
-Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; italic line: wedding.  
-Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, registry, story, things_to_do, travel, wedding; menu.  
+Headings control writes `--script`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do; block title: accommodations, other_events, travel, wedding; body: registry; italic line: wedding.  
+Body control writes `--serif`, which reaches: block title: faqs; body: accommodations, faqs, other_events, story, things_to_do, travel, wedding; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --serif` on desktop and `--menu-font, --serif` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Font variables the runtime config does not know: `--menu-font`.
@@ -406,8 +402,8 @@ Font variables the runtime config does not know: `--menu-font`.
 |---|---|---|---|---|
 | Site Background | `--offwhite` | - | faqs, home, nav, other_events, rsvp, story, things_to_do | backgroundColor |
 | Accent Color | `--olive` | - | accommodations, footer, registry, travel, wedding | backgroundColor |
-| Text1 | `--ink` | section heading: rsvp, story, things_to_do; block title: faqs, other_events; body: faqs, other_events, registry, story, things_to_do; menu | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: faqs, registry; block title: accommodations, travel, wedding; body: accommodations, travel, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: rsvp, story, things_to_do; block title: faqs, other_events; body: faqs, other_events, story, things_to_do; menu | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: faqs, registry; block title: accommodations, travel, wedding; body: accommodations, registry, travel, wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | body: faqs | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--white` | - | - | backgroundColor |
 
@@ -434,12 +430,10 @@ Wholly italic lines (dress codes, notes):
 ### Defaults imposed on body copy (must stay overridable)
 
 - story `p#storyText`: italic (`.story-text`)
-- wedding `em.mp-attire`: face Pinyon Script (`.event-card-detail :is(em, i).mp-attire`)
 - accommodations `div.accom-address`: italic (`.accom-address`)
 - travel `div.accom-address`: italic (`.accom-address`)
 - faqs `span.faq-icon`: face Arial
 - faqs `div.faq-answer`: italic (`.faq-answer`)
-- registry `a.mp-registry-more`: uppercase
 
 ### Formatting survival
 
@@ -464,11 +458,11 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Libre Baskerville | menu |
-| `--display` | Libre Baskerville | section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu |
-| `--body` | Noto Serif | block title: travel; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding |
+| `--display` | Libre Baskerville | section heading: faqs, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu |
+| `--body` | Noto Serif | block title: travel; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding |
 
-Headings control writes `--display`, which reaches: section heading: faqs, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu.  
-Body control writes `--body`, which reaches: block title: travel; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding.  
+Headings control writes `--display`, which reaches: section heading: faqs, rsvp, story, things_to_do, travel, wedding; block title: faqs, wedding; body: story; menu.  
+Body control writes `--body`, which reaches: block title: travel; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding.  
 Menu Links writes `--menu-font`. The menu is set in `--display, --menu-font` on desktop and `--body, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
 Font variables the runtime config does not know: `--menu-font`.
@@ -477,9 +471,9 @@ Font variables the runtime config does not know: `--menu-font`.
 
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
-| Site Background | `--ivory` | - | faqs, footer, registry, story, things_to_do, travel, wedding | backgroundColor |
+| Site Background | `--ivory` | - | faqs, footer, story, things_to_do, travel, wedding | backgroundColor |
 | Accent Color | `--beige` | - | rsvp, wedding | backgroundColor |
-| Text1 | `--ink` | section heading: faqs, registry, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, registry, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: faqs, rsvp, things_to_do, travel, wedding; block title: faqs, travel, wedding; body: faqs, rsvp, story, things_to_do, travel, wedding; italic line: travel, wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 **(nothing visible at rest)** | `--on-dark` | - | - | - |
 | Text3 | `--ink3` | section heading: story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--burgundy` | - | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor |
@@ -555,7 +549,7 @@ Font variables the runtime config does not know: `--menu-font`, `--sub`.
 |---|---|---|---|---|
 | Site Background | `--offwhite` | - | accommodations, faqs, home, rsvp, story, things_to_do | backgroundColor |
 | Accent Color **(nothing visible at rest)** | `--green-gray` | - | - | - |
-| Text1 | `--ink` | section heading: faqs, rsvp, story, things_to_do; block title: accommodations, faqs; body: accommodations; menu | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text1 | `--ink` | section heading: faqs, rsvp, story, things_to_do; block title: accommodations, faqs; body: accommodations | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text2 | `--on-dark` | body: wedding; italic line: wedding | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 | `--ink3` | body: faqs, things_to_do; italic line: accommodations | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Highlight Color | `--sage` | - | nav, wedding | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
@@ -610,10 +604,10 @@ Visibility: every section hides with its toggle off and (except Registry, by des
 | Variable | Face | Paints |
 |---|---|---|
 | `--menu-font` | Stack Sans Headline | menu |
-| `--display` | Instrument Serif | section heading: faqs, other_events, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu |
+| `--display` | Instrument Serif | section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu |
 | `--sans` | Stack Sans Headline | block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu |
 
-Headings control writes `--display`, which reaches: section heading: faqs, other_events, registry, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu.  
+Headings control writes `--display`, which reaches: section heading: faqs, other_events, rsvp, story, things_to_do, travel, wedding; block title: faqs, other_events; body: story; menu.  
 Body control writes `--sans`, which reaches: block title: travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel; menu.  
 Menu Links writes `--menu-font`. The menu is set in `--menu-font, --sans` on desktop and `--display, --menu-font` on mobile. Own menu variable: yes. Menu Links reaches the menu: desktop **yes**, mobile **yes**.
 
@@ -624,9 +618,9 @@ Font variables the runtime config does not know: `--menu-font`.
 | Control | Variable | Text it colours | Backgrounds it paints | Other paint at rest (borders, buttons, inputs) |
 |---|---|---|---|---|
 | Site Background | `--ivory` | - | faqs, home, other_events, rsvp, things_to_do, travel, wedding | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor |
-| Accent Color | `--brown` | - | footer, nav, registry, story | backgroundColor |
+| Accent Color | `--brown` | - | footer, nav, story | backgroundColor |
 | Text1 | `--ink` | section heading: faqs, other_events, rsvp, things_to_do, travel, wedding; block title: faqs, other_events, travel; body: faqs, other_events, rsvp, things_to_do, travel, wedding; italic line: travel | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, fill, outlineColor, textDecorationColor |
-| Text2 | `--on-dark` | section heading: registry, story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
+| Text2 | `--on-dark` | section heading: story; body: story; menu | - | borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Text3 **(nothing visible at rest)** | `--ink3` | - | - | - |
 | Highlight Color | `--blue` | - | - | backgroundColor, borderBottomColor, borderLeftColor, borderTopColor, outlineColor, textDecorationColor |
 | Additional Color **(nothing visible at rest)** | `--black` | - | - | - |

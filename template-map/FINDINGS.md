@@ -262,6 +262,20 @@ the same list and tints (panel drawn as an image, so each design's box keeps
 its shape); funds keep their own image, as on the registry. A check keeps the
 two lists of category-art files identical.
 
+**Registry rule (owner, 11/01) - build `2026-11-02-registry-heading-link`**
+The registry HEADING is the link: the words from the Content box, in the
+design's heading style, with a chevron (›), opening the registry. No separate
+button - the designs' own "View our registry" buttons and the runtime's are
+hidden (and an emptied button row collapses). A frame/border/motif stays around
+the heading (Heirloom Bloom's frame, Vintage Love Story's oval title and lace
+corners - moved into the heading block so the lower one no longer lands after
+the gifts - Whimsical Romance's card). Order: heading, note, gifts. Cleared,
+the heading reads "View our registry", and the Content box shows the same as
+its hint. Checked on all ten (own heading, renamed, cleared; live links to
+/<slug>/registry); the heading still follows Section Headings everywhere.
+Map differences adopted: the hidden buttons, and the heading's words measured
+inside the link.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

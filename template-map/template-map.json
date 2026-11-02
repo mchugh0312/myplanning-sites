@@ -1256,6 +1256,9 @@
        "faqs",
        "travel",
        "wedding"
+      ],
+      "body": [
+       "registry"
       ]
      }
     },
@@ -1267,7 +1270,6 @@
       ],
       "body": [
        "faqs",
-       "registry",
        "things_to_do",
        "travel",
        "wedding"
@@ -1325,6 +1327,9 @@
        "faqs",
        "travel",
        "wedding"
+      ],
+      "body": [
+       "registry"
       ]
      }
     },
@@ -1336,7 +1341,6 @@
       ],
       "body": [
        "faqs",
-       "registry",
        "things_to_do",
        "travel",
        "wedding"
@@ -1425,7 +1429,6 @@
      "ground": [
       "faqs",
       "nav",
-      "registry",
       "rsvp",
       "things_to_do",
       "wedding"
@@ -1460,6 +1463,7 @@
        "travel"
       ],
       "body": [
+       "registry",
        "travel"
       ],
       "other": [
@@ -1538,7 +1542,6 @@
       ],
       "body": [
        "faqs",
-       "registry",
        "things_to_do",
        "wedding"
       ]
@@ -1936,17 +1939,6 @@
      ]
     },
     {
-     "section": "registry",
-     "role": "body",
-     "text": "View Our Registry",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
      "section": "rsvp",
      "role": "section-heading",
      "text": "RSVP",
@@ -2290,15 +2282,12 @@
    },
    {
     "section": "registry",
-    "el": "a#registryBtn",
+    "el": "span.mp-reg-chev",
     "flags": [
-     "weight 600",
-     "uppercase"
+     "weight 600"
     ],
-    "example": "View Our Registry",
-    "selectors": [
-     ".registry-btn"
-    ]
+    "example": "\u203a",
+    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -2706,6 +2695,7 @@
        "wedding"
       ],
       "body": [
+       "registry",
        "travel"
       ],
       "footer": [
@@ -2726,7 +2716,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -2792,6 +2781,7 @@
        "wedding"
       ],
       "body": [
+       "registry",
        "travel"
       ],
       "footer": [
@@ -2812,7 +2802,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -3462,15 +3451,6 @@
     "selectors": [
      ".ntk-answer"
     ]
-   },
-   {
-    "section": "registry",
-    "el": "a.mp-registry-more",
-    "flags": [
-     "uppercase"
-    ],
-    "example": "View our registry",
-    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -3766,7 +3746,8 @@
        "wedding"
       ],
       "body": [
-       "accommodations"
+       "accommodations",
+       "registry"
       ],
       "footer": [
        "footer"
@@ -3783,7 +3764,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -3849,7 +3829,8 @@
        "wedding"
       ],
       "body": [
-       "accommodations"
+       "accommodations",
+       "registry"
       ],
       "footer": [
        "footer"
@@ -3866,7 +3847,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -4570,17 +4550,7 @@
     }
    ]
   },
-  "imposed_on_body_copy": [
-   {
-    "section": "registry",
-    "el": "a.mp-registry-more",
-    "flags": [
-     "uppercase"
-    ],
-    "example": "View our registry",
-    "selectors": []
-   }
-  ],
+  "imposed_on_body_copy": [],
   "css_restyling_inline_tags": [
    {
     "sel": ".nav-hamburger span",
@@ -4849,7 +4819,6 @@
       "section-heading": [
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "things_to_do",
        "travel",
@@ -4859,6 +4828,9 @@
        "other_events",
        "travel",
        "wedding"
+      ],
+      "menu": [
+       "nav"
       ]
      }
     },
@@ -4985,6 +4957,7 @@
    "menu": {
     "nav_link_vars": [
      "--body",
+     "--heading",
      "--menu-font"
     ],
     "own_menu_var": [
@@ -4995,7 +4968,8 @@
      "body",
      "home",
      "italic-line",
-     "other"
+     "other",
+     "section-heading"
     ],
     "desktop_vars": [
      "--body",
@@ -5018,10 +4992,6 @@
     ],
     [
      "other_events",
-     "DIN Next Condensed"
-    ],
-    [
-     "registry",
      "DIN Next Condensed"
     ],
     [
@@ -5067,7 +5037,6 @@
       "nav",
       "other",
       "other_events",
-      "registry",
       "things_to_do",
       "travel",
       "wedding"
@@ -5134,7 +5103,6 @@
       "section-heading": [
        "faqs",
        "other_events",
-       "registry",
        "things_to_do",
        "travel",
        "wedding"
@@ -5796,6 +5764,20 @@
   "mobile_only": [
    {
     "section": "nav",
+    "text": "Registry",
+    "changes": {
+     "font": [
+      "Poppins",
+      "DIN Next Condensed"
+     ],
+     "weight": [
+      "500",
+      "700"
+     ]
+    }
+   },
+   {
+    "section": "nav",
     "text": "Home",
     "changes": {
      "color": [
@@ -5887,24 +5869,6 @@
    {
     "section": "nav",
     "text": "Things to Do",
-    "changes": {
-     "color": [
-      "rgb(0, 0, 0)",
-      "rgb(255, 253, 245)"
-     ],
-     "bg": [
-      "rgb(255, 253, 245)",
-      "rgb(0, 74, 173)"
-     ],
-     "weight": [
-      "500",
-      "400"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Registry",
     "changes": {
      "color": [
       "rgb(0, 0, 0)",
@@ -6112,6 +6076,9 @@
       "italic-line": [
        "wedding"
       ],
+      "body": [
+       "registry"
+      ],
       "footer": [
        "footer"
       ]
@@ -6127,7 +6094,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "story",
        "things_to_do",
        "travel",
@@ -6192,6 +6158,9 @@
       "italic-line": [
        "wedding"
       ],
+      "body": [
+       "registry"
+      ],
       "footer": [
        "footer"
       ]
@@ -6207,7 +6176,6 @@
        "accommodations",
        "faqs",
        "other_events",
-       "registry",
        "story",
        "things_to_do",
        "travel",
@@ -6342,7 +6310,6 @@
       "body": [
        "faqs",
        "other_events",
-       "registry",
        "story",
        "things_to_do"
       ],
@@ -6421,6 +6388,7 @@
       ],
       "body": [
        "accommodations",
+       "registry",
        "travel",
        "wedding"
       ],
@@ -6686,12 +6654,12 @@
     {
      "section": "registry",
      "role": "body",
-     "text": "View our registry",
+     "text": "\u203a",
      "slots": [
-      "ink"
+      "ink2"
      ],
      "vars": [
-      "--ink"
+      "--on-dark"
      ]
     }
    ]
@@ -6992,17 +6960,6 @@
     ]
    },
    {
-    "section": "wedding",
-    "el": "em.mp-attire",
-    "flags": [
-     "face Pinyon Script"
-    ],
-    "example": "Cocktail Attire",
-    "selectors": [
-     ".event-card-detail :is(em, i).mp-attire"
-    ]
-   },
-   {
     "section": "accommodations",
     "el": "div.accom-address",
     "flags": [
@@ -7043,15 +7000,6 @@
     "selectors": [
      ".faq-answer"
     ]
-   },
-   {
-    "section": "registry",
-    "el": "a.mp-registry-more",
-    "flags": [
-     "uppercase"
-    ],
-    "example": "View our registry",
-    "selectors": []
    }
   ],
   "css_restyling_inline_tags": [
@@ -7311,7 +7259,6 @@
       ],
       "section-heading": [
        "faqs",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -7335,7 +7282,6 @@
      "roles": {
       "body": [
        "faqs",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -7391,7 +7337,6 @@
       ],
       "section-heading": [
        "faqs",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -7415,7 +7360,6 @@
      "moves": {
       "body": [
        "faqs",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -7491,7 +7435,6 @@
      "ground": [
       "faqs",
       "footer",
-      "registry",
       "story",
       "things_to_do",
       "travel",
@@ -7541,7 +7484,6 @@
      "text": {
       "body": [
        "faqs",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -7550,7 +7492,6 @@
       ],
       "section-heading": [
        "faqs",
-       "registry",
        "rsvp",
        "things_to_do",
        "travel",
@@ -7815,17 +7756,6 @@
      "section": "nav",
      "role": "menu",
      "text": "Things to Do",
-     "slots": [
-      "ink3"
-     ],
-     "vars": [
-      "--ink3"
-     ]
-    },
-    {
-     "section": "nav",
-     "role": "menu",
-     "text": "Registry",
      "slots": [
       "ink3"
      ],
@@ -8369,28 +8299,6 @@
    },
    {
     "section": "nav",
-    "text": "Registry",
-    "changes": {
-     "color": [
-      "rgb(81, 80, 0)",
-      "rgb(83, 20, 30)"
-     ],
-     "bg": [
-      "rgb(58, 58, 54)",
-      "rgb(241, 228, 201)"
-     ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
-     ],
-     "style": [
-      "italic",
-      "normal"
-     ]
-    }
-   },
-   {
-    "section": "nav",
     "text": "RSVP",
     "changes": {
      "color": [
@@ -8812,9 +8720,6 @@
       "block-title": [
        "accommodations",
        "faqs"
-      ],
-      "menu": [
-       "nav"
       ],
       "other": [
        "other"
@@ -9732,7 +9637,6 @@
       "section-heading": [
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -9746,11 +9650,11 @@
        "faqs",
        "other_events"
       ],
-      "menu": [
-       "nav"
-      ],
       "other": [
        "other"
+      ],
+      "menu": [
+       "nav"
       ],
       "footer": [
        "footer"
@@ -9820,7 +9724,6 @@
       "section-heading": [
        "faqs",
        "other_events",
-       "registry",
        "rsvp",
        "story",
        "things_to_do",
@@ -9834,11 +9737,11 @@
        "faqs",
        "other_events"
       ],
-      "menu": [
-       "nav"
-      ],
       "other": [
        "other"
+      ],
+      "menu": [
+       "nav"
       ],
       "footer": [
        "footer"
@@ -9974,7 +9877,6 @@
      "ground": [
       "footer",
       "nav",
-      "registry",
       "story"
      ],
      "other_paint": {
@@ -10092,7 +9994,6 @@
        "nav"
       ],
       "section-heading": [
-       "registry",
        "story"
       ],
       "body": [
@@ -10300,17 +10201,6 @@
     {
      "section": "nav",
      "role": "menu",
-     "text": "Registry",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
-     "section": "nav",
-     "role": "menu",
      "text": "RSVP",
      "slots": [
       "ink2"
@@ -10334,28 +10224,6 @@
      "section": "story",
      "role": "body",
      "text": "Lorem ipsum dolor sit amet, consecte",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
-     "section": "registry",
-     "role": "section-heading",
-     "text": "Registry",
-     "slots": [
-      "ink2"
-     ],
-     "vars": [
-      "--on-dark"
-     ]
-    },
-    {
-     "section": "nav",
-     "role": "menu",
-     "text": "View our registry",
      "slots": [
       "ink2"
      ],
@@ -10893,16 +10761,6 @@
    {
     "section": "nav",
     "text": "Things to Do",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Registry",
     "changes": {
      "font": [
       "Stack Sans Headline",
@@ -11735,6 +11593,17 @@
      "section": "nav",
      "role": "menu",
      "text": "Our Registry",
+     "slots": [
+      "ink3"
+     ],
+     "vars": [
+      "--ink3"
+     ]
+    },
+    {
+     "section": "nav",
+     "role": "menu",
+     "text": "\u203a",
      "slots": [
       "ink3"
      ],

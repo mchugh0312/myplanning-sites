@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '8d59a0c2');
+    ('0000000' + h.toString(16)).slice(-8), '95f19842');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -6050,8 +6050,7 @@ check('two blocks -> two cards', blocks(mark(
      address by design (every registry link is inert there) and shows the
      button anyway, so preview and live show the same section (MP-946). And
      never beside a registry button the design already has (MP-941). */
-  check('it needs a registry url',
-    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_ownCta;/.test(fn), true);
+  /* (retired 11/02: the registry heading is the link - 'it needs a registry url') */
   /* AND copy. With the box empty the section is just the heading in its frame,
      and a button beside it reads as a second title rather than a control -
      which is what the live site showed while the preview, with no url to hang
@@ -7451,7 +7450,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-01-gift-images');
+  check('the stamp names the change it shipped with', version, '2026-11-02-registry-heading-link');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7459,7 +7458,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '0a2d6b62');
+    ('0000000' + bh.toString(16)).slice(-8), '2d3fcbc5');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9309,8 +9308,7 @@ check('two blocks -> two cards', blocks(mark(
     /Please reply by \[your RSVP date\]/.test(re({}, true)), true);
 
   /* MP-941 / MP-946. One registry button, and the same one in the preview. */
-  check('MP-941 the extra registry button defers to the design\'s own',
-    /var _ownCta = false;/.test(rt) && /&& !_ownCta;/.test(rt), true);
+  /* (retired 11/02: the registry heading is the link - 'MP-941 the extra registry button defers to the design's own') */
   check('MP-941 gift tiles are centred whatever the count',
     /#registryGrid\{display:flex!important;flex-wrap:wrap;' \+[\s\S]{0,400}'justify-content:center;/.test(rt), true);
 
@@ -10162,8 +10160,7 @@ check('two blocks -> two cards', blocks(mark(
 {
   const rt = fs.readFileSync('site-runtime.js', 'utf8');
   const cc = fs.readFileSync('template-coastalchic.html', 'utf8');
-  check('MP-907 the registry button shows whenever there is a registry to open',
-    /var _wantMore = \(!!_registryUrl \|\| _isPreview\) && !_ownCta;/.test(rt), true);
+  /* (retired 11/02: the registry heading is the link - 'MP-907 the registry button shows whenever there is a registry to open') */
   check('MP-969 Coastal Chic\'s empty registry note is empty',
     /infoEl\.innerHTML = '';\s*\n\s*infoEl\.style\.display = 'none';/.test(cc), true);
   check('MP-901 typed events replace Coastal Chic\'s sample from the first line',
@@ -10381,6 +10378,22 @@ check('two blocks -> two cards', blocks(mark(
   const regList = ids((reg.match(/const CATEGORY_ART_IDS = \[[\s\S]*?\];/) || [''])[0]).sort().join(',');
   const rtList = ids((rt.match(/var REG_CATEGORY_ART_IDS = \[[\s\S]*?\];/) || [''])[0]).sort().join(',');
   check('the preview and the registry page know the same category-art files', rtList.length > 0 && rtList === regList, true);
+}
+
+
+// ── The registry heading IS the link (owner, 11/01) ──────────────────────
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  check('the registry heading becomes the link, with a chevron, after every draw',
+    /function _registryHeadingLink\(d\)/.test(rt) && /_registryHeadingLink\(d\);   \/\/ the heading is the link/.test(rt) && /chev\.textContent = '\\u203A';/.test(rt), true);
+  check('no separate registry button: the runtime adds none, the designs\' own are hidden',
+    /var _wantMore = false;/.test(rt) && /el\.style\.display = 'none'; el\.setAttribute\('data-mp-ctaoff', '1'\);/.test(rt), true);
+  check('cleared, the heading reads "View our registry"', /var REGISTRY_FALLBACK_LABEL = 'View our registry';/.test(rt), true);
+  check('the Content box shows the same as its hint',
+    (ws.match(/placeholder=\{s\.section === "registry" \? "View our registry" : undefined\}/g) || []).length === 4, true);
+  check('Vintage Love Story\'s lace frames the heading, not the whole band',
+    /<div class="oval-title-wrap registry-title-wrap">\s*\n\s*<!--[\s\S]*?-->\s*\n\s*<span class="registry-lace tl"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
