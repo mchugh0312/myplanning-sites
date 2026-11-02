@@ -902,7 +902,10 @@ const state = {
   activeItem:null, activeExp:null,
 };
 
-const fmt = c=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format((Number(c)||0)/100);
+/* Prices show their cents when they have any: $49.99 stays $49.99 instead of
+   rounding to $50, and a whole amount still reads $50, not $50.00. */
+const fmt = c=>{ const n=Math.round(Number(c)||0), d=(n%100)?2:0;
+  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:d,maximumFractionDigits:d}).format(n/100); };
 
 /* MP-902: a gift with no stored price is not a gift that costs nothing.
    
@@ -1340,6 +1343,20 @@ function renderBrandFooter(){
      still sees an unpublished registry. main.py says as much and calls for a
      signed token. This closes the accidental route, not the deliberate one. */
   state.preview = params.get("preview")==="1" || params.get("preview")==="true";
+  /* Reloading a preview said "not published yet": the flag had been stripped
+     (MP-445, above), so the reload was an ordinary guest visit. The preview is
+     now remembered for THIS TAB ONLY and honoured ONLY on a reload. A shared
+     link, a bookmark, a new tab or a later visit typed into the address bar is
+     still an ordinary guest visit, so MP-445's protection stands. Any visit
+     that is neither a preview nor a reload ends the remembered preview. */
+  try {
+    const pvKey = "mpPreview:" + (state.registryId || state.slug || "");
+    const nav = (performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || null;
+    const isReload = !!nav && nav.type === "reload";
+    if (state.preview) sessionStorage.setItem(pvKey, "1");
+    else if (isReload && sessionStorage.getItem(pvKey) === "1") state.preview = true;
+    else sessionStorage.removeItem(pvKey);
+  } catch(e){}
   if (state.preview) { try { cleanParam("preview"); } catch(e){} }
   const c = params.get("contribution");
   if (c==="success"){ showBanner("Thank you so much! Your gift has been received. 💌","success"); cleanParam("contribution"); }
