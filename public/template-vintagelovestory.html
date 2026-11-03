@@ -122,7 +122,7 @@
   --display:'Instrument Serif', Georgia, serif;
   --sans:'Stack Sans Headline', 'Inter', system-ui, -apple-system, sans-serif;
 }
-@media (max-width:768px){:root{--menu-font:var(--display);}}
+@media (max-width:768px){:root{/* (11/02) no phone-only menu face: Menu Links names one face for every device */}}
 html{scroll-behavior:smooth}
 body{
   font-family:var(--display);color:var(--ink);
@@ -377,7 +377,7 @@ body.hydrating{visibility:hidden;}
 .story-body:has(> .story-col:empty){grid-template-columns:1fr;}
 .story-body:has(> .story-col:empty) .story-col{max-width:560px;margin:0 auto;}
 .story-col{
-  font-family:var(--body-font, var(--display));
+  font-family:var(--heading-font, var(--display)); /* drawn in the headings face, so it follows Section Headings - one face per Fonts setting (owner, 11/02) */
   font-size:1.15rem;
   color:var(--on-dark);
   line-height:1.55;
@@ -1204,7 +1204,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:e81cc2be';
+    window.__mpTemplate = 'vintagelovestory:c9403ab9';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -2297,7 +2297,7 @@ const SAMPLE_DATA = {
   slug:'', couple_names:'Iris & Nathan', partner_1:'Iris', partner_2:'Nathan',
   celebration_date:'2026-09-24', celebration_location:'Chicago, IL',
   hero_image:'',
-  story:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+  story:'We met at a coffee shop in 2019. What started as a chance encounter over spilled lattes became the love of a lifetime.',
   weddings_info:'<strong>The Ceremony</strong><br>Saturday, September 24th, 2026<br>4:00–5:00PM<br>Fairmeadow Park<br>5656 Jackson Ave,<br>Chicago, IL 60650<br><br><strong>The Reception</strong><br>Saturday, September 24th, 2026<br>6:00–11:00PM<br>The Ivory Room<br>1234 Clark Street,<br>Chicago, IL 60650',
   events_info:'<strong>Welcome Party</strong><br>Friday, September 23rd, 2026<br>6–9PM<br>Little Wine Bar<br>9853 S Drexel Ave<br>Chicago, IL 60628<br><br><strong>Sunday Brunch</strong><br>Sunday, September 25th, 2026<br>11:00AM–1:00PM<br>Clark\'s Cafe<br>1234 Clark Ave,<br>Chicago, IL 60650',
   accommodation_info:'<strong>Windy City Inn</strong><br>7958 S May St<br>Chicago, IL 60620<br><br><br><strong>Lakeshore Plaza Hotel</strong><br>680 N Lake Shore Dr<br>Chicago, IL 60611<br><em>Request the Iris &amp; Nathan room block</em>',

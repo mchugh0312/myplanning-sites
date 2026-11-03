@@ -415,6 +415,24 @@ the runtime build line.
   now uses <mp-t>, so Reset restores the card titles. Map: Pressed Petals' Hotel/
   Flights now measured as mp-t - same font, weight, caps.
 
+**One face per Fonts setting; MP-1009 / MP-1010 - build `2026-11-02-one-face`** (11/02)
+New test (owner's acceptance rule): on every design, pick the name the Fonts
+panel shows as each default and compare every visible element - story, event,
+travel and FAQ text, section headings, desktop menu, phone drawer - with the
+untouched page, desktop and phone. Vintage, Regal Boho, Modern Minimal, Coastal
+Chic, Golden Hour, Heirloom Bloom, Pressed Petals, Black Tie: identical.
+Fixes: Vintage's story (drawn in the headings face) follows Section Headings;
+body/menu defaults Stack Sans Headline (the previous round's Instrument Serif
+was wrong - measured the page-wide body rule, not the elements); the phone-only
+menu face removed on Vintage, Regal Boho, Sage & Still (one face per setting,
+every device); Black Tie's "Goudy" alias renamed Sorts Mill Goudy.
+OPEN (owner to decide): Sage & Still's story is drawn in Ovo (body default DM
+Sans); Whimsical Romance's section headings are drawn in Pinyon Script (heading
+default Corben) - each has two faces under one setting.
+MP-1009/1010: every template's sample story is now the editor's starter story
+(was Lorem ipsum on four, empty on Coastal Chic and Sage & Still).
+Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

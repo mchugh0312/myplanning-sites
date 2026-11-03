@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '5b846ec7');
+    ('0000000' + h.toString(16)).slice(-8), '3ca06da4');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-fonts-mp1008');
+  check('the stamp names the change it shipped with', version, '2026-11-02-one-face');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -9685,7 +9685,7 @@ check('two blocks -> two cards', blocks(mark(
   /* The plan the endpoint read lacked some of the events the editor lists
      (Welcome, Farewell); they came back unordered and fell to the bottom. */
   check('MP-923 the endpoint orders the events the editor names',
-    /async def get_celebration_event_order\(celebration_id: str, ids: Optional\[str\] = None\):/.test(py) &&
+    /(?:async )?def get_celebration_event_order\(celebration_id: str, ids: Optional\[str\] = None\):/.test(py) &&
     /for eid in \(ids or ""\)\.split\(","\):/.test(py), true);
   check('and the editor names them', /\?ids=\$\{encodeURIComponent\(_finalEventIds\)\}/.test(ws), true);
   /* The preview's RSVP form numbered events by their place in the list. */
@@ -10385,8 +10385,11 @@ check('two blocks -> two cards', blocks(mark(
      "Reset to template default" (owner, 11/02). */
   /* Second look (11/02): its body copy is drawn in --display (Instrument
      Serif); Stack Sans Headline is its menu face. */
-  check('Vintage Love Story\'s defaults: body Instrument Serif, menu Stack Sans Headline',
-    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Instrument Serif", content: "Instrument Serif", menu: "Stack Sans Headline" \}/.test(ws), true);
+  /* Measured element by element (11/02, third look): event, travel and FAQ text
+     are Stack Sans Headline; the story is drawn in the headings face and now
+     follows Section Headings; the menu is Stack Sans on every device. */
+  check('Vintage Love Story\'s defaults: body and menu Stack Sans Headline, headings Instrument Serif',
+    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline", menu: "Stack Sans Headline" \}/.test(ws), true);
 }
 
 
@@ -10469,6 +10472,22 @@ check('two blocks -> two cards', blocks(mark(
   check('and the runtime converts any saved <font> the same way', /d\[f\] = d\[f\]\.replace\(\/<font\\b\(\[\^>\]\*\)>\/gi/.test(rt), true);
   /* MP-1008: Reset to default restored "Hotel" as bold words, not a card title. */
   check('the Travel starter copy opens each card with a title mark', /travelInfo:\s*'<mp-t>Hotel<\/mp-t><br>/.test(ws), true);
+}
+
+
+// ── One face per Fonts setting; consistent template-card samples (11/02) ──
+{
+  const vl = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  check('Vintage Love Story\'s story follows Section Headings', /\.story-col\{[^}]*font-family:var\(--heading-font, var\(--display\)\)/.test(vl), true);
+  check('no phone-only menu face on Vintage, Regal Boho or Sage & Still',
+    ['vintagelovestory', 'regalboho', 'sageandstill'].every(t => !/@media\s*\(max-width:\s*768px\)[\s\S]{0,20000}?--menu-font\s*:\s*var\(--(display|body)\)\s*;/.test(fs.readFileSync('template-' + t + '.html', 'utf8'))), true);
+  check('Black Tie names Sorts Mill Goudy by its real name', !/'Goudy'/.test(fs.readFileSync('template-blacktietimeless.html', 'utf8')), true);
+  /* MP-1009 / MP-1010: every template card's sample story is the starter story. */
+  const ws2 = fs.readFileSync('Website.txt', 'utf8');
+  const starter = (ws2.slice(ws2.indexOf('const CONTENT_DEFAULTS')).match(/ourStory:\s*'((?:[^'\\]|\\.)*)'/) || [])[1];
+  const off = ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
+    .filter(t => { const s = fs.readFileSync('template-' + t + '.html', 'utf8'); const i = s.indexOf('SAMPLE_DATA'); return s.slice(i, i + 60000).indexOf(starter.slice(0, 40)) === -1; });
+  check('every template card\'s sample story is the starter story (no Lorem ipsum, none empty)', off.join(','), '');
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

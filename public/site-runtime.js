@@ -8378,7 +8378,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-fonts-mp1008';
+  var MP_RUNTIME_BUILD = '2026-11-02-one-face';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
