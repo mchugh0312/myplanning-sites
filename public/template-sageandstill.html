@@ -235,7 +235,7 @@ body.hydrating{visibility:hidden;}
   width:100%;
   /* Above the photo. In the design the tail of the second line reads over the
      picture — with the photo on top the names were simply cut off. */
-  z-index:1; /* behind the photo, as in the owner's design (11/02): its edge cuts into the longer line - was 3, in front */;
+  z-index:3; /* IN FRONT of the photo again (owner, 11/02: the names must sit above the image - template, preview and site) */;
   white-space:nowrap;
   pointer-events:none;
 }
@@ -244,7 +244,7 @@ body.hydrating{visibility:hidden;}
    so the right portion of the second line ("& JAS|ON") is hidden behind it.
    The photo aspect/width is sized so it covers ~half the width. */
 .hero-photo-wrap{
-  z-index:2;   /* in front of the names - its edge cuts into the longer line */
+  z-index:2;   /* behind the names (owner, 11/02) */
   position:relative;
   /* Proportional to the hero box, matching the design: a near-square panel on
      the right, inset slightly top and bottom, overlapping the tail of the
@@ -1115,7 +1115,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'sageandstill:0f3b4bfd';
+    window.__mpTemplate = 'sageandstill:ec9c3fd8';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1601,7 +1601,8 @@ function fitSageNames(){
   var roomW = (pr.left - ir.left) - left + pr.width * 0.25;
   var roomH = pr.height * 0.95;
   if (!wMax || !hNames || roomW <= 0 || roomH <= 0) { el.style.fontSize = ''; return; }
-  var px = Math.max(14, Math.floor(100 * Math.min(roomW / wMax, roomH / hNames) * 10) / 10);
+  /* Couple Names size: Small shrinks them; Large cannot grow names already as big as fits. */
+  var px = Math.max(14, Math.floor(100 * Math.min(roomW / wMax, roomH / hNames) * Math.min(1, window.__mpNamesScale || 1) * 10) / 10);
   el.style.fontSize = px + 'px';
 }
 (function(){

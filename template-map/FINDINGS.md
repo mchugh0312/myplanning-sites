@@ -450,6 +450,26 @@ Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
   been mis-measuring Modern Minimal's Section Headings (simulating via scriptVar);
   Modern Minimal's map entry corrected - no change to the template.
 
+**Couple Names setting; Sage names in front; fast template cards - build `2026-11-02-couple-names`**
+- New Fonts row, Couple Names (font + size). The names display - hero names or
+  initials, Regal Boho's names over Our Story; not the footer signature - takes
+  the chosen face (with the design's backups) or its design face, read once at
+  load, so Section Headings no longer moves the names. Size scales the names'
+  own size (small 0.85, medium 1, large 1.15, very large 1.3) as the starting
+  size of the fitters (fitHeroNames, fitOneName); Sage & Still's own fit takes
+  Small, and cannot grow names already as big as fits. Defaults measured: Black
+  Tie Ballet, Coastal Chic and Golden Hour La Belle Aurore, Heirloom Bloom
+  Lancelot (initials), Modern Minimal Barlow Condensed, Pressed Petals Pinyon
+  Script, Regal Boho Libre Baskerville, Sage & Still Aboreto, Vintage Instrument
+  Serif, Whimsical Romance Corben - whose Section Headings default is now Pinyon
+  Script (the section headings' face; Corben was the names). Help: four settings.
+  Re-select test (names included): nine of ten identical; open: Sage & Still's
+  story in Ovo.
+- Sage & Still: the names sit ABOVE the photo again (owner), all surfaces.
+- Desktop template cards are sent no data and waited 2.5s for it, then up to
+  2.5s for the hero photo. Their address now carries &sample=1 and they draw at
+  once: Coastal Chic 2.7s -> 0.3s, Vintage 2.7s -> 0.2s in the sandbox.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

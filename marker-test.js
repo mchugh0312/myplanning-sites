@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '75efbe2a');
+    ('0000000' + h.toString(16)).slice(-8), '628ae449');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-design-fonts');
+  check('the stamp names the change it shipped with', version, '2026-11-02-couple-names');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'b0561968');
+    ('0000000' + bh.toString(16)).slice(-8), '0f7b2034');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10362,7 +10362,8 @@ check('two blocks -> two cards', blocks(mark(
     /data-sample-src="https:\/\/assets\.softr-files\.com\/[^"]*8cfad9f7-03ba-4e2c-9e9c-ff25da31a239\.png"/.test(sg), true);
   /* The names behind the photo; the first line clear of it, the longer line
      tucking behind by at most a fifth; long names smaller, never larger. */
-  check('the photo sits in front of the names', /\.hero-couple-name\{[^}]*z-index:1; \/\* behind the photo/.test(sg) && /\.hero-photo-wrap\{\s*\n\s*z-index:2;/.test(sg), true);
+  /* Reversed (owner, 11/02): the names sit ABOVE the photo, template, preview and site. */
+  check('the names sit in front of the photo', /\.hero-couple-name\{[^}]*z-index:3; \/\* IN FRONT of the photo/.test(sg) && /\.hero-photo-wrap\{\s*\n\s*z-index:2;/.test(sg), true);
   check('the names fill the free space beside the photo (and a quarter over it), never wrapping (owner, 11/02)',
     /var roomW = \(pr\.left - ir\.left\) - left \+ pr\.width \* 0\.25;/.test(sg) && /var roomH = pr\.height \* 0\.95;/.test(sg) && /setTimeout\(fitSageNames, 0\)/.test(sg), true);
   check('and both runtime name-fitters leave them to it',
@@ -10392,7 +10393,7 @@ check('two blocks -> two cards', blocks(mark(
      are Stack Sans Headline; the story is drawn in the headings face and now
      follows Section Headings; the menu is Stack Sans on every device. */
   check('Vintage Love Story\'s defaults: body and menu Stack Sans Headline, headings Instrument Serif',
-    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline", menu: "Stack Sans Headline" \}/.test(ws), true);
+    /"ea503a80-4b62-4936-97ae-28e96cd960b4": \{ (?:names: "[^"]+", )?heading: "Instrument Serif",\s+body: "Stack Sans Headline", content: "Stack Sans Headline", menu: "Stack Sans Headline" \}/.test(ws), true);
 }
 
 
@@ -10438,8 +10439,8 @@ check('two blocks -> two cards', blocks(mark(
     ['Barlow Condensed', 'Nunito Sans', 'Stack Sans Headline'].every(f =>
       new RegExp('label: "' + f + '",').test(ws) && rt.indexOf("'" + f + "'") > -1 && rt.indexOf('"' + f + '"') > -1), true);
   check('and the Fonts panel names them as each design\'s default',
-    /"86596984-1045-4adb-838d-2b59b75f0003": \{ heading: "Barlow Condensed"/.test(ws) &&
-    /"c2be12ee-8127-4a7d-b975-492bbc8bb812": \{ heading: "Corben",\s+body: "Nunito Sans",\s+content: "Nunito Sans"/.test(ws), true);
+    /"86596984-1045-4adb-838d-2b59b75f0003": \{ (?:names: "[^"]+", )?heading: "Barlow Condensed"/.test(ws) &&
+    /"c2be12ee-8127-4a7d-b975-492bbc8bb812": \{ names: "Corben", heading: "Pinyon Script",\s+body: "Nunito Sans",\s+content: "Nunito Sans"/.test(ws), true);   // 11/02: Corben is the names; the section headings are Pinyon Script
   check('the registry page agrees for Modern Minimal',
     /"modernminimal":"\\"Barlow Condensed\\", Oswald/.test(reg) && /gfont:"Barlow\+Condensed:wght@500;600;700&family=Poppins/.test(reg), true);
 }
@@ -10501,10 +10502,28 @@ check('two blocks -> two cards', blocks(mark(
   const vl = fs.readFileSync('template-vintagelovestory.html', 'utf8');
   const ws = fs.readFileSync('Website.txt', 'utf8');
   check('Coastal Chic: Section Headings writes its own --heading (names stay La Belle Aurore)',
-    /headingVar: '--heading',   \/\/ section headings: Lexend Deca/.test(rt) && /"b2ea1d6d-da4f-4023-ba04-fb7baa756608": \{ heading: "Lexend Deca"/.test(ws), true);
+    /headingVar: '--heading',   \/\/ section headings: Lexend Deca/.test(rt) && /"b2ea1d6d-da4f-4023-ba04-fb7baa756608": \{ (?:names: "[^"]+", )?heading: "Lexend Deca"/.test(ws), true);
   check('Coastal Chic\'s card has no Our Story, as a couple picking it gets', /home:true, story:false, wedding:true/.test(cc), true);
   check('Vintage\'s section-title oval: a medium line and a thin one outside it',
     /\.oval-title::before\{[^}]*border:3px solid currentColor;/.test(vl) && /\.oval-title::after\{ content:''; position:absolute; inset:-5px; border:1px solid currentColor;/.test(vl), true);
+}
+
+
+// ── Couple Names setting; template cards draw their sample at once (11/02) ─
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const help = fs.readFileSync('WebsiteHelp.txt', 'utf8');
+  check('the Fonts panel has a Couple Names row', /\{ key: "names",\s+label: "Couple Names",\s+fallback: "names" \}/.test(ws), true);
+  const tf = ws.slice(ws.indexOf('const TEMPLATE_FONTS = {'), ws.indexOf('\n};', ws.indexOf('const TEMPLATE_FONTS = {')));
+  check('every template names its names face', (tf.match(/: \{ names: "[^"]+",/g) || []).length, 10);
+  check('the runtime applies Couple Names, pinning the design face otherwise',
+    /_applyNamesFont\(settings\.names \|\| null\);/.test(rt) && /else if \(design\) e\.style\.fontFamily = design;/.test(rt), true);
+  check('Couple Names size is the starting size the fitters work from',
+    /if \(_namesScale !== 1\) \{ start = start \* _namesScale;/.test(rt) && /if \(_namesScale !== 1 && _isNamesEl\(el\)\)/.test(rt), true);
+  check('the help describes four font settings', /four settings, Couple Names, Section Headings, Body Text and Menu Links/.test(help), true);
+  /* Desktop template cards are sent no data; they waited 2.5s before drawing. */
+  check('a sample template card draws at once', /_sampleNow \? 0 : 2500/.test(rt) && /\(!_hydrateThumbs\(\) \? '&sample=1' : ''\)/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

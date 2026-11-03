@@ -4441,6 +4441,8 @@
       var f = settings.sections[k] && settings.sections[k].font;
       if (f) families.push(f);
     });
+    if (settings.names && settings.names.font) families.push(settings.names.font);
+    _applyNamesFont(settings.names || null);
     ['heading', 'body', 'menu'].forEach(function (role) {
       var cfg = settings[role] || {};
       if (!cfg.font) return;
@@ -6022,6 +6024,7 @@
         el.style.fontSize = '';
         var start = parseFloat(getComputedStyle(el).fontSize) || 0;
         if (!start) return;
+        if (_namesScale !== 1) { start = start * _namesScale; el.style.fontSize = start + 'px'; }   // Couple Names size
         /* A floor of its own, well below the design's, so a very long name gets
            small rather than clipped - but never becomes unreadable. */
         var min = Math.max(14, start * 0.42);
@@ -6029,7 +6032,7 @@
           el.style.fontSize = px + 'px';
           return _textOverflows(el);
         });
-        if (fitted >= start - 0.5) el.style.fontSize = '';   // it always fitted
+        if (fitted >= start - 0.5) el.style.fontSize = _namesScale !== 1 ? start + 'px' : '';   // it always fitted
         else el.style.fontSize = fitted + 'px';
       });
     } catch (e) {}
@@ -6429,6 +6432,7 @@
     el.style.removeProperty('font-size');
     el.style.removeProperty('white-space');
     el.style.removeProperty('overflow-wrap');
+    if (_namesScale !== 1 && _isNamesEl(el)) el.style.fontSize = ((parseFloat(getComputedStyle(el).fontSize) || 0) * _namesScale).toFixed(2) + 'px';   // Couple Names size
     if (!_nameOverflows(el, host)) return;
 
     var base = parseFloat(getComputedStyle(el).fontSize) || 0;
@@ -8379,7 +8383,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-design-fonts';
+  var MP_RUNTIME_BUILD = '2026-11-02-couple-names';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8816,6 +8820,37 @@
       out.ownFilesFailedFetchedFromGoogle = window.__mpFontRescued || [];
       console.info('[mp-fonts] ' + TID + ' ' + MP_RUNTIME_BUILD + ' ' + JSON.stringify(out, null, 1));
     } catch (e) { console.info('[mp-fonts] report failed', e && e.message); }
+  }
+
+  /* COUPLE NAMES - their own Fonts setting (owner, 11/02): font and size. The
+     names display is the hero's names (or initials), or Regal Boho's names over
+     Our Story - not the small footer signature, which keeps the design's face.
+     Its design face is read once, before any choice is written, and the names
+     are always given either the chosen face (with the design's backups) or that
+     design face - so Section Headings never moves them. Size scales the names'
+     own size; the fitters start from it and still shrink long names to fit. */
+  var NAME_SCALES = { small: 0.85, medium: 1, large: 1.15, 'very-large': 1.3 };
+  var _namesScale = 1;
+  function _namesEls() {
+    var ids = [CFG.heroNamesId, 'heroCoupleNames', 'heroNames', 'heroInitialsWrap', 'storyNames'], out = [];
+    ids.forEach(function (id) { var e = id && document.getElementById(id); if (e && out.indexOf(e) === -1) out.push(e); });
+    return out;
+  }
+  function _isNamesEl(el) { return !!el && _namesEls().indexOf(el) > -1; }
+  var _namesDesignFace = {};
+  try { _namesEls().forEach(function (e) { _namesDesignFace[e.id] = getComputedStyle(e).fontFamily; }); } catch (e) {}
+  function _applyNamesFont(cfg) {
+    try {
+      _namesScale = (cfg && cfg.size && NAME_SCALES[cfg.size]) || 1;
+      window.__mpNamesScale = _namesScale;
+      _namesEls().forEach(function (e) {
+        var design = _namesDesignFace[e.id] || '';
+        if (cfg && cfg.font) {
+          var backups = design.split(',').slice(1).map(function (x) { return x.trim(); }).filter(Boolean).join(',') || 'serif';
+          e.style.fontFamily = "'" + cfg.font + "'," + backups;
+        } else if (design) e.style.fontFamily = design;
+      });
+    } catch (e) {}
   }
 
   function hydrate(d) {
@@ -9433,9 +9468,15 @@
       // load-then-post round trip once there were eleven frames on a page, and
       // losing the race meant showing sample data. This is a backstop for a
       // template opened with no editor at all, not part of the normal path.
+      /* A template card the editor tells to show its SAMPLE (?sample=1 - desktop
+         cards, which are sent no data) draws it at once: it waited the whole
+         2.5s for a message that never comes, then up to 2.5s more for the hero
+         photo - why the cards loaded slower than the preview (owner, 11/02). */
+      var _sampleNow = false;
+      try { var _qp = new URLSearchParams(location.search); _sampleNow = _qp.get('thumbnail') === '1' && _qp.get('sample') === '1'; } catch (e) {}
       setTimeout(function () {
         if (!got) settle(window.SAMPLE_DATA || {}, true);
-      }, 2500);
+      }, _sampleNow ? 0 : 2500);
       return;
     }
 
