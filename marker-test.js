@@ -9616,9 +9616,12 @@ check('two blocks -> two cards', blocks(mark(
     /\.registry-info\{position:relative;z-index:2;max-width:min\(620px,/.test(vls), true);
   /* Superseded (owner, 11/02): the lace frames the HEADING - top-left and
      bottom-right corners - then the note, then the gifts; the band carries none. */
-  check('Vintage\'s lace frames the registry heading, not the gift band',
+  /* (owner, 11/02, again) the lace sits in the BAND's top-left and bottom-right
+     corners, full size; the band ends before the gifts and is tall enough for it. */
+  check('Vintage\'s lace sits in the registry band\'s corners, above the gifts',
+    /<section class="registry-wrap" id="registry-wrap">\s*\n\s*<!--[\s\S]*?-->\s*\n\s*<span class="registry-lace tl"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
+    /\.registry-wrap\{ min-height:calc\(clamp\(150px, 20vw, 260px\) \+ 2rem\);/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
     !/#mp-reg-band::after\{/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
-    /\.registry-wrap \.registry-title-wrap\{ width:fit-content;/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
     /\.registry-wrap \.registry-title-wrap \.oval-title-line\{ display:none; \}/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
 }
 
@@ -10351,8 +10354,7 @@ check('two blocks -> two cards', blocks(mark(
   /* hideDeadCtas leaves registry-classed links alone; an address-less link in
      the editor's preview named otherwise was swept up with its heading. */
   check('the heading\'s link is named as a registry link', /link\.className = 'mp-registry-headlink';/.test(rt) && !/(className = |querySelector\()'[^']*mp-reg-headlink/.test(rt), true);
-  check('Vintage Love Story\'s lace frames the heading, not the whole band',
-    /<div class="oval-title-wrap registry-title-wrap">\s*\n\s*<!--[\s\S]*?-->\s*\n\s*<span class="registry-lace tl"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+  /* (superseded 11/02: the lace is back in the band's corners) */
 }
 
 
