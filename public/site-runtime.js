@@ -8723,6 +8723,25 @@
           }
         }
       });
+      /* A menu link pointing at a button just hidden (Vintage Love Story and Regal
+         Boho link "Registry" to #registry-section, their old button) now points
+         at the registry band itself - or the menus dropped Registry as a link
+         to nowhere (owner, 11/02). Then the menus are checked again, and the
+         phone menu rebuilt, since those ran earlier in this draw. */
+      var moved = false;
+      Array.prototype.forEach.call(area.querySelectorAll('[data-mp-ctaoff][id]'), function (el) {
+        var links = document.querySelectorAll('a[href="#' + el.id + '"]');
+        if (!links.length) return;
+        if (!area.id) area.id = document.getElementById('registry-wrap') ? 'mp-registry' : 'registry-wrap';
+        Array.prototype.forEach.call(links, function (a) {
+          if (area.contains(a)) return;
+          a.setAttribute('href', '#' + area.id); a.setAttribute('data-mp-retarget', el.id); moved = true;
+        });
+      });
+      if (moved) {
+        try { _navFollowsSections(); } catch (e) {}
+        try { buildMobileNav(); } catch (e) {}
+      }
     } catch (e) {}
   }
 
