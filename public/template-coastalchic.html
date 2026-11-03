@@ -107,6 +107,9 @@
   --ink: #1b2a41;
   --script:'La Belle Aurore','La Belle Aurore Local',cursive;
   --body:'Lexend Deca','Lexend Deca Local',sans-serif;
+  /* Section headings in Lexend Deca, as designed (owner, 11/02) - their own variable, so the
+     Section Headings setting moves them and never the couple's names (La Belle Aurore). */
+  --heading:'Lexend Deca','Lexend Deca Local',sans-serif;   /* its own list, so Body Text never moves the headings */
 }
 html{scroll-behavior:smooth}
 body{
@@ -221,7 +224,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .schedule-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -239,7 +242,7 @@ body.hydrating{visibility:hidden;}
   color:var(--on-dark);
 }
 .schedule-event-name{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:700;
   font-size:0.92rem;
   letter-spacing:0.18em;
@@ -300,7 +303,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .travel-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -328,7 +331,7 @@ body.hydrating{visibility:hidden;}
   line-height:1.7;
 }
 .travel-block-label{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:700;
   font-size:0.85rem;
   letter-spacing:0.16em;
@@ -415,7 +418,7 @@ body.hydrating{visibility:hidden;}
 }
 .faq-inner{max-width:680px;margin:0 auto;}
 .faq-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -428,7 +431,7 @@ body.hydrating{visibility:hidden;}
 }
 .faq-item:last-child{margin-bottom:0;}
 .faq-q-text{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:500;
   font-size:1.02rem;
   color:var(--on-dark);
@@ -454,7 +457,7 @@ body.hydrating{visibility:hidden;}
 }
 .registry-inner{max-width:560px;margin:0 auto;}
 .registry-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -513,7 +516,7 @@ body.hydrating{visibility:hidden;}
   position:relative;z-index:2;
 }
 .rsvp-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--on-dark);
@@ -822,7 +825,7 @@ body.hydrating{visibility:hidden;}
 }
 .story-inner{max-width:600px;margin:0 auto;}
 .story-title{
-  font-family:var(--heading-font, var(--script));
+  font-family:var(--heading-font, var(--heading));
   font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);
@@ -862,7 +865,7 @@ body.hydrating{visibility:hidden;}
 
 .gallery-section .section-title-mini{
   /* Section Headings reaches it (MP-947); the body face until one is chosen. */
-  font-family:var(--heading-font, var(--script));font-weight:600;
+  font-family:var(--heading-font, var(--heading));font-weight:600;
   font-size:clamp(1.5rem,3vw,2rem);
   color:var(--ink);margin-bottom:1.5rem;
 }
@@ -1112,7 +1115,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:d0500c78';
+    window.__mpTemplate = 'coastalchic:a4d32e29';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -2091,7 +2094,7 @@ const SAMPLE_DATA = {
   customization:{primary_color:'',accent_color:'',text_color:''},
   rsvp_config:{ entrees:['Chicken','Fish','Vegetarian','Vegan','Kids Meal'], allow_plus_one:true },
   menu_config:{
-    home:true, story:true, wedding:true, other_events:true,
+    home:true, story:false, wedding:true, other_events:true,   /* no Our Story by default, as designed (owner, 11/02) */
     accommodations:false, things_to_do:false, faqs:true, travel:true,
     gallery:false, registry:true, rsvp:true
   }

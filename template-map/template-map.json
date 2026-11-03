@@ -4,7 +4,7 @@
   "fonts": {
    "vars": {
     "--menu-font": {
-     "value": "'Goudy','Georgia',serif",
+     "value": "'Sorts Mill Goudy','Georgia',serif",
      "roles": {
       "menu": [
        "nav"
@@ -43,7 +43,7 @@
      }
     },
     "--serif": {
-     "value": "'Goudy','Georgia',serif",
+     "value": "'Sorts Mill Goudy','Georgia',serif",
      "roles": {
       "menu": [
        "nav"
@@ -80,12 +80,12 @@
     "displayVar": {
      "var": "--serif",
      "exists": true,
-     "face": "Goudy"
+     "face": "Sorts Mill Goudy"
     },
     "bodyVar": {
      "var": "--serif",
      "exists": true,
-     "face": "Goudy"
+     "face": "Sorts Mill Goudy"
     },
     "unlisted_font_vars": [
      "--menu-font"
@@ -807,7 +807,7 @@
      "line": "What should I wear?",
      "onsite": {
       "el": "div.ntk-question",
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -824,7 +824,7 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "div.ntk-question",
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -841,7 +841,7 @@
      "line": "What should I wear?",
      "onsite": {
       "el": "div.ntk-question",
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -858,7 +858,7 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "div.ntk-question",
-      "font": "Goudy",
+      "font": "Sorts Mill Goudy",
       "style": "normal",
       "weight": "700",
       "caps": "none"
@@ -953,7 +953,7 @@
      "field": "events_info",
      "line": "Evening Casual",
      "el": "em.mp-attire",
-     "font": "Goudy",
+     "font": "Sorts Mill Goudy",
      "style": "italic",
      "rules": []
     }
@@ -1242,7 +1242,33 @@
      "roles": {
       "home": [
        "home"
+      ]
+     }
+    },
+    "--body": {
+     "value": "'Lexend Deca','Lexend Deca Local',sans-serif",
+     "roles": {
+      "menu": [
+       "nav"
       ],
+      "body": [
+       "faqs",
+       "story",
+       "things_to_do",
+       "travel",
+       "wedding"
+      ],
+      "italic-line": [
+       "travel"
+      ],
+      "other": [
+       "other"
+      ]
+     }
+    },
+    "--heading": {
+     "value": "'Lexend Deca','Lexend Deca Local',sans-serif",
+     "roles": {
       "section-heading": [
        "faqs",
        "registry",
@@ -1259,26 +1285,6 @@
       ],
       "body": [
        "registry"
-      ]
-     }
-    },
-    "--body": {
-     "value": "'Lexend Deca','Lexend Deca Local',sans-serif",
-     "roles": {
-      "menu": [
-       "nav"
-      ],
-      "body": [
-       "faqs",
-       "things_to_do",
-       "travel",
-       "wedding"
-      ],
-      "italic-line": [
-       "travel"
-      ],
-      "other": [
-       "other"
       ]
      }
     }
@@ -1309,11 +1315,8 @@
    },
    "role_writes": {
     "heading": {
-     "var": "--script",
+     "var": "--heading",
      "moves": {
-      "home": [
-       "home"
-      ],
       "section-heading": [
        "faqs",
        "registry",
@@ -1341,6 +1344,7 @@
       ],
       "body": [
        "faqs",
+       "story",
        "things_to_do",
        "travel",
        "wedding"
@@ -1459,11 +1463,12 @@
        "story",
        "travel"
       ],
-      "block-title": [
-       "travel"
-      ],
       "body": [
        "registry",
+       "story",
+       "travel"
+      ],
+      "block-title": [
        "travel"
       ],
       "other": [
@@ -1963,7 +1968,7 @@
      "color": "rgb(27, 42, 65)"
     },
     "title": {
-     "font": "La Belle Aurore",
+     "font": "Lexend Deca",
      "fontSrc": "",
      "weight": "700",
      "caps": "uppercase",
@@ -1972,7 +1977,7 @@
      "color": "rgb(254, 250, 241)"
     },
     "question": {
-     "font": "La Belle Aurore",
+     "font": "Lexend Deca",
      "fontSrc": "",
      "weight": "500",
      "caps": "none",
@@ -1988,13 +1993,13 @@
      "line": "Wedding",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2005,13 +2010,13 @@
      "line": "Wedding",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2022,13 +2027,13 @@
      "line": "Welcome Drinks",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2039,13 +2044,13 @@
      "line": "Beach Day",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2056,13 +2061,13 @@
      "line": "Welcome Drinks",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2073,13 +2078,13 @@
      "line": "Beach Day",
      "onsite": {
       "el": "div.schedule-event-name",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700"
      }
@@ -2090,13 +2095,13 @@
      "line": "What should I wear to the wedding?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500"
      }
@@ -2107,13 +2112,13 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500"
      }
@@ -2124,13 +2129,13 @@
      "line": "What should I wear to the wedding?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500"
      }
@@ -2141,13 +2146,13 @@
      "line": "Will there be transportation?",
      "onsite": {
       "el": "span.faq-q-text",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500",
       "caps": "none"
      },
      "box": {
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "500"
      }
@@ -2158,7 +2163,7 @@
      "line": "AIRPORT",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2175,7 +2180,7 @@
      "line": "HOTEL",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2192,7 +2197,7 @@
      "line": "AIRPORT",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2209,7 +2214,7 @@
      "line": "HOTEL",
      "onsite": {
       "el": "div.travel-block-label",
-      "font": "La Belle Aurore",
+      "font": "Lexend Deca",
       "style": "normal",
       "weight": "700",
       "caps": "uppercase"
@@ -2235,6 +2240,17 @@
    ]
   },
   "imposed_on_body_copy": [
+   {
+    "section": "story",
+    "el": "p#storyText",
+    "flags": [
+     "weight 300"
+    ],
+    "example": "We met at a coffee shop in 2019. What st",
+    "selectors": [
+     ".story-text"
+    ]
+   },
    {
     "section": "travel",
     "el": "div.travel-block-detail",
@@ -4880,8 +4896,7 @@
      "face": "Poppins"
     },
     "unlisted_font_vars": [
-     "--menu-font",
-     "--heading"
+     "--menu-font"
     ],
     "fallback_fonts": {
      "display": "'Poppins',sans-serif",
@@ -4890,30 +4905,26 @@
    },
    "role_writes": {
     "heading": {
-     "var": "--body",
+     "var": "--heading",
      "moves": {
       "home": [
        "home"
       ],
-      "menu": [
-       "nav"
-      ],
-      "other": [
-       "other"
-      ],
-      "body": [
+      "section-heading": [
        "faqs",
        "other_events",
+       "rsvp",
        "things_to_do",
+       "travel",
        "wedding"
       ],
       "block-title": [
-       "faqs",
        "other_events",
+       "travel",
        "wedding"
       ],
-      "italic-line": [
-       "travel"
+      "menu": [
+       "nav"
       ]
      }
     },
@@ -4985,32 +4996,7 @@
      "mobile": true
     }
    },
-   "section_headings_not_moved_by_heading_control": [
-    [
-     "faqs",
-     "Barlow Condensed"
-    ],
-    [
-     "other_events",
-     "Barlow Condensed"
-    ],
-    [
-     "rsvp",
-     "Barlow Condensed"
-    ],
-    [
-     "things_to_do",
-     "Barlow Condensed"
-    ],
-    [
-     "travel",
-     "Barlow Condensed"
-    ],
-    [
-     "wedding",
-     "Barlow Condensed"
-    ]
-   ],
+   "section_headings_not_moved_by_heading_control": [],
    "content_text_no_font_var": [
     [
      "nav",
@@ -7413,7 +7399,7 @@
      "--menu-font"
     ],
     "mobile_vars": [
-     "--body",
+     "--display",
      "--menu-font"
     ],
     "menu_control_writes": "--menu-font",
@@ -8215,10 +8201,6 @@
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
      ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
-     ],
      "style": [
       "italic",
       "normal"
@@ -8236,10 +8218,6 @@
      "bg": [
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
-     ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
      ],
      "style": [
       "italic",
@@ -8259,10 +8237,6 @@
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
      ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
-     ],
      "style": [
       "italic",
       "normal"
@@ -8280,10 +8254,6 @@
      "bg": [
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
-     ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
      ],
      "style": [
       "italic",
@@ -8303,10 +8273,6 @@
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
      ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
-     ],
      "style": [
       "italic",
       "normal"
@@ -8324,10 +8290,6 @@
      "bg": [
       "rgb(58, 58, 54)",
       "rgb(241, 228, 201)"
-     ],
-     "font": [
-      "Libre Baskerville",
-      "Noto Serif"
      ],
      "style": [
       "italic",
@@ -8517,12 +8479,13 @@
       "menu": [
        "nav"
       ],
+      "body": [
+       "accommodations",
+       "story"
+      ],
       "block-title": [
        "accommodations",
        "wedding"
-      ],
-      "body": [
-       "accommodations"
       ],
       "italic-line": [
        "accommodations"
@@ -8660,8 +8623,8 @@
      "--sub"
     ],
     "mobile_vars": [
-     "--body",
-     "--menu-font"
+     "--menu-font",
+     "--sub"
     ],
     "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
@@ -8731,7 +8694,8 @@
        "things_to_do"
       ],
       "body": [
-       "accommodations"
+       "accommodations",
+       "story"
       ],
       "block-title": [
        "accommodations",
@@ -9317,6 +9281,17 @@
   },
   "imposed_on_body_copy": [
    {
+    "section": "story",
+    "el": "p#storyText",
+    "flags": [
+     "italic"
+    ],
+    "example": "We met at a coffee shop in 2019. What st",
+    "selectors": [
+     ".story-text"
+    ]
+   },
+   {
     "section": "wedding",
     "el": "em.mp-attire",
     "flags": [
@@ -9421,78 +9396,7 @@
     }
    }
   },
-  "mobile_only": [
-   {
-    "section": "nav",
-    "text": "Home",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "The Weekend",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Travel",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Need to Knows",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Things to Do",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Our Registry",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "RSVP",
-    "changes": {
-     "font": [
-      "Ovo",
-      "DM Sans"
-     ]
-    }
-   }
-  ],
+  "mobile_only": [],
   "probe": {
    "errors": {
     "desktop-sample": [],
@@ -9824,8 +9728,8 @@
      "--sans"
     ],
     "mobile_vars": [
-     "--display",
-     "--menu-font"
+     "--menu-font",
+     "--sans"
     ],
     "menu_control_writes": "--menu-font",
     "menu_control_reaches_menu": {
@@ -10239,7 +10143,7 @@
     {
      "section": "story",
      "role": "body",
-     "text": "Lorem ipsum dolor sit amet, consecte",
+     "text": "We met at a coffee shop in 2019. Wha",
      "slots": [
       "ink2"
      ],
@@ -10735,88 +10639,7 @@
     }
    }
   },
-  "mobile_only": [
-   {
-    "section": "nav",
-    "text": "Home",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Our Story",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "The Wedding",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Other Events",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Travel",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "FAQs",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "Things to Do",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   },
-   {
-    "section": "nav",
-    "text": "RSVP",
-    "changes": {
-     "font": [
-      "Stack Sans Headline",
-      "Instrument Serif"
-     ]
-    }
-   }
-  ],
+  "mobile_only": [],
   "probe": {
    "errors": {
     "desktop-sample": [],

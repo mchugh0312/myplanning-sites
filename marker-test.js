@@ -3239,7 +3239,7 @@ check('two blocks -> two cards', blocks(mark(
       return lit ? lit[1] : null;
     };
     check('coastal chic sets event names in the body face',
-      ['--body', 'Lexend Deca', '--script'].indexOf(face(cc, 'schedule-event-name')) > -1, true);
+      ['--body', 'Lexend Deca', '--script', '--heading'].indexOf(face(cc, 'schedule-event-name')) > -1, true);
     check('pressed petals sets them in the script face',
       face(pp, 'event-card-name'), '--script');
   }
@@ -3254,7 +3254,7 @@ check('two blocks -> two cards', blocks(mark(
   /* Still the body face by default; Section Headings now reaches it through
      var(--heading-font, ...) - titles follow Section Headings everywhere. */
   check('coastal chic labels use the body face',
-    /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab) || /font-family:var\(--heading-font, ('Lexend Deca', sans-serif|var\(--script\))\)/.test(ccLab), true);
+    /font-family:var\((?:--heading-font, var\()?--body\)/.test(ccLab) || /font-family:var\(--heading-font, ('Lexend Deca', sans-serif|var\(--script\)|var\(--heading\))\)/.test(ccLab), true);
   check('pressed petals labels use the script face', /font-family:var\(--script\)/.test(ppLab), true);
 }
 
@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '3ca06da4');
+    ('0000000' + h.toString(16)).slice(-8), '75efbe2a');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-one-face');
+  check('the stamp names the change it shipped with', version, '2026-11-02-design-fonts');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'e6b3c2c4');
+    ('0000000' + bh.toString(16)).slice(-8), 'b0561968');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9748,7 +9748,7 @@ check('two blocks -> two cards', blocks(mark(
     /if \(!\(settings\.menu && settings\.menu\.font\) && _designMenuFont\) root\.setProperty\('--menu-font', _designMenuFont\);/.test(rt), true);
   /* MP-947 / MP-952: Gallery headings follow Section Headings. */
   check('Gallery headings follow Section Headings (Coastal Chic, Whimsical Romance)',
-    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, (var\(--body\)|'Lexend Deca', sans-serif|var\(--script\))\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    /\.gallery-section \.section-title-mini\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, (var\(--body\)|'Lexend Deca', sans-serif|var\(--script\)|var\(--heading\))\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
     /\.gallery-title\{\s*\n[^\n]*\n\s*font-family:var\(--heading-font, var\(--display\)\)/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
   /* MP-936: no iPhone auto-links on any design. */
   check('MP-936 every template turns off iPhone auto-linking',
@@ -10085,9 +10085,12 @@ check('two blocks -> two cards', blocks(mark(
     /return _writeHeading\('accommodations', id, String\(_tr\)\.trim\(\)\);/.test(rt), true);
   /* MP-947: Body Text moved Coastal Chic's section headings until a Section
      Headings font was chosen - their fallback was the body font. */
-  check('MP-947 Coastal Chic\'s section headings default to the names face (La Belle Aurore), never Body Text',
-    !/var\(--heading-font, var\(--body\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
-    (fs.readFileSync('template-coastalchic.html', 'utf8').match(/var\(--heading-font, var\(--script\)\)/g) || []).length === 10, true);
+  /* Superseded (owner, 11/02, from the original design): Coastal Chic's section
+     headings are Lexend Deca - their own --heading variable - and La Belle Aurore
+     is the couple's names only. */
+  check('MP-947 Coastal Chic\'s section headings default to Lexend Deca, their own variable',
+    /--heading:'Lexend Deca','Lexend Deca Local',sans-serif;/.test(fs.readFileSync('template-coastalchic.html', 'utf8')) &&
+    !/var\(--heading-font, var\(--script\)\)/.test(fs.readFileSync('template-coastalchic.html', 'utf8')), true);
 }
 
 
@@ -10488,6 +10491,20 @@ check('two blocks -> two cards', blocks(mark(
   const off = ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','vintagelovestory','whimsicalromance']
     .filter(t => { const s = fs.readFileSync('template-' + t + '.html', 'utf8'); const i = s.indexOf('SAMPLE_DATA'); return s.slice(i, i + 60000).indexOf(starter.slice(0, 40)) === -1; });
   check('every template card\'s sample story is the starter story (no Lorem ipsum, none empty)', off.join(','), '');
+}
+
+
+// ── From the designs (owner, 11/02): Coastal Chic fonts, Vintage ovals ────
+{
+  const cc = fs.readFileSync('template-coastalchic.html', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const vl = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  check('Coastal Chic: Section Headings writes its own --heading (names stay La Belle Aurore)',
+    /headingVar: '--heading',   \/\/ section headings: Lexend Deca/.test(rt) && /"b2ea1d6d-da4f-4023-ba04-fb7baa756608": \{ heading: "Lexend Deca"/.test(ws), true);
+  check('Coastal Chic\'s card has no Our Story, as a couple picking it gets', /home:true, story:false, wedding:true/.test(cc), true);
+  check('Vintage\'s section-title oval: a medium line and a thin one outside it',
+    /\.oval-title::before\{[^}]*border:3px solid currentColor;/.test(vl) && /\.oval-title::after\{ content:''; position:absolute; inset:-5px; border:1px solid currentColor;/.test(vl), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

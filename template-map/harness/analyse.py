@@ -17,10 +17,10 @@ def cfg_for(tid):
     m = re.search(r"\n    %s: \{([\s\S]*?)\n    \}" % tid, RT)
     b = m.group(1)
     g = lambda k: (re.search(k + r":\s*(null|'([^']*)')", b) or [None, None, None])
-    sv, dv, bv = [g(k) for k in ('scriptVar', 'displayVar', 'bodyVar')]
+    sv, dv, bv, hv = [g(k) for k in ('scriptVar', 'displayVar', 'bodyVar', 'headingVar')]
     val = lambda x: x[2] if x and x[1] != 'null' else None
     fonts = re.search(r"fonts:\s*\{\s*display:\s*\"([^\"]*)\",\s*body:\s*\"([^\"]*)\"", b)
-    return {'scriptVar': val(sv), 'displayVar': val(dv), 'bodyVar': val(bv),
+    return {'headingVar': val(hv), 'scriptVar': val(sv), 'displayVar': val(dv), 'bodyVar': val(bv),
             'fonts': {'display': fonts.group(1), 'body': fonts.group(2)} if fonts else None}
 
 def runtime_menu_var(cfg):
@@ -121,7 +121,8 @@ def analyse(tid):
                              if l['section'] in CONTENT | {'nav'}
                              and not any(i == h[0] for e in fx.values() for h in e['hits'])
                              and l['text'] not in ('+', '−', '×', '-')})
-    role_var = {'heading': cfg['scriptVar'] or cfg['displayVar'], 'body': cfg['bodyVar'], 'menu': runtime_menu_var(cfg)}
+    # as the runtime's roleVar: headingVar first (Coastal Chic, 11/02), then scriptVar, then displayVar
+    role_var = {'heading': cfg.get('headingVar') or cfg['scriptVar'] or cfg['displayVar'], 'body': cfg['bodyVar'], 'menu': runtime_menu_var(cfg)}
     def moved_by(var):
         if not var or var not in fx: return {}
         out = {}
@@ -269,7 +270,7 @@ def analyse(tid):
         v = cfg[k]
         cfg_check[k] = {'var': v, 'exists': (v in allvars) if v else None,
                         'face': short_font(allvars.get(v, '')) if v else None}
-    cfg_check['unlisted_font_vars'] = [v for v in fx if v not in (cfg['scriptVar'], cfg['displayVar'], cfg['bodyVar'])]
+    cfg_check['unlisted_font_vars'] = [v for v in fx if v not in (cfg.get('headingVar'), cfg['scriptVar'], cfg['displayVar'], cfg['bodyVar'])]
     cfg_check['fallback_fonts'] = cfg['fonts']
 
     return {

@@ -433,6 +433,23 @@ MP-1009/1010: every template's sample story is now the editor's starter story
 (was Lorem ipsum on four, empty on Coastal Chic and Sage & Still).
 Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
 
+**From the original designs (owner, 11/02) - build `2026-11-02-design-fonts`**
+- Coastal Chic (design: La Belle Aurore + Lexend Deca): section headings, event
+  titles, body and menu are Lexend Deca; La Belle Aurore is the couple's names
+  only. Its headings now read their own --heading variable (a literal Lexend
+  Deca list - not var(--body), which let Body Text move them) and the runtime's
+  Section Headings writes it (headingVar), so the names never move. Panel row:
+  heading Lexend Deca. Each setting verified to move only its own text.
+- Coastal Chic has no Our Story by default: the editor already defaulted it off;
+  its template-card sample now has story:false too.
+- Vintage Love Story's section-title oval, per the design: a 3px line, a 1px line
+  5px outside it, and more space around the words (was one 10px line, tight).
+- Vintage's order on the page is already Our Story -> The Wedding (owner: keep the
+  order consistent, not the design file's Wedding-first).
+- Measuring tool (analyse.py): now honours headingVar, as the runtime does. It had
+  been mis-measuring Modern Minimal's Section Headings (simulating via scriptVar);
+  Modern Minimal's map entry corrected - no change to the template.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

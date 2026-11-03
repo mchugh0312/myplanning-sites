@@ -202,7 +202,7 @@ body.hydrating{visibility:hidden;}
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:0.95rem 3rem;
+  padding:1.35rem 3.8rem; /* room between the words and the oval, as designed (owner, 11/02) */
   flex-shrink:0;
 }
 .oval-title::before{
@@ -210,11 +210,13 @@ body.hydrating{visibility:hidden;}
   position:absolute;
   inset:0;
   /* 80% of the previous weight. */
-  border:10px solid currentColor;
+  border:3px solid currentColor; /* the oval: a medium line... */
   border-radius:50%;
   pointer-events:none;
   opacity:1;
 }
+/* ...and a very thin second line just outside it, as in the design. */
+.oval-title::after{ content:''; position:absolute; inset:-5px; border:1px solid currentColor; border-radius:50%; pointer-events:none; }
 .oval-title span{
   font-family:var(--display);
   font-size:clamp(1.3rem, 2.4vw, 1.7rem);
@@ -357,7 +359,7 @@ body.hydrating{visibility:hidden;}
   text-align:center;
 }
 .our-story .oval-title-line{background:var(--ivory);opacity:0.95;}
-.our-story .oval-title::before{border-color:var(--ivory);opacity:1;}
+.our-story .oval-title::before,.our-story .oval-title::after{border-color:var(--ivory);opacity:1;}
 .our-story .oval-title span{color:var(--on-dark);}
 .story-body{
   display:grid;
@@ -1000,9 +1002,10 @@ footer{
   /* Same symmetry as desktop: the title's margin below matches the two
      sections' padding either side of the boundary. */
   .oval-title-wrap{margin-bottom:1.6rem;}
-  .oval-title{padding:0.7rem 2rem;}
+  .oval-title{padding:1rem 2.6rem;}
   .oval-title span{font-size:clamp(1.1rem,4.6vw,1.4rem);}
-  .oval-title::before{border-width:7px;}
+  .oval-title::before{border-width:2.5px;}
+  .oval-title::after{inset:-4px;}
   /* Stack on a phone whatever the event count. */
   .events-grid,
   .events-grid[data-event-count="1"],
@@ -1043,7 +1046,7 @@ footer{
   .section-label,.oval-label{font-size:0.95rem;padding:0.5rem 1.6rem;}
   /* The wider rules need to come back in on a phone. */
   .oval-title-wrap{max-width:100%;gap:0.6rem;}
-  .oval-title{padding:0.5rem 1.4rem;}
+  .oval-title{padding:0.8rem 1.9rem;}
   .oval-title span{font-size:0.95rem;}
 
   /* Sections */
@@ -1204,7 +1207,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:c9403ab9';
+    window.__mpTemplate = 'vintagelovestory:5e04da71';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

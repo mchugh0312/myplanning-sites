@@ -163,6 +163,7 @@
       footerVars: { bg: '--ivory', ink: '--ink' },
       loadingImage: 'https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/35c7f1a4-8d18-414b-ae05-0d7246886b52.png',
       scriptVar: '--script', displayVar: '--body', bodyVar: '--body',
+      headingVar: '--heading',   // section headings: Lexend Deca, apart from the names (owner, 11/02)
       palette: { bg: '#fefaf1', ink: '#1b2a41', accent: '#5f7689', rule: 'rgba(27,42,65,0.22)' },
       fonts: { display: "'La Belle Aurore',cursive", body: "'Lexend Deca',sans-serif" }
     },
@@ -8378,7 +8379,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-one-face';
+  var MP_RUNTIME_BUILD = '2026-11-02-design-fonts';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
