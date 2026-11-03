@@ -470,6 +470,24 @@ Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
   2.5s for the hero photo. Their address now carries &sample=1 and they draw at
   once: Coastal Chic 2.7s -> 0.3s, Vintage 2.7s -> 0.2s in the sandbox.
 
+**Button Background; fixes - build `2026-11-02-buttons`** (owner, 11/02)
+- Colors panel: Button Background ("Template's own" until chosen; reset arrow).
+  Saved in customCss as --button like the other numbered colours (added to the
+  editor's COLOR_CSS_VARS so Reset clears it, and the runtime's _STORAGE_KEYS so
+  it is not injected loose). Runtime _applyButtonColour: the site's buttons
+  (RSVP form, Book Now, gift buttons, by role or label - never menu links) fill
+  with it, outline matching, lettering whichever of Text1/Text2 reads better;
+  re-run as gift cards render. main.py passes button_color (from custom_css) so
+  the registry page fills its CTAs the same way (lettering: page ink or white).
+- Couple Names did not reset in the preview: applyFontSettings returned before
+  the names step when there were no choices (what Reset sends); now restores.
+- Vintage, phone: the travel divider became a bar between Hotel and Flights;
+  hidden on phones (desktop keeps it; the events divider is untouched).
+- Template cards: the one in view and its neighbours load at once (were all
+  lazy, so each arrow started a page from nothing).
+- Map: Section Headings no longer moves the names on any design (names pinned
+  every draw now) - the Couple Names rule, measured.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

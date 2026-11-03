@@ -1016,13 +1016,15 @@ footer{
     grid-template-columns:1fr;
     gap:2rem;
   }
-  .events-divider,
-  .travel-divider{
+  .events-divider{
     width:60%;
     height:1px;
     min-height:0;
     justify-self:center;
   }
+  /* On a phone the travel columns stack and their divider became a bar between
+     Hotel and Flights - not in the design (owner, 11/02). Their own spacing parts them. */
+  .travel-divider{display:none;}
 
   .need-to-know{padding:2.5rem 1.4rem 3rem;}
   .registry-wrap{padding:3rem 1.4rem;}
@@ -1207,7 +1209,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:5e04da71';
+    window.__mpTemplate = 'vintagelovestory:efbd8809';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

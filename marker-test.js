@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '628ae449');
+    ('0000000' + h.toString(16)).slice(-8), '681a6cfd');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-couple-names');
+  check('the stamp names the change it shipped with', version, '2026-11-02-buttons');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), '0f7b2034');
+    ('0000000' + bh.toString(16)).slice(-8), 'f2e98c05');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10524,6 +10524,24 @@ check('two blocks -> two cards', blocks(mark(
   check('the help describes four font settings', /four settings, Couple Names, Section Headings, Body Text and Menu Links/.test(help), true);
   /* Desktop template cards are sent no data; they waited 2.5s before drawing. */
   check('a sample template card draws at once', /_sampleNow \? 0 : 2500/.test(rt) && /\(!_hydrateThumbs\(\) \? '&sample=1' : ''\)/.test(ws), true);
+}
+
+
+// ── Button Background; names reset; Vintage travel divider; cards ahead ──
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const reg = fs.readFileSync('live_registry.html', 'utf8');
+  const py = fs.readFileSync('main.py', 'utf8');
+  check('the Colors panel has Button Background ("Template\'s own" until chosen)',
+    /button:\s+\{ label: "Button Background"/.test(ws) && /Template's own<\/span>/.test(ws) && /button_color: _extractVarColor\(d\.customCss \|\| '', 'button'\)/.test(ws), true);
+  check('the runtime colours the site\'s buttons, never menu links', /function _applyButtonColour\(scope\)/.test(rt) && /el\.closest\('nav, \.top-nav, \.mp-mnav-panel/.test(rt), true);
+  check('the backend passes the button colour to the registry page', /"button_color":\s+\(lambda _m:/.test(py), true);
+  check('the registry page fills its buttons with it', /if \(cz\.button_color && \/\^#\[0-9a-f\]\{3,8\}\$\/i\.test\(cz\.button_color\)\)/.test(reg), true);
+  check('Couple Names goes back on Reset (no choices)', /if \(!settings \|\| !Object\.keys\(settings\)\.length\) \{ _applyNamesFont\(null\); return false; \}/.test(rt), true);
+  check('Vintage hides its travel divider on a phone only',
+    /\.travel-divider\{display:none;\}/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
+  check('the template card in view and its neighbours load at once', /loading=\{near \? "eager" : "lazy"\}/.test(ws), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

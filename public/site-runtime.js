@@ -4201,7 +4201,7 @@
      One list: a key added to the editor and not here is injected as a loose
      declaration and breaks the sheet it lands in. */
   var _STORAGE_KEYS = ['bg', 'accent', 'accent2', 'accent3',
-                       'text', 'text2', 'text3', 'registry-preview'];
+                       'text', 'text2', 'text3', 'registry-preview', 'button'];
   var _STORAGE_KEY_RE = new RegExp(
     '--(?:' + _STORAGE_KEYS.join('|') + ')\\s*:\\s*[^;]+;?', 'g');
 
@@ -4410,7 +4410,11 @@
 
   function applyFontSettings(d) {
     var settings = (d && d.font_settings) || null;
-    if (!settings || !Object.keys(settings).length) return false;
+    /* Couple Names is set on the names themselves, not as a page-wide variable,
+       so it must be PUT BACK when there is no choice - "Reset to template
+       default" sends none, and this returned before reaching it: the dropdown
+       went back, the names did not (owner, 11/02). */
+    if (!settings || !Object.keys(settings).length) { _applyNamesFont(null); return false; }
 
     var root = document.documentElement.style;
     _clearRoleFonts(root);
@@ -7527,6 +7531,7 @@
       btn.setAttribute('target', '_blank');
       btn.setAttribute('rel', 'noopener');
       var soldOut = it.quantity_remaining === 0;
+      setTimeout(function () { try { _applyButtonColour(card); } catch (e) {} }, 0);   // Button Background on gift buttons
       /* MP-1000: a fully gifted item is faded, on every design. */
       card.style.opacity = soldOut ? '0.55' : '';
       if (soldOut) card.setAttribute('data-mp-gifted', '1'); else card.removeAttribute('data-mp-gifted');
@@ -8383,7 +8388,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-couple-names';
+  var MP_RUNTIME_BUILD = '2026-11-02-buttons';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8853,6 +8858,54 @@
     } catch (e) {}
   }
 
+  /* BUTTON BACKGROUND (owner, 11/02). One colour for the site's buttons - RSVP,
+     Book Now, the gift buttons - chosen in the Colors panel; empty leaves every
+     design's buttons as designed. A filled button takes the same colour as its
+     outline, and its lettering whichever of the couple's Text1 / Text2 reads
+     better on it, so it stays within their palette. Runs after every draw and
+     as gift cards render. */
+  var _buttonBg = '';
+  var BUTTON_TEXT = /^(book( now)?|purchase( this item)?|buy( this)?|contribute|give|send( rsvp)?|submit( rsvp)?|rsvp( now)?|find (my|your) (invitation|name|rsvp)|search|continue|next|add (a )?guest|save|view details)$/i;
+  function _buttonColourFromData(d) {
+    var c = (d && d.customization) || {};
+    if (c.button_color) return c.button_color;
+    var m = /--button\s*:\s*(#[0-9a-fA-F]{3,8})/.exec((d && d.custom_css) || '');
+    return m ? m[1] : '';
+  }
+  function _isButton(el) {
+    if (!el || el.closest('nav, .top-nav, .mp-mnav-panel, header .nav, .menu-drawer, #mp-dt-nav')) return false;
+    if (el.matches('#rsvp button, #rsvp input[type=submit], .rsvp-section button, .travel-cta, .registry-card button, .registry-card a.registry-card-btn, .mp-reg-buy, [data-mp-btn]')) return true;
+    var t = (el.textContent || el.value || '').replace(/\s+/g, ' ').trim();
+    return el.matches('a, button, input[type=submit]') && t.length <= 30 && BUTTON_TEXT.test(t);
+  }
+  function _applyButtonColour(scope) {
+    try {
+      var root = scope || document;
+      var els = Array.prototype.filter.call(root.querySelectorAll('a, button, input[type=submit], .travel-cta'), _isButton);
+      els.forEach(function (el) {
+        if (!_buttonBg) {
+          if (el.getAttribute('data-mp-btnbg')) {
+            el.style.backgroundColor = ''; el.style.borderColor = ''; el.style.color = ''; el.removeAttribute('data-mp-btnbg');
+          }
+          return;
+        }
+        var v = (TEMPLATE_COLOR_VARS[TID] || {}), cs = getComputedStyle(document.documentElement);
+        var pickVar = function (x) { if (Array.isArray(x)) x = x[0]; return x ? cs.getPropertyValue(x).trim() : ''; };
+        var parse = function (col) { var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(col) || []; if (m.length) return { r: +m[1], g: +m[2], b: +m[3] };
+          var h = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(col).trim()); if (!h) return null; var x = h[1].length === 3 ? h[1].replace(/(.)/g, '$1$1') : h[1];
+          return { r: parseInt(x.slice(0, 2), 16), g: parseInt(x.slice(2, 4), 16), b: parseInt(x.slice(4, 6), 16) }; };
+        var bg = parse(_buttonBg);
+        var t1 = pickVar(v.ink) || '#000000', t2 = pickVar(v.ink2) || '#ffffff';
+        var c1 = parse(t1), c2 = parse(t2);
+        var text = (bg && c1 && c2) ? (contrastRatio(c1, bg) >= contrastRatio(c2, bg) ? t1 : t2) : '';
+        el.style.backgroundColor = _buttonBg;
+        el.style.borderColor = _buttonBg;
+        if (text) el.style.color = text;
+        el.setAttribute('data-mp-btnbg', '1');
+      });
+    } catch (e) {}
+  }
+
   function hydrate(d) {
     if (!d) return;
     try { _travelEmptyUndo(); } catch (e) {}
@@ -9152,6 +9205,7 @@
     _recordSwitchHides(d);                         // which sections this draw hid because their switch is off
     try { _navFollowsSections(); } catch (e) {}   // menu links to sections that are not on the page go
     try { setTimeout(_alignCardTitles, 0); } catch (e) {}   // cards in a row start their text on one line
+    try { _buttonBg = _buttonColourFromData(d); setTimeout(function () { _applyButtonColour(); }, 0); } catch (e) {}   // Button Background
     try { setTimeout(function () { window.__mpFontLog = null; }, 1200); setTimeout(_fontDiagnostics, 1000); } catch (e) {}   // [mp-fonts] report
     if (!isSaveTheDate(d) || _isPreview) buildMobileNav();
     /* ...and again once the draw has settled: some sections are put away by a

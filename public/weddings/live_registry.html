@@ -1197,6 +1197,19 @@ function applySkin(found){
     r.setProperty("--cta-border-paper", outlined ? surfaceInk : (cBorder || "transparent"));
     r.setProperty("--cta-line-paper",   outlined ? surfaceInk : cFill);
   }
+  /* The couple's Button Background (owner, 11/02), the same as on their site:
+     the main buttons fill with it, their outline matches, and the lettering is
+     whichever of the page's text colour or white reads better on it. Empty
+     leaves the design's own buttons. */
+  if (cz.button_color && /^#[0-9a-f]{3,8}$/i.test(cz.button_color)) {
+    const _hex = c => { c = String(c).replace('#', ''); if (c.length === 3) c = c.replace(/(.)/g, '$1$1'); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) / 255); };
+    const _lum = c => { const v = _hex(c).map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+    const _cr = (a, b) => { const x = _lum(a), y = _lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const bb = cz.button_color, darkText = /^#[0-9a-f]{3,8}$/i.test(ink || '') ? ink : '#1a1a1a';
+    const bText = _cr(darkText, bb) >= _cr('#FFFFFF', bb) ? darkText : '#FFFFFF';
+    r.setProperty("--cta-bg", bb); r.setProperty("--cta-border", bb); r.setProperty("--cta-text", bText);
+    r.setProperty("--cta-line", bb); r.setProperty("--cta-text-paper", bText); r.setProperty("--cta-border-paper", bb); r.setProperty("--cta-line-paper", bb);
+  }
   const lk = REGISTRY_LOOK[found.alias] || null;
   if (lk) {
     const pBg = lookColour(cz, lk.bg, lk.dBg) || accent;
