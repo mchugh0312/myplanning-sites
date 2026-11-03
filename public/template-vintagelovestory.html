@@ -380,7 +380,7 @@ body.hydrating{visibility:hidden;}
 .story-body:has(> .story-col:empty) .story-col{max-width:560px;margin:0 auto;}
 .story-col{
   font-family:var(--body-font, var(--sans)); /* Stack Sans Headline, as in the design, following Body Text (owner, 11/02 - the story is body text) */
-  font-size:1.15rem;
+  font-size:0.82rem; /* the same size as every other section's body text (owner, 11/02) */
   color:var(--on-dark);
   line-height:1.55;
   font-weight:400;
@@ -504,7 +504,7 @@ body.hydrating{visibility:hidden;}
 .travel-note{
   font-family:var(--sans);
   font-style:italic;
-  font-size:0.78rem;
+  font-size:0.82rem;
   color:var(--ink3);
   margin-top:1.6rem;
 }
@@ -612,7 +612,7 @@ body.hydrating{visibility:hidden;}
 .registry-info{
   margin-top:1.2rem;
   font-family:var(--sans);
-  font-size:0.78rem;
+  font-size:0.82rem;
   color:rgba(255,253,245,0.75);
   font-style:italic;
 }
@@ -625,7 +625,7 @@ body.hydrating{visibility:hidden;}
 }
 .rsvp-deadline{
   font-family:var(--sans);
-  font-size:0.92rem;
+  font-size:0.82rem;
   color:var(--ink);
   margin-bottom:1.6rem;
   font-weight:400;
@@ -1061,10 +1061,10 @@ footer{
   .story-grid,.events-grid,.travel-grid,.wedding-grid{
     grid-template-columns:1fr;gap:1.8rem;
   }
-  .story-photos{grid-template-columns:repeat(3,1fr);gap:0.5rem;}
+  .story-photos{grid-template-columns:repeat(2,1fr);gap:0.5rem;}   /* two, as at 768px - three here put the first two photos in a third of the width each, between 401px and 640px (owner, 11/02) */
 
   .event-name,.travel-col-title{font-size:1.1rem;}
-  .event-detail,.travel-item{font-size:0.86rem;line-height:1.7;}
+  .event-detail,.travel-item{font-size:0.82rem;line-height:1.7;}
 
   /* Registry band and its lace corners */
   .registry-section{padding:2.6rem 1.1rem;}
@@ -1208,7 +1208,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:ea2defe4';
+    window.__mpTemplate = 'vintagelovestory:2e4a8cca';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

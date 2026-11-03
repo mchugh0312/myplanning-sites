@@ -1158,6 +1158,18 @@ body.thumbnail-mode .home-block{min-height:0;}
   .itinerary-grid{display:flex;flex-wrap:wrap;justify-content:center;}
   .itinerary-grid > .itinerary-event{box-sizing:border-box;min-width:0;flex:0 0 calc((100% - 2 * 3.4rem) / 3);max-width:calc((100% - 2 * 3.4rem) / 3);}
 }
+
+/* Body text is ONE size in every section (owner, 11/02) - the size most of this
+   design's body text already uses. The story was larger here; the registry note
+   and others smaller. Written to outrank the sections' own rules, but not the
+   Body Text size setting, which the runtime applies on the element itself. */
+html body #storyText, html body #heroDescription, html body .story-text, html body .story-col, html body #registryInfo, html body #registryBody, html body .registry-info, html body .registry-body, html body .rsvp-deadline, html body .faq-answer, html body .event-detail, html body .travel-item, html body .travel-item-meta, html body .wedding-col-meta{ font-size:0.9rem; }
+
+/* The registry rule (owner, 11/02): the decoration frames the HEADING only; the
+   couple's note sits BELOW it, then the gifts - as on every design. Outside the
+   flower card now, so it takes the page's own text colour. */
+.registry-wrap > .registry-info{ display:block; text-align:center; color:var(--ink); max-width:560px; margin:1.1rem auto 0; padding:0 1.5rem; box-sizing:border-box; }
+.registry-wrap > .registry-info:empty{ display:none; }
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1183,7 +1195,7 @@ body.thumbnail-mode .home-block{min-height:0;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'whimsicalromance:7d9f235a';
+    window.__mpTemplate = 'whimsicalromance:3af6ff4b';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
@@ -1458,11 +1470,11 @@ body.thumbnail-mode .home-block{min-height:0;}
       src="https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/d522a767-03e5-4559-a323-153bd7c5606c.png" alt="">
     <div class="registry-overlay">
       <h2 class="registry-title">Check out our registry!</h2>
-      <!-- MP-907: the note, then the button - the order on every design. -->
-      <div class="registry-info" id="registryInfo"></div>
       <span class="registry-cta" id="registryCta">View Our Registry</span>
     </div>
   </a>
+  <!-- The note below the card, not inside it (owner, 11/02). -->
+  <div class="registry-info" id="registryInfo"></div>
 </div>
 
 <!-- RSVP -->

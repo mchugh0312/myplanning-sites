@@ -503,6 +503,42 @@ Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
   sandbox, Golden Hour included), and the carousel stays mounted once opened,
   so returning from Design / Content shows it at once.
 
+**Body text sizes; Vintage photos - build `2026-11-02-body-sizes`** (owner, 11/02)
+- Body Text SIZE reached only a guessed list of element kinds (p, li,
+  -answer/-detail/-address): on Vintage it missed the story, event details,
+  travel and registry note. It now reaches every piece of text drawn in the
+  Body Text face (headings, menus, buttons, names excluded), each scaled from its
+  own measured size. Verified: all body text grows at Large on Vintage, Regal
+  Boho, Golden Hour, Heirloom Bloom, Coastal Chic.
+- Vintage body text one size everywhere: story 1.15rem, registry note 0.78rem,
+  RSVP note 0.92rem, travel note 0.78rem, phone travel 0.86rem -> 0.82rem (13.1px).
+  OPEN (owner): other designs set the story larger (Regal Boho 15.2 vs 13-14px,
+  Golden Hour 16.3 vs 13, Heirloom Bloom 18.4 vs 16.8, Coastal Chic 16.3 vs 13-14).
+- Vintage story photos: a <=640px rule switched the grid back to three columns
+  while the third photo still spanned its own row - between 401px and 640px (the
+  template card, and many phones) the first two sat in a third of the width.
+  Two across up to 768px now; equal at 360/390/430/552/700px.
+
+**Body text one size everywhere; Sage story face - build `2026-11-02-even-body`** (owner, 11/02)
+Every design's content-box body text (story, event details, travel, FAQ answers,
+registry note, RSVP note) is now ONE size - the size most of that design's body
+text already uses, measured by amount of text: Black Tie 1rem, Coastal Chic
+0.84rem, Golden Hour 0.82rem, Heirloom Bloom 1.05rem, Modern Minimal 0.9rem,
+Pressed Petals 1rem, Regal Boho 0.88rem, Sage & Still 0.95rem, Whimsical Romance
+0.9rem (Vintage done earlier, 0.82rem). One rule per design, `html body ...`, so
+it outranks the sections' own rules but not the runtime's inline Size choice
+(verified: all body text grows together at Large). Pressed Petals' registry note
+carried an inline 0.88rem - removed. Sage & Still: story, travel card names and
+RSVP note moved from Ovo to Body Text's face (DM Sans); its section order was
+already Our Story first. Re-select test: all ten identical.
+
+**Registry note below the decoration everywhere (owner, 11/02)** - Whimsical
+Romance's flower card and Sage & Still's background panel held the heading AND the
+note; the note now sits below each (in the page's text colour), then the gifts -
+the same order as every design. Sage & Still got a .registry-wrap around panel +
+note (so the runtime's gift band follows the note) and hides the wrapper with the
+section. Map unchanged.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

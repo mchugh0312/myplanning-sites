@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-vintage-pass');
+  check('the stamp names the change it shipped with', version, '2026-11-02-even-body');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'ca2cd4e8');
+    ('0000000' + bh.toString(16)).slice(-8), '76cc4708');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -10309,8 +10309,7 @@ check('two blocks -> two cards', blocks(mark(
     /MP-907\. A COLUMN/.test(fs.readFileSync('template-heirloombloom.html', 'utf8')), true);
   check('MP-907 Regal Boho: heading, note, button',
     /<h2 class="registry-title">Wedding Registry<\/h2>\s*\n\s*<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<a class="registry-section"/.test(fs.readFileSync('template-regalboho.html', 'utf8')), true);
-  check('MP-907 Whimsical Romance: note before button',
-    /<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<span class="registry-cta" id="registryCta">/.test(fs.readFileSync('template-whimsicalromance.html', 'utf8')), true);
+  /* (superseded 11/02: the note now sits below the whole card, and the card's button is hidden in favour of the heading link - see 'note sits below its flower card') */
   check('MP-907 Vintage Love Story: note before button',
     /<div class="registry-info" id="registryInfo"><\/div>\s*\n\s*<a class="registry-section" id="registry-section"/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
   check('the heading is found past the note (up to three back, title blocks only)',
@@ -10556,6 +10555,42 @@ check('two blocks -> two cards', blocks(mark(
   check('the Templates carousel stays mounted once opened', /\(activeTab === "templates" \|\| _templatesVisited\.current\) && \(/.test(ws), true);
   check('a template card does not wait for its hero photograph', /if \(new URLSearchParams\(location\.search\)\.get\('thumbnail'\) === '1'\) \{ _dumpHeroTrace\('thumbnail: no wait'\); reveal\(\); return; \}/.test(rt), true);
   check('the preview reports the design\'s own button colour', /buttonBg: \(function \(\) \{ try \{ return _designButtonBg\(\); \}/.test(rt), true);
+}
+
+
+// ── Body Text size reaches all body text; Vintage sizes and photos (11/02) ─
+{
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  const vl = fs.readFileSync('template-vintagelovestory.html', 'utf8');
+  check('Body Text size reaches every piece of text drawn in the body face',
+    /if \(!faces\[faceOf\(getComputedStyle\(el\)\.fontFamily\)\]\) continue;/.test(rt) && /return listed\.concat\(seen\);/.test(rt), true);
+  check('Vintage\'s body text is one size in every section',
+    /\.story-col\{[^}]*font-size:0\.82rem;/.test(vl) && /\.registry-info\{[^}]*font-size:0\.82rem/.test(vl) && /\.rsvp-deadline\{[^}]*font-size:0\.82rem/.test(vl), true);
+  check('Vintage\'s story photos stay two across up to 768px (no three-column rule at 640px)',
+    /\.story-photos\{grid-template-columns:repeat\(2,1fr\);gap:0\.5rem;\}/.test(vl) && !/\.story-photos\{grid-template-columns:repeat\(3,1fr\);gap:0\.5rem;\}/.test(vl), true);
+}
+
+
+// ── Body text one size in every section, all ten; Sage story face (11/02) ─
+{
+  const T = ['blacktietimeless','coastalchic','goldenhour','heirloombloom','modernminimal','pressedpetals','regalboho','sageandstill','whimsicalromance'];
+  const missing = T.filter(t => !/Body text is ONE size in every section \(owner, 11\/02\)/.test(fs.readFileSync('template-' + t + '.html', 'utf8')));
+  check('every design sets its body text to one size in every section', missing.join(','), '');
+  check('Pressed Petals\' registry note takes its size from the stylesheet', /<div id="registryInfo" style="font-family:var\(--serif\);color:/.test(fs.readFileSync('template-pressedpetals.html', 'utf8')), true);
+  const sg = fs.readFileSync('template-sageandstill.html', 'utf8');
+  check('Sage & Still\'s story, travel names and RSVP note are in Body Text\'s face', !/font-family:var\(--body-font, var\(--sub\)\);/.test(sg) && (sg.match(/font-family:var\(--body-font, var\(--body\)\);/g) || []).length >= 3, true);
+}
+
+
+// ── Registry note below the decoration on every design (owner, 11/02) ────
+{
+  const wr = fs.readFileSync('template-whimsicalromance.html', 'utf8');
+  const sg = fs.readFileSync('template-sageandstill.html', 'utf8');
+  check('Whimsical Romance\'s note sits below its flower card',
+    /<\/a>\s*\n\s*<!-- The note below the card, not inside it \(owner, 11\/02\)\. -->\s*\n\s*<div class="registry-info" id="registryInfo"><\/div>\s*\n<\/div>/.test(wr), true);
+  check('Sage & Still\'s note sits below its panel, inside a wrapper hidden with the section',
+    /<\/a>\s*\n<!-- The note below the panel, not on it \(owner, 11\/02\)\. -->\s*\n<div class="registry-info" id="registryInfo"><\/div>\s*\n<\/div>/.test(sg) &&
+    /if \(registryWrap\) registryWrap\.style\.display = menu\.registry \? '' : 'none';/.test(sg), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

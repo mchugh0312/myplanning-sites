@@ -4341,7 +4341,31 @@
       return document.querySelectorAll(
         'h1, h2, h3, [class*="-title"], [class*="Title"], .oval-title');
     }
-    return document.querySelectorAll('p, li, .story-body, [class*="-answer"], [class*="-detail"], [class*="-address"]');
+    /* Body: every piece of text DRAWN IN the Body Text face - not a guessed list
+       of element kinds, which missed most of Vintage Love Story's body text (its
+       story, event details, travel and registry note did not move with Size).
+       The same principle as the face itself: Body Text sizes exactly the text in
+       its font. Headings, menus, buttons and the couple's names keep their own. */
+    var listed = Array.prototype.slice.call(document.querySelectorAll('p, li, .story-body, [class*="-answer"], [class*="-detail"], [class*="-address"]'));
+    try {
+      var cs = getComputedStyle(document.documentElement);
+      var faceOf = function (stack) { return String(stack || '').split(',')[0].replace(/["']/g, '').trim().toLowerCase(); };
+      var faces = {};
+      var bv = (CFG.bodyVar || '--body'); faces[faceOf(cs.getPropertyValue(bv))] = 1;
+      faces[faceOf(cs.getPropertyValue('--body-font'))] = 1;
+      delete faces[''];
+      var skip = 'h1, h2, h3, h4, [class*="-title"], [class*="Title"], .oval-title, nav, .top-nav, .menu-drawer, .mp-mnav-panel, button, .travel-cta, [data-mp-btnbg], script, style';
+      var tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n, seen = [];
+      while ((n = tw.nextNode())) {
+        if (!n.textContent.trim()) continue;
+        var el = n.parentElement;
+        if (!el || seen.indexOf(el) > -1 || listed.indexOf(el) > -1) continue;
+        if (el.closest(skip) || _isNamesEl(el) || (el.closest && _namesEls().some(function (x) { return x.contains(el); }))) continue;
+        if (!faces[faceOf(getComputedStyle(el).fontFamily)]) continue;
+        seen.push(el);
+      }
+      return listed.concat(seen);
+    } catch (e) { return listed; }
   }
 
   var _fontScaleTimer = null;
@@ -8396,7 +8420,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-vintage-pass';
+  var MP_RUNTIME_BUILD = '2026-11-02-even-body';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 

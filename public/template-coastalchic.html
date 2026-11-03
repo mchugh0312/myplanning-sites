@@ -1090,6 +1090,12 @@ body.thumbnail-mode{scroll-behavior:auto;}
    names and the couple's names already use (--script) - so the default looks
    like what the panel says, and re-choosing it changes nothing. Never the body
    face: Body Text used to move them while no heading font was set. */
+
+/* Body text is ONE size in every section (owner, 11/02) - the size most of this
+   design's body text already uses. The story was larger here; the registry note
+   and others smaller. Written to outrank the sections' own rules, but not the
+   Body Text size setting, which the runtime applies on the element itself. */
+html body #storyText, html body #heroDescription, html body .story-text, html body .story-col, html body #registryInfo, html body #registryBody, html body .registry-info, html body .registry-body, html body .rsvp-deadline, html body .faq-answer, html body .event-detail, html body .travel-item, html body .travel-item-meta, html body .wedding-col-meta{ font-size:0.84rem; }
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1115,7 +1121,7 @@ body.thumbnail-mode{scroll-behavior:auto;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'coastalchic:a4d32e29';
+    window.__mpTemplate = 'coastalchic:63b719ee';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"
