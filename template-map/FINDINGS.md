@@ -488,6 +488,21 @@ Owner's main.py (endpoint now plain def) and live_registry.html used as-is.
 - Map: Section Headings no longer moves the names on any design (names pinned
   every draw now) - the Couple Names rule, measured.
 
+**Vintage pass (owner, 11/02) - build `2026-11-02-vintage-pass`**
+- Story: Stack Sans Headline, following Body Text (the design draws it in the
+  body face; last round's "follows Section Headings" was wrong for the owner's
+  expectation). Re-select test identical.
+- Registry lace: frames the HEADING - top-left and bottom-right corners of a
+  block that hugs the oval - then the note, then the gifts. The earlier band
+  lace (#mp-reg-band::after) and the rule hiding the heading's br lace removed;
+  the lines either side of the registry heading hidden.
+- Button Background row shows the design's own colour: the preview reports it
+  (a gift button's fill or, outlined, its ground - Vintage #513229, Pressed
+  Petals white, Regal Boho ivory, Coastal Chic navy).
+- Template cards: no wait for the hero photograph (0.3s for all ten in the
+  sandbox, Golden Hour included), and the carousel stays mounted once opened,
+  so returning from Design / Content shows it at once.
+
 (The notes below are the history of how each item was found and fixed.)
 
 

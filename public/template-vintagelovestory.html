@@ -379,7 +379,7 @@ body.hydrating{visibility:hidden;}
 .story-body:has(> .story-col:empty){grid-template-columns:1fr;}
 .story-body:has(> .story-col:empty) .story-col{max-width:560px;margin:0 auto;}
 .story-col{
-  font-family:var(--heading-font, var(--display)); /* drawn in the headings face, so it follows Section Headings - one face per Fonts setting (owner, 11/02) */
+  font-family:var(--body-font, var(--sans)); /* Stack Sans Headline, as in the design, following Body Text (owner, 11/02 - the story is body text) */
   font-size:1.15rem;
   color:var(--on-dark);
   line-height:1.55;
@@ -1167,23 +1167,22 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
       and the pair no longer mirrored. The gifts sit above it. */
 .registry-info{position:relative;z-index:2;max-width:min(620px, calc(100% - 2 * clamp(150px, 20vw, 260px) + 120px));
   margin-left:auto;margin-right:auto;}
-.registry-wrap.mp-reg-has-band .registry-lace.br{display:none;}
-.registry-wrap.mp-reg-has-band + #mp-reg-band{position:relative;overflow:hidden;}
-.registry-wrap.mp-reg-has-band + #mp-reg-band > *{position:relative;z-index:2;}
-.registry-wrap.mp-reg-has-band + #mp-reg-band::after{content:"";position:absolute;bottom:0;right:0;z-index:1;
-  width:clamp(150px, 20vw, 260px);height:clamp(150px, 20vw, 260px);pointer-events:none;
-  background-image:url('https://assets.softr-files.com/applications/98da9671-14f5-418f-b98a-6f8fb833401f/assets/c959ff7c-5abe-4e83-b2e9-324699cdb3e4.svg');
-  background-repeat:no-repeat;background-size:200% auto;background-position:left top;
-  transform:rotate(180deg);filter:brightness(0) invert(1) opacity(0.85);}
 @media(max-width:768px){
   .registry-info{max-width:calc(100% - 2rem);}
-  .registry-wrap.mp-reg-has-band + #mp-reg-band::after{width:clamp(96px,26vw,150px);height:clamp(96px,26vw,150px);}
 }
 
 /* MP-1003: the registry heading sits on the dark band, so it takes Text2 - the
    couple's colour for text on dark backgrounds - like the band's other words. */
 .registry-wrap .registry-title-wrap{ color:var(--on-dark); width:100%; position:relative; z-index:3; margin:0 auto 1.6rem; }
 .registry-wrap .registry-title{ margin:0; font-weight:400; color:var(--on-dark); }
+
+/* The registry rule (owner, 11/02): the design's motifs frame the HEADING - the
+   lace at its top-left and bottom-right corners - then the couple's note, then
+   the gifts. The heading block hugs the oval with room for the corners; no
+   lines either side of it here; the band no longer carries a lace of its own. */
+.registry-wrap .registry-title-wrap{ width:fit-content; max-width:100%; margin:0 auto 1.4rem; padding:clamp(34px,4.5vw,58px) clamp(58px,7.5vw,104px); box-sizing:border-box; }
+.registry-wrap .registry-title-wrap .oval-title-line{ display:none; }
+.registry-wrap .registry-title-wrap .registry-lace{ width:clamp(56px,7vw,100px); height:clamp(56px,7vw,100px); }
 </style>
 <script>
 /* Live visits arrive with ?slug= or a slug in the path. Without this the
@@ -1209,7 +1208,7 @@ body.thumbnail-mode .hero{padding:1.5rem 1rem;}
        So the file says so itself. marker-test recomputes this from the file -
        every byte of it except this line - and fails if the two disagree, so it
        cannot be forgotten after an edit. */
-    window.__mpTemplate = 'vintagelovestory:efbd8809';
+    window.__mpTemplate = 'vintagelovestory:ea2defe4';
 
     /* When the cover went up and what took it down, for the same reason: a
        console reading taken during a slow load cannot tell "not installed yet"

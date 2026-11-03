@@ -3567,7 +3567,11 @@
         rsvpLine: _rsvpLine, registryGrid: _hasGifts,
         labelStyle: _labelStyle, titleStyle: _titleStyle,
         questionStyle: _questionStyle,
-        boxStyles: (function () { try { return _boxStyles(d); } catch (e) { return {}; } })()
+        boxStyles: (function () { try { return _boxStyles(d); } catch (e) { return {}; } })(),
+        /* The design's own button colour, for the Button Background row: the
+           first site button's fill - or, outlined, the ground it sits on, which
+           is the colour a couple sees. Read while no couple colour is applied. */
+        buttonBg: (function () { try { return _designButtonBg(); } catch (e) { return ''; } })()
       }, '*');
       /* MP-970. Once more when every font has settled. Sent while a design's
          first-choice face was still LOADING, the report named it - Modern
@@ -7994,6 +7998,10 @@
   }
 
   function revealWhenHeroReady() {
+    /* A template card is shown at once: its photo fills in when it arrives. It
+       waited for the hero photograph (up to 2.5s) like the live site does - the
+       other half of why the cards were slower than the preview (owner, 11/02). */
+    try { if (new URLSearchParams(location.search).get('thumbnail') === '1') { _dumpHeroTrace('thumbnail: no wait'); reveal(); return; } } catch (e) {}
     var sources = _heroSources();
     if (!sources.length) { _dumpHeroTrace('no sources to wait for'); reveal(); return; }
 
@@ -8388,7 +8396,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-buttons';
+  var MP_RUNTIME_BUILD = '2026-11-02-vintage-pass';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
@@ -8904,6 +8912,23 @@
         el.setAttribute('data-mp-btnbg', '1');
       });
     } catch (e) {}
+  }
+
+  var _designButtonBgSeen = '';
+  window.__mpDesignButtonBg = function () { return _designButtonBg(); };   // diagnostics
+  function _designButtonBg() {
+    if (_buttonBg && _designButtonBgSeen) return _designButtonBgSeen;
+    var all = Array.prototype.filter.call(document.querySelectorAll('a, button, input[type=submit], .travel-cta'), function (e) { return _isButton(e) && e.getClientRects().length && !e.getAttribute('data-mp-btnbg'); });
+    /* Gift buttons first, then RSVP, then any: buttons sit on different grounds,
+       and these are the ones a couple thinks of as "the buttons". */
+    var el = all.filter(function (e) { return e.closest('#registryGrid, .registry-card'); })[0] || all.filter(function (e) { return e.closest('#rsvp, .rsvp-section'); })[0] || all[0];
+    if (!el) return _designButtonBgSeen;
+    var toHex = function (c) { var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/.exec(c || ''); if (!m || (m[4] !== undefined && +m[4] === 0)) return '';
+      return '#' + [m[1], m[2], m[3]].map(function (x) { return ('0' + (+x).toString(16)).slice(-2); }).join(''); };
+    var hex = '';
+    for (var a = el; a && !hex; a = a.parentElement) hex = toHex(getComputedStyle(a).backgroundColor);
+    _designButtonBgSeen = hex || '#ffffff';
+    return _designButtonBgSeen;
   }
 
   function hydrate(d) {

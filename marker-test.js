@@ -4704,7 +4704,7 @@ check('two blocks -> two cards', blocks(mark(
   let h = 5381;
   for (let i = 0; i < body.length; i++) h = ((h * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the block has moved since',
-    ('0000000' + h.toString(16)).slice(-8), '681a6cfd');
+    ('0000000' + h.toString(16)).slice(-8), '6aad45a5');
 }
 
 // ── Nothing the editor stores is injected as CSS ─────────────────────────
@@ -7424,7 +7424,7 @@ check('two blocks -> two cards', blocks(mark(
   check('the stamp is logged on every surface',
     /console\.log\('\[mp-runtime\] build/.test(stamp) && !/_isPreview/.test(stamp), true);
   const version = (rt.match(/var MP_RUNTIME_BUILD = '([\w.-]+)';/) || [])[1];
-  check('the stamp names the change it shipped with', version, '2026-11-02-buttons');
+  check('the stamp names the change it shipped with', version, '2026-11-02-vintage-pass');
   /* Any edit to the runtime is a different build, so the hash covers all of it
      bar the stamp line. Two runtimes once shipped under one name because this
      watched only two functions and the change landed outside them. */
@@ -7432,7 +7432,7 @@ check('two blocks -> two cards', blocks(mark(
   let bh = 5381;
   for (let i = 0; i < body.length; i++) bh = ((bh * 33) ^ body.charCodeAt(i)) >>> 0;
   check('and nothing in the runtime has moved since',
-    ('0000000' + bh.toString(16)).slice(-8), 'f2e98c05');
+    ('0000000' + bh.toString(16)).slice(-8), 'ca2cd4e8');
 
   /* The runtime REPORTS the declared value and computes nothing. */
   const fpFn = rt.slice(rt.indexOf('function _templateFingerprint'),
@@ -9614,9 +9614,12 @@ check('two blocks -> two cards', blocks(mark(
   const vls = fs.readFileSync('template-vintagelovestory.html', 'utf8');
   check('the registry text keeps to the middle, clear of the lace corners',
     /\.registry-info\{position:relative;z-index:2;max-width:min\(620px,/.test(vls), true);
-  check('with gifts showing, the bottom-right lace closes the gift band',
-    /\.registry-wrap\.mp-reg-has-band \.registry-lace\.br\{display:none;\}/.test(vls) &&
-    /\.registry-wrap\.mp-reg-has-band \+ #mp-reg-band::after\{/.test(vls), true);
+  /* Superseded (owner, 11/02): the lace frames the HEADING - top-left and
+     bottom-right corners - then the note, then the gifts; the band carries none. */
+  check('Vintage\'s lace frames the registry heading, not the gift band',
+    !/#mp-reg-band::after\{/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
+    /\.registry-wrap \.registry-title-wrap\{ width:fit-content;/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')) &&
+    /\.registry-wrap \.registry-title-wrap \.oval-title-line\{ display:none; \}/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
 }
 
 
@@ -10482,7 +10485,8 @@ check('two blocks -> two cards', blocks(mark(
 // ── One face per Fonts setting; consistent template-card samples (11/02) ──
 {
   const vl = fs.readFileSync('template-vintagelovestory.html', 'utf8');
-  check('Vintage Love Story\'s story follows Section Headings', /\.story-col\{[^}]*font-family:var\(--heading-font, var\(--display\)\)/.test(vl), true);
+  /* (owner, 11/02, again) the story is body text, in Stack Sans Headline as designed */
+  check('Vintage Love Story\'s story follows Body Text, in Stack Sans Headline', /\.story-col\{[^}]*font-family:var\(--body-font, var\(--sans\)\)/.test(vl), true);
   check('no phone-only menu face on Vintage, Regal Boho or Sage & Still',
     ['vintagelovestory', 'regalboho', 'sageandstill'].every(t => !/@media\s*\(max-width:\s*768px\)[\s\S]{0,20000}?--menu-font\s*:\s*var\(--(display|body)\)\s*;/.test(fs.readFileSync('template-' + t + '.html', 'utf8'))), true);
   check('Black Tie names Sorts Mill Goudy by its real name', !/'Goudy'/.test(fs.readFileSync('template-blacktietimeless.html', 'utf8')), true);
@@ -10534,7 +10538,7 @@ check('two blocks -> two cards', blocks(mark(
   const reg = fs.readFileSync('live_registry.html', 'utf8');
   const py = fs.readFileSync('main.py', 'utf8');
   check('the Colors panel has Button Background ("Template\'s own" until chosen)',
-    /button:\s+\{ label: "Button Background"/.test(ws) && /Template's own<\/span>/.test(ws) && /button_color: _extractVarColor\(d\.customCss \|\| '', 'button'\)/.test(ws), true);
+    /button:\s+\{ label: "Button Background"/.test(ws) && /Template's own\{t\.dflt \? " \(" \+ t\.dflt \+ "\)" : ""\}<\/span>/.test(ws) && /dflt: _liveButtonBg, own: true/.test(ws) && /button_color: _extractVarColor\(d\.customCss \|\| '', 'button'\)/.test(ws), true);
   check('the runtime colours the site\'s buttons, never menu links', /function _applyButtonColour\(scope\)/.test(rt) && /el\.closest\('nav, \.top-nav, \.mp-mnav-panel/.test(rt), true);
   check('the backend passes the button colour to the registry page', /"button_color":\s+\(lambda _m:/.test(py), true);
   check('the registry page fills its buttons with it', /if \(cz\.button_color && \/\^#\[0-9a-f\]\{3,8\}\$\/i\.test\(cz\.button_color\)\)/.test(reg), true);
@@ -10542,6 +10546,16 @@ check('two blocks -> two cards', blocks(mark(
   check('Vintage hides its travel divider on a phone only',
     /\.travel-divider\{display:none;\}/.test(fs.readFileSync('template-vintagelovestory.html', 'utf8')), true);
   check('the template card in view and its neighbours load at once', /loading=\{near \? "eager" : "lazy"\}/.test(ws), true);
+}
+
+
+// ── Template cards fast, and kept across tabs; design button colour (11/02) ─
+{
+  const ws = fs.readFileSync('Website.txt', 'utf8');
+  const rt = fs.readFileSync('site-runtime.js', 'utf8');
+  check('the Templates carousel stays mounted once opened', /\(activeTab === "templates" \|\| _templatesVisited\.current\) && \(/.test(ws), true);
+  check('a template card does not wait for its hero photograph', /if \(new URLSearchParams\(location\.search\)\.get\('thumbnail'\) === '1'\) \{ _dumpHeroTrace\('thumbnail: no wait'\); reveal\(\); return; \}/.test(rt), true);
+  check('the preview reports the design\'s own button colour', /buttonBg: \(function \(\) \{ try \{ return _designButtonBg\(\); \}/.test(rt), true);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
