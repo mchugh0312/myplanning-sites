@@ -8420,7 +8420,7 @@
 
      Logged unconditionally, not only in preview: the live site is where a
      stale deploy is hardest to spot. */
-  var MP_RUNTIME_BUILD = '2026-11-02-even-body';
+  var MP_RUNTIME_BUILD = '2026-11-03-plain-starter';
 
   /* WHICH TEMPLATE FILE IS ACTUALLY DEPLOYED.
 
