@@ -1506,7 +1506,9 @@ function buildThings(){
       image: e.image_url||EXPERIENCE_BG,
       amount: Number(e.cost_cents)||0, received:Number(e.amount_received_cents)||0,
       location:e.location||"", fcat:"",
-      mostWanted:false, group:false, sort:e.sort_order==null?9999:e.sort_order,
+      /* MP-1019. Experiences can be Couple Preferred too: the same label, and
+         the same "Our favorites" filter, as gifts and cash funds. */
+      mostWanted:!!e.is_most_wanted, group:false, sort:e.sort_order==null?9999:e.sort_order,
       hiddenFromGuests:!!e.hidden_from_guests,
     });
   });
