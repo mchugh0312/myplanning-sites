@@ -139,9 +139,12 @@
   .badges{position:absolute;top:10px;left:10px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:4px;pointer-events:none}
   .badge{font-family:"Open Sans",sans-serif;font-size:10px;font-weight:600;letter-spacing:.02em;color:var(--ink);background:rgba(255,255,255,.92);border-radius:999px;padding:4px 10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
   .badge.want{background:rgba(255,255,255,.92);color:var(--olive)}
-  .badge.group{background:rgba(255,255,255,.92);color:var(--muted)}
-  .badge.exp{background:rgba(255,255,255,.92);color:var(--muted)}
+  /* MP-1036: the page's ink rather than its muted grey, which read as faded
+     next to the old Couple Preferred pill. */
+  .badge.group{background:rgba(255,255,255,.92);color:var(--ink)}
+  .badge.exp{background:rgba(255,255,255,.92);color:var(--ink)}
   .badge.hidden{background:#FBF1D9;color:#7A5A12}
+  .price.fund-any{font-family:"Open Sans",sans-serif;font-size:12.5px;color:var(--muted)}
   .card .body{text-align:center;margin-top:9px;padding:0 12px}
   .card .src{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
   .card .ttl{font-size:13px;color:var(--ink);line-height:1.3;margin-bottom:3px;min-height:34px}
@@ -701,6 +704,40 @@
   .qf-line2 .qf-count{display:none;}
 }
 @media(max-width:360px){ .qf-fav{padding:0 8px;gap:4px;font-size:11px;} .qf-line .qf-line2{gap:6px;} }
+/* MP-979, again: the short label below 980px. Repeated HERE because the
+   unconditional ".fav-short{display:none}" above came later than the first
+   copy and won, so on a tablet both labels could be hidden at once. */
+@media(max-width:979px){ .fav-long{display:none;} .fav-short{display:inline;} }
+/* MP-1039. On a tablet the three dropdowns fill the first row, and the
+   favourites, count and sort were squeezed into a third of the second:
+   "36 gifts · preview" was cut off. They take the whole row there now. */
+@media(min-width:641px) and (max-width:979px){
+  .qf-line .qf-line2{grid-column:1 / -1;}
+  .qf-line2 .qf-count{margin-left:auto!important;flex:0 0 auto;overflow:visible;}
+}
+/* MP-1044. On a phone, applying a filter adds "Clear" to a half-width cell
+   that had no room for it, and the sort was pushed out. Clear becomes a
+   compact cross (its text stays for screen readers) and the sort keeps to
+   the right edge of its cell. */
+@media(max-width:640px){
+  .qf-line{gap:10px!important;}
+  .qf-line .qf-line2{gap:5px;}
+  .qf-line2 .qf-fav{padding:0 8px;}
+  .qf-line2 .chip.clear{font-size:0;width:30px;height:30px;padding:0;display:inline-flex;
+    align-items:center;justify-content:center;flex:0 0 auto;}
+  .qf-line2 .chip.clear::before{content:"\2715";font-size:12px;}
+  .qf-line2 .qf-sortwrap{margin-left:auto;}
+}
+@media(max-width:360px){ .qf-line{gap:8px!important;} .qf-line2 .chip.clear{width:28px;height:28px;} }
+/* The smallest phones (320px) have no room beside a dropdown at all: the
+   favourites, Clear and sort take a row of their own there. */
+@media(max-width:340px){ .qf-line .qf-line2{grid-column:1 / -1;} }
+/* Desktop, while filtered: the same row lost its count to the Clear chip. Its
+   column now sizes to what it holds; the three dropdowns share the rest. */
+@media(min-width:980px){
+  .qf-line{grid-template-columns:repeat(3,minmax(0,1fr)) auto;}
+  .qf-line2 .qf-count{flex:0 0 auto;overflow:visible;}
+}
 
 /* ── MP-052 ──────────────────────────────────────────────────────────────
    Mobile Safari and Firefox zoom the viewport when a focused control computes
@@ -1567,7 +1604,7 @@ function quickFiltersHtml(count){
     +     '<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2 0 3.5 1.1 5.4 3.2 1.9-2.1 3.4-3.2 5.4-3.2 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21z" fill="#A9BDC4" stroke="#A9BDC4" stroke-width="1.8"/></svg>'
     +     '<span class="fav-long">Our favorites</span><span class="fav-short">Favorites</span>'
     +   '</button>'
-    +   (active ? '<button class="chip clear" onclick="clearAllFilters()">Clear</button>' : '')
+    +   (active ? '<button class="chip clear" aria-label="Clear filters" onclick="clearAllFilters()">Clear</button>' : '')
     +   '<span class="qf-count">'+count+' '+(count===1?"gift":"gifts")+(state.preview?" · preview":"")+'</span>'
     +   '<span class="qf-sortwrap">'
     +     '<button class="qf-sort" aria-label="Sort" title="Sort" onclick="toggleSort(event)">'
@@ -1815,7 +1852,8 @@ function renderCard(t){
 
   // Top label, exactly as the design reads it.
   let badges="";
-  if(t.mostWanted) badges+='<span class="badge want">Couple Preferred</span>';
+  /* MP-1036. No "Couple Preferred" pill: the heart (top right) already says
+     the couple picked this, and the two side by side said it twice. */
   if(t.kind==="experience")   badges+='<span class="badge exp">Experience</span>';
   else if(t.kind==="fund")    badges+='<span class="badge group">Cash Fund</span>';
   /* MP-985. Only a preview receives these: cash funds and experiences are
@@ -1905,7 +1943,10 @@ function renderCard(t){
   const heartCls  = 'heart' + (t.mostWanted ? ' on' : '') + (state.preview && t.kind!=="experience" ? ' tap' : '');
   const heartClick = (state.preview && t.kind!=="experience")
     ? ' onclick="event.stopPropagation();toggleWanted(\''+t.id+'\')"' : '';
-  const heart = (t.kind!=="experience")
+  /* MP-1036: with the pill gone the heart is the only mark of the couple's
+     pick, so experiences (favourites since MP-1019) carry it too. In preview
+     it toggles gifts and funds only; experiences are toggled on the dashboard. */
+  const heart = (t.kind!=="experience" || t.mostWanted)
     ? '<div class="'+heartCls+'"'+heartClick+' title="'+(t.mostWanted?'Most wanted':'Mark as most wanted')+'">'
       + '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+heartFill+'" stroke="#A9BDC4" stroke-width="1.8">'
       + '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>'
@@ -1944,7 +1985,11 @@ function renderCard(t){
     +   '<div class="body">'+brandLine
     +     '<div class="ttl">'+esc(t.title)+'</div>'
     +     variantLine
-    +     (hidesAmount(t)?'':priceHtml(t.raw || t, "price", t.kind))
+    /* MP-1038. A fund with no goal to show (none set, or hidden) said nothing
+       at all; the "Any amount welcome" line was worked out and never printed. */
+    +     ((t.kind==="fund" && !isPurchased(t) && hidesAmount(t))
+            ? '<div class="price fund-any">Any amount welcome</div>'
+            : (hidesAmount(t)?'':priceHtml(t.raw || t, "price", t.kind)))
     +     note
     +   '</div>'
     +   prog
@@ -2748,7 +2793,11 @@ function openFund(id, direct){
   el("fund-modal").innerHTML =
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'fund\')">✕</button></div>'
     + '<div class="m-pad"><div class="m-sub">Cash fund</div><h3 class="serif">'+esc(it.title)+'</h3>'
-    +   '<div class="m-price">'+fmt(amount)+' <span style="font-size:13px;color:var(--muted);font-family:\'Open Sans\'">goal</span></div>'
+    /* MP-1038 / MP-1041. Printed "$0 goal" for a fund with none, and the goal
+       even when the couple had switched "Show Goal to Guests?" off. */
+    +   ((it.show_goal && amount > 0)
+          ? '<div class="m-price">'+fmt(amount)+' <span style="font-size:13px;color:var(--muted);font-family:\'Open Sans\'">goal</span></div>'
+          : '<div class="m-price" style="font-family:\'Open Sans\',sans-serif;font-size:14px;color:var(--muted)">Any amount welcome</div>')
     +   (distinctDescription(it.title, it.description)
           ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
@@ -2859,7 +2908,10 @@ function openExp(id, direct){
       '<div class="m-img">'+(img?'<img src="'+esc(img)+'" alt="" onerror="this.remove()">':"")+'<button class="m-close" onclick="closeModal(\'exp\')">✕</button></div>'
     + '<div class="m-pad"><div class="m-sub">Experience'+(exp.location?' · '+esc(exp.location):"")+'</div><h3 class="serif">'+esc(exp.title)+'</h3>'
     +   '<div class="m-price">'+fmt(cost)+'</div>'
-    +   (cost>0?'<div class="progress" style="margin:6px 0 4px"><i style="width:'+pct+'%"></i></div><div class="sub" style="color:var(--olive);font-size:12px;margin-bottom:4px">'+fmt(received)+' funded · '+fmt(remaining)+' to go</div>':"")
+    /* MP-1040. Marked funded by the couple, it still said "$0 funded · $110
+       to go" above "Fully funded, thank you!". A funded experience shows no
+       amounts; the note below says it. */
+    +   (cost>0 && !expIsFunded(exp)?'<div class="progress" style="margin:6px 0 4px"><i style="width:'+pct+'%"></i></div><div class="sub" style="color:var(--olive);font-size:12px;margin-bottom:4px">'+fmt(received)+' funded · '+fmt(remaining)+' to go</div>':"")
     +   (exp.description?'<p class="m-desc">'+esc(exp.description)+'</p>':"")
     +   (exp.hidden_from_guests
           ? contributeOffHtml() + hiddenFromGuestsHtml()
