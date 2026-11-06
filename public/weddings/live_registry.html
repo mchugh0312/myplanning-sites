@@ -1670,6 +1670,9 @@ function buyHref(itemId, rawUrl){
 }
 
 function isPurchased(t){
+  /* MP-1040. A cash fund the couple has closed counts as done: it drops out of
+     "Still needed", shows under "Purchased", and shows no amount. */
+  if(t.kind==="fund") return !!(t.raw && t.raw.fund_closed);
   if(t.kind!=="gift") return false;
   const req = (t.raw && t.raw.quantity_requested) || 1;
   const ful = (t.raw && (t.raw.quantity_purchased != null
@@ -1859,6 +1862,9 @@ function renderCard(t){
   /* MP-985. Only a preview receives these: cash funds and experiences are
      withheld from guests until a payout method is connected. */
   if(t.hiddenFromGuests)      badges+='<span class="badge hidden">Hidden from guests</span>';
+  /* MP-1040. A fund has no quantity, so the quantity labels below never meant
+     anything for it; closed is its only "done". */
+  else if(t.kind==="fund"){ if(isPurchased(t)) badges+='<span class="badge group">Fully funded</span>'; }
   else {
     const req=(t.raw&&t.raw.quantity_requested)||1;
     const ful=(t.raw&&(t.raw.quantity_purchased!=null?t.raw.quantity_purchased:t.raw.quantity_fulfilled))||0;
@@ -1907,6 +1913,9 @@ function renderCard(t){
               + '<input type="checkbox" data-purchase-check="'+t.id+'" onchange="openOffline(\''+t.id+'\', this)"> I Purchased This Item'
               + '</label>')
         + '</div>';
+  } else if(t.kind==="fund" && isPurchased(t)){
+    // MP-1040: closed by the couple. The same button a funded experience shows.
+    cta = '<div class="cta-row col"><button class="cta" disabled style="cursor:default;opacity:.75">Fully funded ✓</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else if(t.kind==="fund"){
     cta = '<div class="cta-row col"><button class="cta solid" onclick="event.stopPropagation();openFund(\''+t.id+'\', true)">Contribute</button><span class="ipurch spacer" aria-hidden="true"></span></div>';
   } else if(expIsFunded(t.raw)){
@@ -2795,14 +2804,20 @@ function openFund(id, direct){
     + '<div class="m-pad"><div class="m-sub">Cash fund</div><h3 class="serif">'+esc(it.title)+'</h3>'
     /* MP-1038 / MP-1041. Printed "$0 goal" for a fund with none, and the goal
        even when the couple had switched "Show Goal to Guests?" off. */
-    +   ((it.show_goal && amount > 0)
+    +   (it.fund_closed
+          ? '<div class="m-price" style="font-family:\'Open Sans\',sans-serif;font-size:14px;color:var(--olive)">Fully funded</div>'
+          : (it.show_goal && amount > 0)
           ? '<div class="m-price">'+fmt(amount)+' <span style="font-size:13px;color:var(--muted);font-family:\'Open Sans\'">goal</span></div>'
           : '<div class="m-price" style="font-family:\'Open Sans\',sans-serif;font-size:14px;color:var(--muted)">Any amount welcome</div>')
     +   (distinctDescription(it.title, it.description)
           ?'<p class="m-desc">'+esc(distinctDescription(it.title, it.description))+'</p>':"")
     +   (distinctNote(it.description, it.couple_note)
           ?'<div class="m-note">“'+esc(distinctNote(it.description, it.couple_note))+'”</div>':"")
-    +   (it.hidden_from_guests
+    /* MP-1040: closed by the couple. No Contribute at all, as on a funded
+       experience; checkout refuses it too, for a page opened before closing. */
+    +   (it.fund_closed
+          ? '<div class="hint">Fully funded, thank you! '+esc(coupleLabel())+' have closed this fund.</div>'
+          : it.hidden_from_guests
           ? contributeOffHtml() + hiddenFromGuestsHtml()
           : (stripeOk || (HANDLE_GIVING && anyHandle))
           ? contributeCtaHtml("fund", direct) + contributeBodyHtml("fund", body, direct)
